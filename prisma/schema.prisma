@@ -34,6 +34,8 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  createdProducts Product[] @relation("ProductCreatedBy")
+  updatedProducts Product[] @relation("ProductUpdatedBy")
 
   @@map("users")
 }
@@ -90,4 +92,56 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@map("verification")
+}
+
+model Product {
+  id                    String   @id @default(cuid())
+  nom                   String
+  reference             String   @unique
+  description           String?
+  
+  // Prix d'achat fournisseur (1, 2, 3 ans)
+  prixAchat1An          Float
+  prixAchat2Ans         Float?
+  prixAchat3Ans         Float?
+  
+  // Prix unitaire Moduloop (1, 2, 3 ans)
+  prixUnitaire1An       Float
+  prixUnitaire2Ans      Float?
+  prixUnitaire3Ans      Float?
+  
+  // Prix de vente total Moduloop (1, 2, 3 ans)
+  prixVente1An          Float
+  prixVente2Ans         Float?
+  prixVente3Ans         Float?
+  
+  // Marge appliquée (coefficient)
+  margeCoefficient      Float
+  
+  // Surface occupée (m²)
+  surfaceM2             Float
+  
+  // Impact environnemental
+  rechauffementClimatique Float  // kg eq. CO2
+  epuisementRessources    Float  // MJ
+  acidification           Float  // MOL H+
+  eutrophisation          Float  // kg P eq.
+  
+  // Quantité
+  quantite              Int
+  
+  // Image (base64)
+  image                 String?
+  
+  // Métadonnées
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  createdById           String
+  updatedById           String
+  
+  // Relations
+  createdBy User @relation("ProductCreatedBy", fields: [createdById], references: [id])
+  updatedBy User @relation("ProductUpdatedBy", fields: [updatedById], references: [id])
+  
+  @@map("products")
 }
