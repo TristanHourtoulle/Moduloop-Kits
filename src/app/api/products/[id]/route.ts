@@ -1,21 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { productUpdateSchema } from "@/lib/schemas/product";
 import { UserRole } from "@/lib/types/user";
+import { getProductById, prisma } from "@/lib/db";
+import { invalidateProducts, CACHE_CONFIG } from "@/lib/cache";
 
 interface UserWithRole {
   role?: UserRole;
 }
-
-// Utiliser une instance globale de Prisma pour éviter les problèmes de connexion
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-const prisma = globalForPrisma.prisma ?? new PrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 // GET /api/products/[id] - Récupérer un produit par ID
 export async function GET(
@@ -30,17 +22,9 @@ export async function GET(
     }
 
     const { id } = await params;
-    const product = await prisma.product.findUnique({
-      where: { id },
-      include: {
-        createdBy: {
-          select: { id: true, name: true, email: true },
-        },
-        updatedBy: {
-          select: { id: true, name: true, email: true },
-        },
-      },
-    });
+
+    // Use cached function for better performance
+    const product = await getProductById(id);
 
     if (!product) {
       return NextResponse.json(
@@ -49,7 +33,16 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(product);
+    // Configure cache headers for this response
+    const response = NextResponse.json(product);
+    response.headers.set(
+      "Cache-Control",
+      `public, s-maxage=${
+        CACHE_CONFIG.PRODUCTS.revalidate
+      }, stale-while-revalidate=${CACHE_CONFIG.PRODUCTS.revalidate * 2}`
+    );
+
+    return response;
   } catch (error) {
     console.error("Erreur lors de la récupération du produit:", error);
     return NextResponse.json(
@@ -136,6 +129,9 @@ export async function PUT(
       },
     });
 
+    // Invalider le cache des produits après modification
+    invalidateProducts();
+
     return NextResponse.json(updatedProduct);
   } catch (error) {
     console.error("Erreur lors de la mise à jour du produit:", error);
@@ -194,6 +190,9 @@ export async function DELETE(
     await prisma.product.delete({
       where: { id },
     });
+
+    // Invalider le cache des produits après suppression
+    invalidateProducts();
 
     return NextResponse.json({ message: "Produit supprimé avec succès" });
   } catch (error) {

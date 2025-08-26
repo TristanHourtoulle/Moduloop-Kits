@@ -25,6 +25,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  FolderOpen,
 } from "lucide-react";
 import { useState } from "react";
 import { useSession, signOut } from "@/lib/auth-client";
@@ -32,6 +33,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 const navigationItems = [
   { href: "/dashboard", label: "Tableau de bord", icon: Home },
+  { href: "/projects", label: "Projets", icon: FolderOpen },
   { href: "/kits", label: "Kits", icon: Package },
   { href: "/products", label: "Produits", icon: ShoppingCart },
   { href: "/profile", label: "Profil", icon: User },

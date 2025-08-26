@@ -1,21 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { productSchema, productFilterSchema } from "@/lib/schemas/product";
 import { UserRole } from "@/lib/types/user";
+import { prisma } from "@/lib/db";
+import { invalidateProducts, CACHE_CONFIG } from "@/lib/cache";
 
 interface UserWithRole {
   role?: UserRole;
 }
-
-// Utiliser une instance globale de Prisma pour éviter les problèmes de connexion
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-const prisma = globalForPrisma.prisma ?? new PrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 // GET /api/products - Liste des produits avec filtres
 export async function GET(request: NextRequest) {
@@ -103,7 +96,8 @@ export async function GET(request: NextRequest) {
 
     const totalPages = Math.ceil(total / filters.limit);
 
-    return NextResponse.json({
+    // Configure cache for this response
+    const response = NextResponse.json({
       products,
       pagination: {
         page: filters.page,
@@ -114,6 +108,16 @@ export async function GET(request: NextRequest) {
         hasPrev: filters.page > 1,
       },
     });
+
+    // Longer cache for products (change less frequently)
+    response.headers.set(
+      "Cache-Control",
+      `public, s-maxage=${
+        CACHE_CONFIG.PRODUCTS.revalidate
+      }, stale-while-revalidate=${CACHE_CONFIG.PRODUCTS.revalidate * 2}`
+    );
+
+    return response;
   } catch (error) {
     console.error("Erreur lors de la récupération des produits:", error);
     return NextResponse.json(
@@ -174,6 +178,9 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Invalider le cache des produits après création
+    invalidateProducts();
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {

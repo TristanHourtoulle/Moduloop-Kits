@@ -171,7 +171,7 @@ export default function ProductsPage() {
 
         <RoleGuard requiredRole={UserRole.DEV} showAlert={false}>
           <Link
-            href="/dashboard/products/nouveau"
+            href="/products/nouveau"
             className="cursor-pointer bg-[#30C1BD] hover:bg-[#30C1BD]/80 text-white flex items-center justify-center gap-2 py-2 px-4 rounded-full transition-all duration-300"
           >
             <Plus className="h-4 w-4 mr-2" />
