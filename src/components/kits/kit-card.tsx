@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Package2, Calendar, User, Calculator, Leaf } from "lucide-react";
 import Link from "next/link";
+import { useDialog } from "@/components/providers/dialog-provider";
 
 interface KitProduct {
   id: string;
@@ -68,9 +69,17 @@ export function KitCard({ kit }: KitCardProps) {
   };
 
   const { total1An, totalCO2 } = calculateTotals();
+  const { showConfirm, showError } = useDialog();
 
   const handleDelete = async () => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer ce kit ?")) {
+    const confirmed = await showConfirm(
+      "Supprimer le kit",
+      "Êtes-vous sûr de vouloir supprimer ce kit ? Cette action est irréversible.",
+      "Supprimer",
+      "Annuler"
+    );
+    
+    if (!confirmed) {
       return;
     }
 
@@ -87,101 +96,106 @@ export function KitCard({ kit }: KitCardProps) {
       window.location.reload();
     } catch (err) {
       console.error("Erreur:", err);
-      alert("Erreur lors de la suppression du kit");
+      await showError(
+        "Erreur", 
+        "Une erreur est survenue lors de la suppression du kit. Veuillez réessayer."
+      );
     }
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 border-2 hover:border-[#30C1BD]/30">
-      <CardHeader className="pb-3">
+    <Card className="group relative overflow-hidden">
+      <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[#30C1BD]/10">
-              <Package2 className="h-5 w-5 text-[#30C1BD]" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center">
+                <Package2 className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-xl font-semibold text-foreground">
+                  {kit.nom}
+                </CardTitle>
+                <Badge variant="secondary" className="mt-1 bg-primary/10 text-primary border-primary/20">
+                  {kit.style}
+                </Badge>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-[#30C1BD] transition-colors">
-                {kit.nom}
-              </CardTitle>
-              <Badge variant="secondary" className="mt-1">
-                {kit.style}
-              </Badge>
-            </div>
+            {kit.description && (
+              <CardDescription className="text-sm text-muted-foreground mt-3 line-clamp-2 max-w-sm">
+                {kit.description}
+              </CardDescription>
+            )}
           </div>
         </div>
-
-        {kit.description && (
-          <CardDescription className="text-sm text-gray-600 mt-2 line-clamp-2">
-            {kit.description}
-          </CardDescription>
-        )}
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        {/* Produits du kit */}
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Package2 className="h-4 w-4 text-gray-500" />
-            <span className="text-sm font-medium text-gray-700">
-              {kit.kitProducts.length} produit
-              {kit.kitProducts.length > 1 ? "s" : ""}
+      <CardContent className="space-y-6">
+        {/* Section produits */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+            <span className="text-sm font-medium text-foreground">
+              {kit.kitProducts.length} produit{kit.kitProducts.length > 1 ? "s" : ""}
             </span>
           </div>
-          <div className="space-y-1 max-h-20 overflow-y-auto">
+          <div className="space-y-2 max-h-24 overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
             {kit.kitProducts.map(({ product, quantite }) => (
               <div
                 key={product.id}
-                className="flex justify-between items-center text-xs text-gray-600"
+                className="flex justify-between items-center p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
               >
-                <span className="truncate">{product.nom}</span>
-                <span className="font-medium">×{quantite}</span>
+                <span className="text-sm text-foreground truncate pr-2">{product.nom}</span>
+                <Badge variant="outline" className="text-xs bg-background">×{quantite}</Badge>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Totaux */}
-        <div className="grid grid-cols-2 gap-4 p-3 bg-gray-50 rounded-lg">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Calculator className="h-3 w-3 text-[#30C1BD]" />
-              <span className="text-xs text-gray-600">Prix total</span>
+        {/* Section métriques */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Calculator className="h-4 w-4 text-primary" />
+              <span className="text-sm text-muted-foreground">Prix total</span>
             </div>
-            <p className="font-bold text-lg text-[#30C1BD]">
+            <p className="text-2xl font-bold text-primary">
               {total1An.toFixed(2)}€
             </p>
           </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-1 mb-1">
-              <Leaf className="h-3 w-3 text-green-600" />
-              <span className="text-xs text-gray-600">CO2</span>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Leaf className="h-4 w-4 text-emerald-600" />
+              <span className="text-sm text-muted-foreground">CO₂</span>
             </div>
-            <p className="font-semibold text-green-700">
+            <p className="text-2xl font-bold text-emerald-600">
               {totalCO2.toFixed(2)} kg
             </p>
           </div>
         </div>
 
-        {/* Métadonnées */}
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center gap-1">
-            <User className="h-3 w-3" />
-            <span>{kit.createdBy.name || kit.createdBy.email}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Calendar className="h-3 w-3" />
-            <span>{new Date(kit.createdAt).toLocaleDateString("fr-FR")}</span>
+        {/* Section métadonnées */}
+        <div className="pt-4 border-t border-border/50 space-y-2">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <User className="h-3 w-3" />
+              <span className="truncate">{kit.createdBy.name || kit.createdBy.email}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              <span>{new Date(kit.createdAt).toLocaleDateString("fr-FR")}</span>
+            </div>
           </div>
         </div>
       </CardContent>
 
-      <CardFooter className="pt-3 border-t">
-        <div className="flex gap-2 w-full">
+      <CardFooter className="pt-4">
+        <div className="flex gap-3 w-full">
           <Button
             variant="outline"
             size="sm"
             asChild
-            className="flex-1 hover:border-[#30C1BD] hover:text-[#30C1BD]"
+            className="flex-1"
           >
             <Link href={`/kits/${kit.id}/modifier`}>Modifier</Link>
           </Button>
@@ -189,7 +203,7 @@ export function KitCard({ kit }: KitCardProps) {
             variant="outline"
             size="sm"
             onClick={handleDelete}
-            className="flex-1 hover:border-red-500 hover:text-red-600"
+            className="flex-1 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
           >
             Supprimer
           </Button>

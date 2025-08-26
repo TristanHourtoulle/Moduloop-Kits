@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,14 +14,8 @@ import {
   Package,
   Leaf,
   Euro,
-  TrendingUp,
-  BarChart3,
-  Calendar,
-  User,
   Target,
-  Zap,
-  Droplets,
-  Flame,
+  MoreHorizontal,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -32,6 +25,13 @@ import { PricingBreakdown } from './pricing-breakdown';
 import { KitsList } from './kits-list';
 import { EditProjectDialog } from './edit-project-dialog';
 import { useDialog } from '@/components/providers/dialog-provider';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ProjectDetailProps {
   project: Project;
@@ -249,157 +249,119 @@ export function ProjectDetail({
   };
 
   return (
-    <div className='space-y-8'>
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className='flex items-start justify-between'
-      >
-        <div className='flex items-center space-x-4'>
-          <Button asChild variant='ghost' size='sm'>
-            <Link href='/projects'>
-              <ArrowLeft className='w-4 h-4 mr-2' />
-              Retour
-            </Link>
-          </Button>
-
-          <div>
-            <h1 className='text-3xl font-bold text-[#30C1BD]'>{project.nom}</h1>
+    <div className='min-h-screen bg-background w-full'>
+      <div className='max-w-7xl mx-auto px-6 py-8 space-y-8'>
+        {/* Header simplifié */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className='space-y-4'
+        >
+          {/* Navigation et statut */}
+          <div className='flex items-center justify-between'>
+            <Button asChild variant='ghost' size='sm' className='text-muted-foreground'>
+              <Link href='/projects'>
+                <ArrowLeft className='w-4 h-4 mr-2' />
+                Retour aux projets
+              </Link>
+            </Button>
+            
+            <div className='flex items-center gap-2'>
+              <Badge
+                className={`${getStatusColor(
+                  project.status
+                )} text-sm font-medium px-3 py-1`}
+              >
+                {getStatusIcon(project.status)} {project.status}
+              </Badge>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant='outline' size='sm'>
+                    <MoreHorizontal className='w-4 h-4' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align='end'>
+                  <DropdownMenuItem onClick={() => setIsEditProjectDialogOpen(true)}>
+                    <Edit3 className='w-4 h-4 mr-2' />
+                    Modifier
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={handleDeleteProject}
+                    className='text-red-600 hover:text-red-700 hover:bg-red-50'
+                  >
+                    <Trash2 className='w-4 h-4 mr-2' />
+                    Supprimer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+          
+          {/* Titre et description */}
+          <div className='space-y-2'>
+            <h1 className='text-3xl font-bold text-foreground'>
+              {project.nom}
+            </h1>
             {project.description && (
-              <p className='text-gray-600 mt-2 max-w-2xl'>
+              <p className='text-muted-foreground text-lg max-w-3xl'>
                 {project.description}
               </p>
             )}
+            <p className='text-sm text-muted-foreground'>
+              Créé le {new Date(project.createdAt).toLocaleDateString('fr-FR')}
+            </p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className='flex items-center space-x-3'>
-          <Badge
-            className={`${getStatusColor(
-              project.status
-            )} text-sm font-medium px-3 py-1`}
-          >
-            {getStatusIcon(project.status)} {project.status}
-          </Badge>
-
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => setIsEditProjectDialogOpen(true)}
-          >
-            <Edit3 className='w-4 h-4 mr-2' />
-            Modifier
-          </Button>
-
-          <Button
-            variant='outline'
-            size='sm'
-            className='border-red-200 hover:bg-red-50 text-red-600'
-            onClick={handleDeleteProject}
-          >
-            <Trash2 className='w-4 h-4' />
-          </Button>
-        </div>
-      </motion.div>
-
-      {/* Métriques principales */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4'
-      >
-        <Card className='bg-gradient-to-br from-[#30C1BD]/10 to-[#30C1BD]/20 border-[#30C1BD]/30 hover:shadow-md transition-all duration-200'>
-          <CardContent className='p-4'>
-            <div className='flex flex-col items-center text-center space-y-2'>
-              <div className='w-10 h-10 bg-[#30C1BD]/20 rounded-full flex items-center justify-center'>
-                <Euro className='w-5 h-5 text-[#30C1BD]' />
-              </div>
-              <div>
-                <p className='text-xs font-medium text-[#30C1BD] mb-1'>
-                  Prix Total
-                </p>
-                <p className='text-xl font-bold text-gray-900'>
-                  {project.totalPrix?.toFixed(0) || '0'} €
-                </p>
-              </div>
+        {/* Métriques principales */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className='grid grid-cols-2 lg:grid-cols-4 gap-4'
+        >
+          <div className='bg-card border border-border rounded-lg p-4 text-center'>
+            <div className='w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-2'>
+              <Euro className='w-5 h-5 text-primary' />
             </div>
-          </CardContent>
-        </Card>
+            <p className='text-2xl font-bold text-foreground mb-1'>
+              {project.totalPrix?.toFixed(0) || '0'}€
+            </p>
+            <p className='text-sm text-muted-foreground'>Prix Total</p>
+          </div>
 
-        <Card className='bg-gradient-to-br from-[#30C1BD]/10 to-[#30C1BD]/20 border-[#30C1BD]/30 hover:shadow-md transition-all duration-200'>
-          <CardContent className='p-4'>
-            <div className='flex flex-col items-center text-center space-y-2'>
-              <div className='w-10 h-10 bg-[#30C1BD]/20 rounded-full flex items-center justify-center'>
-                <Leaf className='w-5 h-5 text-[#30C1BD]' />
-              </div>
-              <div>
-                <p className='text-xs font-medium text-[#30C1BD] mb-1'>
-                  Impact CO₂
-                </p>
-                <p className='text-xl font-bold text-gray-900'>
-                  {project.totalImpact?.rechauffementClimatique?.toFixed(1) ||
-                    '0'}{' '}
-                  kg
-                </p>
-              </div>
+          <div className='bg-card border border-border rounded-lg p-4 text-center'>
+            <div className='w-10 h-10 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-center mx-auto mb-2'>
+              <Leaf className='w-5 h-5 text-emerald-600' />
             </div>
-          </CardContent>
-        </Card>
+            <p className='text-2xl font-bold text-foreground mb-1'>
+              {project.totalImpact?.rechauffementClimatique?.toFixed(1) || '0'}kg
+            </p>
+            <p className='text-sm text-muted-foreground'>Impact CO₂</p>
+          </div>
 
-        <Card className='bg-gradient-to-br from-[#30C1BD]/10 to-[#30C1BD]/20 border-[#30C1BD]/30 hover:shadow-md transition-all duration-200'>
-          <CardContent className='p-4'>
-            <div className='flex flex-col items-center text-center space-y-2'>
-              <div className='w-10 h-10 bg-[#30C1BD]/20 rounded-full flex items-center justify-center'>
-                <Package className='w-5 h-5 text-[#30C1BD]' />
-              </div>
-              <div>
-                <p className='text-xs font-medium text-[#30C1BD] mb-1'>Kits</p>
-                <p className='text-xl font-bold text-gray-900'>
-                  {project.projectKits?.length || 0}
-                </p>
-              </div>
+          <div className='bg-card border border-border rounded-lg p-4 text-center'>
+            <div className='w-10 h-10 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-center mx-auto mb-2'>
+              <Package className='w-5 h-5 text-blue-600' />
             </div>
-          </CardContent>
-        </Card>
+            <p className='text-2xl font-bold text-foreground mb-1'>
+              {project.projectKits?.length || 0}
+            </p>
+            <p className='text-sm text-muted-foreground'>Kits</p>
+          </div>
 
-        <Card className='bg-gradient-to-br from-[#30C1BD]/10 to-[#30C1BD]/20 border-[#30C1BD]/30 hover:shadow-md transition-all duration-200'>
-          <CardContent className='p-4'>
-            <div className='flex flex-col items-center text-center space-y-2'>
-              <div className='w-10 h-10 bg-[#30C1BD]/20 rounded-full flex items-center justify-center'>
-                <Calendar className='w-5 h-5 text-[#30C1BD]' />
-              </div>
-              <div>
-                <p className='text-xs font-medium text-[#30C1BD] mb-1'>
-                  Créé le
-                </p>
-                <p className='text-lg font-bold text-gray-900'>
-                  {new Date(project.createdAt).toLocaleDateString('fr-FR')}
-                </p>
-              </div>
+          <div className='bg-card border border-border rounded-lg p-4 text-center'>
+            <div className='w-10 h-10 bg-orange-50 border border-orange-200 rounded-xl flex items-center justify-center mx-auto mb-2'>
+              <Target className='w-5 h-5 text-orange-600' />
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className='bg-gradient-to-br from-[#30C1BD]/10 to-[#30C1BD]/20 border-[#30C1BD]/30 hover:shadow-md transition-all duration-200'>
-          <CardContent className='p-4'>
-            <div className='flex flex-col items-center text-center space-y-2'>
-              <div className='w-10 h-10 bg-[#30C1BD]/20 rounded-full flex items-center justify-center'>
-                <Target className='w-5 h-5 text-[#30C1BD]' />
-              </div>
-              <div>
-                <p className='text-xs font-medium text-[#30C1BD] mb-1'>
-                  Surface totale
-                </p>
-                <p className='text-xl font-bold text-gray-900'>
-                  {project.totalSurface?.toFixed(1) || '0'} m²
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+            <p className='text-2xl font-bold text-foreground mb-1'>
+              {project.totalSurface?.toFixed(1) || '0'}m²
+            </p>
+            <p className='text-sm text-muted-foreground'>Surface</p>
+          </div>
+        </motion.div>
 
       {/* Tabs pour les détails */}
       <motion.div
@@ -407,47 +369,28 @@ export function ProjectDetail({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Tabs defaultValue='kits' className='space-y-8'>
-          <TabsList className='inline-flex h-12 items-center justify-center rounded-xl bg-gray-50 p-1 text-gray-500 shadow-sm border border-gray-200'>
-            <TabsTrigger
-              value='kits'
-              className='inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD]/20 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[#30C1BD] data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-gray-100 data-[state=active]:hover:bg-[#30C1BD]/90'
-            >
+        <Tabs defaultValue='kits' className='space-y-6'>
+          <TabsList className='grid w-full grid-cols-3'>
+            <TabsTrigger value='kits'>
               <Package className='w-4 h-4 mr-2' />
               Kits
             </TabsTrigger>
-            <TabsTrigger
-              value='environmental'
-              className='inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD]/20 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[#30C1BD] data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-gray-100 data-[state=active]:hover:bg-[#30C1BD]/90'
-            >
+            <TabsTrigger value='environmental'>
               <Leaf className='w-4 h-4 mr-2' />
-              Impact Environnemental
+              Impact
             </TabsTrigger>
-            <TabsTrigger
-              value='pricing'
-              className='inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD]/20 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[#30C1BD] data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-gray-100 data-[state=active]:hover:bg-[#30C1BD]/90'
-            >
+            <TabsTrigger value='pricing'>
               <Euro className='w-4 h-4 mr-2' />
-              Prix & Coûts
-            </TabsTrigger>
-            <TabsTrigger
-              value='analytics'
-              className='inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD]/20 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[#30C1BD] data-[state=active]:text-white data-[state=active]:shadow-md hover:bg-gray-100 data-[state=active]:hover:bg-[#30C1BD]/90'
-            >
-              <BarChart3 className='w-4 h-4 mr-2' />
-              Analytics
+              Prix
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value='kits' className='space-y-6'>
+          <TabsContent value='kits' className='space-y-4'>
             <div className='flex items-center justify-between'>
-              <h2 className='text-xl font-semibold text-gray-900'>
+              <h2 className='text-lg font-semibold text-foreground'>
                 Kits du projet
               </h2>
-              <Button
-                onClick={() => setIsAddKitModalOpen(true)}
-                className='bg-[#30C1BD] hover:bg-[#30C1BD]/90 text-white border-0'
-              >
+              <Button onClick={() => setIsAddKitModalOpen(true)}>
                 <Plus className='w-4 h-4 mr-2' />
                 Ajouter un kit
               </Button>
@@ -460,38 +403,28 @@ export function ProjectDetail({
                 onRemoveKit={handleRemoveKit}
               />
             ) : (
-              <p className='text-gray-500 italic'>Aucun kit pour le moment</p>
+              <p className='text-muted-foreground text-center py-8'>Aucun kit pour le moment</p>
             )}
           </TabsContent>
 
-          <TabsContent value='environmental' className='space-y-6'>
-            <h2 className='text-xl font-semibold text-gray-900'>
+          <TabsContent value='environmental' className='space-y-4'>
+            <h2 className='text-lg font-semibold text-foreground'>
               Impact environnemental
             </h2>
             {project.totalImpact ? (
               <EnvironmentalMetrics impact={project.totalImpact} />
             ) : (
-              <p className='text-gray-500 italic'>
+              <p className='text-muted-foreground text-center py-8'>
                 Aucune donnée d'impact disponible
               </p>
             )}
           </TabsContent>
 
-          <TabsContent value='pricing' className='space-y-6'>
-            <h2 className='text-xl font-semibold text-gray-900'>
+          <TabsContent value='pricing' className='space-y-4'>
+            <h2 className='text-lg font-semibold text-foreground'>
               Détail des prix
             </h2>
             <PricingBreakdown project={project} />
-          </TabsContent>
-
-          <TabsContent value='analytics' className='space-y-6'>
-            <h2 className='text-xl font-semibold text-gray-900'>
-              Analytics du projet
-            </h2>
-            <div className='text-center py-12 text-gray-500'>
-              <BarChart3 className='w-16 h-16 mx-auto mb-4 text-gray-300' />
-              <p>Analytics avancées à venir...</p>
-            </div>
           </TabsContent>
         </Tabs>
       </motion.div>
@@ -518,6 +451,7 @@ export function ProjectDetail({
           />
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

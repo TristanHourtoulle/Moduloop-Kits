@@ -26,14 +26,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
     switch (status) {
       case 'ACTIF':
         return {
-          color: 'bg-[#30C1BD]/10 text-[#30C1BD] border-[#30C1BD]/20',
-          dot: 'bg-[#30C1BD]',
+          color: 'bg-primary/10 text-primary border-primary/20',
+          dot: 'bg-primary',
           label: 'Actif',
         };
       case 'TERMINE':
         return {
-          color: 'bg-blue-50 text-blue-700 border-blue-200',
-          dot: 'bg-blue-500',
+          color: 'bg-primary/10 text-primary border-primary/20',
+          dot: 'bg-primary',
           label: 'Terminé',
         };
       case 'EN_PAUSE':
@@ -65,19 +65,26 @@ export function ProjectCard({ project }: ProjectCardProps) {
       transition={{ duration: 0.2 }}
       className='h-full'
     >
-      <Card className='h-full bg-white border border-gray-200/60 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer'>
+      <Card className='h-full group cursor-pointer'>
         {/* Header Section */}
         <div className='p-6 pb-4'>
           <div className='flex items-start justify-between mb-4'>
-            <div className='flex-1 min-w-0'>
-              <h3 className='text-lg font-semibold text-gray-900 transition-colors duration-200 truncate'>
-                {project.nom}
-              </h3>
-              {project.description && (
-                <p className='text-sm text-gray-600 mt-1 line-clamp-2 leading-relaxed'>
-                  {project.description}
-                </p>
-              )}
+            <div className='flex-1 min-w-0 space-y-2'>
+              <div className='flex items-start gap-3'>
+                <div className='w-10 h-10 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center flex-shrink-0'>
+                  <Package className='h-5 w-5 text-primary' />
+                </div>
+                <div className='min-w-0 flex-1'>
+                  <h3 className='text-lg font-semibold text-foreground transition-colors duration-200 truncate'>
+                    {project.nom}
+                  </h3>
+                  {project.description && (
+                    <p className='text-sm text-muted-foreground mt-1 line-clamp-2 leading-relaxed'>
+                      {project.description}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <Badge
@@ -91,7 +98,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </div>
 
           {/* Meta info */}
-          <div className='flex items-center text-xs text-gray-500 space-x-4'>
+          <div className='flex items-center text-xs text-muted-foreground space-x-4 pl-13'>
             <div className='flex items-center space-x-1.5'>
               <Calendar className='w-3.5 h-3.5' />
               <span>
@@ -110,38 +117,32 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </div>
 
         {/* Metrics Section */}
-        <CardContent className='px-6 py-4 space-y-4'>
+        <CardContent className='px-6 py-4 space-y-6'>
           <div className='grid grid-cols-2 gap-4'>
             {/* Impact environnemental */}
-            <div className='bg-gradient-to-br from-emerald-50 to-green-50 p-4 rounded-xl border border-emerald-100/50 group-hover:border-emerald-200 transition-colors'>
+            <div className='p-4 rounded-xl bg-muted/30 border border-border/50'>
               <div className='flex items-center space-x-2 mb-2'>
-                <div className='w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center'>
-                  <Leaf className='w-4 h-4 text-emerald-600' />
-                </div>
-                <span className='text-xs font-medium text-emerald-700'>
+                <Leaf className='w-4 h-4 text-emerald-600' />
+                <span className='text-xs font-medium text-muted-foreground'>
                   Impact CO₂
                 </span>
               </div>
-              <div className='text-xl font-bold text-emerald-800'>
+              <div className='text-lg font-bold text-emerald-600'>
                 {project.totalImpact?.rechauffementClimatique?.toFixed(1) ||
-                  '0'}
-                <span className='text-sm font-normal ml-1'>kg CO₂</span>
+                  '0'} kg
               </div>
             </div>
 
             {/* Prix total */}
-            <div className='bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100/50 group-hover:border-blue-200 transition-colors'>
+            <div className='p-4 rounded-xl bg-muted/30 border border-border/50'>
               <div className='flex items-center space-x-2 mb-2'>
-                <div className='w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center'>
-                  <Euro className='w-4 h-4 text-blue-600' />
-                </div>
-                <span className='text-xs font-medium text-blue-700'>
+                <Euro className='w-4 h-4 text-primary' />
+                <span className='text-xs font-medium text-muted-foreground'>
                   Prix Total
                 </span>
               </div>
-              <div className='text-xl font-bold text-blue-800'>
-                {project.totalPrix?.toLocaleString('fr-FR') || '0'}
-                <span className='text-sm font-normal ml-1'>€</span>
+              <div className='text-lg font-bold text-primary'>
+                {project.totalPrix?.toLocaleString('fr-FR') || '0'}€
               </div>
             </div>
           </div>
@@ -151,7 +152,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <Button
               asChild
               size='sm'
-              className='flex-1 bg-[#30C1BD] hover:bg-[#2AA9A4] text-white border-0 shadow-sm hover:shadow-md transition-all duration-200'
+              className='flex-1'
             >
               <Link href={`/projects/${project.id}`}>
                 <Eye className='w-4 h-4 mr-2' />
@@ -161,8 +162,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
             <Button
               size='sm'
-              variant='ghost'
-              className='text-gray-600 hover:text-[#30C1BD] hover:bg-[#30C1BD]/5'
+              variant='outline'
+              className='hover:bg-primary/10 hover:text-primary hover:border-primary/30'
               onClick={() => {
                 // TODO: Ajouter la fonctionnalité d'édition
                 console.log('Édition du projet:', project.id);
@@ -173,8 +174,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
             <Button
               size='sm'
-              variant='ghost'
-              className='text-gray-600 hover:text-red-600 hover:bg-red-50'
+              variant='outline'
+              className='hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30'
             >
               <Trash2 className='w-4 h-4' />
             </Button>

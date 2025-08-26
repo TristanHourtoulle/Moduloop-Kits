@@ -12,26 +12,29 @@ export const metadata: Metadata = {
 export default function NewKitPage() {
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 w-full">
+      <div className="min-h-screen bg-background py-8 w-full">
         <div className="container mx-auto px-6">
-          {/* Header moderne */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#30C1BD] to-[#30C1BD]/80 rounded-2xl mb-4">
-              <Package2 className="h-8 w-8 text-white" />
+          {/* Header épuré */}
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+                <Package2 className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">
+                  Nouveau kit
+                </h1>
+                <p className="text-muted-foreground">
+                  Créez un kit personnalisé en sélectionnant vos produits
+                </p>
+              </div>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Créer un nouveau kit
-            </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Créez des kits de produits avec calculs automatiques des prix et
-              impact environnemental
-            </p>
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <Sparkles className="h-4 w-4 text-[#30C1BD]" />
-              <span className="text-sm text-gray-500">
-                Sélection intelligente de produits avec récapitulatif en temps
-                réel
-              </span>
+            
+            {/* Navigation breadcrumb */}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Kits</span>
+              <span>•</span>
+              <span className="text-primary">Nouveau kit</span>
             </div>
           </div>
 

@@ -70,6 +70,39 @@ export async function GET(request: NextRequest) {
       where.createdById = filters.createdBy;
     }
 
+    // Check if we need to return all products (for client-side filtering)
+    const fetchAll = searchParams.get('all') === 'true';
+
+    if (fetchAll) {
+      // Return all products without pagination
+      const products = await prisma.product.findMany({
+        where: {}, // No filtering on server for client-side filtering
+        include: {
+          createdBy: {
+            select: { id: true, name: true, email: true },
+          },
+          updatedBy: {
+            select: { id: true, name: true, email: true },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      return NextResponse.json({
+        products,
+        pagination: {
+          page: 1,
+          limit: products.length,
+          total: products.length,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
+        },
+      });
+    }
+
     // Calculer l'offset pour la pagination
     const offset = (filters.page - 1) * filters.limit;
 

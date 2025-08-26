@@ -9,10 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { RoleGuard } from '@/components/auth/role-guard';
 import { UserRole } from '@/lib/types/user';
 import { ProductsGrid } from '@/components/products/products-grid';
-import { useDebounce } from '@/hooks/use-debounce';
 import { Plus, Search, AlertTriangle, Package } from 'lucide-react';
 import Link from 'next/link';
-import { PageHeader } from '@/components/headers/page-header';
 
 interface Product {
   id: string;
@@ -45,31 +43,22 @@ interface ProductsResponse {
 }
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState<
-    ProductsResponse['pagination'] | null
-  >(null);
+  const productsPerPage = 12;
 
-  // Debounce de la recherche pour éviter trop d'appels API
-  const debouncedSearch = useDebounce(search, 300);
-
-  const fetchProducts = useCallback(async () => {
+  const fetchAllProducts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '12',
-        ...(debouncedSearch && { search: debouncedSearch }),
-      });
-
-      const response = await fetch(`/api/products?${params}`, {
-        cache: 'no-store', // Force pas de cache pour éviter les problèmes de refresh
+      // Fetch all products without pagination
+      const response = await fetch('/api/products?all=true', {
+        cache: 'no-store',
       });
 
       if (!response.ok) {
@@ -85,8 +74,9 @@ export default function ProductsPage() {
       }
 
       const data: ProductsResponse = await response.json();
-      setProducts(data.products || []);
-      setPagination(data.pagination);
+      const products = data.products || [];
+      setAllProducts(products);
+      setFilteredProducts(products);
     } catch (err) {
       console.error('Erreur lors du chargement des produits:', err);
       setError(
@@ -94,19 +84,38 @@ export default function ProductsPage() {
           ? err.message
           : "Une erreur inattendue s'est produite"
       );
-      setProducts([]);
+      setAllProducts([]);
+      setFilteredProducts([]);
     } finally {
       setLoading(false);
     }
-  }, [page, debouncedSearch]);
+  }, []);
+
+  // Filter products client-side based on search
+  useEffect(() => {
+    if (!search.trim()) {
+      setFilteredProducts(allProducts);
+      setPage(1);
+      return;
+    }
+
+    const searchTerm = search.toLowerCase();
+    const filtered = allProducts.filter(product => 
+      product.nom.toLowerCase().includes(searchTerm) ||
+      product.reference.toLowerCase().includes(searchTerm) ||
+      product.description?.toLowerCase().includes(searchTerm)
+    );
+    
+    setFilteredProducts(filtered);
+    setPage(1);
+  }, [search, allProducts]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    fetchAllProducts();
+  }, [fetchAllProducts]);
 
   const handleSearch = useCallback((value: string) => {
     setSearch(value);
-    setPage(1); // Reset à la page 1 lors d'une nouvelle recherche
   }, []);
 
   const handleDelete = useCallback(
@@ -120,16 +129,27 @@ export default function ProductsPage() {
           throw new Error('Erreur lors de la suppression');
         }
 
-        // Recharger les produits après suppression
-        await fetchProducts();
+        // Remove product from local state without refetch
+        const updatedProducts = allProducts.filter(p => p.id !== productId);
+        setAllProducts(updatedProducts);
+        // Filtered products will update automatically via useEffect
       } catch (err) {
         setError(
           err instanceof Error ? err.message : 'Erreur lors de la suppression'
         );
       }
     },
-    [fetchProducts]
+    [allProducts]
   );
+
+  // Client-side pagination helpers
+  const getTotalPages = () => Math.ceil(filteredProducts.length / productsPerPage);
+  
+  const getCurrentPageProducts = () => {
+    const startIndex = (page - 1) * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+    return filteredProducts.slice(startIndex, endIndex);
+  };
 
   if (loading) {
     return (
@@ -157,29 +177,31 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 w-full'>
+    <div className='min-h-screen bg-background w-full'>
       <div className='max-w-7xl mx-auto px-6 py-8 space-y-8'>
-        {/* Header */}
-        <PageHeader title='Produits' icon='Package' />
-
-        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
-          <div className='space-y-2'>
-            <h1 className='text-4xl font-bold text-gray-900'>
-              Gestion des produits
-            </h1>
-            <p className='text-gray-600 max-w-2xl'>
-              Gérez votre catalogue de produits Moduloop
-            </p>
+        {/* Header épuré */}
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-4'>
+            <div className='w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20'>
+              <Package className='h-6 w-6 text-primary' />
+            </div>
+            <div>
+              <h1 className='text-3xl font-bold text-foreground'>
+                Produits
+              </h1>
+              <p className='text-muted-foreground'>
+                Gérez votre catalogue de produits
+              </p>
+            </div>
           </div>
 
           <RoleGuard requiredRole={UserRole.DEV} showAlert={false}>
-            <Link
-              href='/products/nouveau'
-              className='cursor-pointer bg-[#30C1BD] hover:bg-[#30C1BD]/80 text-white flex items-center justify-center gap-2 py-3 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl font-semibold'
-            >
-              <Plus className='h-5 w-5' />
-              Créer un produit
-            </Link>
+            <Button asChild>
+              <Link href='/products/nouveau'>
+                <Plus className='h-4 w-4 mr-2' />
+                Nouveau produit
+              </Link>
+            </Button>
           </RoleGuard>
         </div>
 
@@ -191,7 +213,7 @@ export default function ProductsPage() {
               <Button
                 variant='outline'
                 size='sm'
-                onClick={fetchProducts}
+                onClick={fetchAllProducts}
                 disabled={loading}
                 className='ml-4 cursor-pointer border-[#30C1BD] text-[#30C1BD] hover:bg-[#30C1BD] hover:text-white'
               >
@@ -202,68 +224,61 @@ export default function ProductsPage() {
         )}
 
         {/* Barre de recherche */}
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className='relative max-w-md'
-        >
-          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
+        <div className='relative max-w-md'>
+          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4' />
           <Input
             placeholder='Rechercher un produit...'
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-              }
-            }}
-            className='pl-10 focus:border-[#30C1BD] focus:ring-[#30C1BD]'
+            className='pl-10'
           />
-        </form>
+        </div>
 
         {/* Liste des produits */}
-        {products.length === 0 ? (
+        {getCurrentPageProducts().length === 0 ? (
           <Card className='p-12 text-center'>
-            <Package className='mx-auto h-12 w-12 text-gray-400 mb-4' />
-            <h3 className='text-lg font-medium text-gray-900 mb-2'>
+            <div className='w-16 h-16 mx-auto mb-4 bg-muted/30 rounded-2xl flex items-center justify-center'>
+              <Package className='h-8 w-8 text-muted-foreground' />
+            </div>
+            <h3 className='text-lg font-semibold text-foreground mb-2'>
               Aucun produit trouvé
             </h3>
-            <p className='text-gray-600 mb-4'>
+            <p className='text-muted-foreground mb-6'>
               {search
                 ? 'Aucun produit ne correspond à votre recherche.'
                 : 'Commencez par créer votre premier produit.'}
             </p>
             <RoleGuard requiredRole={UserRole.DEV} showAlert={false}>
-              <Link
-                href='/dashboard/products/nouveau'
-                className='cursor-pointer bg-[#30C1BD] hover:bg-[#30C1BD]/80 text-white flex items-center justify-center gap-2 py-2 px-4 rounded-full transition-all duration-300'
-              >
-                <Plus className='h-4 w-4 mr-2' />
-                Créer un produit
-              </Link>
+              <Button asChild>
+                <Link href='/products/nouveau'>
+                  <Plus className='h-4 w-4 mr-2' />
+                  Créer un produit
+                </Link>
+              </Button>
             </RoleGuard>
           </Card>
         ) : (
           <>
-            <ProductsGrid products={products} onDelete={handleDelete} />
+            <ProductsGrid products={getCurrentPageProducts()} onDelete={handleDelete} />
 
-            {/* Pagination */}
-            {pagination && pagination.totalPages > 1 && (
+            {/* Pagination client-side */}
+            {getTotalPages() > 1 && (
               <div className='flex justify-center items-center gap-2 mt-8'>
                 <Button
                   variant='outline'
                   onClick={() => setPage(page - 1)}
-                  disabled={!pagination.hasPrev}
+                  disabled={page <= 1}
                   className='cursor-pointer border-[#30C1BD] text-[#30C1BD] hover:bg-[#30C1BD] hover:text-white disabled:border-gray-300 disabled:text-gray-400 disabled:hover:bg-transparent disabled:hover:text-gray-400'
                 >
                   Précédent
                 </Button>
                 <span className='text-sm text-gray-600'>
-                  Page {pagination.page} sur {pagination.totalPages}
+                  Page {page} sur {getTotalPages()}
                 </span>
                 <Button
                   variant='outline'
                   onClick={() => setPage(page + 1)}
-                  disabled={!pagination.hasNext}
+                  disabled={page >= getTotalPages()}
                   className='cursor-pointer border-[#30C1BD] text-[#30C1BD] hover:bg-[#30C1BD] hover:text-white disabled:border-gray-300 disabled:text-gray-400 disabled:hover:bg-transparent disabled:hover:text-gray-400'
                 >
                   Suivant

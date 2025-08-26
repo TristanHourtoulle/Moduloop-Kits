@@ -22,7 +22,7 @@ export default function HomePage() {
 
   // Afficher un loader pendant la vérification
   return (
-    <div className='min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50/30'>
+    <div className='min-h-screen flex flex-col items-center justify-center bg-background'>
       <div className='text-center space-y-6'>
         <div className='w-16 h-16 mx-auto'>
           <div className='w-16 h-16 border-4 border-[#30C1BD] border-t-transparent rounded-full animate-spin'></div>

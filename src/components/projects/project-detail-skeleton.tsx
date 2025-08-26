@@ -4,26 +4,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProjectDetailSkeleton() {
   return (
-    <div className="space-y-8">
-      {/* Header skeleton */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex items-start justify-between"
-      >
-        <div className="flex items-center space-x-4">
-          <Skeleton className="h-10 w-24" />
-          <div className="space-y-2">
-            <Skeleton className="h-8 w-64" />
-            <Skeleton className="h-4 w-96" />
+    <div className='min-h-screen bg-background w-full'>
+      <div className='max-w-7xl mx-auto px-6 py-8 space-y-8'>
+        {/* Header skeleton */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center justify-between"
+        >
+          <div className="flex items-center gap-4">
+            <Skeleton className="w-12 h-12 rounded-xl" />
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-64" />
+              <Skeleton className="h-4 w-96" />
+            </div>
           </div>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Skeleton className="h-6 w-20" />
-          <Skeleton className="h-8 w-20" />
-          <Skeleton className="h-8 w-8" />
-        </div>
-      </motion.div>
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-8 w-8" />
+          </div>
+        </motion.div>
 
       {/* Metrics skeleton */}
       <motion.div
@@ -88,6 +90,7 @@ export function ProjectDetailSkeleton() {
           </div>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }

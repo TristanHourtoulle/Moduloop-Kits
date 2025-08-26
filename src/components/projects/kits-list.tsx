@@ -390,33 +390,78 @@ export function KitsList({
                         <h4 className='font-medium text-gray-900 mb-3'>
                           Produits du kit
                         </h4>
-                        {kit.kitProducts.map((kitProduct) => {
+{kit.kitProducts.map((kitProduct) => {
                           const product = kitProduct.product;
                           if (!product) return null;
 
                           return (
                             <div
                               key={kitProduct.id}
-                              className='flex items-center justify-between p-3 bg-gray-50 rounded-lg'
+                              className='border border-gray-200 rounded-lg p-4 bg-white hover:shadow-sm transition-shadow'
                             >
-                              <div className='flex-1'>
-                                <div className='font-medium text-gray-900'>
-                                  {product.nom}
+                              <div className='flex items-start gap-4'>
+                                <div className='w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
+                                  <Package className='w-6 h-6 text-gray-400' />
                                 </div>
-                                <div className='text-sm text-gray-500'>
-                                  {product.reference} • {kitProduct.quantite}{' '}
-                                  unité
-                                  {kitProduct.quantite > 1 ? 's' : ''}
-                                </div>
-                              </div>
-                              <div className='text-right'>
-                                <div className='font-medium text-gray-900'>
-                                  {formatPrice(
-                                    product.prixVente1An * kitProduct.quantite
-                                  )}
-                                </div>
-                                <div className='text-sm text-gray-500'>
-                                  {formatPrice(product.prixVente1An)} l'unité
+                                
+                                <div className='flex-1 min-w-0'>
+                                  <div className='flex items-start justify-between gap-4'>
+                                    <div className='flex-1 min-w-0'>
+                                      <h5 className='font-semibold text-gray-900 mb-1 truncate'>
+                                        {product.nom}
+                                      </h5>
+                                      <p className='text-sm text-gray-600 mb-2'>
+                                        Référence: {product.reference}
+                                      </p>
+                                      <div className='flex items-center gap-4 text-xs text-gray-500'>
+                                        <span className='bg-blue-50 text-blue-700 px-2 py-1 rounded-full'>
+                                          {kitProduct.quantite} unité{kitProduct.quantite > 1 ? 's' : ''}
+                                        </span>
+                                        {product.surfaceM2 > 0 && (
+                                          <span>{product.surfaceM2}m² par unité</span>
+                                        )}
+                                      </div>
+                                    </div>
+                                    
+                                    <div className='text-right flex-shrink-0'>
+                                      <div className='text-lg font-bold text-gray-900 mb-1'>
+                                        {formatPrice(product.prixVente1An * kitProduct.quantite)}
+                                      </div>
+                                      <div className='text-sm text-gray-500'>
+                                        {formatPrice(product.prixVente1An)} /unité
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Environmental metrics in a compact horizontal layout */}
+                                  <div className='mt-3 pt-3 border-t border-gray-100'>
+                                    <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs'>
+                                      <div className='flex items-center gap-2'>
+                                        <div className='w-2 h-2 bg-red-500 rounded-full'></div>
+                                        <span className='text-gray-600'>
+                                          {(product.rechauffementClimatique * kitProduct.quantite).toFixed(1)} kg CO₂
+                                        </span>
+                                      </div>
+                                      <div className='flex items-center gap-2'>
+                                        <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
+                                        <span className='text-gray-600'>
+                                          {(product.epuisementRessources * kitProduct.quantite).toFixed(0)} MJ
+                                        </span>
+                                      </div>
+                                      <div className='flex items-center gap-2'>
+                                        <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                                        <span className='text-gray-600'>
+                                          {(product.acidification * kitProduct.quantite).toFixed(1)} MOL H+
+                                        </span>
+                                      </div>
+                                      <div className='flex items-center gap-2'>
+                                        <div className='w-2 h-2 bg-green-500 rounded-full'></div>
+                                        <span className='text-gray-600'>
+                                          {(product.eutrophisation * kitProduct.quantite).toFixed(1)} kg P eq
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>

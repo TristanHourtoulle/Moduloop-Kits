@@ -30,6 +30,7 @@ import {
 import { useState } from "react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { usePathname, useRouter } from "next/navigation";
+import { useUser } from '@/components/providers/user-provider';
 
 const navigationItems = [
   { href: "/dashboard", label: "Tableau de bord", icon: Home },
@@ -42,9 +43,13 @@ const navigationItems = [
 export function DashboardHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: session } = useSession();
+  const { user } = useUser();
   const { role } = useRole();
   const pathname = usePathname();
   const router = useRouter();
+  
+  // Use user from UserProvider if available, otherwise fallback to session
+  const displayUser = user || session?.user;
 
   // Debug: Log user data
   React.useEffect(() => {
@@ -66,7 +71,7 @@ export function DashboardHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-50 w-full border-b glass shadow-soft">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -81,8 +86,8 @@ export function DashboardHeader() {
               height={32}
               className="h-8 w-8"
             />
-            <span className="text-xl font-bold text-gray-900">
-              Moduloop <span className="text-[#30C1BD]">Kits</span>
+            <span className="text-xl font-bold text-foreground">
+              Moduloop <span className="text-primary">Kits</span>
             </span>
           </Link>
 
@@ -102,14 +107,14 @@ export function DashboardHeader() {
                     size="sm"
                     className={`relative transition-all duration-200 hover:scale-105 cursor-pointer ${
                       isActive
-                        ? "text-[#30C1BD] bg-[#30C1BD]/10 hover:bg-[#30C1BD]/20"
-                        : "text-gray-600 hover:text-[#30C1BD] hover:bg-[#30C1BD]/10"
+                        ? "text-primary bg-primary/10 hover:bg-primary/20"
+                        : "text-muted-foreground hover:text-primary hover:bg-accent"
                     }`}
                   >
                     <item.icon className="mr-2 h-4 w-4" />
                     {item.label}
                     {isActive && (
-                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-[#30C1BD] rounded-full" />
+                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
                     )}
                   </Button>
                 </Link>
@@ -125,29 +130,29 @@ export function DashboardHeader() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-10 w-auto px-2 hover:bg-[#30C1BD]/10 transition-all duration-200 group cursor-pointer"
+                  className="relative h-10 w-auto px-2 hover:bg-accent transition-all duration-200 group cursor-pointer"
                 >
                   <div className="flex items-center space-x-2">
-                    <Avatar className="h-8 w-8 ring-2 ring-transparent group-hover:ring-[#30C1BD]/30 transition-all">
-                      {session?.user?.image && (
+                    <Avatar className="h-8 w-8 ring-2 ring-transparent group-hover:ring-primary/30 transition-all">
+                      {displayUser?.image && (
                         <AvatarImage
-                          src={session.user.image}
-                          alt={session?.user?.name || "User"}
+                          src={displayUser.image}
+                          alt={displayUser?.name || "User"}
                         />
                       )}
-                      <AvatarFallback className="bg-[#30C1BD]/10 text-[#30C1BD]">
-                        {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        {displayUser?.name?.charAt(0)?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                     <div className="hidden lg:block text-left">
-                      <p className="text-sm font-medium text-gray-900">
-                        {session?.user?.name || "User"}
+                      <p className="text-sm font-medium text-foreground">
+                        {displayUser?.name || "User"}
                       </p>
-                      <p className="text-xs text-gray-500 truncate max-w-32">
-                        {session?.user?.email}
+                      <p className="text-xs text-muted-foreground truncate max-w-32">
+                        {displayUser?.email}
                       </p>
                     </div>
-                    <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-[#30C1BD] transition-colors" />
+                    <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
                 </Button>
               </DropdownMenuTrigger>
@@ -155,19 +160,19 @@ export function DashboardHeader() {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {session?.user?.name}
+                      {displayUser?.name}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {session?.user?.email}
+                      {displayUser?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="hover:bg-[#30C1BD]/10 hover:text-[#30C1BD] cursor-pointer">
+                <DropdownMenuItem className="hover:bg-accent hover:text-accent-foreground cursor-pointer">
                   <User className="mr-2 h-4 w-4" />
                   Profil
                 </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-[#30C1BD]/10 hover:text-[#30C1BD] cursor-pointer">
+                <DropdownMenuItem className="hover:bg-accent hover:text-accent-foreground cursor-pointer">
                   <Settings className="mr-2 h-4 w-4" />
                   Paramètres
                 </DropdownMenuItem>
@@ -185,13 +190,13 @@ export function DashboardHeader() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+            className="md:hidden p-2 rounded-lg hover:bg-accent transition-colors cursor-pointer"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? (
-              <X className="h-5 w-5 text-gray-600" />
+              <X className="h-5 w-5 text-muted-foreground" />
             ) : (
-              <Menu className="h-5 w-5 text-gray-600" />
+              <Menu className="h-5 w-5 text-muted-foreground" />
             )}
           </button>
         </div>
@@ -222,8 +227,8 @@ export function DashboardHeader() {
                       size="sm"
                       className={`w-full justify-start transition-all duration-200 cursor-pointer ${
                         isActive
-                          ? "text-[#30C1BD] bg-[#30C1BD]/10"
-                          : "text-gray-600 hover:text-[#30C1BD] hover:bg-[#30C1BD]/10"
+                          ? "text-primary bg-primary/10"
+                          : "text-muted-foreground hover:text-primary hover:bg-accent"
                       }`}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -239,22 +244,22 @@ export function DashboardHeader() {
             <div className="border-t pt-3 space-y-2">
               <div className="flex items-center space-x-3 px-3 py-2">
                 <Avatar className="h-8 w-8">
-                  {session?.user?.image && (
+                  {displayUser?.image && (
                     <AvatarImage
-                      src={session.user.image}
-                      alt={session?.user?.name || "User"}
+                      src={displayUser.image}
+                      alt={displayUser?.name || "User"}
                     />
                   )}
-                  <AvatarFallback className="bg-[#30C1BD]/10 text-[#30C1BD]">
-                    {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {displayUser?.name?.charAt(0)?.toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {session?.user?.name}
+                  <p className="text-sm font-medium text-foreground">
+                    {displayUser?.name}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {session?.user?.email}
+                  <p className="text-xs text-muted-foreground">
+                    {displayUser?.email}
                   </p>
                 </div>
                 <div className="ml-auto">
@@ -265,7 +270,7 @@ export function DashboardHeader() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full justify-start text-gray-600 hover:text-[#30C1BD] hover:bg-[#30C1BD]/10 cursor-pointer"
+                className="w-full justify-start text-muted-foreground hover:text-primary hover:bg-accent cursor-pointer"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Settings className="mr-2 h-4 w-4" />

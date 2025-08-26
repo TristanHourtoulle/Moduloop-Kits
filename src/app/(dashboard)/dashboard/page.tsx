@@ -6,7 +6,6 @@ import { useEffect } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -15,7 +14,6 @@ import { SafeAvatar } from '@/components/ui/safe-avatar';
 import { RoleBadge } from '@/components/ui/role-badge';
 import { useRole } from '@/hooks/use-role';
 import { LogOut, Mail, Calendar, Home } from 'lucide-react';
-import { PageHeader } from '@/components/headers/page-header';
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -33,12 +31,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 w-full'>
+    <div className='min-h-screen bg-background w-full'>
       <div className='max-w-7xl mx-auto px-6 py-8'>
         {/* Header Section */}
-        <div className='pb-6 border-b border-gray-200/60'>
-          <div className='flex items-center space-x-2 text-sm font-medium text-gray-700'>
-            <Home className='w-4 h-4 text-[#30C1BD]' />
+        <div className='pb-6 border-b border-border'>
+          <div className='flex items-center space-x-2 text-sm font-medium text-muted-foreground'>
+            <Home className='w-4 h-4 text-primary' />
             <span>Tableau de bord</span>
           </div>
         </div>
@@ -46,46 +44,45 @@ export default function DashboardPage() {
         {/* Main Content */}
         <div className='mt-8 space-y-8'>
           {/* Title Section */}
-          <div className='space-y-2'>
-            <h1 className='text-4xl font-bold text-gray-900'>
-              Tableau de bord
-            </h1>
-            <p className='text-gray-600 max-w-2xl'>
-              Bienvenue sur votre tableau de bord Moduloop Kits
-            </p>
+          <div className='space-y-4'>
+            <div className='flex items-center space-x-4'>
+              <SafeAvatar
+                src={session.user.image}
+                name={session.user.name}
+                className='h-16 w-16 ring-2 ring-primary/20'
+              />
+              <div>
+                <h1 className='text-4xl font-bold text-foreground'>
+                  Bonjour <span className='text-primary'>{session.user.name?.split(' ')[0]}</span> !
+                </h1>
+                <p className='text-muted-foreground max-w-2xl mt-2'>
+                  Bienvenue sur votre tableau de bord Moduloop Kits
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Dashboard Content */}
-          <div className='grid gap-6 md:grid-cols-2'>
-            <Card className='bg-white border border-gray-200/60 shadow-sm'>
-              <CardHeader>
-                <CardTitle>Informations du profil</CardTitle>
-                <CardDescription>Détails de votre compte</CardDescription>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                <div className='flex items-center space-x-4'>
-                  <SafeAvatar
-                    src={session.user.image}
-                    name={session.user.name}
-                    className='h-20 w-20'
-                  />
-                  <div className='flex-1'>
-                    <div className='flex items-center space-x-2 mb-1'>
-                      <h3 className='text-lg font-semibold'>
-                        {session.user.name}
-                      </h3>
-                      <RoleBadge role={role} />
-                    </div>
-                    <p className='text-gray-600'>{session.user.email}</p>
+          <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+            <Card className='hover-lift border-primary/10'>
+              <CardHeader className='pb-3'>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='text-lg'>Profil</CardTitle>
+                  <div className='w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center'>
+                    <Mail className='w-5 h-5 text-primary' />
                   </div>
                 </div>
-
-                <div className='space-y-2'>
-                  <div className='flex items-center space-x-2 text-sm text-gray-600'>
+              </CardHeader>
+              <CardContent className='space-y-3'>
+                <div className='flex items-center space-x-2 mb-2'>
+                  <RoleBadge role={role} />
+                </div>
+                <div className='space-y-2 text-sm'>
+                  <div className='flex items-center space-x-2 text-muted-foreground'>
                     <Mail className='h-4 w-4' />
-                    <span>{session.user.email}</span>
+                    <span className='truncate'>{session.user.email}</span>
                   </div>
-                  <div className='flex items-center space-x-2 text-sm text-gray-600'>
+                  <div className='flex items-center space-x-2 text-muted-foreground'>
                     <Calendar className='h-4 w-4' />
                     <span>
                       Membre depuis le {new Date().toLocaleDateString('fr-FR')}
@@ -95,10 +92,14 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className='bg-white border border-gray-200/60 shadow-sm'>
-              <CardHeader>
-                <CardTitle>Actions rapides</CardTitle>
-                <CardDescription>Gérer votre compte</CardDescription>
+            <Card className='hover-lift border-primary/10'>
+              <CardHeader className='pb-3'>
+                <div className='flex items-center justify-between'>
+                  <CardTitle className='text-lg'>Actions rapides</CardTitle>
+                  <div className='w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center'>
+                    <LogOut className='w-5 h-5 text-primary' />
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <Button
@@ -117,6 +118,22 @@ export default function DashboardPage() {
                   <LogOut className='mr-2 h-4 w-4' />
                   Se déconnecter
                 </Button>
+              </CardContent>
+            </Card>
+
+            <Card className='hover-lift border-primary/10 md:col-span-2 lg:col-span-1'>
+              <CardHeader className='pb-3'>
+                <CardTitle className='text-lg text-primary'>Bienvenue !</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className='space-y-3 text-sm text-muted-foreground'>
+                  <p>Explorez les fonctionnalités disponibles :</p>
+                  <ul className='space-y-1 ml-4'>
+                    <li>• Gérer vos projets</li>
+                    <li>• Créer des kits</li>
+                    <li>• Organiser vos produits</li>
+                  </ul>
+                </div>
               </CardContent>
             </Card>
           </div>

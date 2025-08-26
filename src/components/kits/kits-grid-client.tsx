@@ -3,6 +3,7 @@
 import { KitCard } from './kit-card';
 import { Button } from '@/components/ui/button';
 import { Package2, Plus } from 'lucide-react';
+import Link from 'next/link';
 
 interface KitProduct {
   id: string;
@@ -55,53 +56,25 @@ export function KitsGridClient({
   showCreateButton = true,
 }: KitsGridClientProps) {
   return (
-    <div className='mt-8 space-y-8'>
-      {/* Title and Action Section */}
-      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
-        <div className='space-y-2'>
-          <h1 className='text-4xl font-bold text-gray-900'>Kits disponibles</h1>
-          <p className='text-gray-600 max-w-2xl'>Gérez vos kits de produits</p>
-        </div>
-        {showCreateButton && (
-          <div className='flex-shrink-0'>
-            <Button
-              asChild
-              className='bg-[#30C1BD] hover:bg-[#30C1BD]/80 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-3 text-base font-semibold rounded-xl'
-            >
-              <a href='/kits/nouveau'>
-                <Plus className='h-5 w-5 mr-2' />
-                Nouveau kit
-              </a>
-            </Button>
-          </div>
-        )}
-      </div>
-
+    <>
       {/* Kits Grid or Empty State */}
       {kits.length === 0 ? (
-        <div className='text-center py-20'>
-          <div className='relative mx-auto mb-8 w-32 h-32'>
-            <div className='absolute inset-0 bg-gradient-to-br from-[#30C1BD]/10 to-blue-50 rounded-full' />
-            <div className='absolute inset-4 bg-gradient-to-br from-[#30C1BD]/20 to-blue-100 rounded-full' />
-            <div className='absolute inset-8 bg-white rounded-full shadow-sm flex items-center justify-center'>
-              <Package2 className='w-12 h-12 text-[#30C1BD]' />
-            </div>
+        <div className='text-center py-12'>
+          <div className='w-16 h-16 mx-auto mb-4 bg-muted/30 rounded-2xl flex items-center justify-center'>
+            <Package2 className='h-8 w-8 text-muted-foreground' />
           </div>
-          <h3 className='text-2xl font-bold text-gray-900 mb-3'>
-            Aucun kit créé
+          <h3 className='text-lg font-semibold text-foreground mb-2'>
+            Aucun kit trouvé
           </h3>
-          <p className='text-gray-600 mb-8 leading-relaxed'>
-            Commencez par créer votre premier kit de produits modulaires
+          <p className='text-muted-foreground mb-6'>
+            Commencez par créer votre premier kit de produits
           </p>
           {showCreateButton && (
-            <Button
-              asChild
-              className='bg-[#30C1BD] hover:bg-[#30C1BD]/80 text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-3 text-base font-semibold rounded-xl'
-            >
-              <a href='/kits/nouveau'>
-                <Plus className='h-5 w-5 mr-2' />
+            <Button asChild>
+              <Link href='/kits/nouveau'>
+                <Plus className='h-4 w-4 mr-2' />
                 Créer mon premier kit
-              </a>
+              </Link>
             </Button>
           )}
         </div>
@@ -112,6 +85,6 @@ export function KitsGridClient({
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 }
