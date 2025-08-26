@@ -109,7 +109,7 @@ export async function PUT(
       select: { id: true },
     });
 
-    const existingProductIds = existingProducts.map((p) => p.id);
+    const existingProductIds = existingProducts.map((p: { id: string }) => p.id);
     const missingProducts = productIds.filter(
       (id) => !existingProductIds.includes(id)
     );

@@ -8,9 +8,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma db push && prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "vercel-build": "prisma db push && prisma generate && next build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
