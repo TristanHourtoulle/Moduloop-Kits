@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { kitSchema } from "@/lib/schemas/kit";
-import { UserRole } from "@/lib/types/user";
-import { getKitById, prisma } from "@/lib/db";
-import { invalidateKits, CACHE_CONFIG } from "@/lib/cache";
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { kitSchema } from '@/lib/schemas/kit';
+import { UserRole } from '@/lib/types/user';
+import { getKitById, prisma } from '@/lib/db';
+import { invalidateKits, CACHE_CONFIG } from '@/lib/cache';
 
 interface UserWithRole {
   role?: UserRole;
@@ -18,7 +18,7 @@ export async function GET(
     const session = await auth.api.getSession(request);
 
     if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     const { id } = await params;
@@ -27,13 +27,13 @@ export async function GET(
     const kit = await getKitById(id);
 
     if (!kit) {
-      return NextResponse.json({ error: "Kit non trouvé" }, { status: 404 });
+      return NextResponse.json({ error: 'Kit non trouvé' }, { status: 404 });
     }
 
     // Configure cache headers for this response
     const response = NextResponse.json(kit);
     response.headers.set(
-      "Cache-Control",
+      'Cache-Control',
       `public, s-maxage=${
         CACHE_CONFIG.KITS.revalidate
       }, stale-while-revalidate=${CACHE_CONFIG.KITS.revalidate * 5}`
@@ -41,9 +41,9 @@ export async function GET(
 
     return response;
   } catch (error) {
-    console.error("Erreur lors de la récupération du kit:", error);
+    console.error('Erreur lors de la récupération du kit:', error);
     return NextResponse.json(
-      { error: "Erreur interne du serveur" },
+      { error: 'Erreur interne du serveur' },
       { status: 500 }
     );
   }
@@ -58,7 +58,7 @@ export async function PUT(
     const session = await auth.api.getSession(request);
 
     if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     // Vérifier que l'utilisateur est DEV ou ADMIN
@@ -67,7 +67,7 @@ export async function PUT(
       return NextResponse.json(
         {
           error:
-            "Accès refusé. Seuls les développeurs et administrateurs peuvent modifier des kits.",
+            'Accès refusé. Seuls les développeurs et administrateurs peuvent modifier des kits.',
         },
         { status: 403 }
       );
@@ -83,7 +83,7 @@ export async function PUT(
     });
 
     if (!existingKit) {
-      return NextResponse.json({ error: "Kit non trouvé" }, { status: 404 });
+      return NextResponse.json({ error: 'Kit non trouvé' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -109,14 +109,16 @@ export async function PUT(
       select: { id: true },
     });
 
-    const existingProductIds = existingProducts.map((p: { id: string }) => p.id);
+    const existingProductIds = existingProducts.map(
+      (p: { id: string }) => p.id
+    );
     const missingProducts = productIds.filter(
       (id) => !existingProductIds.includes(id)
     );
 
     if (missingProducts.length > 0) {
       return NextResponse.json(
-        { error: `Produits introuvables: ${missingProducts.join(", ")}` },
+        { error: `Produits introuvables: ${missingProducts.join(', ')}` },
         { status: 400 }
       );
     }
@@ -177,17 +179,17 @@ export async function PUT(
 
     return NextResponse.json(updatedKit);
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du kit:", error);
+    console.error('Erreur lors de la mise à jour du kit:', error);
 
-    if (error instanceof Error && error.name === "ZodError") {
+    if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
-        { error: "Données invalides", details: error.message },
+        { error: 'Données invalides', details: error.message },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: "Erreur interne du serveur" },
+      { error: 'Erreur interne du serveur' },
       { status: 500 }
     );
   }
@@ -202,7 +204,7 @@ export async function DELETE(
     const session = await auth.api.getSession(request);
 
     if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     // Vérifier que l'utilisateur est DEV ou ADMIN
@@ -211,7 +213,7 @@ export async function DELETE(
       return NextResponse.json(
         {
           error:
-            "Accès refusé. Seuls les développeurs et administrateurs peuvent supprimer des kits.",
+            'Accès refusé. Seuls les développeurs et administrateurs peuvent supprimer des kits.',
         },
         { status: 403 }
       );
@@ -224,7 +226,7 @@ export async function DELETE(
     });
 
     if (!existingKit) {
-      return NextResponse.json({ error: "Kit non trouvé" }, { status: 404 });
+      return NextResponse.json({ error: 'Kit non trouvé' }, { status: 404 });
     }
 
     // Supprimer le kit (les kitProducts seront supprimés automatiquement grâce à onDelete: Cascade)
@@ -235,11 +237,11 @@ export async function DELETE(
     // Invalider le cache des kits après suppression
     invalidateKits();
 
-    return NextResponse.json({ message: "Kit supprimé avec succès" });
+    return NextResponse.json({ message: 'Kit supprimé avec succès' });
   } catch (error) {
-    console.error("Erreur lors de la suppression du kit:", error);
+    console.error('Erreur lors de la suppression du kit:', error);
     return NextResponse.json(
-      { error: "Erreur interne du serveur" },
+      { error: 'Erreur interne du serveur' },
       { status: 500 }
     );
   }
