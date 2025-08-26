@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db';
 
 interface KitRequest {
   kitId: string;
@@ -14,7 +14,7 @@ export async function POST(
   try {
     const session = await auth.api.getSession(request);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     const { id: projectId } = await params;
@@ -23,7 +23,7 @@ export async function POST(
 
     if (!kits || !Array.isArray(kits) || kits.length === 0) {
       return NextResponse.json(
-        { error: "Les kits sont requis" },
+        { error: 'Les kits sont requis' },
         { status: 400 }
       );
     }
@@ -37,7 +37,7 @@ export async function POST(
     });
 
     if (!project) {
-      return NextResponse.json({ error: "Projet non trouvé" }, { status: 404 });
+      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
     }
 
     // Vérifier que tous les kits existent
@@ -55,31 +55,55 @@ export async function POST(
       );
     }
 
-    // Supprimer les anciens kits du projet
-    await prisma.projectKit.deleteMany({
+    // Récupérer les kits existants du projet
+    const existingProjectKits = await prisma.projectKit.findMany({
       where: {
         projectId,
       },
     });
 
-    // Ajouter les nouveaux kits
-    const projectKits = await Promise.all(
-      kits.map((kit: KitRequest) =>
-        prisma.projectKit.create({
-          data: {
-            projectId,
-            kitId: kit.kitId,
-            quantite: kit.quantite,
-          },
-        })
-      )
-    );
+    // Créer un map des kits existants pour un accès rapide
+    const existingKitsMap = new Map();
+    existingProjectKits.forEach((pk) => {
+      existingKitsMap.set(pk.kitId, pk);
+    });
+
+    // Traiter chaque kit à ajouter
+    const operations = [];
+
+    for (const kit of kits) {
+      const existingKit = existingKitsMap.get(kit.kitId);
+
+      if (existingKit) {
+        // Kit existe déjà : additionner les quantités
+        operations.push(
+          prisma.projectKit.update({
+            where: { id: existingKit.id },
+            data: { quantite: existingKit.quantite + kit.quantite },
+          })
+        );
+      } else {
+        // Nouveau kit : créer une nouvelle entrée
+        operations.push(
+          prisma.projectKit.create({
+            data: {
+              projectId,
+              kitId: kit.kitId,
+              quantite: kit.quantite,
+            },
+          })
+        );
+      }
+    }
+
+    // Exécuter toutes les opérations
+    const projectKits = await Promise.all(operations);
 
     return NextResponse.json(projectKits, { status: 201 });
   } catch (error) {
     console.error("Erreur lors de l'ajout des kits au projet:", error);
     return NextResponse.json(
-      { error: "Erreur interne du serveur" },
+      { error: 'Erreur interne du serveur' },
       { status: 500 }
     );
   }
@@ -92,7 +116,7 @@ export async function GET(
   try {
     const session = await auth.api.getSession(request);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
     const { id: projectId } = await params;
@@ -116,9 +140,9 @@ export async function GET(
 
     return NextResponse.json(projectKits);
   } catch (error) {
-    console.error("Erreur lors de la récupération des kits du projet:", error);
+    console.error('Erreur lors de la récupération des kits du projet:', error);
     return NextResponse.json(
-      { error: "Erreur interne du serveur" },
+      { error: 'Erreur interne du serveur' },
       { status: 500 }
     );
   }

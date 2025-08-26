@@ -1,44 +1,74 @@
-import { Suspense } from "react";
-import { ProjectDetail } from "@/components/projects/project-detail";
-import { ProjectDetailSkeleton } from "@/components/projects/project-detail-skeleton";
-import { notFound } from "next/navigation";
+'use client';
 
-interface ProjectPageProps {
-  params: Promise<{ id: string }>;
-}
+import { Suspense, useEffect, useState } from 'react';
+import { ProjectDetail } from '@/components/projects/project-detail';
+import { ProjectDetailSkeleton } from '@/components/projects/project-detail-skeleton';
+import { notFound, useParams } from 'next/navigation';
+import { Project } from '@/lib/types/project';
 
-async function getProject(id: string) {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL}/api/projects/${id}`,
-      {
-        cache: "no-store",
+function ProjectContent() {
+  const params = useParams();
+  const projectId = params.id as string;
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const fetchProject = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/projects/${projectId}`, {
+        cache: 'no-store',
+      });
+
+      if (!response.ok) {
+        setError(true);
+        return;
       }
-    );
 
-    if (!response.ok) {
-      return null;
+      const data = await response.json();
+      setProject(data);
+      setError(false);
+    } catch (error) {
+      console.error('Erreur lors du chargement du projet:', error);
+      setError(true);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return response.json();
-  } catch (error) {
-    console.error("Erreur lors du chargement du projet:", error);
-    return null;
+  // Mise à jour optimiste du projet sans rechargement complet
+  const updateProject = (updatedProject: Project) => {
+    setProject(updatedProject);
+  };
+
+  useEffect(() => {
+    if (!projectId) return;
+    fetchProject();
+  }, [projectId]);
+
+  if (loading) {
+    return <ProjectDetailSkeleton />;
   }
-}
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
-  const { id } = await params;
-  const project = await getProject(id);
-
-  if (!project) {
+  if (error || !project) {
     notFound();
+    return null;
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <ProjectDetail
+      project={project}
+      onProjectUpdate={updateProject}
+      refreshProject={fetchProject}
+    />
+  );
+}
+
+export default function ProjectPage() {
+  return (
+    <div className='container mx-auto px-4 py-8 space-y-8'>
       <Suspense fallback={<ProjectDetailSkeleton />}>
-        <ProjectDetail project={project} />
+        <ProjectContent />
       </Suspense>
     </div>
   );

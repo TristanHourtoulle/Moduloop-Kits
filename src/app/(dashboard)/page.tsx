@@ -1,16 +1,24 @@
-import Image from 'next/image';
+'use client';
 
-export default function Home() {
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function DashboardRootPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Rediriger automatiquement vers /dashboard
+    router.push('/dashboard');
+  }, [router]);
+
   return (
-    <div className='w-full flex flex-col items-center justify-center min-h-screen text-center gap-3'>
-      <h1 className='text-4xl font-bold'>Welcome to Moduloop</h1>
-      <p className='mt-4'>Your one-stop solution for all things modular.</p>
-      <Image
-        src='/images/moduloop-logo.png'
-        alt='Moduloop Logo'
-        width={200}
-        height={200}
-      />
+    <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 w-full flex items-center justify-center'>
+      <div className='text-center'>
+        <div className='w-8 h-8 mx-auto mb-4'>
+          <div className='w-8 h-8 border-2 border-[#30C1BD] border-t-transparent rounded-full animate-spin'></div>
+        </div>
+        <p className='text-gray-600'>Redirection...</p>
+      </div>
     </div>
   );
 }
