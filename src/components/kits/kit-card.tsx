@@ -10,9 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Package2, Calendar, User, Calculator, Leaf } from "lucide-react";
-import Link from "next/link";
+import { Package2, Calendar, User, Calculator, Leaf, Edit, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useDialog } from "@/components/providers/dialog-provider";
+import { RoleGuard } from "@/components/auth/role-guard";
+import { UserRole } from "@/lib/types/user";
 
 interface KitProduct {
   id: string;
@@ -56,6 +58,8 @@ interface KitCardProps {
 }
 
 export function KitCard({ kit }: KitCardProps) {
+  const router = useRouter();
+  
   const calculateTotals = () => {
     let total1An = 0;
     let totalCO2 = 0;
@@ -104,7 +108,7 @@ export function KitCard({ kit }: KitCardProps) {
   };
 
   return (
-    <Card className="group relative overflow-hidden">
+    <Card className="group relative overflow-hidden" style={{ pointerEvents: 'auto' }}>
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
@@ -189,25 +193,44 @@ export function KitCard({ kit }: KitCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="pt-4">
-        <div className="flex gap-3 w-full">
-          <Button
-            variant="outline"
-            size="sm"
-            asChild
-            className="flex-1"
-          >
-            <Link href={`/kits/${kit.id}/modifier`}>Modifier</Link>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDelete}
-            className="flex-1 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-          >
-            Supprimer
-          </Button>
-        </div>
+      <CardFooter className="pt-4 pb-4">
+        <div 
+          className="flex gap-3 w-full pointer-events-auto" 
+          style={{ pointerEvents: 'auto' }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Modifier clicked for kit:', kit.id);
+                router.push(`/kits/${kit.id}/modifier`);
+              }}
+              className="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-primary/10 hover:text-primary hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200 cursor-pointer relative z-10"
+              style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+              title="Modifier le kit"
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Modifier
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Supprimer clicked for kit:', kit.id);
+                handleDelete();
+              }}
+              className="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:text-red-600 hover:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200 transition-all duration-200 cursor-pointer relative z-10"
+              style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+              title="Supprimer le kit"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Supprimer
+            </button>
+          </div>
       </CardFooter>
     </Card>
   );

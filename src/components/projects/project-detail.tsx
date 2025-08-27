@@ -252,11 +252,7 @@ export function ProjectDetail({
     <div className='min-h-screen bg-background w-full'>
       <div className='max-w-7xl mx-auto px-6 py-8 space-y-8'>
         {/* Header simplifié */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className='space-y-4'
-        >
+        <div className='space-y-4'>
           {/* Navigation et statut */}
           <div className='flex items-center justify-between'>
             <Button asChild variant='ghost' size='sm' className='text-muted-foreground'>
@@ -313,7 +309,7 @@ export function ProjectDetail({
               Créé le {new Date(project.createdAt).toLocaleDateString('fr-FR')}
             </p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Métriques principales */}
         <motion.div

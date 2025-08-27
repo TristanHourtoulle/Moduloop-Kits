@@ -1,6 +1,6 @@
 "use client";
 
-import { UseFormRegister, FieldErrors } from "react-hook-form";
+import { Control, FieldErrors, Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,12 +13,12 @@ import { Info } from "lucide-react";
 import { KitFormData } from "@/lib/schemas/kit";
 
 interface KitGeneralInfoSectionProps {
-  register: UseFormRegister<KitFormData>;
+  control: Control<KitFormData>;
   errors: FieldErrors<KitFormData>;
 }
 
 export function KitGeneralInfoSection({
-  register,
+  control,
   errors,
 }: KitGeneralInfoSectionProps) {
   return (
@@ -43,15 +43,21 @@ export function KitGeneralInfoSection({
               <Label htmlFor="nom" className="text-sm font-medium">
                 Nom du kit *
               </Label>
-              <Input
-                id="nom"
-                {...register("nom")}
-                placeholder="Ex: Kit Solaire Résidentiel"
-                className={`transition-colors ${
-                  errors.nom
-                    ? "border-red-500 focus:border-red-500"
-                    : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                }`}
+              <Controller
+                name="nom"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="nom"
+                    placeholder="Ex: Kit Solaire Résidentiel"
+                    className={`transition-colors ${
+                      errors.nom
+                        ? "border-red-500 focus:border-red-500"
+                        : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                    }`}
+                  />
+                )}
               />
               {errors.nom && (
                 <p className="text-sm text-red-500">{errors.nom.message}</p>
@@ -62,15 +68,21 @@ export function KitGeneralInfoSection({
               <Label htmlFor="style" className="text-sm font-medium">
                 Style *
               </Label>
-              <Input
-                id="style"
-                {...register("style")}
-                placeholder="Ex: Résidentiel, Commercial, Industriel"
-                className={`transition-colors ${
-                  errors.style
-                    ? "border-red-500 focus:border-red-500"
-                    : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                }`}
+              <Controller
+                name="style"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="style"
+                    placeholder="Ex: Résidentiel, Commercial, Industriel"
+                    className={`transition-colors ${
+                      errors.style
+                        ? "border-red-500 focus:border-red-500"
+                        : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                    }`}
+                  />
+                )}
               />
               {errors.style && (
                 <p className="text-sm text-red-500">{errors.style.message}</p>
@@ -82,16 +94,22 @@ export function KitGeneralInfoSection({
             <Label htmlFor="description" className="text-sm font-medium">
               Description
             </Label>
-            <Textarea
-              id="description"
-              {...register("description")}
-              placeholder="Description détaillée du kit et de ses avantages..."
-              rows={4}
-              className={`transition-colors resize-none ${
-                errors.description
-                  ? "border-red-500 focus:border-red-500"
-                  : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-              }`}
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  id="description"
+                  placeholder="Description détaillée du kit et de ses avantages..."
+                  rows={4}
+                  className={`transition-colors resize-none ${
+                    errors.description
+                      ? "border-red-500 focus:border-red-500"
+                      : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                  }`}
+                />
+              )}
             />
             {errors.description && (
               <p className="text-sm text-red-500">

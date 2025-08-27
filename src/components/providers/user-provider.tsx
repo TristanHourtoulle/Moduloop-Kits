@@ -29,19 +29,51 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const { data: session } = useSession();
   const [user, setUser] = useState<UserData | null>(null);
 
-  // Initialize user from session
+  // Initialize user from session and fetch role from DB
   useEffect(() => {
-    if (session?.user) {
-      setUser({
-        id: session.user.id,
-        name: session.user.name || '',
-        email: session.user.email,
-        image: session.user.image ?? undefined,
-        role: 'USER',
-      });
-    } else {
-      setUser(null);
-    }
+    const initializeUser = async () => {
+      if (session?.user) {
+        try {
+          // Fetch user data including role from API
+          const response = await fetch('/api/profile');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.user) {
+              setUser({
+                id: data.user.id,
+                name: data.user.name || session.user.name || '',
+                email: data.user.email || session.user.email,
+                image: data.user.image || session.user.image || undefined,
+                role: data.user.role || 'USER', // Use role from DB or fallback to USER
+              });
+            }
+          } else {
+            // Fallback to session data if API call fails
+            setUser({
+              id: session.user.id,
+              name: session.user.name || '',
+              email: session.user.email,
+              image: session.user.image ?? undefined,
+              role: 'USER', // Default fallback role
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+          // Fallback to session data if error occurs
+          setUser({
+            id: session.user.id,
+            name: session.user.name || '',
+            email: session.user.email,
+            image: session.user.image ?? undefined,
+            role: 'USER', // Default fallback role
+          });
+        }
+      } else {
+        setUser(null);
+      }
+    };
+
+    initializeUser();
   }, [session]);
 
   const updateUser = (userData: Partial<UserData>) => {

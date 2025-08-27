@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useZodForm } from "@/lib/forms";
 import { kitSchema, type KitFormData } from "@/lib/schemas/kit";
@@ -31,11 +31,41 @@ export function KitForm({ initialData, kitId, onSuccess }: KitFormProps) {
     formState: { errors },
     reset,
     control,
+    setValue,
+    getValues,
   } = useZodForm(kitSchema, {
     defaultValues: initialData || {
       products: [],
     },
   });
+
+  // Debug: afficher les données initiales
+  console.log('KitForm - initialData:', initialData);
+  console.log('KitForm - kitId:', kitId);
+
+  // Réinitialiser le formulaire avec les nouvelles données quand elles arrivent
+  useEffect(() => {
+    if (initialData) {
+      console.log('KitForm - resetting form with:', initialData);
+      
+      // Utiliser setValue pour chaque champ individuellement
+      if (initialData.nom) {
+        setValue('nom', initialData.nom);
+      }
+      if (initialData.style) {
+        setValue('style', initialData.style);
+      }
+      if (initialData.description) {
+        setValue('description', initialData.description);
+      }
+      if (initialData.products) {
+        setValue('products', initialData.products);
+      }
+
+      // Vérifier que les valeurs ont été mises à jour
+      console.log('KitForm - form values after setValue:', getValues());
+    }
+  }, [initialData, setValue, getValues]);
 
   const onSubmit = async (data: KitFormData) => {
     if (!session?.user) {
@@ -117,7 +147,7 @@ export function KitForm({ initialData, kitId, onSuccess }: KitFormProps) {
           defaultValue={["general", "products"]}
           className="space-y-4"
         >
-          <KitGeneralInfoSection register={register} errors={errors} />
+          <KitGeneralInfoSection control={control} errors={errors} />
 
           <KitProductsSection
             control={control}
