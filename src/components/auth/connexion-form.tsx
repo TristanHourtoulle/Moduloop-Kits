@@ -27,6 +27,8 @@ import {
   connexionSchema,
   type ConnexionFormData,
 } from "@/lib/validations/auth";
+import { getSpecificAuthError } from "@/lib/auth/error-messages";
+import { signInWithErrorHandling } from "@/lib/auth/sign-in-with-error-handling";
 
 export function ConnexionForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -46,18 +48,25 @@ export function ConnexionForm() {
     setError("");
 
     try {
-      await signIn.email({
-        email: data.email,
-        password: data.password,
-        callbackURL: "/dashboard",
-      });
-      router.push("/dashboard");
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
+      console.log("🔵 Using custom sign-in handler...");
+      
+      const result = await signInWithErrorHandling(data.email, data.password);
+      
+      console.log("🔵 Custom sign-in result:", result);
+      
+      if (result.success) {
+        console.log("🟢 Sign-in successful, redirecting...");
+        router.push("/dashboard");
       } else {
-        setError("Une erreur est survenue lors de la connexion");
+        console.log("🔴 Sign-in failed:", result.error);
+        const errorMessage = getSpecificAuthError(result.error || "Authentication failed", 'signin');
+        setError(errorMessage);
       }
+      
+    } catch (err: any) {
+      console.log("🔴 Unexpected error:", err);
+      const errorMessage = getSpecificAuthError(err, 'signin');
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

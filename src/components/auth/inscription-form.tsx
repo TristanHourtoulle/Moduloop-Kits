@@ -28,6 +28,7 @@ import {
   inscriptionSchema,
   type InscriptionFormData,
 } from "@/lib/validations/auth";
+import { getSpecificAuthError } from "@/lib/auth/error-messages";
 
 export function InscriptionForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,19 +54,26 @@ export function InscriptionForm() {
     setError("");
 
     try {
-      await signUp.email({
+      const result = await signUp.email({
         email: data.email,
         password: data.password,
         name: data.name,
         callbackURL: "/dashboard",
       });
+      
+      // Vérifier si l'inscription a réussi
+      if (result?.error) {
+        console.log("🔴 Sign-up error:", result.error);
+        const errorMessage = getSpecificAuthError(result.error, 'signup');
+        setError(errorMessage);
+        return;
+      }
+      
       router.push("/dashboard");
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Une erreur est survenue lors de l'inscription");
-      }
+      console.log("🔴 Caught error:", err);
+      const errorMessage = getSpecificAuthError(err, 'signup');
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
