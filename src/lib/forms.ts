@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
@@ -7,9 +7,31 @@ export function useZodForm<T extends z.ZodType<any>>(
   schema: T,
   options?: Parameters<typeof useForm<z.infer<T>>>[0]
 ) {
-  return useForm<z.infer<T>>({
+  const form = useForm<z.infer<T>>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema as any) as any,
+    // Mode de validation par défaut
+    mode: "onChange",
+    reValidateMode: "onChange",
     ...options,
   });
+
+  // Helper pour obtenir les erreurs formatées
+  const getFieldError = (fieldName: string): string | undefined => {
+    const error = form.formState.errors[fieldName as keyof typeof form.formState.errors] as FieldError | undefined;
+    return error?.message;
+  };
+
+  // Log des erreurs pour le debug
+  if (process.env.NODE_ENV === "development") {
+    const errors = form.formState.errors;
+    if (Object.keys(errors).length > 0) {
+      console.log("[useZodForm] Form errors:", errors);
+    }
+  }
+
+  return {
+    ...form,
+    getFieldError,
+  };
 }

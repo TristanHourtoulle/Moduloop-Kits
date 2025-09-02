@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   UseFormRegister,
   UseFormWatch,
@@ -34,6 +35,30 @@ export function PricingSection({
   const prixAchat2Ans = watch("prixAchat2Ans");
   const prixAchat3Ans = watch("prixAchat3Ans");
   const margeCoefficient = watch("margeCoefficient");
+
+  // Calcul automatique lors du changement de la marge
+  useEffect(() => {
+    if (margeCoefficient && margeCoefficient > 0) {
+      if (prixAchat1An && prixAchat1An > 0) {
+        setValue(
+          "prixVente1An",
+          Number((prixAchat1An * margeCoefficient).toFixed(2))
+        );
+      }
+      if (prixAchat2Ans && prixAchat2Ans > 0) {
+        setValue(
+          "prixVente2Ans",
+          Number((prixAchat2Ans * margeCoefficient).toFixed(2))
+        );
+      }
+      if (prixAchat3Ans && prixAchat3Ans > 0) {
+        setValue(
+          "prixVente3Ans",
+          Number((prixAchat3Ans * margeCoefficient).toFixed(2))
+        );
+      }
+    }
+  }, [margeCoefficient, prixAchat1An, prixAchat2Ans, prixAchat3Ans, setValue]);
 
   const handleCalculatePrix = () => {
     if (prixAchat1An && margeCoefficient) {
@@ -88,7 +113,7 @@ export function PricingSection({
                   type="number"
                   step="0.1"
                   {...register("margeCoefficient", {
-                    valueAsNumber: true,
+                    setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
                   })}
                   placeholder="Ex: 1.2"
                   min="1"
@@ -119,6 +144,9 @@ export function PricingSection({
             <p className="text-xs text-gray-600 mt-2">
               Ex: 1.2 = 20% de marge • 1.5 = 50% de marge • 2.0 = 100% de marge
             </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Les prix de vente sont calculés automatiquement mais peuvent être modifiés manuellement
+            </p>
           </div>
 
           {/* Tarification par période */}
@@ -137,7 +165,9 @@ export function PricingSection({
                   <Input
                     type="number"
                     step="0.01"
-                    {...register("prixAchat1An", { valueAsNumber: true })}
+                    {...register("prixAchat1An", { 
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
                     placeholder="250.00"
                     min="0"
                     className="focus:border-[#30C1BD] focus:ring-[#30C1BD]"
@@ -157,7 +187,7 @@ export function PricingSection({
                     type="number"
                     step="0.01"
                     {...register("prixUnitaire1An", {
-                      valueAsNumber: true,
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
                     })}
                     placeholder="300.00"
                     min="0"
@@ -177,7 +207,9 @@ export function PricingSection({
                   <Input
                     type="number"
                     step="0.01"
-                    {...register("prixVente1An", { valueAsNumber: true })}
+                    {...register("prixVente1An", { 
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
                     placeholder="300.00"
                     min="0"
                     className="focus:border-[#30C1BD] focus:ring-[#30C1BD] font-semibold"
@@ -206,7 +238,7 @@ export function PricingSection({
                     type="number"
                     step="0.01"
                     {...register("prixAchat2Ans", {
-                      valueAsNumber: true,
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
                     })}
                     placeholder="450.00"
                     min="0"
@@ -227,7 +259,7 @@ export function PricingSection({
                     type="number"
                     step="0.01"
                     {...register("prixUnitaire2Ans", {
-                      valueAsNumber: true,
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
                     })}
                     placeholder="540.00"
                     min="0"
@@ -248,7 +280,7 @@ export function PricingSection({
                     type="number"
                     step="0.01"
                     {...register("prixVente2Ans", {
-                      valueAsNumber: true,
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
                     })}
                     placeholder="540.00"
                     min="0"
@@ -278,7 +310,7 @@ export function PricingSection({
                     type="number"
                     step="0.01"
                     {...register("prixAchat3Ans", {
-                      valueAsNumber: true,
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
                     })}
                     placeholder="650.00"
                     min="0"
@@ -299,7 +331,7 @@ export function PricingSection({
                     type="number"
                     step="0.01"
                     {...register("prixUnitaire3Ans", {
-                      valueAsNumber: true,
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
                     })}
                     placeholder="780.00"
                     min="0"
@@ -320,7 +352,7 @@ export function PricingSection({
                     type="number"
                     step="0.01"
                     {...register("prixVente3Ans", {
-                      valueAsNumber: true,
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
                     })}
                     placeholder="780.00"
                     min="0"

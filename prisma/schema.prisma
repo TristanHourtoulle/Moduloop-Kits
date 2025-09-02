@@ -121,8 +121,8 @@ model Product {
   // Marge appliquée (coefficient)
   margeCoefficient      Float
   
-  // Surface occupée (m²)
-  surfaceM2             Float
+  // Surface occupée (m²) - optionnel pour les produits, requis pour les kits
+  surfaceM2             Float?
   
   // Impact environnemental
   rechauffementClimatique Float  // kg eq. CO2
@@ -130,8 +130,8 @@ model Product {
   acidification           Float  // MOL H+
   eutrophisation          Float  // kg P eq.
   
-  // Quantité
-  quantite              Int
+  // Quantité - optionnel pour les produits, requis pour les kits
+  quantite              Int?
   
   // Image (base64)
   image                 String?

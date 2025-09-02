@@ -105,12 +105,14 @@ export function GeneralInfoSection({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="quantite" className="text-sm font-medium">
-                Quantité *
+                Quantité <span className="text-gray-500">(optionnel)</span>
               </Label>
               <Input
                 id="quantite"
                 type="number"
-                {...register("quantite", { valueAsNumber: true })}
+                {...register("quantite", { 
+                  setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                })}
                 placeholder="Ex: 100"
                 min="0"
                 className={`transition-colors ${
@@ -124,17 +126,22 @@ export function GeneralInfoSection({
                   {errors.quantite.message}
                 </p>
               )}
+              <p className="text-xs text-gray-500">
+                Uniquement requis pour les kits
+              </p>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="surfaceM2" className="text-sm font-medium">
-                Surface occupée (m²) *
+                Surface occupée (m²) <span className="text-gray-500">(optionnel)</span>
               </Label>
               <Input
                 id="surfaceM2"
                 type="number"
                 step="0.01"
-                {...register("surfaceM2", { valueAsNumber: true })}
+                {...register("surfaceM2", { 
+                  setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                })}
                 placeholder="Ex: 2.5"
                 min="0"
                 className={`transition-colors ${
@@ -148,6 +155,9 @@ export function GeneralInfoSection({
                   {errors.surfaceM2.message}
                 </p>
               )}
+              <p className="text-xs text-gray-500">
+                Uniquement requis pour les kits
+              </p>
             </div>
           </div>
         </div>

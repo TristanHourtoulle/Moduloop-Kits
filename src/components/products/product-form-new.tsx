@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useZodForm } from "@/lib/forms";
 import { productSchema, type ProductFormData } from "@/lib/schemas/product";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Accordion } from "@/components/ui/accordion";
 import { useSession } from "@/lib/auth-client";
+import { parseNumberValue } from "@/lib/utils/form-helpers";
 
 // Import des sections
 import { GeneralInfoSection } from "./form-sections/general-info-section";
@@ -39,8 +40,39 @@ export function ProductForm({
     watch,
     reset,
   } = useZodForm(productSchema, {
-    defaultValues: initialData,
+    defaultValues: initialData || {
+      nom: "",
+      reference: "",
+      description: "",
+      prixAchat1An: 0,
+      prixUnitaire1An: 0,
+      prixVente1An: 0,
+      margeCoefficient: 1.2,
+      rechauffementClimatique: 0,
+      epuisementRessources: 0,
+      acidification: 0,
+      eutrophisation: 0,
+      // Champs optionnels
+      quantite: undefined,
+      surfaceM2: undefined,
+      prixAchat2Ans: undefined,
+      prixUnitaire2Ans: undefined,
+      prixVente2Ans: undefined,
+      prixAchat3Ans: undefined,
+      prixUnitaire3Ans: undefined,
+      prixVente3Ans: undefined,
+      image: undefined,
+    },
+    mode: "onChange", // Validation en temps réel
   });
+
+  // Debug: log form state changes
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) => {
+      console.log("[ProductFormNew] Field changed:", { name, type, value: value[name as keyof typeof value] });
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
 
   const onSubmit = async (data: ProductFormData) => {
     if (!session?.user) {

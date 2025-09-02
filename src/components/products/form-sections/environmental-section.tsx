@@ -46,7 +46,7 @@ export function EnvironmentalSection({
               type="number"
               step="0.01"
               {...register("rechauffementClimatique", {
-                valueAsNumber: true,
+                setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
               })}
               placeholder="150.5"
               min="0"
@@ -72,7 +72,7 @@ export function EnvironmentalSection({
               type="number"
               step="0.01"
               {...register("epuisementRessources", {
-                valueAsNumber: true,
+                setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
               })}
               placeholder="2500.0"
               min="0"
@@ -93,7 +93,9 @@ export function EnvironmentalSection({
             <Input
               type="number"
               step="0.01"
-              {...register("acidification", { valueAsNumber: true })}
+              {...register("acidification", { 
+                setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+              })}
               placeholder="0.25"
               min="0"
               className="focus:border-[#30C1BD] focus:ring-[#30C1BD]"
@@ -113,7 +115,9 @@ export function EnvironmentalSection({
             <Input
               type="number"
               step="0.01"
-              {...register("eutrophisation", { valueAsNumber: true })}
+              {...register("eutrophisation", { 
+                setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+              })}
               placeholder="0.05"
               min="0"
               className="focus:border-[#30C1BD] focus:ring-[#30C1BD]"

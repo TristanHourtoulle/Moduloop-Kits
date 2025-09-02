@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const kitProductSchema = z.object({
   productId: z.string().min(1, "Le produit est requis"),
-  quantite: z.number().int().min(1, "La quantité doit être au moins 1"),
+  quantite: z.coerce.number().int().min(1, "La quantité doit être au moins 1"),
 });
 
 export const kitSchema = z.object({

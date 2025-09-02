@@ -123,7 +123,7 @@ export function KitProductsSection({
       if (productData && productData.productId && productData.quantite) {
         const product = getSelectedProduct(productData.productId);
         if (product) {
-          const quantite = productData.quantite;
+          const quantite = Number(productData.quantite) || 0;
           total1An += product.prixVente1An * quantite;
           total2Ans += (product.prixVente2Ans || 0) * quantite;
           total3Ans += (product.prixVente3Ans || 0) * quantite;
@@ -254,8 +254,7 @@ export function KitProductsSection({
                               min="1"
                               value={field.quantite}
                               onChange={(e) => {
-                                const value = parseInt(e.target.value) || 1;
-                                update(index, { ...field, quantite: value });
+                                update(index, { ...field, quantite: Number(e.target.value) || 1 });
                               }}
                               className="transition-colors focus:border-[#30C1BD] focus:ring-[#30C1BD]"
                             />
@@ -272,7 +271,7 @@ export function KitProductsSection({
                                 <p className="font-medium">
                                   {(
                                     selectedProduct.prixVente1An *
-                                    field.quantite
+                                    (Number(field.quantite) || 0)
                                   ).toFixed(2)}
                                   €
                                 </p>
@@ -285,7 +284,7 @@ export function KitProductsSection({
                                   <p className="font-medium">
                                     {(
                                       selectedProduct.prixVente2Ans *
-                                      field.quantite
+                                      (Number(field.quantite) || 0)
                                     ).toFixed(2)}
                                     €
                                   </p>
@@ -299,7 +298,7 @@ export function KitProductsSection({
                                   <p className="font-medium">
                                     {(
                                       selectedProduct.prixVente3Ans *
-                                      field.quantite
+                                      (Number(field.quantite) || 0)
                                     ).toFixed(2)}
                                     €
                                   </p>
@@ -310,7 +309,7 @@ export function KitProductsSection({
                                 <p className="font-medium">
                                   {(
                                     selectedProduct.rechauffementClimatique *
-                                    field.quantite
+                                    (Number(field.quantite) || 0)
                                   ).toFixed(2)}{" "}
                                   kg
                                 </p>
