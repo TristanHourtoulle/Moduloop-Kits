@@ -1,21 +1,112 @@
-import { Metadata } from 'next';
-import { Suspense } from 'react';
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+// Client component - no need for Metadata
 import { RoleGuard } from '@/components/auth/role-guard';
 import { UserRole } from '@/lib/types/user';
-import { KitsGrid } from '@/components/kits/kits-grid';
-import { preloadKits } from '@/lib/db';
+import { KitsGridClient } from '@/components/kits/kits-grid-client';
 import { Button } from '@/components/ui/button';
-import { Package2, Plus } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Package2, Plus, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
-  title: 'Kits - Moduloop Kits',
-  description: 'Gérez vos kits de produits dans le catalogue Moduloop',
-};
+interface Kit {
+  id: string;
+  nom: string;
+  style: string;
+  description?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: {
+    id: string;
+    name?: string | null;
+    email: string;
+  };
+  updatedBy: {
+    id: string;
+    name?: string | null;
+    email: string;
+  };
+  kitProducts: Array<{
+    id: string;
+    quantite: number;
+    product: {
+      id: string;
+      nom: string;
+      reference: string;
+      prixVente1An: number;
+      prixVente2Ans?: number;
+      prixVente3Ans?: number;
+      rechauffementClimatique: number;
+      epuisementRessources: number;
+      acidification: number;
+      eutrophisation: number;
+      surfaceM2: number;
+    };
+  }>;
+}
 
 export default function KitsPage() {
-  // Preload kits data for better performance
-  preloadKits();
+  const [kits, setKits] = useState<Kit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchKits = useCallback(async () => {
+    try {
+      setError(null);
+      const response = await fetch('/api/kits', {
+        next: {
+          revalidate: 300,
+          tags: ['kits'],
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur lors du chargement des kits');
+      }
+
+      const data = await response.json();
+      setKits(data);
+    } catch (err) {
+      console.error('Erreur lors du chargement des kits:', err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Une erreur inattendue s'est produite"
+      );
+      setKits([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchKits();
+  }, [fetchKits]);
+
+  const handleDelete = useCallback(
+    async (kitId: string) => {
+      try {
+        const response = await fetch(`/api/kits/${kitId}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Erreur lors de la suppression du kit');
+        }
+
+        // Remove kit from local state without refetch
+        const updatedKits = kits.filter(k => k.id !== kitId);
+        setKits(updatedKits);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Erreur lors de la suppression'
+        );
+      }
+    },
+    [kits]
+  );
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
@@ -45,9 +136,26 @@ export default function KitsPage() {
             </Button>
           </div>
 
-          <Suspense fallback={<KitsGridSkeleton />}>
-            <KitsGrid showCreateButton={false} />
-          </Suspense>
+          {/* Error Alert */}
+          {error && (
+            <Alert className='border-red-200 bg-red-50'>
+              <AlertTriangle className='h-4 w-4 text-red-600' />
+              <AlertDescription className='text-red-800'>
+                {error}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Loading or Content */}
+          {loading ? (
+            <KitsGridSkeleton />
+          ) : (
+            <KitsGridClient 
+              kits={kits} 
+              showCreateButton={false} 
+              onDelete={handleDelete}
+            />
+          )}
         </div>
       </div>
     </RoleGuard>

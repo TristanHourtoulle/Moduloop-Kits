@@ -16,23 +16,6 @@ import { useDialog } from "@/components/providers/dialog-provider";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
 
-interface KitProduct {
-  id: string;
-  quantite: number;
-  product: {
-    id: string;
-    nom: string;
-    reference: string;
-    prixVente1An: number;
-    prixVente2Ans?: number;
-    prixVente3Ans?: number;
-    rechauffementClimatique: number;
-    epuisementRessources: number;
-    acidification: number;
-    eutrophisation: number;
-  };
-}
-
 interface Kit {
   id: string;
   nom: string;
@@ -50,21 +33,39 @@ interface Kit {
     name?: string;
     email: string;
   };
-  kitProducts: KitProduct[];
+  kitProducts: Array<{
+    id: string;
+    quantite: number;
+    product: {
+      id: string;
+      nom: string;
+      reference: string;
+      prixVente1An: number;
+      prixVente2Ans?: number;
+      prixVente3Ans?: number;
+      rechauffementClimatique: number;
+      epuisementRessources: number;
+      acidification: number;
+      eutrophisation: number;
+      surfaceM2: number;
+    };
+  }>;
 }
 
 interface KitCardProps {
   kit: Kit;
+  onDelete?: (kitId: string) => Promise<void>;
 }
 
-export function KitCard({ kit }: KitCardProps) {
+export function KitCard({ kit, onDelete }: KitCardProps) {
   const router = useRouter();
   
   const calculateTotals = () => {
     let total1An = 0;
     let totalCO2 = 0;
 
-    kit.kitProducts.forEach(({ product, quantite }) => {
+    kit.kitProducts.forEach((kitProduct) => {
+      const { product, quantite } = kitProduct;
       total1An += product.prixVente1An * quantite;
       totalCO2 += product.rechauffementClimatique * quantite;
     });
@@ -76,6 +77,10 @@ export function KitCard({ kit }: KitCardProps) {
   const { showConfirm, showError } = useDialog();
 
   const handleDelete = async () => {
+    if (!onDelete) {
+      return;
+    }
+
     const confirmed = await showConfirm(
       "Supprimer le kit",
       "Êtes-vous sûr de vouloir supprimer ce kit ? Cette action est irréversible.",
@@ -88,16 +93,7 @@ export function KitCard({ kit }: KitCardProps) {
     }
 
     try {
-      const response = await fetch(`/api/kits/${kit.id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la suppression du kit");
-      }
-
-      // Refresh the page to show updated data
-      window.location.reload();
+      await onDelete(kit.id);
     } catch (err) {
       console.error("Erreur:", err);
       await showError(
@@ -144,15 +140,18 @@ export function KitCard({ kit }: KitCardProps) {
             </span>
           </div>
           <div className="space-y-2 max-h-24 overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
-            {kit.kitProducts.map(({ product, quantite }) => (
-              <div
-                key={product.id}
-                className="flex justify-between items-center p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-              >
-                <span className="text-sm text-foreground truncate pr-2">{product.nom}</span>
-                <Badge variant="outline" className="text-xs bg-background">×{quantite}</Badge>
-              </div>
-            ))}
+            {kit.kitProducts.map((kitProduct) => {
+              const { product, quantite } = kitProduct;
+              return (
+                <div
+                  key={kitProduct.id}
+                  className="flex justify-between items-center p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                >
+                  <span className="text-sm text-foreground truncate pr-2">{product.nom}</span>
+                  <Badge variant="outline" className="text-xs bg-background">×{quantite}</Badge>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -200,36 +199,40 @@ export function KitCard({ kit }: KitCardProps) {
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Modifier clicked for kit:', kit.id);
-                router.push(`/kits/${kit.id}/modifier`);
-              }}
-              className="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-primary/10 hover:text-primary hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200 cursor-pointer relative z-10"
-              style={{ pointerEvents: 'auto', cursor: 'pointer' }}
-              title="Modifier le kit"
-            >
-              <Edit className="h-4 w-4 mr-2" />
-              Modifier
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Supprimer clicked for kit:', kit.id);
-                handleDelete();
-              }}
-              className="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:text-red-600 hover:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200 transition-all duration-200 cursor-pointer relative z-10"
-              style={{ pointerEvents: 'auto', cursor: 'pointer' }}
-              title="Supprimer le kit"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Supprimer
-            </button>
+            <RoleGuard requiredRole={UserRole.DEV}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Modifier clicked for kit:', kit.id);
+                  router.push(`/kits/${kit.id}/modifier`);
+                }}
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-primary/10 hover:text-primary hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-200 cursor-pointer relative z-10"
+                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                title="Modifier le kit"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Modifier
+              </button>
+            </RoleGuard>
+            <RoleGuard requiredRole={UserRole.DEV}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Supprimer clicked for kit:', kit.id);
+                  handleDelete();
+                }}
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:text-red-600 hover:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200 transition-all duration-200 cursor-pointer relative z-10"
+                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                title="Supprimer le kit"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Supprimer
+              </button>
+            </RoleGuard>
           </div>
       </CardFooter>
     </Card>

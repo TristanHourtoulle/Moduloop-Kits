@@ -5,23 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Package2, Plus } from 'lucide-react';
 import Link from 'next/link';
 
-interface KitProduct {
-  id: string;
-  quantite: number;
-  product: {
-    id: string;
-    nom: string;
-    reference: string;
-    prixVente1An: number;
-    prixVente2Ans?: number;
-    prixVente3Ans?: number;
-    rechauffementClimatique: number;
-    epuisementRessources: number;
-    acidification: number;
-    eutrophisation: number;
-  };
-}
-
 interface Kit {
   id: string;
   nom: string;
@@ -42,18 +25,32 @@ interface Kit {
   kitProducts: Array<{
     id: string;
     quantite: number;
-    product: KitProduct;
+    product: {
+      id: string;
+      nom: string;
+      reference: string;
+      prixVente1An: number;
+      prixVente2Ans?: number;
+      prixVente3Ans?: number;
+      rechauffementClimatique: number;
+      epuisementRessources: number;
+      acidification: number;
+      eutrophisation: number;
+      surfaceM2: number;
+    };
   }>;
 }
 
 interface KitsGridClientProps {
   kits: Kit[];
   showCreateButton?: boolean;
+  onDelete?: (kitId: string) => Promise<void>;
 }
 
 export function KitsGridClient({
   kits,
   showCreateButton = true,
+  onDelete,
 }: KitsGridClientProps) {
   return (
     <>
@@ -81,7 +78,7 @@ export function KitsGridClient({
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
           {kits.map((kit) => (
-            <KitCard key={kit.id} kit={kit as any} />
+            <KitCard key={kit.id} kit={kit as any} onDelete={onDelete} />
           ))}
         </div>
       )}
