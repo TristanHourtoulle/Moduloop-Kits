@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma, calculateProjectTotals } from '@/lib/db';
 import { Project } from '@/lib/types/project';
+import { UserRole } from '@/lib/types/user';
 
 export async function GET(
   request: NextRequest,
@@ -13,13 +14,28 @@ export async function GET(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
+    // Récupérer le rôle de l'utilisateur connecté
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+
+    const isAdmin = currentUser?.role === UserRole.ADMIN || currentUser?.role === UserRole.DEV;
+
     const { id } = await params;
+    
+    // Si l'utilisateur est admin/dev, il peut voir tous les projets
+    // Sinon, il ne peut voir que ses propres projets
+    const whereClause = isAdmin 
+      ? { id }
+      : { id, createdById: session.user.id };
+
     const project = await prisma.project.findFirst({
-      where: {
-        id,
-        createdById: session.user.id,
-      },
+      where: whereClause,
       include: {
+        createdBy: {
+          select: { id: true, name: true, email: true },
+        },
         projectKits: {
           include: {
             kit: {

@@ -1,35 +1,24 @@
 import { Suspense } from 'react';
-import { ProjectsGrid } from '@/components/projects/projects-grid';
-import { CreateProjectButton } from '@/components/projects/create-project-button';
-import { ProjectsHeader } from '@/components/projects/projects-header';
-import { ProjectsGridSkeleton } from '@/components/projects/projects-grid-skeleton';
+import { ProjectsPageClient } from '@/components/projects/projects-page-client';
 
 export default function ProjectsPage() {
   return (
-    <div className='min-h-screen bg-background w-full'>
+    <div className='bg-background w-full'>
       <div className='max-w-7xl mx-auto px-6 py-8'>
-        {/* Header Section */}
-        <ProjectsHeader />
-
         {/* Main Content */}
         <div className='mt-8 space-y-8'>
-          {/* Title and Action Section */}
-          <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
-            <div className='space-y-2'>
-              <h1 className='text-4xl font-bold text-gray-900'>Mes Projets</h1>
-              <p className='text-gray-600 max-w-2xl'>
-                Gérez vos projets de construction modulaire et suivez leur
-                progression
-              </p>
+          <Suspense fallback={
+            <div className='space-y-8'>
+              <div className='h-12 flex items-center'>
+                <div className='text-sm text-muted-foreground'>Chargement...</div>
+              </div>
+              <div className='flex justify-between items-center'>
+                <h1 className='text-4xl font-bold text-gray-900'>Projets</h1>
+              </div>
+              <div className='text-center py-8'>Chargement des projets...</div>
             </div>
-            <div className='flex-shrink-0'>
-              <CreateProjectButton />
-            </div>
-          </div>
-
-          {/* Projects Grid */}
-          <Suspense fallback={<ProjectsGridSkeleton />}>
-            <ProjectsGrid />
+          }>
+            <ProjectsPageClient />
           </Suspense>
         </div>
       </div>

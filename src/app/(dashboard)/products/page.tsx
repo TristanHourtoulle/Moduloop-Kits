@@ -9,26 +9,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { RoleGuard } from '@/components/auth/role-guard';
 import { UserRole } from '@/lib/types/user';
 import { ProductsGrid } from '@/components/products/products-grid';
+import { type Product } from '@/lib/types/project';
 import { Plus, Search, AlertTriangle, Package } from 'lucide-react';
 import Link from 'next/link';
-
-interface Product {
-  id: string;
-  nom: string;
-  reference: string;
-  description?: string;
-  prixVente1An: number;
-  quantite: number;
-  surfaceM2: number;
-  rechauffementClimatique: number;
-  image?: string;
-  createdAt: string;
-  createdBy: {
-    id: string;
-    name: string;
-    email: string;
-  };
-}
 
 interface ProductsResponse {
   products: Product[];

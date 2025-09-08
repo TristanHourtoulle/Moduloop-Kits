@@ -26,6 +26,7 @@ import {
   X,
   ChevronDown,
   FolderOpen,
+  Shield,
 } from "lucide-react";
 import { useState } from "react";
 import { useSession, signOut } from "@/lib/auth-client";
@@ -44,7 +45,7 @@ export function DashboardHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { data: session } = useSession();
   const { user } = useUser();
-  const { role } = useRole();
+  const { role, isDevOrAdmin } = useRole();
   const pathname = usePathname();
   const router = useRouter();
   
@@ -120,6 +121,26 @@ export function DashboardHeader() {
                 </Link>
               );
             })}
+            {/* Admin Navigation - Only for DEV and ADMIN roles */}
+            {isDevOrAdmin && (
+              <Link href="/admin" className="cursor-pointer">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`relative transition-all duration-200 hover:scale-105 cursor-pointer ${
+                    pathname === "/admin" || pathname.startsWith("/admin/")
+                      ? "text-primary bg-primary/10 hover:bg-primary/20"
+                      : "text-muted-foreground hover:text-primary hover:bg-accent"
+                  }`}
+                >
+                  <Shield className="mr-2 h-4 w-4" />
+                  Admin
+                  {(pathname === "/admin" || pathname.startsWith("/admin/")) && (
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
+                  )}
+                </Button>
+              </Link>
+            )}
           </nav>
 
           {/* Desktop User Menu */}
@@ -238,6 +259,24 @@ export function DashboardHeader() {
                   </Link>
                 );
               })}
+              {/* Admin Navigation - Mobile - Only for DEV and ADMIN roles */}
+              {isDevOrAdmin && (
+                <Link href="/admin" className="cursor-pointer">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`w-full justify-start transition-all duration-200 cursor-pointer ${
+                      pathname === "/admin" || pathname.startsWith("/admin/")
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-primary hover:bg-accent"
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Shield className="mr-2 h-4 w-4" />
+                    Admin
+                  </Button>
+                </Link>
+              )}
             </div>
 
             {/* Mobile User Section */}

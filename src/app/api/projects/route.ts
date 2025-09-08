@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getProjects, createProject, calculateProjectTotals } from "@/lib/db";
+import { getProjects, createProject, calculateProjectTotals, prisma } from "@/lib/db";
 import { Project } from "@/lib/types/project";
+import { UserRole } from "@/lib/types/user";
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,7 +11,34 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const projects = await getProjects(session.user.id);
+    // Récupérer le rôle de l'utilisateur connecté
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+
+    const isAdmin = currentUser?.role === UserRole.ADMIN || currentUser?.role === UserRole.DEV;
+
+    // Récupérer le paramètre userId depuis l'URL
+    const url = new URL(request.url);
+    const requestedUserId = url.searchParams.get('userId');
+
+    let targetUserId = session.user.id; // Par défaut, l'utilisateur connecté
+
+    // Si un userId est demandé et que l'utilisateur est admin/dev
+    if (requestedUserId && isAdmin) {
+      // Vérifier que l'utilisateur cible existe
+      const targetUser = await prisma.user.findUnique({
+        where: { id: requestedUserId },
+        select: { id: true, name: true, email: true },
+      });
+
+      if (targetUser) {
+        targetUserId = requestedUserId;
+      }
+    }
+
+    const projects = await getProjects(targetUserId);
 
     // Calculer les totaux pour chaque projet
     const projectsWithTotals = projects.map((project) => {

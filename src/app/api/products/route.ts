@@ -196,12 +196,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Préparer les données en supprimant seulement les valeurs undefined non requises
+    // et en fournissant des valeurs par défaut pour les champs legacy requis
+    const createData: any = {
+      // Champs de base (toujours présents depuis la validation)
+      nom: validatedData.nom,
+      reference: validatedData.reference,
+      description: validatedData.description,
+      
+      // Valeurs par défaut pour les champs legacy requis par Prisma
+      prixAchat1An: validatedData.prixAchat1An ?? 0,
+      prixUnitaire1An: validatedData.prixUnitaire1An ?? 0,
+      prixVente1An: validatedData.prixVente1An ?? 0,
+      margeCoefficient: validatedData.margeCoefficient ?? 1,
+      rechauffementClimatique: validatedData.rechauffementClimatique ?? 0,
+      epuisementRessources: validatedData.epuisementRessources ?? 0,
+      acidification: validatedData.acidification ?? 0,
+      eutrophisation: validatedData.eutrophisation ?? 0,
+      
+      // Métadonnées
+      createdById: session.user.id,
+      updatedById: session.user.id,
+    };
+
+    // Ajouter tous les autres champs non-undefined du schema validé
+    Object.entries(validatedData).forEach(([key, value]) => {
+      if (value !== undefined && !createData.hasOwnProperty(key)) {
+        createData[key] = value;
+      }
+    });
+
     const product = await prisma.product.create({
-      data: {
-        ...validatedData,
-        createdById: session.user.id,
-        updatedById: session.user.id,
-      },
+      data: createData,
       include: {
         createdBy: {
           select: { id: true, name: true, email: true },

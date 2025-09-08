@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,47 +11,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Package2, Calendar, User, Calculator, Leaf, Edit, Trash2 } from "lucide-react";
+import { Package2, Calendar, User, Calculator, Leaf, Edit, Trash2, ShoppingCart, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDialog } from "@/components/providers/dialog-provider";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
+import { type PurchaseRentalMode } from "@/lib/schemas/product";
+import {
+  getProductPricing,
+  getProductEnvironmentalImpact,
+  formatPrice,
+} from "@/lib/utils/product-helpers";
 
-interface Kit {
-  id: string;
-  nom: string;
-  style: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: {
-    id: string;
-    name?: string;
-    email: string;
-  };
-  updatedBy: {
-    id: string;
-    name?: string;
-    email: string;
-  };
-  kitProducts: Array<{
-    id: string;
-    quantite: number;
-    product: {
-      id: string;
-      nom: string;
-      reference: string;
-      prixVente1An: number;
-      prixVente2Ans?: number;
-      prixVente3Ans?: number;
-      rechauffementClimatique: number;
-      epuisementRessources: number;
-      acidification: number;
-      eutrophisation: number;
-      surfaceM2: number;
-    };
-  }>;
-}
+// Utiliser le type Kit complet du system
+import { type Kit } from "@/lib/types/project";
 
 interface KitCardProps {
   kit: Kit;
@@ -59,21 +33,27 @@ interface KitCardProps {
 
 export function KitCard({ kit, onDelete }: KitCardProps) {
   const router = useRouter();
+  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat');
   
-  const calculateTotals = () => {
-    let total1An = 0;
+  const calculateTotals = (mode: PurchaseRentalMode) => {
+    let totalPrice = 0;
     let totalCO2 = 0;
 
-    kit.kitProducts.forEach((kitProduct) => {
+    kit.kitProducts?.forEach((kitProduct) => {
       const { product, quantite } = kitProduct;
-      total1An += product.prixVente1An * quantite;
-      totalCO2 += product.rechauffementClimatique * quantite;
+      if (product) {
+        const pricing = getProductPricing(product, mode, '1an');
+        const environmentalImpact = getProductEnvironmentalImpact(product, mode);
+        
+        totalPrice += (pricing.prixVente || 0) * quantite;
+        totalCO2 += (environmentalImpact.rechauffementClimatique || 0) * quantite;
+      }
     });
 
-    return { total1An, totalCO2 };
+    return { totalPrice, totalCO2 };
   };
 
-  const { total1An, totalCO2 } = calculateTotals();
+  const { totalPrice, totalCO2 } = calculateTotals(selectedMode);
   const { showConfirm, showError } = useDialog();
 
   const handleDelete = async () => {
@@ -136,12 +116,14 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
             <span className="text-sm font-medium text-foreground">
-              {kit.kitProducts.length} produit{kit.kitProducts.length > 1 ? "s" : ""}
+              {kit.kitProducts?.length || 0} produit{(kit.kitProducts?.length || 0) > 1 ? "s" : ""}
             </span>
           </div>
           <div className="space-y-2 max-h-24 overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent">
-            {kit.kitProducts.map((kitProduct) => {
+            {kit.kitProducts?.map((kitProduct) => {
               const { product, quantite } = kitProduct;
+              if (!product) return null;
+              
               return (
                 <div
                   key={kitProduct.id}
@@ -151,8 +133,34 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
                   <Badge variant="outline" className="text-xs bg-background">×{quantite}</Badge>
                 </div>
               );
-            })}
+            })?.filter(Boolean)}
           </div>
+        </div>
+
+        {/* Sélecteur de mode */}
+        <div className="flex gap-1 mb-4">
+          <Button
+            variant={selectedMode === 'achat' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedMode('achat')}
+            className={`h-7 px-2 text-xs flex-1 ${
+              selectedMode === 'achat' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
+            }`}
+          >
+            <ShoppingCart className="w-3 h-3 mr-1" />
+            Achat
+          </Button>
+          <Button
+            variant={selectedMode === 'location' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedMode('location')}
+            className={`h-7 px-2 text-xs flex-1 ${
+              selectedMode === 'location' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
+            }`}
+          >
+            <Home className="w-3 h-3 mr-1" />
+            Location
+          </Button>
         </div>
 
         {/* Section métriques */}
@@ -160,19 +168,21 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Calculator className="h-4 w-4 text-primary" />
-              <span className="text-sm text-muted-foreground">Prix total</span>
+              <span className="text-sm text-muted-foreground">
+                Prix {selectedMode === 'achat' ? 'achat' : 'location'}
+              </span>
             </div>
             <p className="text-2xl font-bold text-primary">
-              {total1An.toFixed(2)}€
+              {formatPrice(totalPrice)}
             </p>
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Leaf className="h-4 w-4 text-emerald-600" />
-              <span className="text-sm text-muted-foreground">CO₂</span>
+              <span className="text-sm text-muted-foreground">CO₂ {selectedMode}</span>
             </div>
             <p className="text-2xl font-bold text-emerald-600">
-              {totalCO2.toFixed(2)} kg
+              {totalCO2.toFixed(1)} kg
             </p>
           </div>
         </div>
@@ -182,7 +192,7 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
               <User className="h-3 w-3" />
-              <span className="truncate">{kit.createdBy.name || kit.createdBy.email}</span>
+              <span className="truncate">{kit.createdBy?.name || kit.createdBy?.email || 'N/A'}</span>
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
