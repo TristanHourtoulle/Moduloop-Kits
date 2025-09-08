@@ -7,24 +7,31 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateProjectButton } from './create-project-button';
+import { useSearchParams } from 'next/navigation';
 
 interface ProjectsGridProps {
   projects?: Project[];
+  selectedUserId?: string;
 }
 
-export function ProjectsGrid({ projects }: ProjectsGridProps) {
+export function ProjectsGrid({ projects, selectedUserId }: ProjectsGridProps) {
   const [localProjects, setLocalProjects] = useState<Project[]>(projects || []);
   const [isLoading, setIsLoading] = useState(!projects);
+  const searchParams = useSearchParams();
+
+  // Récupérer l'userId depuis les props ou les params d'URL
+  const userId = selectedUserId || searchParams.get('userId') || undefined;
 
   useEffect(() => {
     if (!projects) {
       fetchProjects();
     }
-  }, [projects]);
+  }, [projects, userId]);
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch('/api/projects');
+      const url = userId ? `/api/projects?userId=${userId}` : '/api/projects';
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setLocalProjects(data);
@@ -35,6 +42,12 @@ export function ProjectsGrid({ projects }: ProjectsGridProps) {
       setIsLoading(false);
     }
   };
+
+  // Refetch projects when userId changes
+  useEffect(() => {
+    setIsLoading(true);
+    fetchProjects();
+  }, [userId]);
 
   if (isLoading) {
     return <div>Chargement...</div>;

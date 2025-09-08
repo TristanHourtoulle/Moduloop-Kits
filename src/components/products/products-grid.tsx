@@ -1,24 +1,7 @@
 "use client";
 
 import { ProductCard } from "@/components/products/product-card";
-
-interface Product {
-  id: string;
-  nom: string;
-  reference: string;
-  description?: string;
-  prixVente1An: number;
-  quantite: number;
-  surfaceM2: number;
-  rechauffementClimatique: number;
-  image?: string;
-  createdAt: string;
-  createdBy: {
-    id: string;
-    name: string;
-    email: string;
-  };
-}
+import { type Product } from "@/lib/types/project";
 
 interface ProductsGridProps {
   products: Product[];

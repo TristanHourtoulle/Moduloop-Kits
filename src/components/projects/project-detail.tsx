@@ -407,13 +407,7 @@ export function ProjectDetail({
             <h2 className='text-lg font-semibold text-foreground'>
               Impact environnemental
             </h2>
-            {project.totalImpact ? (
-              <EnvironmentalMetrics impact={project.totalImpact} />
-            ) : (
-              <p className='text-muted-foreground text-center py-8'>
-                Aucune donnée d'impact disponible
-              </p>
-            )}
+            <EnvironmentalMetrics project={project} />
           </TabsContent>
 
           <TabsContent value='pricing' className='space-y-4'>

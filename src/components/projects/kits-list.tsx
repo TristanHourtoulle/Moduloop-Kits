@@ -17,10 +17,17 @@ import {
   Plus,
   Minus,
   Info,
+  Home,
 } from 'lucide-react';
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { ProjectKit, Kit, KitProduct } from '@/lib/types/project';
+import { type PurchaseRentalMode } from '@/lib/schemas/product';
+import {
+  getProductPricing,
+  getProductEnvironmentalImpact,
+  formatPrice as formatPriceHelper,
+} from '@/lib/utils/product-helpers';
 
 interface KitsListProps {
   projectKits: ProjectKit[];
@@ -29,35 +36,29 @@ interface KitsListProps {
     newQuantity: number
   ) => Promise<void>;
   onRemoveKit?: (projectKitId: string) => Promise<void>;
+  mode?: PurchaseRentalMode;
 }
 
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(price);
-};
-
-const getKitImpact = (kitProducts: KitProduct[]) => {
+const getKitImpact = (kitProducts: KitProduct[], mode: PurchaseRentalMode) => {
   return kitProducts.reduce(
     (acc, kitProduct) => {
       const product = kitProduct.product;
       if (!product) return acc;
+      
+      const environmentalImpact = getProductEnvironmentalImpact(product, mode);
 
       return {
         rechauffementClimatique:
           acc.rechauffementClimatique +
-          product.rechauffementClimatique * kitProduct.quantite,
+          (environmentalImpact.rechauffementClimatique || 0) * kitProduct.quantite,
         epuisementRessources:
           acc.epuisementRessources +
-          product.epuisementRessources * kitProduct.quantite,
+          (environmentalImpact.epuisementRessources || 0) * kitProduct.quantite,
         acidification:
-          acc.acidification + product.acidification * kitProduct.quantite,
+          acc.acidification + (environmentalImpact.acidification || 0) * kitProduct.quantite,
         eutrophisation:
-          acc.eutrophisation + product.eutrophisation * kitProduct.quantite,
-        surface: acc.surface + product.surfaceM2 * kitProduct.quantite,
+          acc.eutrophisation + (environmentalImpact.eutrophisation || 0) * kitProduct.quantite,
+        surface: acc.surface + (product.surfaceM2 || 0) * kitProduct.quantite,
       };
     },
     {
@@ -70,11 +71,13 @@ const getKitImpact = (kitProducts: KitProduct[]) => {
   );
 };
 
-const getKitPrice = (kitProducts: KitProduct[]) => {
+const getKitPrice = (kitProducts: KitProduct[], mode: PurchaseRentalMode) => {
   return kitProducts.reduce((acc, kitProduct) => {
     const product = kitProduct.product;
     if (!product) return acc;
-    return acc + product.prixVente1An * kitProduct.quantite;
+    
+    const pricing = getProductPricing(product, mode, '1an');
+    return acc + (pricing.prixVente || 0) * kitProduct.quantite;
   }, 0);
 };
 
@@ -82,10 +85,12 @@ export function KitsList({
   projectKits,
   onUpdateQuantity,
   onRemoveKit,
+  mode = 'achat',
 }: KitsListProps) {
   const [expandedKits, setExpandedKits] = useState<Set<string>>(new Set());
   const [editingQuantity, setEditingQuantity] = useState<string | null>(null);
   const [tempQuantity, setTempQuantity] = useState<number>(0);
+  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>(mode);
 
   const toggleKitExpansion = (kitId: string) => {
     const newExpanded = new Set(expandedKits);
@@ -171,8 +176,8 @@ export function KitsList({
           );
         }
 
-        const kitImpact = getKitImpact(kit.kitProducts);
-        const kitPrice = getKitPrice(kit.kitProducts);
+        const kitImpact = getKitImpact(kit.kitProducts, selectedMode);
+        const kitPrice = getKitPrice(kit.kitProducts, selectedMode);
         const totalPrice = kitPrice * projectKit.quantite;
         const totalImpact = {
           rechauffementClimatique:
@@ -291,16 +296,41 @@ export function KitsList({
 
                   <div className='text-right ml-4'>
                     <div className='text-2xl font-bold text-[#30C1BD] mb-1'>
-                      {formatPrice(totalPrice)}
+                      {formatPriceHelper(totalPrice)}
                     </div>
                     <div className='text-sm text-gray-500'>
-                      {formatPrice(kitPrice)} par kit
+                      {formatPriceHelper(kitPrice)} par kit ({selectedMode === 'achat' ? 'Achat' : 'Location'})
                     </div>
                   </div>
                 </div>
               </CardHeader>
 
               <CardContent className='space-y-4'>
+                {/* Sélecteur de mode */}
+                <div className='flex gap-2 justify-center mb-4'>
+                  <Button
+                    variant={selectedMode === 'achat' ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setSelectedMode('achat')}
+                    className={`flex items-center gap-2 ${
+                      selectedMode === 'achat' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
+                    }`}
+                  >
+                    <ShoppingCart className='w-3 h-3' />
+                    Achat (Neuf)
+                  </Button>
+                  <Button
+                    variant={selectedMode === 'location' ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setSelectedMode('location')}
+                    className={`flex items-center gap-2 ${
+                      selectedMode === 'location' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
+                    }`}
+                  >
+                    <Home className='w-3 h-3' />
+                    Location (Existant)
+                  </Button>
+                </div>
                 {/* Métriques principales */}
                 <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
                   <div className='text-center p-3 bg-gray-50 rounded-lg'>
@@ -424,42 +454,56 @@ export function KitsList({
                                     </div>
                                     
                                     <div className='text-right flex-shrink-0'>
-                                      <div className='text-lg font-bold text-gray-900 mb-1'>
-                                        {formatPrice(product.prixVente1An * kitProduct.quantite)}
-                                      </div>
-                                      <div className='text-sm text-gray-500'>
-                                        {formatPrice(product.prixVente1An)} /unité
-                                      </div>
+                                      {(() => {
+                                        const productPricing = getProductPricing(product, selectedMode, '1an');
+                                        return (
+                                          <>
+                                            <div className='text-lg font-bold text-gray-900 mb-1'>
+                                              {formatPriceHelper((productPricing.prixVente || 0) * kitProduct.quantite)}
+                                            </div>
+                                            <div className='text-sm text-gray-500'>
+                                              {formatPriceHelper(productPricing.prixVente || 0)} /unité
+                                            </div>
+                                          </>
+                                        );
+                                      })()}
                                     </div>
                                   </div>
                                   
                                   {/* Environmental metrics in a compact horizontal layout */}
                                   <div className='mt-3 pt-3 border-t border-gray-100'>
                                     <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs'>
-                                      <div className='flex items-center gap-2'>
-                                        <div className='w-2 h-2 bg-red-500 rounded-full'></div>
-                                        <span className='text-gray-600'>
-                                          {(product.rechauffementClimatique * kitProduct.quantite).toFixed(1)} kg CO₂
-                                        </span>
-                                      </div>
-                                      <div className='flex items-center gap-2'>
-                                        <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
-                                        <span className='text-gray-600'>
-                                          {(product.epuisementRessources * kitProduct.quantite).toFixed(0)} MJ
-                                        </span>
-                                      </div>
-                                      <div className='flex items-center gap-2'>
-                                        <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
-                                        <span className='text-gray-600'>
-                                          {(product.acidification * kitProduct.quantite).toFixed(1)} MOL H+
-                                        </span>
-                                      </div>
-                                      <div className='flex items-center gap-2'>
-                                        <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                                        <span className='text-gray-600'>
-                                          {(product.eutrophisation * kitProduct.quantite).toFixed(1)} kg P eq
-                                        </span>
-                                      </div>
+                                      {(() => {
+                                        const productImpact = getProductEnvironmentalImpact(product, selectedMode);
+                                        return (
+                                          <>
+                                            <div className='flex items-center gap-2'>
+                                              <div className='w-2 h-2 bg-red-500 rounded-full'></div>
+                                              <span className='text-gray-600'>
+                                                {((productImpact.rechauffementClimatique || 0) * kitProduct.quantite).toFixed(1)} kg CO₂
+                                              </span>
+                                            </div>
+                                            <div className='flex items-center gap-2'>
+                                              <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
+                                              <span className='text-gray-600'>
+                                                {((productImpact.epuisementRessources || 0) * kitProduct.quantite).toFixed(0)} MJ
+                                              </span>
+                                            </div>
+                                            <div className='flex items-center gap-2'>
+                                              <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                                              <span className='text-gray-600'>
+                                                {((productImpact.acidification || 0) * kitProduct.quantite).toFixed(1)} MOL H+
+                                              </span>
+                                            </div>
+                                            <div className='flex items-center gap-2'>
+                                              <div className='w-2 h-2 bg-green-500 rounded-full'></div>
+                                              <span className='text-gray-600'>
+                                                {((productImpact.eutrophisation || 0) * kitProduct.quantite).toFixed(1)} kg P eq
+                                              </span>
+                                            </div>
+                                          </>
+                                        );
+                                      })()}
                                     </div>
                                   </div>
                                 </div>

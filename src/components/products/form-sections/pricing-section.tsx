@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   UseFormRegister,
   UseFormWatch,
@@ -10,13 +10,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Euro, Calculator, TrendingUp } from "lucide-react";
-import { ProductFormData } from "@/lib/schemas/product";
+import { Euro, Calculator, TrendingUp, Info, ShoppingCart, Home } from "lucide-react";
+import { ProductFormData, PurchaseRentalMode } from "@/lib/schemas/product";
 
 interface PricingSectionProps {
   register: UseFormRegister<ProductFormData>;
@@ -31,54 +32,484 @@ export function PricingSection({
   setValue,
   errors,
 }: PricingSectionProps) {
-  const prixAchat1An = watch("prixAchat1An");
-  const prixAchat2Ans = watch("prixAchat2Ans");
-  const prixAchat3Ans = watch("prixAchat3Ans");
-  const margeCoefficient = watch("margeCoefficient");
+  const [activeMode, setActiveMode] = useState<PurchaseRentalMode>('achat');
+  
+  // Watch des valeurs pour les calculs automatiques
+  const watchedValues = {
+    // Achat
+    prixAchatAchat1An: watch("prixAchatAchat1An"),
+    prixAchatAchat2Ans: watch("prixAchatAchat2Ans"),
+    prixAchatAchat3Ans: watch("prixAchatAchat3Ans"),
+    prixUnitaireAchat1An: watch("prixUnitaireAchat1An"),
+    prixUnitaireAchat2Ans: watch("prixUnitaireAchat2Ans"),
+    prixUnitaireAchat3Ans: watch("prixUnitaireAchat3Ans"),
+    margeCoefficientAchat: watch("margeCoefficientAchat"),
+    
+    // Location
+    prixAchatLocation1An: watch("prixAchatLocation1An"),
+    prixAchatLocation2Ans: watch("prixAchatLocation2Ans"),
+    prixAchatLocation3Ans: watch("prixAchatLocation3Ans"),
+    prixUnitaireLocation1An: watch("prixUnitaireLocation1An"),
+    prixUnitaireLocation2Ans: watch("prixUnitaireLocation2Ans"),
+    prixUnitaireLocation3Ans: watch("prixUnitaireLocation3Ans"),
+    margeCoefficientLocation: watch("margeCoefficientLocation"),
+    
+    // Commun
+    quantite: watch("quantite") || 1,
+  };
 
-  // Calcul automatique lors du changement de la marge
+  // Calcul automatique du prix unitaire basé sur la marge pour ACHAT
   useEffect(() => {
-    if (margeCoefficient && margeCoefficient > 0) {
-      if (prixAchat1An && prixAchat1An > 0) {
-        setValue(
-          "prixVente1An",
-          Number((prixAchat1An * margeCoefficient).toFixed(2))
-        );
+    if (watchedValues.margeCoefficientAchat && watchedValues.margeCoefficientAchat > 0) {
+      if (watchedValues.prixAchatAchat1An && watchedValues.prixAchatAchat1An > 0) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat1An * watchedValues.margeCoefficientAchat).toFixed(2));
+        setValue("prixUnitaireAchat1An", nouveauPrixUnitaire);
       }
-      if (prixAchat2Ans && prixAchat2Ans > 0) {
-        setValue(
-          "prixVente2Ans",
-          Number((prixAchat2Ans * margeCoefficient).toFixed(2))
-        );
+      if (watchedValues.prixAchatAchat2Ans && watchedValues.prixAchatAchat2Ans > 0) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat2Ans * watchedValues.margeCoefficientAchat).toFixed(2));
+        setValue("prixUnitaireAchat2Ans", nouveauPrixUnitaire);
       }
-      if (prixAchat3Ans && prixAchat3Ans > 0) {
-        setValue(
-          "prixVente3Ans",
-          Number((prixAchat3Ans * margeCoefficient).toFixed(2))
-        );
+      if (watchedValues.prixAchatAchat3Ans && watchedValues.prixAchatAchat3Ans > 0) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat3Ans * watchedValues.margeCoefficientAchat).toFixed(2));
+        setValue("prixUnitaireAchat3Ans", nouveauPrixUnitaire);
       }
     }
-  }, [margeCoefficient, prixAchat1An, prixAchat2Ans, prixAchat3Ans, setValue]);
+  }, [watchedValues.margeCoefficientAchat, watchedValues.prixAchatAchat1An, watchedValues.prixAchatAchat2Ans, watchedValues.prixAchatAchat3Ans, setValue]);
 
-  const handleCalculatePrix = () => {
-    if (prixAchat1An && margeCoefficient) {
-      setValue(
-        "prixVente1An",
-        Number((prixAchat1An * margeCoefficient).toFixed(2))
-      );
+  // Calcul automatique du prix unitaire basé sur la marge pour LOCATION
+  useEffect(() => {
+    if (watchedValues.margeCoefficientLocation && watchedValues.margeCoefficientLocation > 0) {
+      if (watchedValues.prixAchatLocation1An && watchedValues.prixAchatLocation1An > 0) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation1An * watchedValues.margeCoefficientLocation).toFixed(2));
+        setValue("prixUnitaireLocation1An", nouveauPrixUnitaire);
+      }
+      if (watchedValues.prixAchatLocation2Ans && watchedValues.prixAchatLocation2Ans > 0) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation2Ans * watchedValues.margeCoefficientLocation).toFixed(2));
+        setValue("prixUnitaireLocation2Ans", nouveauPrixUnitaire);
+      }
+      if (watchedValues.prixAchatLocation3Ans && watchedValues.prixAchatLocation3Ans > 0) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation3Ans * watchedValues.margeCoefficientLocation).toFixed(2));
+        setValue("prixUnitaireLocation3Ans", nouveauPrixUnitaire);
+      }
     }
-    if (prixAchat2Ans && margeCoefficient) {
-      setValue(
-        "prixVente2Ans",
-        Number((prixAchat2Ans * margeCoefficient).toFixed(2))
-      );
+  }, [watchedValues.margeCoefficientLocation, watchedValues.prixAchatLocation1An, watchedValues.prixAchatLocation2Ans, watchedValues.prixAchatLocation3Ans, setValue]);
+
+  // Calcul automatique du prix total basé sur le prix unitaire et la quantité pour ACHAT
+  useEffect(() => {
+    if (watchedValues.prixUnitaireAchat1An && watchedValues.prixUnitaireAchat1An > 0) {
+      setValue("prixVenteAchat1An", Number((watchedValues.prixUnitaireAchat1An * watchedValues.quantite).toFixed(2)));
     }
-    if (prixAchat3Ans && margeCoefficient) {
-      setValue(
-        "prixVente3Ans",
-        Number((prixAchat3Ans * margeCoefficient).toFixed(2))
-      );
+    if (watchedValues.prixUnitaireAchat2Ans && watchedValues.prixUnitaireAchat2Ans > 0) {
+      setValue("prixVenteAchat2Ans", Number((watchedValues.prixUnitaireAchat2Ans * watchedValues.quantite).toFixed(2)));
     }
+    if (watchedValues.prixUnitaireAchat3Ans && watchedValues.prixUnitaireAchat3Ans > 0) {
+      setValue("prixVenteAchat3Ans", Number((watchedValues.prixUnitaireAchat3Ans * watchedValues.quantite).toFixed(2)));
+    }
+  }, [watchedValues.prixUnitaireAchat1An, watchedValues.prixUnitaireAchat2Ans, watchedValues.prixUnitaireAchat3Ans, watchedValues.quantite, setValue]);
+
+  // Calcul automatique du prix total basé sur le prix unitaire et la quantité pour LOCATION
+  useEffect(() => {
+    if (watchedValues.prixUnitaireLocation1An && watchedValues.prixUnitaireLocation1An > 0) {
+      setValue("prixVenteLocation1An", Number((watchedValues.prixUnitaireLocation1An * watchedValues.quantite).toFixed(2)));
+    }
+    if (watchedValues.prixUnitaireLocation2Ans && watchedValues.prixUnitaireLocation2Ans > 0) {
+      setValue("prixVenteLocation2Ans", Number((watchedValues.prixUnitaireLocation2Ans * watchedValues.quantite).toFixed(2)));
+    }
+    if (watchedValues.prixUnitaireLocation3Ans && watchedValues.prixUnitaireLocation3Ans > 0) {
+      setValue("prixVenteLocation3Ans", Number((watchedValues.prixUnitaireLocation3Ans * watchedValues.quantite).toFixed(2)));
+    }
+  }, [watchedValues.prixUnitaireLocation1An, watchedValues.prixUnitaireLocation2Ans, watchedValues.prixUnitaireLocation3Ans, watchedValues.quantite, setValue]);
+
+  const handleCalculatePrix = (mode: PurchaseRentalMode) => {
+    if (mode === 'achat') {
+      const marge = watchedValues.margeCoefficientAchat;
+      if (watchedValues.prixAchatAchat1An && marge) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat1An * marge).toFixed(2));
+        setValue("prixUnitaireAchat1An", nouveauPrixUnitaire);
+        setValue("prixVenteAchat1An", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
+      }
+      if (watchedValues.prixAchatAchat2Ans && marge) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat2Ans * marge).toFixed(2));
+        setValue("prixUnitaireAchat2Ans", nouveauPrixUnitaire);
+        setValue("prixVenteAchat2Ans", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
+      }
+      if (watchedValues.prixAchatAchat3Ans && marge) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat3Ans * marge).toFixed(2));
+        setValue("prixUnitaireAchat3Ans", nouveauPrixUnitaire);
+        setValue("prixVenteAchat3Ans", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
+      }
+    } else {
+      const marge = watchedValues.margeCoefficientLocation;
+      if (watchedValues.prixAchatLocation1An && marge) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation1An * marge).toFixed(2));
+        setValue("prixUnitaireLocation1An", nouveauPrixUnitaire);
+        setValue("prixVenteLocation1An", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
+      }
+      if (watchedValues.prixAchatLocation2Ans && marge) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation2Ans * marge).toFixed(2));
+        setValue("prixUnitaireLocation2Ans", nouveauPrixUnitaire);
+        setValue("prixVenteLocation2Ans", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
+      }
+      if (watchedValues.prixAchatLocation3Ans && marge) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation3Ans * marge).toFixed(2));
+        setValue("prixUnitaireLocation3Ans", nouveauPrixUnitaire);
+        setValue("prixVenteLocation3Ans", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
+      }
+    }
+  };
+
+  const getMarge = (prixAchat: number | undefined, prixUnitaire: number | undefined) => {
+    if (!prixAchat || !prixUnitaire || prixAchat === 0) return 0;
+    return Number((((prixUnitaire - prixAchat) / prixAchat) * 100).toFixed(1));
+  };
+
+  const renderPricingForm = (mode: PurchaseRentalMode) => {
+    const suffix = mode === 'achat' ? 'Achat' : 'Location';
+    const modeLabel = mode === 'achat' ? 'Achat' : 'Location';
+    const modeIcon = mode === 'achat' ? ShoppingCart : Home;
+    
+    return (
+      <div className="space-y-6">
+        {/* Coefficient de marge */}
+        <div className="bg-gradient-to-r from-[#30C1BD]/5 to-green-50 p-6 rounded-lg border">
+          <div className="flex items-center gap-3 mb-4">
+            <TrendingUp className="h-5 w-5 text-[#30C1BD]" />
+            <h4 className="font-semibold text-gray-900">
+              Coefficient de marge - {modeLabel}
+            </h4>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Input
+                id={`margeCoefficient${suffix}`}
+                type="number"
+                step="0.1"
+                {...register(`margeCoefficient${suffix}` as keyof ProductFormData, {
+                  setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                })}
+                placeholder="Ex: 1.2"
+                min="1"
+                max="10"
+                className={`transition-colors ${
+                  errors[`margeCoefficient${suffix}` as keyof ProductFormData]
+                    ? "border-red-500 focus:border-red-500"
+                    : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                }`}
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleCalculatePrix(mode)}
+              className="flex items-center gap-2 border-[#30C1BD] text-[#30C1BD] hover:bg-[#30C1BD] hover:text-white cursor-pointer"
+            >
+              <Calculator className="h-4 w-4" />
+              Calculer les prix
+            </Button>
+          </div>
+          {errors[`margeCoefficient${suffix}` as keyof ProductFormData] && (
+            <p className="text-sm text-red-500 mt-2">
+              {errors[`margeCoefficient${suffix}` as keyof ProductFormData]?.message}
+            </p>
+          )}
+          <p className="text-xs text-gray-600 mt-2">
+            Ex: 1.2 = 20% de marge • 1.5 = 50% de marge • 2.0 = 100% de marge
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Les prix unitaires Moduloop sont calculés automatiquement avec la marge
+          </p>
+        </div>
+
+        {/* Tarification par période */}
+        <div className="space-y-6">
+          {/* 1 an */}
+          <div className="bg-white border rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                <div className="w-2 h-2 bg-[#30C1BD] rounded-full"></div>
+                Tarification 1 an * - {modeLabel}
+              </h4>
+              {watchedValues[`prixAchat${suffix}1An` as keyof typeof watchedValues] && watchedValues[`prixUnitaire${suffix}1An` as keyof typeof watchedValues] && (
+                <span className="text-sm font-medium text-green-600">
+                  Marge: {getMarge(
+                    watchedValues[`prixAchat${suffix}1An` as keyof typeof watchedValues] as number,
+                    watchedValues[`prixUnitaire${suffix}1An` as keyof typeof watchedValues] as number
+                  )}%
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Prix d&apos;achat fournisseur
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...register(`prixAchat${suffix}1An` as keyof ProductFormData, { 
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
+                    placeholder="250.00"
+                    min="0"
+                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] pr-8"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
+                </div>
+                {errors[`prixAchat${suffix}1An` as keyof ProductFormData] && (
+                  <p className="text-sm text-red-500">
+                    {errors[`prixAchat${suffix}1An` as keyof ProductFormData]?.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Prix unitaire Moduloop
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...register(`prixUnitaire${suffix}1An` as keyof ProductFormData, {
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
+                    placeholder="300.00"
+                    min="0"
+                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] pr-8"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
+                </div>
+                {errors[`prixUnitaire${suffix}1An` as keyof ProductFormData] && (
+                  <p className="text-sm text-red-500">
+                    {errors[`prixUnitaire${suffix}1An` as keyof ProductFormData]?.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Prix total {watchedValues.quantite > 1 && `(×${watchedValues.quantite})`}
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...register(`prixVente${suffix}1An` as keyof ProductFormData, { 
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
+                    placeholder="300.00"
+                    min="0"
+                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] font-semibold bg-gray-50 pr-8"
+                    readOnly
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-700 text-sm font-semibold">€</span>
+                </div>
+                {errors[`prixVente${suffix}1An` as keyof ProductFormData] && (
+                  <p className="text-sm text-red-500">
+                    {errors[`prixVente${suffix}1An` as keyof ProductFormData]?.message}
+                  </p>
+                )}
+                <p className="text-xs text-gray-500">
+                  Calculé automatiquement
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 2 ans */}
+          <div className="bg-gray-50 border rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                Tarification 2 ans (optionnel) - {modeLabel}
+              </h4>
+              {watchedValues[`prixAchat${suffix}2Ans` as keyof typeof watchedValues] && watchedValues[`prixUnitaire${suffix}2Ans` as keyof typeof watchedValues] && (
+                <span className="text-sm font-medium text-green-600">
+                  Marge: {getMarge(
+                    watchedValues[`prixAchat${suffix}2Ans` as keyof typeof watchedValues] as number,
+                    watchedValues[`prixUnitaire${suffix}2Ans` as keyof typeof watchedValues] as number
+                  )}%
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Prix d&apos;achat fournisseur
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...register(`prixAchat${suffix}2Ans` as keyof ProductFormData, {
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
+                    placeholder="450.00"
+                    min="0"
+                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] pr-8"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
+                </div>
+                {errors[`prixAchat${suffix}2Ans` as keyof ProductFormData] && (
+                  <p className="text-sm text-red-500">
+                    {errors[`prixAchat${suffix}2Ans` as keyof ProductFormData]?.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Prix unitaire Moduloop
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...register(`prixUnitaire${suffix}2Ans` as keyof ProductFormData, {
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
+                    placeholder="540.00"
+                    min="0"
+                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] pr-8"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
+                </div>
+                {errors[`prixUnitaire${suffix}2Ans` as keyof ProductFormData] && (
+                  <p className="text-sm text-red-500">
+                    {errors[`prixUnitaire${suffix}2Ans` as keyof ProductFormData]?.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Prix total {watchedValues.quantite > 1 && `(×${watchedValues.quantite})`}
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...register(`prixVente${suffix}2Ans` as keyof ProductFormData, {
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
+                    placeholder="540.00"
+                    min="0"
+                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] font-semibold bg-gray-50 pr-8"
+                    readOnly
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-700 text-sm font-semibold">€</span>
+                </div>
+                {errors[`prixVente${suffix}2Ans` as keyof ProductFormData] && (
+                  <p className="text-sm text-red-500">
+                    {errors[`prixVente${suffix}2Ans` as keyof ProductFormData]?.message}
+                  </p>
+                )}
+                <p className="text-xs text-gray-500">
+                  Calculé automatiquement
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 3 ans */}
+          <div className="bg-gray-50 border rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                Tarification 3 ans (optionnel) - {modeLabel}
+              </h4>
+              {watchedValues[`prixAchat${suffix}3Ans` as keyof typeof watchedValues] && watchedValues[`prixUnitaire${suffix}3Ans` as keyof typeof watchedValues] && (
+                <span className="text-sm font-medium text-green-600">
+                  Marge: {getMarge(
+                    watchedValues[`prixAchat${suffix}3Ans` as keyof typeof watchedValues] as number,
+                    watchedValues[`prixUnitaire${suffix}3Ans` as keyof typeof watchedValues] as number
+                  )}%
+                </span>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Prix d&apos;achat fournisseur
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...register(`prixAchat${suffix}3Ans` as keyof ProductFormData, {
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
+                    placeholder="650.00"
+                    min="0"
+                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] pr-8"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
+                </div>
+                {errors[`prixAchat${suffix}3Ans` as keyof ProductFormData] && (
+                  <p className="text-sm text-red-500">
+                    {errors[`prixAchat${suffix}3Ans` as keyof ProductFormData]?.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Prix unitaire Moduloop
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...register(`prixUnitaire${suffix}3Ans` as keyof ProductFormData, {
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
+                    placeholder="780.00"
+                    min="0"
+                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] pr-8"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
+                </div>
+                {errors[`prixUnitaire${suffix}3Ans` as keyof ProductFormData] && (
+                  <p className="text-sm text-red-500">
+                    {errors[`prixUnitaire${suffix}3Ans` as keyof ProductFormData]?.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">
+                  Prix total {watchedValues.quantite > 1 && `(×${watchedValues.quantite})`}
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    {...register(`prixVente${suffix}3Ans` as keyof ProductFormData, {
+                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
+                    })}
+                    placeholder="780.00"
+                    min="0"
+                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] font-semibold bg-gray-50 pr-8"
+                    readOnly
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-700 text-sm font-semibold">€</span>
+                </div>
+                {errors[`prixVente${suffix}3Ans` as keyof ProductFormData] && (
+                  <p className="text-sm text-red-500">
+                    {errors[`prixVente${suffix}3Ans` as keyof ProductFormData]?.message}
+                  </p>
+                )}
+                <p className="text-xs text-gray-500">
+                  Calculé automatiquement
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -91,283 +522,47 @@ export function PricingSection({
           <div className="text-left">
             <h3 className="font-semibold">Tarification</h3>
             <p className="text-sm text-gray-500">
-              Prix d&apos;achat, marge et prix de vente
+              Prix d&apos;achat, location et marges
             </p>
           </div>
         </div>
       </AccordionTrigger>
       <AccordionContent className="px-6 pb-6">
-        <div className="space-y-8">
-          {/* Coefficient de marge */}
-          <div className="bg-gradient-to-r from-[#30C1BD]/5 to-green-50 p-6 rounded-lg border">
-            <div className="flex items-center gap-3 mb-4">
-              <TrendingUp className="h-5 w-5 text-[#30C1BD]" />
-              <h4 className="font-semibold text-gray-900">
-                Coefficient de marge
-              </h4>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <Input
-                  id="margeCoefficient"
-                  type="number"
-                  step="0.1"
-                  {...register("margeCoefficient", {
-                    setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                  })}
-                  placeholder="Ex: 1.2"
-                  min="1"
-                  max="10"
-                  className={`transition-colors ${
-                    errors.margeCoefficient
-                      ? "border-red-500 focus:border-red-500"
-                      : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                  }`}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleCalculatePrix}
-                className="flex items-center gap-2 border-[#30C1BD] text-[#30C1BD] hover:bg-[#30C1BD] hover:text-white cursor-pointer"
-              >
-                <Calculator className="h-4 w-4" />
-                Calculer les prix
-              </Button>
-            </div>
-            {errors.margeCoefficient && (
-              <p className="text-sm text-red-500 mt-2">
-                {errors.margeCoefficient.message}
-              </p>
-            )}
-            <p className="text-xs text-gray-600 mt-2">
-              Ex: 1.2 = 20% de marge • 1.5 = 50% de marge • 2.0 = 100% de marge
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Les prix de vente sont calculés automatiquement mais peuvent être modifiés manuellement
-            </p>
-          </div>
-
-          {/* Tarification par période */}
-          <div className="space-y-6">
-            {/* 1 an */}
-            <div className="bg-white border rounded-lg p-6">
-              <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <div className="w-2 h-2 bg-[#30C1BD] rounded-full"></div>
-                Tarification 1 an *
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Prix d&apos;achat fournisseur
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...register("prixAchat1An", { 
-                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                    })}
-                    placeholder="250.00"
-                    min="0"
-                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                  />
-                  {errors.prixAchat1An && (
-                    <p className="text-sm text-red-500">
-                      {errors.prixAchat1An.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Prix unitaire Moduloop
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...register("prixUnitaire1An", {
-                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                    })}
-                    placeholder="300.00"
-                    min="0"
-                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                  />
-                  {errors.prixUnitaire1An && (
-                    <p className="text-sm text-red-500">
-                      {errors.prixUnitaire1An.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Prix de vente total
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...register("prixVente1An", { 
-                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                    })}
-                    placeholder="300.00"
-                    min="0"
-                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] font-semibold"
-                  />
-                  {errors.prixVente1An && (
-                    <p className="text-sm text-red-500">
-                      {errors.prixVente1An.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* 2 ans */}
-            <div className="bg-gray-50 border rounded-lg p-6">
-              <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                Tarification 2 ans (optionnel)
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Prix d&apos;achat fournisseur
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...register("prixAchat2Ans", {
-                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                    })}
-                    placeholder="450.00"
-                    min="0"
-                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                  />
-                  {errors.prixAchat2Ans && (
-                    <p className="text-sm text-red-500">
-                      {errors.prixAchat2Ans.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Prix unitaire Moduloop
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...register("prixUnitaire2Ans", {
-                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                    })}
-                    placeholder="540.00"
-                    min="0"
-                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                  />
-                  {errors.prixUnitaire2Ans && (
-                    <p className="text-sm text-red-500">
-                      {errors.prixUnitaire2Ans.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Prix de vente total
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...register("prixVente2Ans", {
-                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                    })}
-                    placeholder="540.00"
-                    min="0"
-                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] font-semibold"
-                  />
-                  {errors.prixVente2Ans && (
-                    <p className="text-sm text-red-500">
-                      {errors.prixVente2Ans.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* 3 ans */}
-            <div className="bg-gray-50 border rounded-lg p-6">
-              <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                Tarification 3 ans (optionnel)
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Prix d&apos;achat fournisseur
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...register("prixAchat3Ans", {
-                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                    })}
-                    placeholder="650.00"
-                    min="0"
-                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                  />
-                  {errors.prixAchat3Ans && (
-                    <p className="text-sm text-red-500">
-                      {errors.prixAchat3Ans.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Prix unitaire Moduloop
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...register("prixUnitaire3Ans", {
-                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                    })}
-                    placeholder="780.00"
-                    min="0"
-                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                  />
-                  {errors.prixUnitaire3Ans && (
-                    <p className="text-sm text-red-500">
-                      {errors.prixUnitaire3Ans.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">
-                    Prix de vente total
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    {...register("prixVente3Ans", {
-                      setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                    })}
-                    placeholder="780.00"
-                    min="0"
-                    className="focus:border-[#30C1BD] focus:ring-[#30C1BD] font-semibold"
-                  />
-                  {errors.prixVente3Ans && (
-                    <p className="text-sm text-red-500">
-                      {errors.prixVente3Ans.message}
-                    </p>
-                  )}
-                </div>
-              </div>
+        {/* Note d'information */}
+        <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex gap-3">
+            <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-blue-900">
+              <p className="font-semibold mb-1">Différence Achat / Location :</p>
+              <ul className="space-y-1 text-xs">
+                <li>• <strong>Achat</strong> : Prix pour l'acquisition définitive d'équipements neufs</li>
+                <li>• <strong>Location</strong> : Prix pour la location temporaire d'équipements existants</li>
+                <li>• Chaque mode a ses propres prix et impacts environnementaux</li>
+              </ul>
             </div>
           </div>
         </div>
+
+        <Tabs value={activeMode} onValueChange={(value) => setActiveMode(value as PurchaseRentalMode)}>
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="achat" className="flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              Achat
+            </TabsTrigger>
+            <TabsTrigger value="location" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Location
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="achat">
+            {renderPricingForm('achat')}
+          </TabsContent>
+
+          <TabsContent value="location">
+            {renderPricingForm('location')}
+          </TabsContent>
+        </Tabs>
       </AccordionContent>
     </AccordionItem>
   );

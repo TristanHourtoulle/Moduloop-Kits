@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
 import { useDialog } from "@/components/providers/dialog-provider";
+import { type PurchaseRentalMode } from "@/lib/schemas/product";
+import {
+  getProductPricing,
+  getProductEnvironmentalImpact,
+  getDefaultProductMode,
+  formatPrice,
+} from "@/lib/utils/product-helpers";
 import {
   Edit,
   Trash2,
@@ -15,25 +23,12 @@ import {
   Calendar,
   User,
   Leaf,
+  ShoppingCart,
+  Home,
 } from "lucide-react";
 
-interface Product {
-  id: string;
-  nom: string;
-  reference: string;
-  description?: string;
-  prixVente1An: number;
-  quantite: number;
-  surfaceM2: number;
-  rechauffementClimatique: number;
-  image?: string;
-  createdAt: string;
-  createdBy: {
-    id: string;
-    name: string;
-    email: string;
-  };
-}
+// Utiliser l'interface Product complète du type system
+import { type Product } from "@/lib/types/project";
 
 interface ProductCardProps {
   product: Product;
@@ -43,6 +38,13 @@ interface ProductCardProps {
 export function ProductCard({ product, onDelete }: ProductCardProps) {
   const router = useRouter();
   const { showConfirm } = useDialog();
+  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>(
+    getDefaultProductMode(product)
+  );
+  
+  // Récupérer les prix et impact pour le mode sélectionné
+  const pricing = getProductPricing(product, selectedMode, '1an');
+  const environmentalImpact = getProductEnvironmentalImpact(product, selectedMode);
 
   const handleDelete = async () => {
     const confirmed = await showConfirm(
@@ -134,26 +136,60 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
 
           {/* Métriques et informations en bas */}
           <div className="flex items-center justify-between">
-            {/* Prix à gauche */}
-            <div className="flex items-center gap-2">
-              <Euro className="h-5 w-5 text-primary" />
-              <span className="text-2xl font-bold text-primary">
-                {product.prixVente1An.toFixed(0)}€
-              </span>
+            {/* Prix et mode à gauche */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Euro className="h-5 w-5 text-primary" />
+                <span className="text-2xl font-bold text-primary">
+                  {formatPrice(pricing.prixVente)}
+                </span>
+              </div>
+              
+              {/* Sélecteur de mode compact */}
+              <div className="flex gap-1">
+                <Button
+                  variant={selectedMode === 'achat' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedMode('achat')}
+                  className={`h-7 px-2 text-xs ${
+                    selectedMode === 'achat' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
+                  }`}
+                >
+                  <ShoppingCart className="w-3 h-3 mr-1" />
+                  Achat
+                </Button>
+                <Button
+                  variant={selectedMode === 'location' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedMode('location')}
+                  className={`h-7 px-2 text-xs ${
+                    selectedMode === 'location' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
+                  }`}
+                >
+                  <Home className="w-3 h-3 mr-1" />
+                  Location
+                </Button>
+              </div>
             </div>
 
             {/* Informations à droite */}
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                <span className="truncate max-w-[150px]">{product.createdBy.name}</span>
+                <span className="truncate max-w-[150px]">{product.createdBy?.name || 'N/A'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
                 <span>{new Date(product.createdAt).toLocaleDateString("fr-FR")}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-foreground font-medium">{product.surfaceM2}m²</span>
+                <span className="text-foreground font-medium">{product.surfaceM2 || 0}m²</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Leaf className="h-4 w-4 text-green-600" />
+                <span className="text-green-600 font-medium">
+                  {environmentalImpact.rechauffementClimatique?.toFixed(1) || 0} kg CO₂
+                </span>
               </div>
             </div>
           </div>
