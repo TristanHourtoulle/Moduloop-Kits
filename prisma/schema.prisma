@@ -103,32 +103,85 @@ model Product {
   reference             String   @unique
   description           String?
   
-  // Prix d'achat fournisseur (1, 2, 3 ans)
+  // LEGACY FIELDS - Maintenir pour compatibilité pendant la transition
+  // Prix d'achat fournisseur (1, 2, 3 ans) - DEPRECATED: utiliser prixAchatAchat* à la place
   prixAchat1An          Float
   prixAchat2Ans         Float?
   prixAchat3Ans         Float?
   
-  // Prix unitaire Moduloop (1, 2, 3 ans)
+  // Prix unitaire Moduloop (1, 2, 3 ans) - DEPRECATED: utiliser prixUnitaireAchat* à la place
   prixUnitaire1An       Float
   prixUnitaire2Ans      Float?
   prixUnitaire3Ans      Float?
   
-  // Prix de vente total Moduloop (1, 2, 3 ans)
+  // Prix de vente total Moduloop (1, 2, 3 ans) - DEPRECATED: utiliser prixVenteAchat* à la place
   prixVente1An          Float
   prixVente2Ans         Float?
   prixVente3Ans         Float?
   
-  // Marge appliquée (coefficient)
-  margeCoefficient      Float
-  
-  // Surface occupée (m²) - optionnel pour les produits, requis pour les kits
-  surfaceM2             Float?
-  
-  // Impact environnemental
+  // Impact environnemental - DEPRECATED: utiliser *Achat à la place
   rechauffementClimatique Float  // kg eq. CO2
   epuisementRessources    Float  // MJ
   acidification           Float  // MOL H+
   eutrophisation          Float  // kg P eq.
+  
+  // Marge appliquée (coefficient) - DEPRECATED: utiliser margeCoefficientAchat/Location
+  margeCoefficient      Float
+  
+  // NOUVEAUX CHAMPS - PRIX ACHAT
+  // Prix d'achat fournisseur pour l'ACHAT (1, 2, 3 ans)
+  prixAchatAchat1An       Float?
+  prixAchatAchat2Ans      Float?
+  prixAchatAchat3Ans      Float?
+  
+  // Prix unitaire Moduloop pour l'ACHAT (1, 2, 3 ans)
+  prixUnitaireAchat1An    Float?
+  prixUnitaireAchat2Ans   Float?
+  prixUnitaireAchat3Ans   Float?
+  
+  // Prix de vente total Moduloop pour l'ACHAT (1, 2, 3 ans)
+  prixVenteAchat1An       Float?
+  prixVenteAchat2Ans      Float?
+  prixVenteAchat3Ans      Float?
+  
+  // Marge appliquée pour l'ACHAT (coefficient)
+  margeCoefficientAchat   Float?
+  
+  // NOUVEAUX CHAMPS - PRIX LOCATION
+  // Prix d'achat fournisseur pour la LOCATION (1, 2, 3 ans)
+  prixAchatLocation1An    Float?
+  prixAchatLocation2Ans   Float?
+  prixAchatLocation3Ans   Float?
+  
+  // Prix unitaire Moduloop pour la LOCATION (1, 2, 3 ans)
+  prixUnitaireLocation1An Float?
+  prixUnitaireLocation2Ans Float?
+  prixUnitaireLocation3Ans Float?
+  
+  // Prix de vente total Moduloop pour la LOCATION (1, 2, 3 ans)
+  prixVenteLocation1An    Float?
+  prixVenteLocation2Ans   Float?
+  prixVenteLocation3Ans   Float?
+  
+  // Marge appliquée pour la LOCATION (coefficient)
+  margeCoefficientLocation Float?
+  
+  // NOUVEAUX CHAMPS - IMPACT ENVIRONNEMENTAL ACHAT
+  rechauffementClimatiqueAchat Float?  // kg eq. CO2
+  epuisementRessourcesAchat    Float?  // MJ
+  acidificationAchat           Float?  // MOL H+
+  eutrophisationAchat          Float?  // kg P eq.
+  
+  // NOUVEAUX CHAMPS - IMPACT ENVIRONNEMENTAL LOCATION
+  rechauffementClimatiqueLocation Float?  // kg eq. CO2
+  epuisementRessourcesLocation    Float?  // MJ
+  acidificationLocation           Float?  // MOL H+
+  eutrophisationLocation          Float?  // kg P eq.
+  
+  // CHAMPS COMMUNS
+  
+  // Surface occupée (m²) - optionnel pour les produits, requis pour les kits
+  surfaceM2             Float?
   
   // Quantité - optionnel pour les produits, requis pour les kits
   quantite              Int?
