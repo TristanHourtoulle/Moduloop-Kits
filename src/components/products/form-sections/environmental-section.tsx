@@ -38,7 +38,7 @@ export function EnvironmentalSection({
             </Label>
             <Input
               type="number"
-              step="0.01"
+              step="0.000001"
               {...register(`rechauffementClimatique${suffix}` as keyof ProductFormData, {
                 setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
               })}
@@ -70,7 +70,7 @@ export function EnvironmentalSection({
             </Label>
             <Input
               type="number"
-              step="0.01"
+              step="0.000001"
               {...register(`epuisementRessources${suffix}` as keyof ProductFormData, {
                 setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
               })}
@@ -102,7 +102,7 @@ export function EnvironmentalSection({
             </Label>
             <Input
               type="number"
-              step="0.01"
+              step="0.000001"
               {...register(`acidification${suffix}` as keyof ProductFormData, { 
                 setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
               })}
@@ -134,7 +134,7 @@ export function EnvironmentalSection({
             </Label>
             <Input
               type="number"
-              step="0.01"
+              step="0.000001"
               {...register(`eutrophisation${suffix}` as keyof ProductFormData, { 
                 setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
               })}
