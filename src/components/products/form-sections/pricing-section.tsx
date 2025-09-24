@@ -62,6 +62,8 @@ export function PricingSection({
   useEffect(() => {
     if (watchedValues.margeCoefficientAchat && watchedValues.margeCoefficientAchat > 0) {
       if (watchedValues.prixAchatAchat1An && watchedValues.prixAchatAchat1An > 0) {
+        // Formule: Prix de Revient / (1 - % de marge) = Prix de vente
+        // Le coefficient représente directement le multiplicateur (ex: 1.25 pour 20% de marge)
         const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat1An * watchedValues.margeCoefficientAchat).toFixed(2));
         setValue("prixUnitaireAchat1An", nouveauPrixUnitaire);
       }
@@ -80,6 +82,7 @@ export function PricingSection({
   useEffect(() => {
     if (watchedValues.margeCoefficientLocation && watchedValues.margeCoefficientLocation > 0) {
       if (watchedValues.prixAchatLocation1An && watchedValues.prixAchatLocation1An > 0) {
+        // Formule: Prix de Revient / (1 - % de marge) = Prix de vente
         const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation1An * watchedValues.margeCoefficientLocation).toFixed(2));
         setValue("prixUnitaireLocation1An", nouveauPrixUnitaire);
       }
@@ -122,36 +125,38 @@ export function PricingSection({
 
   const handleCalculatePrix = (mode: PurchaseRentalMode) => {
     if (mode === 'achat') {
-      const marge = watchedValues.margeCoefficientAchat;
-      if (watchedValues.prixAchatAchat1An && marge) {
-        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat1An * marge).toFixed(2));
+      const coefficient = watchedValues.margeCoefficientAchat;
+      if (watchedValues.prixAchatAchat1An && coefficient) {
+        // Formule: Prix de Revient / (1 - % de marge) = Prix de vente
+        // Le coefficient est le multiplicateur direct (ex: 1.25 pour 20% de marge)
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat1An * coefficient).toFixed(2));
         setValue("prixUnitaireAchat1An", nouveauPrixUnitaire);
         setValue("prixVenteAchat1An", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
       }
-      if (watchedValues.prixAchatAchat2Ans && marge) {
-        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat2Ans * marge).toFixed(2));
+      if (watchedValues.prixAchatAchat2Ans && coefficient) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat2Ans * coefficient).toFixed(2));
         setValue("prixUnitaireAchat2Ans", nouveauPrixUnitaire);
         setValue("prixVenteAchat2Ans", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
       }
-      if (watchedValues.prixAchatAchat3Ans && marge) {
-        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat3Ans * marge).toFixed(2));
+      if (watchedValues.prixAchatAchat3Ans && coefficient) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatAchat3Ans * coefficient).toFixed(2));
         setValue("prixUnitaireAchat3Ans", nouveauPrixUnitaire);
         setValue("prixVenteAchat3Ans", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
       }
     } else {
-      const marge = watchedValues.margeCoefficientLocation;
-      if (watchedValues.prixAchatLocation1An && marge) {
-        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation1An * marge).toFixed(2));
+      const coefficient = watchedValues.margeCoefficientLocation;
+      if (watchedValues.prixAchatLocation1An && coefficient) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation1An * coefficient).toFixed(2));
         setValue("prixUnitaireLocation1An", nouveauPrixUnitaire);
         setValue("prixVenteLocation1An", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
       }
-      if (watchedValues.prixAchatLocation2Ans && marge) {
-        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation2Ans * marge).toFixed(2));
+      if (watchedValues.prixAchatLocation2Ans && coefficient) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation2Ans * coefficient).toFixed(2));
         setValue("prixUnitaireLocation2Ans", nouveauPrixUnitaire);
         setValue("prixVenteLocation2Ans", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
       }
-      if (watchedValues.prixAchatLocation3Ans && marge) {
-        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation3Ans * marge).toFixed(2));
+      if (watchedValues.prixAchatLocation3Ans && coefficient) {
+        const nouveauPrixUnitaire = Number((watchedValues.prixAchatLocation3Ans * coefficient).toFixed(2));
         setValue("prixUnitaireLocation3Ans", nouveauPrixUnitaire);
         setValue("prixVenteLocation3Ans", Number((nouveauPrixUnitaire * watchedValues.quantite).toFixed(2)));
       }
@@ -160,7 +165,10 @@ export function PricingSection({
 
   const getMarge = (prixAchat: number | undefined, prixUnitaire: number | undefined) => {
     if (!prixAchat || !prixUnitaire || prixAchat === 0) return 0;
-    return Number((((prixUnitaire - prixAchat) / prixAchat) * 100).toFixed(1));
+    // Calcul de la marge sur prix de vente : Marge% = (PV - PR) / PV * 100
+    // Formule inverse du coefficient : si PV = PR * coeff, alors Marge% = (1 - 1/coeff) * 100
+    const coefficient = prixUnitaire / prixAchat;
+    return Number(((1 - 1/coefficient) * 100).toFixed(1));
   };
 
   const renderPricingForm = (mode: PurchaseRentalMode) => {
@@ -183,7 +191,7 @@ export function PricingSection({
               <Input
                 id={`margeCoefficient${suffix}`}
                 type="number"
-                step="0.1"
+                step="0.001"
                 {...register(`margeCoefficient${suffix}` as keyof ProductFormData, {
                   setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
                 })}
@@ -214,7 +222,7 @@ export function PricingSection({
             </p>
           )}
           <p className="text-xs text-gray-600 mt-2">
-            Ex: 1.2 = 20% de marge • 1.5 = 50% de marge • 2.0 = 100% de marge
+            Ex: 1.25 = 20% de marge • 1.43 = 30% de marge • 2.0 = 50% de marge
           </p>
           <p className="text-xs text-gray-500 mt-1">
             Les prix unitaires Moduloop sont calculés automatiquement avec la marge
@@ -544,16 +552,38 @@ export function PricingSection({
         </div>
 
         <Tabs value={activeMode} onValueChange={(value) => setActiveMode(value as PurchaseRentalMode)}>
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="achat" className="flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4" />
-              Achat
-            </TabsTrigger>
-            <TabsTrigger value="location" className="flex items-center gap-2">
-              <Home className="h-4 w-4" />
-              Location
-            </TabsTrigger>
-          </TabsList>
+          <div className='relative mb-8'>
+            {/* Navigation d'onglets moderne */}
+            <div className='overflow-x-auto scrollbar-hide'>
+              <TabsList className='inline-flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-gray-50 via-white to-gray-50 p-1 text-gray-500 shadow-lg border border-gray-200/50 backdrop-blur-sm min-w-full lg:min-w-0'>
+                <div className='flex space-x-1 w-full lg:w-auto'>
+                  <TabsTrigger 
+                    value='achat'
+                    className='relative inline-flex items-center justify-center whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD] focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 
+                    data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-gray-200/80 
+                    hover:bg-white/60 min-w-0 flex-1 lg:flex-initial lg:min-w-max group'
+                  >
+                    <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-[#30C1BD]/0 to-blue-500/0 opacity-0 data-[state=active]:opacity-5 transition-opacity duration-300'></div>
+                    <ShoppingCart className={`w-4 h-4 mr-2 transition-colors duration-200 ${activeMode === 'achat' ? 'text-[#30C1BD]' : ''}`} />
+                    <span className='text-sm font-medium'>Achat</span>
+                    <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-[#30C1BD] to-blue-500 rounded-full transition-all duration-300 ${activeMode === 'achat' ? 'w-8' : 'w-0'}`}></div>
+                  </TabsTrigger>
+                  
+                  <TabsTrigger 
+                    value='location'
+                    className='relative inline-flex items-center justify-center whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD] focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 
+                    data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-gray-200/80 
+                    hover:bg-white/60 min-w-0 flex-1 lg:flex-initial lg:min-w-max group'
+                  >
+                    <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-[#30C1BD]/0 to-blue-500/0 opacity-0 data-[state=active]:opacity-5 transition-opacity duration-300'></div>
+                    <Home className={`w-4 h-4 mr-2 transition-colors duration-200 ${activeMode === 'location' ? 'text-[#30C1BD]' : ''}`} />
+                    <span className='text-sm font-medium'>Location</span>
+                    <div className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-[#30C1BD] to-blue-500 rounded-full transition-all duration-300 ${activeMode === 'location' ? 'w-8' : 'w-0'}`}></div>
+                  </TabsTrigger>
+                </div>
+              </TabsList>
+            </div>
+          </div>
 
           <TabsContent value="achat">
             {renderPricingForm('achat')}
