@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { prisma } from '@/lib/db';
+import { createKitQuantityUpdatedHistory, createKitRemovedHistory } from '@/lib/services/project-history';
 
 // PATCH - Mettre à jour la quantité d'un kit dans un projet
 export async function PATCH(
@@ -38,6 +39,23 @@ export async function PATCH(
       return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
     }
 
+    // Récupérer l'état actuel pour l'historique
+    const existingProjectKit = await prisma.projectKit.findFirst({
+      where: {
+        id: params.kitId,
+        projectId: params.id,
+      },
+      include: {
+        kit: true,
+      },
+    });
+
+    if (!existingProjectKit) {
+      return NextResponse.json({ error: 'Kit non trouvé dans le projet' }, { status: 404 });
+    }
+
+    const oldQuantity = existingProjectKit.quantite;
+
     // Mettre à jour la quantité du kit dans le projet
     const updatedProjectKit = await prisma.projectKit.update({
       where: {
@@ -48,6 +66,17 @@ export async function PATCH(
         quantite: quantite,
       },
     });
+
+    // Record history if quantity changed
+    if (oldQuantity !== quantite) {
+      createKitQuantityUpdatedHistory(
+        session.user.id,
+        params.id,
+        existingProjectKit.kit,
+        oldQuantity,
+        quantite
+      ).catch(console.error);
+    }
 
     return NextResponse.json(updatedProjectKit);
   } catch (error) {
@@ -85,6 +114,21 @@ export async function DELETE(
       return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
     }
 
+    // Récupérer les détails du kit avant suppression pour l'historique
+    const projectKitToDelete = await prisma.projectKit.findFirst({
+      where: {
+        id: params.kitId,
+        projectId: params.id,
+      },
+      include: {
+        kit: true,
+      },
+    });
+
+    if (!projectKitToDelete) {
+      return NextResponse.json({ error: 'Kit non trouvé dans le projet' }, { status: 404 });
+    }
+
     // Supprimer le kit du projet
     await prisma.projectKit.delete({
       where: {
@@ -92,6 +136,14 @@ export async function DELETE(
         projectId: params.id,
       },
     });
+
+    // Record removal history
+    createKitRemovedHistory(
+      session.user.id,
+      params.id,
+      projectKitToDelete.kit,
+      projectKitToDelete.quantite
+    ).catch(console.error);
 
     return NextResponse.json({ success: true });
   } catch (error) {

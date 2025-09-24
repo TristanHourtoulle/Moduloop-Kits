@@ -44,20 +44,23 @@ const getKitImpact = (kitProducts: KitProduct[], mode: PurchaseRentalMode) => {
     (acc, kitProduct) => {
       const product = kitProduct.product;
       if (!product) return acc;
-      
+
       const environmentalImpact = getProductEnvironmentalImpact(product, mode);
 
       return {
         rechauffementClimatique:
           acc.rechauffementClimatique +
-          (environmentalImpact.rechauffementClimatique || 0) * kitProduct.quantite,
+          (environmentalImpact.rechauffementClimatique || 0) *
+            kitProduct.quantite,
         epuisementRessources:
           acc.epuisementRessources +
           (environmentalImpact.epuisementRessources || 0) * kitProduct.quantite,
         acidification:
-          acc.acidification + (environmentalImpact.acidification || 0) * kitProduct.quantite,
+          acc.acidification +
+          (environmentalImpact.acidification || 0) * kitProduct.quantite,
         eutrophisation:
-          acc.eutrophisation + (environmentalImpact.eutrophisation || 0) * kitProduct.quantite,
+          acc.eutrophisation +
+          (environmentalImpact.eutrophisation || 0) * kitProduct.quantite,
         surface: acc.surface + (product.surfaceM2 || 0) * kitProduct.quantite,
       };
     },
@@ -75,7 +78,7 @@ const getKitPrice = (kitProducts: KitProduct[], mode: PurchaseRentalMode) => {
   return kitProducts.reduce((acc, kitProduct) => {
     const product = kitProduct.product;
     if (!product) return acc;
-    
+
     const pricing = getProductPricing(product, mode, '1an');
     return acc + (pricing.prixVente || 0) * kitProduct.quantite;
   }, 0);
@@ -164,7 +167,7 @@ export function KitsList({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className='hover:shadow-lg transition-all duration-200 border-l-4 border-l-red-500'>
+              <Card className='group relative bg-gradient-to-br from-red-50 to-white border border-red-200 rounded-2xl shadow-sm overflow-hidden'>
                 <CardContent className='p-6'>
                   <div className='text-center text-gray-500'>
                     <Package className='w-8 h-8 mx-auto mb-2 text-gray-400' />
@@ -197,20 +200,24 @@ export function KitsList({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className='hover:shadow-lg transition-all duration-200 border-l-4 border-l-[#30C1BD]'>
-              <CardHeader className='pb-4'>
-                <div className='flex items-start justify-between'>
+            <Card className='pt-6 group relative bg-gradient-to-br from-white to-gray-50/50 border border-gray-200 hover:border-[#30C1BD]/30 rounded-2xl shadow-sm hover:shadow-elegant transition-all duration-300 hover:-translate-y-1 overflow-hidden'>
+              <CardHeader className='pb-4 relative z-10'>
+                <div className='absolute inset-0 bg-gradient-to-br from-[#30C1BD]/[0.02] to-blue-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+                <div className='flex items-start justify-between relative z-10'>
                   <div className='flex-1'>
-                    <div className='flex items-center space-x-3 mb-2'>
-                      <div className='w-10 h-10 bg-[#30C1BD]/10 rounded-full flex items-center justify-center'>
-                        <Package className='w-5 h-5 text-[#30C1BD]' />
+                    <div className='flex items-center space-x-4 mb-3'>
+                      <div className='w-12 h-12 bg-gradient-to-br from-[#30C1BD]/10 to-blue-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm'>
+                        <Package className='w-6 h-6 text-[#30C1BD]' />
                       </div>
                       <div>
-                        <CardTitle className='text-lg text-gray-900'>
+                        <CardTitle className='text-xl font-bold text-gray-900'>
                           {kit.nom}
                         </CardTitle>
-                        <div className='flex items-center space-x-2 mt-1'>
-                          <Badge variant='secondary' className='text-xs'>
+                        <div className='flex items-center space-x-3 mt-2'>
+                          <Badge
+                            variant='secondary'
+                            className='text-xs px-2 py-1 bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-700'
+                          >
                             {kit.style}
                           </Badge>
 
@@ -294,94 +301,132 @@ export function KitsList({
                     )}
                   </div>
 
-                  <div className='text-right ml-4'>
-                    <div className='text-2xl font-bold text-[#30C1BD] mb-1'>
+                  <div className='text-right ml-6'>
+                    <div className='text-3xl font-bold text-[#30C1BD] mb-1 group-hover:scale-105 transition-transform duration-200'>
                       {formatPriceHelper(totalPrice)}
                     </div>
-                    <div className='text-sm text-gray-500'>
-                      {formatPriceHelper(kitPrice)} par kit ({selectedMode === 'achat' ? 'Achat' : 'Location'})
+                    <div className='text-sm text-gray-600 font-medium'>
+                      {formatPriceHelper(kitPrice)} par kit (
+                      {selectedMode === 'achat' ? 'Achat' : 'Location'})
                     </div>
                   </div>
                 </div>
               </CardHeader>
 
-              <CardContent className='space-y-4'>
-                {/* Sélecteur de mode */}
-                <div className='flex gap-2 justify-center mb-4'>
-                  <Button
-                    variant={selectedMode === 'achat' ? 'default' : 'outline'}
-                    size='sm'
-                    onClick={() => setSelectedMode('achat')}
-                    className={`flex items-center gap-2 ${
-                      selectedMode === 'achat' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
-                    }`}
-                  >
-                    <ShoppingCart className='w-3 h-3' />
-                    Achat (Neuf)
-                  </Button>
-                  <Button
-                    variant={selectedMode === 'location' ? 'default' : 'outline'}
-                    size='sm'
-                    onClick={() => setSelectedMode('location')}
-                    className={`flex items-center gap-2 ${
-                      selectedMode === 'location' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
-                    }`}
-                  >
-                    <Home className='w-3 h-3' />
-                    Location (Existant)
-                  </Button>
-                </div>
-                {/* Métriques principales */}
-                <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
-                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                    <div className='w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2'>
-                      <Target className='w-4 h-4 text-red-600' />
+              <CardContent className='space-y-6 relative z-10'>
+                {/* Sélecteur de mode moderne cohérent */}
+                <div className='bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-6 shadow-sm mb-6'>
+                  <div className='flex items-center justify-between'>
+                    <div className='flex items-center space-x-3'>
+                      <div className='p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl'>
+                        <Target className='w-5 h-5 text-blue-600' />
+                      </div>
+                      <span className='text-base font-semibold text-gray-900'>Mode de commercialisation</span>
                     </div>
-                    <div className='text-sm font-semibold text-gray-900'>
+                    <div className='flex space-x-3 p-1 bg-gray-100 rounded-2xl'>
+                      <Button
+                        variant={selectedMode === 'achat' ? 'default' : 'outline'}
+                        size='sm'
+                        onClick={() => setSelectedMode('achat')}
+                        className={`flex items-center gap-2 transition-all duration-200 ${
+                          selectedMode === 'achat' 
+                            ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90 text-white shadow-sm' 
+                            : 'hover:bg-white/60'
+                        }`}
+                      >
+                        <ShoppingCart className='w-4 h-4' />
+                        Achat
+                      </Button>
+                      <Button
+                        variant={selectedMode === 'location' ? 'default' : 'outline'}
+                        size='sm'
+                        onClick={() => setSelectedMode('location')}
+                        className={`flex items-center gap-2 transition-all duration-200 ${
+                          selectedMode === 'location' 
+                            ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90 text-white shadow-sm' 
+                            : 'hover:bg-white/60'
+                        }`}
+                      >
+                        <Home className='w-4 h-4' />
+                        Location
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                {/* Métriques principales avec design moderne */}
+                <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
+                  <motion.div
+                    whileHover={{ y: -2, scale: 1.05 }}
+                    className='text-center p-4 bg-gradient-to-br from-red-50 to-pink-50 border border-red-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200'
+                  >
+                    <div className='w-10 h-10 bg-gradient-to-br from-red-100 to-pink-100 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm'>
+                      <Target className='w-5 h-5 text-red-600' />
+                    </div>
+                    <div className='text-base font-bold text-red-900 mb-1'>
                       {totalImpact.rechauffementClimatique.toFixed(1)}
                     </div>
-                    <div className='text-xs text-gray-500'>kg CO₂</div>
-                  </div>
-
-                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                    <div className='w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2'>
-                      <Leaf className='w-4 h-4 text-orange-600' />
+                    <div className='text-xs text-red-700 font-medium'>
+                      kg CO₂
                     </div>
-                    <div className='text-sm font-semibold text-gray-900'>
+                  </motion.div>
+
+                  <motion.div
+                    whileHover={{ y: -2, scale: 1.05 }}
+                    className='text-center p-4 bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200'
+                  >
+                    <div className='w-10 h-10 bg-gradient-to-br from-orange-100 to-yellow-100 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm'>
+                      <Leaf className='w-5 h-5 text-orange-600' />
+                    </div>
+                    <div className='text-base font-bold text-orange-900 mb-1'>
                       {totalImpact.epuisementRessources.toFixed(0)}
                     </div>
-                    <div className='text-xs text-gray-500'>MJ</div>
-                  </div>
-
-                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                    <div className='w-8 h-8 bg-[#30C1BD]/10 rounded-full flex items-center justify-center mx-auto mb-2'>
-                      <Leaf className='w-4 h-4 text-[#30C1BD]' />
+                    <div className='text-xs text-orange-700 font-medium'>
+                      MJ
                     </div>
-                    <div className='text-sm font-semibold text-gray-900'>
+                  </motion.div>
+
+                  <motion.div
+                    whileHover={{ y: -2, scale: 1.05 }}
+                    className='text-center p-4 bg-gradient-to-br from-[#30C1BD]/5 to-cyan-50 border border-[#30C1BD]/20 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200'
+                  >
+                    <div className='w-10 h-10 bg-gradient-to-br from-[#30C1BD]/10 to-cyan-100 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm'>
+                      <Leaf className='w-5 h-5 text-[#30C1BD]' />
+                    </div>
+                    <div className='text-base font-bold text-[#30C1BD] mb-1'>
                       {totalImpact.acidification.toFixed(1)}
                     </div>
-                    <div className='text-xs text-gray-500'>MOL H+</div>
-                  </div>
-
-                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                    <div className='w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2'>
-                      <Target className='w-4 h-4 text-green-600' />
+                    <div className='text-xs text-[#30C1BD] font-medium'>
+                      MOL H+
                     </div>
-                    <div className='text-sm font-semibold text-gray-900'>
+                  </motion.div>
+
+                  <motion.div
+                    whileHover={{ y: -2, scale: 1.05 }}
+                    className='text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200'
+                  >
+                    <div className='w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm'>
+                      <Target className='w-5 h-5 text-green-600' />
+                    </div>
+                    <div className='text-base font-bold text-green-900 mb-1'>
                       {totalImpact.eutrophisation.toFixed(1)}
                     </div>
-                    <div className='text-xs text-gray-500'>kg P eq</div>
-                  </div>
-
-                  <div className='text-center p-3 bg-gray-50 rounded-lg'>
-                    <div className='w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-2'>
-                      <Target className='w-4 h-4 text-teal-600' />
+                    <div className='text-xs text-green-700 font-medium'>
+                      kg P eq
                     </div>
-                    <div className='text-sm font-semibold text-gray-900'>
+                  </motion.div>
+
+                  <motion.div
+                    whileHover={{ y: -2, scale: 1.05 }}
+                    className='text-center p-4 bg-gradient-to-br from-teal-50 to-blue-50 border border-teal-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200'
+                  >
+                    <div className='w-10 h-10 bg-gradient-to-br from-teal-100 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm'>
+                      <Target className='w-5 h-5 text-teal-600' />
+                    </div>
+                    <div className='text-base font-bold text-teal-900 mb-1'>
                       {totalImpact.surface.toFixed(1)}
                     </div>
-                    <div className='text-xs text-gray-500'>m²</div>
-                  </div>
+                    <div className='text-xs text-teal-700 font-medium'>m²</div>
+                  </motion.div>
                 </div>
 
                 {/* Bouton d'expansion */}
@@ -420,7 +465,7 @@ export function KitsList({
                         <h4 className='font-medium text-gray-900 mb-3'>
                           Produits du kit
                         </h4>
-{kit.kitProducts.map((kitProduct) => {
+                        {kit.kitProducts.map((kitProduct) => {
                           const product = kitProduct.product;
                           if (!product) return null;
 
@@ -433,7 +478,7 @@ export function KitsList({
                                 <div className='w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
                                   <Package className='w-6 h-6 text-gray-400' />
                                 </div>
-                                
+
                                 <div className='flex-1 min-w-0'>
                                   <div className='flex items-start justify-between gap-4'>
                                     <div className='flex-1 min-w-0'>
@@ -445,60 +490,94 @@ export function KitsList({
                                       </p>
                                       <div className='flex items-center gap-4 text-xs text-gray-500'>
                                         <span className='bg-blue-50 text-blue-700 px-2 py-1 rounded-full'>
-                                          {kitProduct.quantite} unité{kitProduct.quantite > 1 ? 's' : ''}
+                                          {kitProduct.quantite} unité
+                                          {kitProduct.quantite > 1 ? 's' : ''}
                                         </span>
                                         {product.surfaceM2 > 0 && (
-                                          <span>{product.surfaceM2}m² par unité</span>
+                                          <span>
+                                            {product.surfaceM2}m² par unité
+                                          </span>
                                         )}
                                       </div>
                                     </div>
-                                    
+
                                     <div className='text-right flex-shrink-0'>
                                       {(() => {
-                                        const productPricing = getProductPricing(product, selectedMode, '1an');
+                                        const productPricing =
+                                          getProductPricing(
+                                            product,
+                                            selectedMode,
+                                            '1an'
+                                          );
                                         return (
                                           <>
                                             <div className='text-lg font-bold text-gray-900 mb-1'>
-                                              {formatPriceHelper((productPricing.prixVente || 0) * kitProduct.quantite)}
+                                              {formatPriceHelper(
+                                                (productPricing.prixVente ||
+                                                  0) * kitProduct.quantite
+                                              )}
                                             </div>
                                             <div className='text-sm text-gray-500'>
-                                              {formatPriceHelper(productPricing.prixVente || 0)} /unité
+                                              {formatPriceHelper(
+                                                productPricing.prixVente || 0
+                                              )}{' '}
+                                              /unité
                                             </div>
                                           </>
                                         );
                                       })()}
                                     </div>
                                   </div>
-                                  
+
                                   {/* Environmental metrics in a compact horizontal layout */}
                                   <div className='mt-3 pt-3 border-t border-gray-100'>
                                     <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs'>
                                       {(() => {
-                                        const productImpact = getProductEnvironmentalImpact(product, selectedMode);
+                                        const productImpact =
+                                          getProductEnvironmentalImpact(
+                                            product,
+                                            selectedMode
+                                          );
                                         return (
                                           <>
                                             <div className='flex items-center gap-2'>
                                               <div className='w-2 h-2 bg-red-500 rounded-full'></div>
                                               <span className='text-gray-600'>
-                                                {((productImpact.rechauffementClimatique || 0) * kitProduct.quantite).toFixed(1)} kg CO₂
+                                                {(
+                                                  (productImpact.rechauffementClimatique ||
+                                                    0) * kitProduct.quantite
+                                                ).toFixed(1)}{' '}
+                                                kg CO₂
                                               </span>
                                             </div>
                                             <div className='flex items-center gap-2'>
                                               <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
                                               <span className='text-gray-600'>
-                                                {((productImpact.epuisementRessources || 0) * kitProduct.quantite).toFixed(0)} MJ
+                                                {(
+                                                  (productImpact.epuisementRessources ||
+                                                    0) * kitProduct.quantite
+                                                ).toFixed(0)}{' '}
+                                                MJ
                                               </span>
                                             </div>
                                             <div className='flex items-center gap-2'>
                                               <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
                                               <span className='text-gray-600'>
-                                                {((productImpact.acidification || 0) * kitProduct.quantite).toFixed(1)} MOL H+
+                                                {(
+                                                  (productImpact.acidification ||
+                                                    0) * kitProduct.quantite
+                                                ).toFixed(1)}{' '}
+                                                MOL H+
                                               </span>
                                             </div>
                                             <div className='flex items-center gap-2'>
                                               <div className='w-2 h-2 bg-green-500 rounded-full'></div>
                                               <span className='text-gray-600'>
-                                                {((productImpact.eutrophisation || 0) * kitProduct.quantite).toFixed(1)} kg P eq
+                                                {(
+                                                  (productImpact.eutrophisation ||
+                                                    0) * kitProduct.quantite
+                                                ).toFixed(1)}{' '}
+                                                kg P eq
                                               </span>
                                             </div>
                                           </>

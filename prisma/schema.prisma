@@ -39,6 +39,7 @@ model User {
   createdKits     Kit[]     @relation("KitCreatedBy")
   updatedKits     Kit[]     @relation("KitUpdatedBy")
   projects        Project[] @relation("ProjectCreatedBy")
+  projectHistoryChanges ProjectHistory[] @relation("ProjectHistoryChangedBy")
 
   @@map("users")
 }
@@ -252,6 +253,7 @@ model Project {
   // Relations
   createdBy     User         @relation("ProjectCreatedBy", fields: [createdById], references: [id])
   projectKits   ProjectKit[]
+  history       ProjectHistory[]
   
   @@map("projects")
 }
@@ -275,4 +277,38 @@ enum ProjectStatus {
   TERMINE
   EN_PAUSE
   ARCHIVE
+}
+
+enum ProjectChangeType {
+  CREATED
+  UPDATED
+  DELETED
+  STATUS_CHANGED
+  KIT_ADDED
+  KIT_REMOVED
+  KIT_QUANTITY_UPDATED
+}
+
+model ProjectHistory {
+  id              String            @id @default(cuid())
+  projectId       String
+  changeType      ProjectChangeType
+  description     String            // Human-readable description of the change
+  changedFields   Json?             // Fields that were changed (for UPDATE events)
+  oldValues       Json?             // Previous values
+  newValues       Json?             // New values
+  metadata        Json?             // Additional context (kit names, quantities, etc.)
+  
+  // User tracking
+  changedById     String
+  changedBy       User              @relation("ProjectHistoryChangedBy", fields: [changedById], references: [id])
+  
+  // Timestamps
+  createdAt       DateTime          @default(now())
+  
+  // Relations
+  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@index([projectId, createdAt])
+  @@map("project_history")
 }

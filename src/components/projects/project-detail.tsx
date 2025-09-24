@@ -10,20 +10,22 @@ import {
   ArrowLeft,
   Edit3,
   Trash2,
-  Plus,
   Package,
   Leaf,
   Euro,
   Target,
   MoreHorizontal,
+  FileText,
+  BarChart3,
+  Clock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { AddKitModal } from './add-kit-modal';
 import { EnvironmentalMetrics } from './environmental-metrics';
 import { PricingBreakdown } from './pricing-breakdown';
-import { KitsList } from './kits-list';
+import { KitsTab } from './kits-tab';
 import { EditProjectDialog } from './edit-project-dialog';
+import { ProjectHistory } from './project-history';
 import { useDialog } from '@/components/providers/dialog-provider';
 import {
   DropdownMenu,
@@ -44,7 +46,6 @@ export function ProjectDetail({
   onProjectUpdate,
   refreshProject,
 }: ProjectDetailProps) {
-  const [isAddKitModalOpen, setIsAddKitModalOpen] = useState(false);
   const [isEditProjectDialogOpen, setIsEditProjectDialogOpen] = useState(false);
   const router = useRouter();
   const { showError, showSuccess, showConfirm } = useDialog();
@@ -150,7 +151,6 @@ export function ProjectDetail({
         "Une erreur est survenue lors de l'ajout des kits. Veuillez réessayer."
       );
     }
-    setIsAddKitModalOpen(false);
   };
 
   // Gestionnaire pour modifier la quantité d'un kit
@@ -311,125 +311,351 @@ export function ProjectDetail({
           </div>
         </div>
 
-        {/* Métriques principales */}
+        {/* Métriques principales avec design moderne */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className='grid grid-cols-2 lg:grid-cols-4 gap-4'
+          className='grid grid-cols-2 lg:grid-cols-4 gap-6'
         >
-          <div className='bg-card border border-border rounded-lg p-4 text-center'>
-            <div className='w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-2'>
-              <Euro className='w-5 h-5 text-primary' />
+          <motion.div 
+            whileHover={{ y: -2, scale: 1.02 }}
+            className='group relative bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6 text-center transition-all duration-300 hover:shadow-elegant cursor-pointer overflow-hidden'
+          >
+            <div className='absolute inset-0 bg-gradient-to-br from-green-500/[0.02] to-emerald-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+            <div className='relative z-10'>
+              <div className='w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300'>
+                <Euro className='w-6 h-6 text-green-600' />
+              </div>
+              <p className='text-3xl font-bold text-green-900 mb-2'>
+                {project.totalPrix?.toLocaleString('fr-FR') || '0'}€
+              </p>
+              <p className='text-sm text-green-700 font-medium'>Prix Total</p>
             </div>
-            <p className='text-2xl font-bold text-foreground mb-1'>
-              {project.totalPrix?.toFixed(0) || '0'}€
-            </p>
-            <p className='text-sm text-muted-foreground'>Prix Total</p>
-          </div>
+          </motion.div>
 
-          <div className='bg-card border border-border rounded-lg p-4 text-center'>
-            <div className='w-10 h-10 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-center mx-auto mb-2'>
-              <Leaf className='w-5 h-5 text-emerald-600' />
+          <motion.div 
+            whileHover={{ y: -2, scale: 1.02 }}
+            className='group relative bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-2xl p-6 text-center transition-all duration-300 hover:shadow-elegant cursor-pointer overflow-hidden'
+          >
+            <div className='absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] to-green-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+            <div className='relative z-10'>
+              <div className='w-12 h-12 bg-gradient-to-br from-emerald-100 to-green-100 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300'>
+                <Leaf className='w-6 h-6 text-emerald-600' />
+              </div>
+              <p className='text-3xl font-bold text-emerald-900 mb-2'>
+                {project.totalImpact?.rechauffementClimatique?.toFixed(1) || '0'}kg
+              </p>
+              <p className='text-sm text-emerald-700 font-medium'>Impact CO₂</p>
             </div>
-            <p className='text-2xl font-bold text-foreground mb-1'>
-              {project.totalImpact?.rechauffementClimatique?.toFixed(1) || '0'}kg
-            </p>
-            <p className='text-sm text-muted-foreground'>Impact CO₂</p>
-          </div>
+          </motion.div>
 
-          <div className='bg-card border border-border rounded-lg p-4 text-center'>
-            <div className='w-10 h-10 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-center mx-auto mb-2'>
-              <Package className='w-5 h-5 text-blue-600' />
+          <motion.div 
+            whileHover={{ y: -2, scale: 1.02 }}
+            className='group relative bg-gradient-to-br from-[#30C1BD]/5 to-blue-50 border border-[#30C1BD]/20 rounded-2xl p-6 text-center transition-all duration-300 hover:shadow-elegant cursor-pointer overflow-hidden'
+          >
+            <div className='absolute inset-0 bg-gradient-to-br from-[#30C1BD]/[0.02] to-blue-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+            <div className='relative z-10'>
+              <div className='w-12 h-12 bg-gradient-to-br from-[#30C1BD]/10 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300'>
+                <Package className='w-6 h-6 text-[#30C1BD]' />
+              </div>
+              <p className='text-3xl font-bold text-[#30C1BD] mb-2'>
+                {project.projectKits?.length || 0}
+              </p>
+              <p className='text-sm text-[#30C1BD] font-medium'>Kits</p>
             </div>
-            <p className='text-2xl font-bold text-foreground mb-1'>
-              {project.projectKits?.length || 0}
-            </p>
-            <p className='text-sm text-muted-foreground'>Kits</p>
-          </div>
+          </motion.div>
 
-          <div className='bg-card border border-border rounded-lg p-4 text-center'>
-            <div className='w-10 h-10 bg-orange-50 border border-orange-200 rounded-xl flex items-center justify-center mx-auto mb-2'>
-              <Target className='w-5 h-5 text-orange-600' />
+          <motion.div 
+            whileHover={{ y: -2, scale: 1.02 }}
+            className='group relative bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-2xl p-6 text-center transition-all duration-300 hover:shadow-elegant cursor-pointer overflow-hidden'
+          >
+            <div className='absolute inset-0 bg-gradient-to-br from-orange-500/[0.02] to-amber-500/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+            <div className='relative z-10'>
+              <div className='w-12 h-12 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300'>
+                <Target className='w-6 h-6 text-orange-600' />
+              </div>
+              <p className='text-3xl font-bold text-orange-900 mb-2'>
+                {project.totalSurface?.toFixed(1) || '0'}m²
+              </p>
+              <p className='text-sm text-orange-700 font-medium'>Surface</p>
             </div>
-            <p className='text-2xl font-bold text-foreground mb-1'>
-              {project.totalSurface?.toFixed(1) || '0'}m²
-            </p>
-            <p className='text-sm text-muted-foreground'>Surface</p>
-          </div>
+          </motion.div>
         </motion.div>
 
-      {/* Tabs pour les détails */}
+      {/* Tabs améliorés avec design moderne */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Tabs defaultValue='kits' className='space-y-6'>
-          <TabsList className='grid w-full grid-cols-3'>
-            <TabsTrigger value='kits'>
-              <Package className='w-4 h-4 mr-2' />
-              Kits
-            </TabsTrigger>
-            <TabsTrigger value='environmental'>
-              <Leaf className='w-4 h-4 mr-2' />
-              Impact
-            </TabsTrigger>
-            <TabsTrigger value='pricing'>
-              <Euro className='w-4 h-4 mr-2' />
-              Prix
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value='kits' className='space-y-4'>
-            <div className='flex items-center justify-between'>
-              <h2 className='text-lg font-semibold text-foreground'>
-                Kits du projet
-              </h2>
-              <Button onClick={() => setIsAddKitModalOpen(true)}>
-                <Plus className='w-4 h-4 mr-2' />
-                Ajouter un kit
-              </Button>
+        <Tabs defaultValue='overview' className='space-y-8'>
+          <div className='relative mb-8'>
+            {/* Navigation d'onglets moderne inspirée des meilleures pratiques 2025 */}
+            <div className='overflow-x-auto scrollbar-hide'>
+              <TabsList className='inline-flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-gray-50 via-white to-gray-50 p-1 text-gray-500 shadow-lg border border-gray-200/50 backdrop-blur-sm min-w-full lg:min-w-0'>
+                <div className='flex space-x-1 w-full lg:w-auto'>
+                  <TabsTrigger 
+                    value='overview'
+                    className='relative inline-flex items-center justify-center whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD] focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 
+                    data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-gray-200/80 
+                    hover:bg-white/60 min-w-0 flex-1 lg:flex-initial lg:min-w-max group'
+                  >
+                    <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-[#30C1BD]/0 to-blue-500/0 opacity-0 group-data-[state=active]:opacity-5 transition-opacity duration-300'></div>
+                    <BarChart3 className='w-4 h-4 mr-2 group-data-[state=active]:text-[#30C1BD] transition-colors duration-200' />
+                    <span className='hidden sm:inline text-sm font-medium'>Vue d&apos;ensemble</span>
+                    <span className='sm:hidden text-sm font-medium'>Vue</span>
+                    <div className='absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-[#30C1BD] to-blue-500 rounded-full group-data-[state=active]:w-8 transition-all duration-300'></div>
+                  </TabsTrigger>
+                  
+                  <TabsTrigger 
+                    value='kits'
+                    className='relative inline-flex items-center justify-center whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD] focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 
+                    data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-gray-200/80 
+                    hover:bg-white/60 min-w-0 flex-1 lg:flex-initial lg:min-w-max group'
+                  >
+                    <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-[#30C1BD]/0 to-blue-500/0 opacity-0 group-data-[state=active]:opacity-5 transition-opacity duration-300'></div>
+                    <Package className='w-4 h-4 mr-2 group-data-[state=active]:text-[#30C1BD] transition-colors duration-200' />
+                    <span className='hidden sm:inline text-sm font-medium'>Kits</span>
+                    <span className='sm:hidden text-sm font-medium'>Kits</span>
+                    <div className='absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-[#30C1BD] to-blue-500 rounded-full group-data-[state=active]:w-8 transition-all duration-300'></div>
+                  </TabsTrigger>
+                  
+                  <TabsTrigger 
+                    value='pricing'
+                    className='relative inline-flex items-center justify-center whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD] focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 
+                    data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-gray-200/80 
+                    hover:bg-white/60 min-w-0 flex-1 lg:flex-initial lg:min-w-max group'
+                  >
+                    <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-[#30C1BD]/0 to-blue-500/0 opacity-0 group-data-[state=active]:opacity-5 transition-opacity duration-300'></div>
+                    <Euro className='w-4 h-4 mr-2 group-data-[state=active]:text-[#30C1BD] transition-colors duration-200' />
+                    <span className='hidden sm:inline text-sm font-medium'>Tarification</span>
+                    <span className='sm:hidden text-sm font-medium'>Prix</span>
+                    <div className='absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-[#30C1BD] to-blue-500 rounded-full group-data-[state=active]:w-8 transition-all duration-300'></div>
+                  </TabsTrigger>
+                  
+                  <TabsTrigger 
+                    value='environmental'
+                    className='relative inline-flex items-center justify-center whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD] focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 
+                    data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-gray-200/80 
+                    hover:bg-white/60 min-w-0 flex-1 lg:flex-initial lg:min-w-max group'
+                  >
+                    <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-[#30C1BD]/0 to-blue-500/0 opacity-0 group-data-[state=active]:opacity-5 transition-opacity duration-300'></div>
+                    <Leaf className='w-4 h-4 mr-2 group-data-[state=active]:text-[#30C1BD] transition-colors duration-200' />
+                    <span className='hidden sm:inline text-sm font-medium'>Impact</span>
+                    <span className='sm:hidden text-sm font-medium'>Impact</span>
+                    <div className='absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-[#30C1BD] to-blue-500 rounded-full group-data-[state=active]:w-8 transition-all duration-300'></div>
+                  </TabsTrigger>
+                  
+                  <TabsTrigger 
+                    value='timeline'
+                    className='relative inline-flex items-center justify-center whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#30C1BD] focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50 
+                    data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-lg data-[state=active]:border data-[state=active]:border-gray-200/80 
+                    hover:bg-white/60 min-w-0 flex-1 lg:flex-initial lg:min-w-max group'
+                  >
+                    <div className='absolute inset-0 rounded-xl bg-gradient-to-r from-[#30C1BD]/0 to-blue-500/0 opacity-0 group-data-[state=active]:opacity-5 transition-opacity duration-300'></div>
+                    <Clock className='w-4 h-4 mr-2 group-data-[state=active]:text-[#30C1BD] transition-colors duration-200' />
+                    <span className='hidden sm:inline text-sm font-medium'>Historique</span>
+                    <span className='sm:hidden text-sm font-medium'>Temps</span>
+                    <div className='absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-[#30C1BD] to-blue-500 rounded-full group-data-[state=active]:w-8 transition-all duration-300'></div>
+                  </TabsTrigger>
+                </div>
+              </TabsList>
             </div>
+          </div>
 
-            {project.projectKits && project.projectKits.length > 0 ? (
-              <KitsList
-                projectKits={project.projectKits}
-                onUpdateQuantity={handleUpdateKitQuantity}
-                onRemoveKit={handleRemoveKit}
+          {/* Onglet Vue d'ensemble */}
+          <TabsContent value='overview' className='space-y-6'>
+            <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+              {/* Résumé du projet */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className='lg:col-span-2 space-y-6'
+              >
+                <div className='bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-8 shadow-sm'>
+                  <div className='flex items-center gap-3 mb-6'>
+                    <div className='p-3 bg-gradient-to-br from-[#30C1BD]/10 to-blue-100 rounded-xl'>
+                      <FileText className='w-6 h-6 text-[#30C1BD]' />
+                    </div>
+                    <div>
+                      <h2 className='text-2xl font-bold text-gray-900'>Aperçu du projet</h2>
+                      <p className='text-gray-600'>Informations générales et métriques clés</p>
+                    </div>
+                  </div>
+                  
+                  <div className='space-y-4'>
+                    <div className='grid grid-cols-2 gap-6'>
+                      <div>
+                        <label className='text-sm font-medium text-gray-500 uppercase tracking-wide'>Statut</label>
+                        <div className='mt-1 flex items-center gap-2'>
+                          <span className='text-2xl'>{getStatusIcon(project.status)}</span>
+                          <span className='text-lg font-semibold text-gray-900'>{project.status}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className='text-sm font-medium text-gray-500 uppercase tracking-wide'>Créé le</label>
+                        <div className='mt-1 text-lg text-gray-900'>
+                          {new Date(project.createdAt).toLocaleDateString('fr-FR', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {project.description && (
+                      <div>
+                        <label className='text-sm font-medium text-gray-500 uppercase tracking-wide'>Description</label>
+                        <div className='mt-1 text-gray-900 leading-relaxed'>
+                          {project.description}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className='pt-4 border-t border-gray-200'>
+                      <div className='grid grid-cols-2 gap-6'>
+                        <div className='text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200'>
+                          <div className='text-2xl font-bold text-green-900 mb-1'>
+                            {project.projectKits?.reduce((acc, pk) => acc + pk.quantite, 0) || 0}
+                          </div>
+                          <div className='text-sm text-green-700 font-medium'>Unités totales</div>
+                        </div>
+                        <div className='text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-200'>
+                          <div className='text-2xl font-bold text-blue-900 mb-1'>
+                            {project.projectKits?.length || 0}
+                          </div>
+                          <div className='text-sm text-blue-700 font-medium'>Types de kits</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+              
+              {/* Actions rapides */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className='space-y-4'
+              >
+                <div className='bg-white border border-gray-200 rounded-2xl p-6 shadow-sm'>
+                  <h3 className='text-lg font-semibold text-gray-900 mb-4'>Actions rapides</h3>
+                  <div className='space-y-3'>
+                    <Button 
+                      onClick={() => setIsEditProjectDialogOpen(true)}
+                      className='w-full bg-[#30C1BD] hover:bg-[#30C1BD]/90 text-white justify-start gap-3 h-12'
+                    >
+                      <Edit3 className='w-5 h-5' />
+                      Modifier le projet
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Métriques rapides */}
+                {project.projectKits && project.projectKits.length > 0 && (
+                  <div className='bg-white border border-gray-200 rounded-2xl p-6 shadow-sm'>
+                    <h3 className='text-lg font-semibold text-gray-900 mb-4'>Aperçu financier</h3>
+                    <div className='space-y-3'>
+                      <div className='flex justify-between items-center'>
+                        <span className='text-gray-600'>Prix moyen/kit</span>
+                        <span className='font-semibold text-gray-900'>
+                          {Math.round((project.totalPrix || 0) / project.projectKits.length).toLocaleString('fr-FR')}€
+                        </span>
+                      </div>
+                      <div className='flex justify-between items-center'>
+                        <span className='text-gray-600'>Impact CO₂/kit</span>
+                        <span className='font-semibold text-gray-900'>
+                          {((project.totalImpact?.rechauffementClimatique || 0) / project.projectKits.length).toFixed(1)}kg
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          </TabsContent>
+          
+          {/* Onglet Kits moderne intégré */}
+          <TabsContent value='kits' className='space-y-6'>
+            <KitsTab
+              projectKits={project.projectKits || []}
+              onAddKits={handleAddKits}
+              onUpdateQuantity={handleUpdateKitQuantity}
+              onRemoveKit={handleRemoveKit}
+            />
+          </TabsContent>
+
+          {/* Onglet Tarification amélioré */}
+          <TabsContent value='pricing' className='space-y-6'>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className='bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-8 shadow-sm'
+            >
+              <div className='flex items-center gap-4 mb-6'>
+                <div className='p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl'>
+                  <Euro className='w-6 h-6 text-green-600' />
+                </div>
+                <div>
+                  <h2 className='text-2xl font-bold text-gray-900'>Analyse financière</h2>
+                  <p className='text-gray-600'>Détail des coûts et marges par mode et période</p>
+                </div>
+              </div>
+              <PricingBreakdown project={project} />
+            </motion.div>
+          </TabsContent>
+
+          {/* Onglet Impact environnemental amélioré */}
+          <TabsContent value='environmental' className='space-y-6'>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className='bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-8 shadow-sm'
+            >
+              <div className='flex items-center gap-4 mb-6'>
+                <div className='p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl'>
+                  <Leaf className='w-6 h-6 text-green-600' />
+                </div>
+                <div>
+                  <h2 className='text-2xl font-bold text-gray-900'>Impact environnemental</h2>
+                  <p className='text-gray-600'>Analyse de l&apos;empreinte carbone et des économies</p>
+                </div>
+              </div>
+              <EnvironmentalMetrics project={project} />
+            </motion.div>
+          </TabsContent>
+          
+          {/* Nouvel onglet Historique */}
+          <TabsContent value='timeline' className='space-y-6'>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className='bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-8 shadow-sm'
+            >
+              <div className='flex items-center gap-4 mb-6'>
+                <div className='p-3 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-xl'>
+                  <Clock className='w-6 h-6 text-purple-600' />
+                </div>
+                <div>
+                  <h2 className='text-2xl font-bold text-gray-900'>Historique du projet</h2>
+                  <p className='text-gray-600'>Chronologie et événements importants</p>
+                </div>
+              </div>
+              
+              <ProjectHistory 
+                projectId={project.id}
+                projectCreatedAt={project.createdAt}
               />
-            ) : (
-              <p className='text-muted-foreground text-center py-8'>Aucun kit pour le moment</p>
-            )}
-          </TabsContent>
-
-          <TabsContent value='environmental' className='space-y-4'>
-            <h2 className='text-lg font-semibold text-foreground'>
-              Impact environnemental
-            </h2>
-            <EnvironmentalMetrics project={project} />
-          </TabsContent>
-
-          <TabsContent value='pricing' className='space-y-4'>
-            <h2 className='text-lg font-semibold text-foreground'>
-              Détail des prix
-            </h2>
-            <PricingBreakdown project={project} />
+            </motion.div>
           </TabsContent>
         </Tabs>
       </motion.div>
 
-      {/* Modal d'ajout de kit */}
+      {/* Modales */}
       <AnimatePresence>
-        {isAddKitModalOpen && (
-          <AddKitModal
-            isOpen={isAddKitModalOpen}
-            onClose={() => setIsAddKitModalOpen(false)}
-            onAddKits={handleAddKits}
-            projectId={project.id}
-          />
-        )}
-
         {isEditProjectDialogOpen && (
           <EditProjectDialog
             isOpen={isEditProjectDialogOpen}

@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { prisma, calculateProjectTotals } from '@/lib/db';
 import { Project } from '@/lib/types/project';
 import { UserRole } from '@/lib/types/user';
+import { createProjectUpdatedHistory, createProjectDeletedHistory } from '@/lib/services/project-history';
 
 export async function GET(
   request: NextRequest,
@@ -98,36 +99,49 @@ export async function PATCH(
       return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
     }
 
-    // Mettre à jour le projet
-    const updatedProject = await prisma.project.update({
-      where: { id },
-      data: {
-        nom,
-        description,
-        status,
-      },
-      include: {
-        projectKits: {
-          include: {
-            kit: {
-              include: {
-                kitProducts: {
-                  include: {
-                    product: true,
+    // Use transaction to update project and record history
+    const result = await prisma.$transaction(async (tx) => {
+      // Mettre à jour le projet
+      const updatedProject = await tx.project.update({
+        where: { id },
+        data: {
+          nom,
+          description,
+          status,
+        },
+        include: {
+          projectKits: {
+            include: {
+              kit: {
+                include: {
+                  kitProducts: {
+                    include: {
+                      product: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
+      });
+
+      // Record history (async, don't block transaction)
+      createProjectUpdatedHistory(
+        session.user.id,
+        id,
+        existingProject,
+        updatedProject
+      ).catch(console.error);
+
+      return updatedProject;
     });
 
     // Calculer les totaux
-    const totals = calculateProjectTotals(updatedProject as unknown as Project);
+    const totals = calculateProjectTotals(result as unknown as Project);
 
     return NextResponse.json({
-      ...updatedProject,
+      ...result,
       ...totals,
     });
   } catch (error) {
@@ -153,6 +167,18 @@ export async function PUT(
     const body = await request.json();
     const { nom, description, status } = body;
 
+    // Get existing project for history
+    const existingProject = await prisma.project.findFirst({
+      where: {
+        id,
+        createdById: session.user.id,
+      },
+    });
+
+    if (!existingProject) {
+      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
+    }
+
     const project = await prisma.project.update({
       where: {
         id,
@@ -164,6 +190,14 @@ export async function PUT(
         status,
       },
     });
+
+    // Record history (async)
+    createProjectUpdatedHistory(
+      session.user.id,
+      id,
+      existingProject,
+      project
+    ).catch(console.error);
 
     return NextResponse.json(project);
   } catch (error) {
@@ -186,6 +220,22 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    
+    // Get project data before deletion for history
+    const project = await prisma.project.findFirst({
+      where: {
+        id,
+        createdById: session.user.id,
+      },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
+    }
+
+    // Record history before deletion
+    await createProjectDeletedHistory(session.user.id, project);
+
     await prisma.project.delete({
       where: {
         id,

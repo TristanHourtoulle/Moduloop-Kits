@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
+import { createKitAddedHistory, createKitQuantityUpdatedHistory } from '@/lib/services/project-history';
 
 interface KitRequest {
   kitId: string;
@@ -70,18 +71,36 @@ export async function POST(
 
     // Traiter chaque kit à ajouter
     const operations = [];
+    const historyOperations = [];
 
     for (const kit of kits) {
       const existingKit = existingKitsMap.get(kit.kitId);
+      const kitDetails = existingKits.find(k => k.id === kit.kitId);
 
       if (existingKit) {
         // Kit existe déjà : additionner les quantités
+        const oldQuantity = existingKit.quantite;
+        const newQuantity = existingKit.quantite + kit.quantite;
+        
         operations.push(
           prisma.projectKit.update({
             where: { id: existingKit.id },
-            data: { quantite: existingKit.quantite + kit.quantite },
+            data: { quantite: newQuantity },
           })
         );
+
+        // Record quantity update history
+        if (kitDetails) {
+          historyOperations.push(
+            createKitQuantityUpdatedHistory(
+              session.user.id,
+              projectId,
+              kitDetails,
+              oldQuantity,
+              newQuantity
+            )
+          );
+        }
       } else {
         // Nouveau kit : créer une nouvelle entrée
         operations.push(
@@ -93,11 +112,26 @@ export async function POST(
             },
           })
         );
+
+        // Record kit added history
+        if (kitDetails) {
+          historyOperations.push(
+            createKitAddedHistory(
+              session.user.id,
+              projectId,
+              kitDetails,
+              kit.quantite
+            )
+          );
+        }
       }
     }
 
     // Exécuter toutes les opérations
     const projectKits = await Promise.all(operations);
+
+    // Record history (async, don't block response)
+    Promise.all(historyOperations).catch(console.error);
 
     return NextResponse.json(projectKits, { status: 201 });
   } catch (error) {

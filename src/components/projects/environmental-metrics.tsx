@@ -1,29 +1,22 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
 import {
   Leaf,
   Flame,
   Droplets,
   Zap,
-  TrendingDown,
   AlertTriangle,
   CheckCircle,
   Info,
-  ShoppingCart,
-  Home,
-} from "lucide-react";
-import { Project } from "@/lib/types/project";
-import { type PurchaseRentalMode } from "@/lib/schemas/product";
+  Award,
+} from 'lucide-react';
+import { Project } from '@/lib/types/project';
 import {
   getProductEnvironmentalImpact,
   formatEnvironmentalImpact,
-} from "@/lib/utils/product-helpers";
+} from '@/lib/utils/product-helpers';
 
 interface EnvironmentalImpact {
   rechauffementClimatique: number;
@@ -36,99 +29,60 @@ interface EnvironmentalMetricsProps {
   project: Project;
 }
 
-const getImpactLevel = (value: number, metric: string) => {
-  let thresholds: { low: number; medium: number; high: number };
-
-  switch (metric) {
-    case "rechauffementClimatique":
-      thresholds = { low: 100, medium: 500, high: 1000 };
-      break;
-    case "epuisementRessources":
-      thresholds = { low: 50, medium: 200, high: 500 };
-      break;
-    case "acidification":
-      thresholds = { low: 20, medium: 100, high: 300 };
-      break;
-    case "eutrophisation":
-      thresholds = { low: 10, medium: 50, high: 150 };
-      break;
-    default:
-      thresholds = { low: 100, medium: 500, high: 1000 };
-  }
-
-  if (value <= thresholds.low)
-    return {
-      level: "low",
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-      icon: CheckCircle,
-    };
-  if (value <= thresholds.medium)
-    return {
-      level: "medium",
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-100",
-      icon: AlertTriangle,
-    };
-  return {
-    level: "high",
-    color: "text-red-600",
-    bgColor: "bg-red-100",
-    icon: TrendingDown,
-  };
-};
-
 const getMetricInfo = (metric: string) => {
   switch (metric) {
-    case "rechauffementClimatique":
+    case 'rechauffementClimatique':
       return {
-        name: "Réchauffement climatique",
-        unit: "kg CO₂ eq",
-        description: "Contribution au changement climatique",
+        name: 'Réchauffement climatique',
+        unit: 'kg CO₂ eq',
+        description: 'Économie de CO₂ vs produits neufs',
         icon: Flame,
-        color: "text-red-500",
-        formatUnit: "kg" as const,
+        color: 'text-red-500',
+        formatUnit: 'kg' as const,
       };
-    case "epuisementRessources":
+    case 'epuisementRessources':
       return {
-        name: "Épuisement des ressources",
-        unit: "MJ",
-        description: "Épuisement des ressources fossiles",
+        name: 'Épuisement des ressources',
+        unit: 'MJ',
+        description: "Économie d'énergie vs produits neufs",
         icon: Zap,
-        color: "text-amber-500",
-        formatUnit: "MJ" as const,
+        color: 'text-amber-500',
+        formatUnit: 'MJ' as const,
       };
-    case "acidification":
+    case 'acidification':
       return {
-        name: "Acidification",
-        unit: "MOL H⁺",
-        description: "Acidification des sols et des eaux",
+        name: 'Acidification',
+        unit: 'MOL H⁺',
+        description: 'Réduction acidification vs produits neufs',
         icon: Droplets,
-        color: "text-blue-500",
-        formatUnit: "MOL" as const,
+        color: 'text-blue-500',
+        formatUnit: 'MOL' as const,
       };
-    case "eutrophisation":
+    case 'eutrophisation':
       return {
-        name: "Eutrophisation",
-        unit: "kg P eq",
-        description: "Eutrophisation marine",
+        name: 'Eutrophisation',
+        unit: 'kg P eq',
+        description: 'Économie eutrophisation vs produits neufs',
         icon: Leaf,
-        color: "text-green-500",
-        formatUnit: "kg" as const,
+        color: 'text-green-500',
+        formatUnit: 'kg' as const,
       };
     default:
       return {
-        name: "Métrique",
-        unit: "unit",
-        description: "Description",
+        name: 'Métrique',
+        unit: 'unit',
+        description: 'Description',
         icon: Info,
-        color: "text-gray-500",
-        formatUnit: "kg" as const,
+        color: 'text-gray-500',
+        formatUnit: 'kg' as const,
       };
   }
 };
 
-const calculateProjectEnvironmentalImpact = (project: Project, mode: PurchaseRentalMode): EnvironmentalImpact => {
+// Calcul des économies environnementales (location vs neuf)
+const calculateEnvironmentalSavings = (
+  project: Project
+): EnvironmentalImpact => {
   if (!project.projectKits) {
     return {
       rechauffementClimatique: 0,
@@ -138,10 +92,10 @@ const calculateProjectEnvironmentalImpact = (project: Project, mode: PurchaseRen
     };
   }
 
-  let totalRechauffementClimatique = 0;
-  let totalEpuisementRessources = 0;
-  let totalAcidification = 0;
-  let totalEutrophisation = 0;
+  let totalSavingsRechauffementClimatique = 0;
+  let totalSavingsEpuisementRessources = 0;
+  let totalSavingsAcidification = 0;
+  let totalSavingsEutrophisation = 0;
 
   project.projectKits.forEach((projectKit) => {
     const kit = projectKit.kit;
@@ -150,277 +104,347 @@ const calculateProjectEnvironmentalImpact = (project: Project, mode: PurchaseRen
     kit.kitProducts.forEach((kitProduct) => {
       const product = kitProduct.product;
       if (product) {
-        const impact = getProductEnvironmentalImpact(product, mode);
+        // Impact si c'était du neuf
+        const newImpact = getProductEnvironmentalImpact(product, 'achat');
+        // Impact en location (réduit)
+        const locationImpact = getProductEnvironmentalImpact(
+          product,
+          'location'
+        );
+
         const totalQuantity = kitProduct.quantite * projectKit.quantite;
 
-        totalRechauffementClimatique += (impact.rechauffementClimatique || 0) * totalQuantity;
-        totalEpuisementRessources += (impact.epuisementRessources || 0) * totalQuantity;
-        totalAcidification += (impact.acidification || 0) * totalQuantity;
-        totalEutrophisation += (impact.eutrophisation || 0) * totalQuantity;
+        // Économies = Impact neuf - Impact location
+        totalSavingsRechauffementClimatique +=
+          ((newImpact.rechauffementClimatique || 0) -
+            (locationImpact.rechauffementClimatique || 0)) *
+          totalQuantity;
+        totalSavingsEpuisementRessources +=
+          ((newImpact.epuisementRessources || 0) -
+            (locationImpact.epuisementRessources || 0)) *
+          totalQuantity;
+        totalSavingsAcidification +=
+          ((newImpact.acidification || 0) -
+            (locationImpact.acidification || 0)) *
+          totalQuantity;
+        totalSavingsEutrophisation +=
+          ((newImpact.eutrophisation || 0) -
+            (locationImpact.eutrophisation || 0)) *
+          totalQuantity;
       }
     });
   });
 
   return {
-    rechauffementClimatique: totalRechauffementClimatique,
-    epuisementRessources: totalEpuisementRessources,
-    acidification: totalAcidification,
-    eutrophisation: totalEutrophisation,
+    rechauffementClimatique: totalSavingsRechauffementClimatique,
+    epuisementRessources: totalSavingsEpuisementRessources,
+    acidification: totalSavingsAcidification,
+    eutrophisation: totalSavingsEutrophisation,
   };
 };
 
+const getSavingsLevel = (value: number) => {
+  if (value >= 500) {
+    return {
+      level: 'high',
+      color: 'text-green-700',
+      bgColor: 'bg-green-100',
+      borderColor: 'border-green-300',
+      icon: Award,
+      label: 'Excellent',
+    };
+  } else if (value >= 100) {
+    return {
+      level: 'medium',
+      color: 'text-blue-700',
+      bgColor: 'bg-blue-100',
+      borderColor: 'border-blue-300',
+      icon: CheckCircle,
+      label: 'Bon',
+    };
+  } else {
+    return {
+      level: 'low',
+      color: 'text-gray-700',
+      bgColor: 'bg-gray-100',
+      borderColor: 'border-gray-300',
+      icon: Info,
+      label: 'Modéré',
+    };
+  }
+};
+
 export function EnvironmentalMetrics({ project }: EnvironmentalMetricsProps) {
-  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat');
-  
-  const impact = calculateProjectEnvironmentalImpact(project, selectedMode);
-  const metrics = Object.entries(impact);
-  const totalImpact = Object.values(impact).reduce(
-    (sum, value) => sum + value,
-    0
-  );
+  const savings = calculateEnvironmentalSavings(project);
+  const metrics = Object.entries(savings);
 
   return (
-    <div className="space-y-6">
-      {/* Sélecteur de mode achat/location */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
-          <Leaf className="w-5 h-5 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">Mode d'impact environnemental</span>
-        </div>
-        <div className="flex space-x-2">
-          <Button
-            variant={selectedMode === 'achat' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedMode('achat')}
-            className={`flex items-center gap-2 ${
-              selectedMode === 'achat' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
-            }`}
-          >
-            <ShoppingCart className="w-4 h-4" />
-            Achat (Neuf)
-          </Button>
-          <Button
-            variant={selectedMode === 'location' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedMode('location')}
-            className={`flex items-center gap-2 ${
-              selectedMode === 'location' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
-            }`}
-          >
-            <Home className="w-4 h-4" />
-            Location (Existant)
-          </Button>
+    <div className='space-y-8'>
+      {/* Message d'information sur la location uniquement */}
+      <div className='bg-gradient-to-br from-blue-50 to-green-50 border border-blue-200 rounded-2xl p-6'>
+        <div className='flex items-start space-x-4'>
+          <div className='p-3 bg-gradient-to-br from-blue-100 to-green-100 rounded-xl'>
+            <Info className='w-6 h-6 text-blue-600' />
+          </div>
+          <div>
+            <h3 className='text-lg font-bold text-blue-900 mb-2'>
+              Impact environnemental en mode location
+            </h3>
+            <p className='text-sm text-blue-800 leading-relaxed'>
+              Les données ci-dessous représentent les{' '}
+              <strong>économies d'impact environnemental</strong> réalisées en
+              choisissant la location d'équipements existants par rapport à
+              l'achat de produits neufs. Cette approche permet de réduire
+              significativement l'empreinte carbone et l'utilisation de
+              ressources.
+            </p>
+          </div>
         </div>
       </div>
-      {/* Vue d&apos;ensemble */}
-      <motion.div
-        key={`overview-${selectedMode}`}
+
+      {/* Vue d'ensemble des économies */}
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
+        transition={{ duration: 0.3 }}
       >
-        <Card className={`bg-gradient-to-br border-2 ${
-          selectedMode === 'achat' 
-            ? 'from-orange-50 to-red-50 border-orange-200' 
-            : 'from-green-50 to-emerald-50 border-green-200'
-        }`}>
-          <CardContent className="p-6">
+        <div className={`bg-gradient-to-br from-green-50 to-emerald-50 border-2 ${savingsLevel.borderColor} rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden`}>
+          <div className="p-8">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  selectedMode === 'achat' ? 'bg-orange-100' : 'bg-green-100'
-                }`}>
-                  {selectedMode === 'achat' ? (
-                    <ShoppingCart className="w-6 h-6 text-orange-600" />
-                  ) : (
-                    <Home className="w-6 h-6 text-green-600" />
-                  )}
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 rounded-3xl flex items-center justify-center shadow-sm">
+                  <TreePine className="w-8 h-8 text-green-600" />
                 </div>
                 <div>
-                  <h3 className={`text-lg font-semibold ${
-                    selectedMode === 'achat' ? 'text-orange-800' : 'text-green-800'
-                  }`}>
-                    Impact environnemental - {selectedMode === 'achat' ? 'Achat' : 'Location'}
+                  <h3 className="text-xl font-bold text-green-900">
+                    Économies environnementales totales
                   </h3>
-                  <p className={`text-sm ${
-                    selectedMode === 'achat' ? 'text-orange-600' : 'text-green-600'
-                  }`}>
-                    {selectedMode === 'achat' 
-                      ? 'Impact complet de la fabrication neuve' 
-                      : 'Impact réduit de la réutilisation'
-                    }
+                  <p className="text-sm font-medium text-green-700">
+                    Bénéfices de la location vs achat neuf
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <div className={`text-3xl font-bold ${
-                  selectedMode === 'achat' ? 'text-orange-900' : 'text-green-900'
-                }`}>
-                  {totalImpact.toFixed(1)}
+                <div className="flex items-center space-x-3">
+                  <Badge className={`${savingsLevel.bgColor} ${savingsLevel.color} border-0 px-4 py-2`}>
+                    <savingsLevel.icon className="w-4 h-4 mr-2" />
+                    Impact {savingsLevel.label}
+                  </Badge>
                 </div>
-                <div className={`text-sm ${
-                  selectedMode === 'achat' ? 'text-orange-600' : 'text-green-600'
-                }`}>
-                  points d&apos;impact total
+                <div className="text-4xl font-bold text-green-900 mt-2">
+                  {totalSavings.toFixed(1)}
+                </div>
+                <div className="text-sm font-medium text-green-700">
+                  points d'économie totaux
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+          </div>
+        </div>
+      </motion.div> */}
 
-      {/* Métriques détaillées */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Métriques détaillées des économies */}
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
         {metrics.map(([key, value], index) => {
           const info = getMetricInfo(key);
-          const impactLevel = getImpactLevel(value, key);
           const IconComponent = info.icon;
-          const LevelIcon = impactLevel.icon;
+          const metricSavingsLevel = getSavingsLevel(value);
 
           return (
             <motion.div
-              key={`${key}-${selectedMode}`}
+              key={key}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + index * 0.1 }}
+              transition={{ delay: index * 0.1 }}
             >
-              <Card className="hover:shadow-lg transition-shadow duration-200">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <IconComponent className={`w-5 h-5 ${info.color}`} />
-                      <CardTitle className="text-base">{info.name}</CardTitle>
+              <div className='bg-gradient-to-br from-white to-gray-50/50 border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 group overflow-hidden'>
+                <div className='p-6'>
+                  <div className='flex items-center justify-between mb-6'>
+                    <div className='flex items-center space-x-3'>
+                      <div
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-transform duration-300 ${
+                          info.color === 'text-red-500'
+                            ? 'bg-gradient-to-br from-red-100 to-pink-100'
+                            : info.color === 'text-amber-500'
+                            ? 'bg-gradient-to-br from-amber-100 to-yellow-100'
+                            : info.color === 'text-blue-500'
+                            ? 'bg-gradient-to-br from-blue-100 to-cyan-100'
+                            : 'bg-gradient-to-br from-green-100 to-emerald-100'
+                        }`}
+                      >
+                        <IconComponent className={`w-6 h-6 ${info.color}`} />
+                      </div>
+                      <div>
+                        <h3 className='text-lg font-bold text-gray-900'>
+                          {info.name}
+                        </h3>
+                        <p className='text-sm text-gray-600'>
+                          {info.description}
+                        </p>
+                      </div>
                     </div>
                     <Badge
-                      className={`${impactLevel.bgColor} ${impactLevel.color} border-0`}
+                      className={`${metricSavingsLevel.bgColor} ${metricSavingsLevel.color} border-0 px-3 py-1`}
                     >
-                      <LevelIcon className="w-3 h-3 mr-1" />
-                      {impactLevel.level === "low"
-                        ? "Faible"
-                        : impactLevel.level === "medium"
-                        ? "Moyen"
-                        : "Élevé"}
+                      <metricSavingsLevel.icon className='w-3 h-3 mr-1' />
+                      {metricSavingsLevel.label}
                     </Badge>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900 mb-1">
+
+                  <div className='text-center mb-6'>
+                    <div
+                      className={`text-4xl font-bold mb-2 ${
+                        info.color === 'text-red-500'
+                          ? 'bg-gradient-to-br from-red-500 to-pink-500'
+                          : info.color === 'text-amber-500'
+                          ? 'bg-gradient-to-br from-amber-500 to-yellow-500'
+                          : info.color === 'text-blue-500'
+                          ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                          : 'bg-gradient-to-br from-green-500 to-emerald-500'
+                      } bg-clip-text text-transparent`}
+                    >
+                      {value > 0 ? '+' : ''}
                       {formatEnvironmentalImpact(value, info.formatUnit)}
                     </div>
-                    <div className="text-sm text-gray-500">{info.unit}</div>
+                    <div className='text-sm text-gray-600 font-medium'>
+                      {info.unit} économisés
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">
-                        Niveau d&apos;impact
+                  {/* <div className='space-y-3'>
+                    <div className='flex items-center justify-between text-sm p-3 bg-green-50 rounded-xl'>
+                      <span className='text-green-700 font-medium'>
+                        Niveau d'économie
                       </span>
-                      <span className="font-medium">
+                      <span className='font-bold text-green-900'>
                         {Math.round((value / 1000) * 100)}%
                       </span>
                     </div>
-                    <Progress
-                      value={Math.min((value / 1000) * 100, 100)}
-                      className="h-2"
-                    />
-                  </div>
-
-                  <div className="text-xs text-gray-500 text-center">
-                    {info.description}
-                  </div>
-                </CardContent>
-              </Card>
+                    <div className='bg-green-100 rounded-xl p-2'>
+                      <Progress
+                        value={Math.min((value / 1000) * 100, 100)}
+                        className='h-3'
+                      />
+                    </div>
+                  </div> */}
+                </div>
+              </div>
             </motion.div>
           );
         })}
       </div>
 
-      {/* Recommandations */}
-      <motion.div
-        key={`recommendations-${selectedMode}`}
+      {/* Comparaison location vs neuf */}
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.4 }}
       >
-        <Card className={`bg-gradient-to-br border-2 ${
-          selectedMode === 'achat'
-            ? 'from-amber-50 to-orange-50 border-amber-200'
-            : 'from-blue-50 to-green-50 border-blue-200'
-        }`}>
-          <CardContent className="p-6">
-            <div className="flex items-start space-x-3">
-              <Info className={`w-5 h-5 mt-0.5 ${
-                selectedMode === 'achat' ? 'text-amber-600' : 'text-blue-600'
-              }`} />
-              <div>
-                <h3 className={`font-semibold mb-2 ${
-                  selectedMode === 'achat' ? 'text-amber-800' : 'text-blue-800'
-                }`}>
-                  Recommandations pour {selectedMode === 'achat' ? 'l\'achat' : 'la location'}
-                </h3>
-                <ul className={`text-sm space-y-1 ${
-                  selectedMode === 'achat' ? 'text-amber-700' : 'text-blue-700'
-                }`}>
-                  {selectedMode === 'achat' ? (
-                    <>
-                      <li>
-                        • Privilégiez les produits avec des certifications environnementales (Energy Star, EPEAT, etc.)
-                      </li>
-                      <li>
-                        • Négociez des programmes de reprise en fin de vie avec les fournisseurs
-                      </li>
-                      <li>
-                        • Optez pour des produits conçus pour la durabilité et la réparabilité
-                      </li>
-                      <li>
-                        • Planifiez le recyclage et la valorisation des équipements en fin d\'usage
-                      </li>
-                    </>
-                  ) : (
-                    <>
-                      <li>
-                        • La location réduit significativement l\'impact environnemental (division par 3 à 10)
-                      </li>
-                      <li>
-                        • Maximisez la durée de location pour optimiser l\'amortissement environnemental
-                      </li>
-                      <li>
-                        • Vérifiez que les équipements loués bénéficient d\'un entretien régulier
-                      </li>
-                      <li>
-                        • Privilégiez les loueurs engagés dans des démarches de reconditionnement
-                      </li>
-                    </>
-                  )}
+        <Card className='bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200 rounded-2xl shadow-sm'>
+          <CardHeader>
+            <CardTitle className='flex items-center space-x-3'>
+              <div className='p-2 bg-gradient-to-br from-emerald-100 to-green-100 rounded-xl'>
+                <Recycle className='w-5 h-5 text-emerald-600' />
+              </div>
+              <span className='text-emerald-900'>
+                Avantages environnementaux de la location
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-4'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              <div className='space-y-3'>
+                <h4 className='font-semibold text-emerald-800 flex items-center'>
+                  <CheckCircle className='w-4 h-4 mr-2' />
+                  Bénéfices mesurables
+                </h4>
+                <ul className='text-sm text-emerald-700 space-y-2'>
+                  <li className='flex items-start'>
+                    <div className='w-1.5 h-1.5 bg-emerald-600 rounded-full mt-2 mr-3 flex-shrink-0'></div>
+                    <span>
+                      Réduction CO₂ :{' '}
+                      <strong>
+                        {formatEnvironmentalImpact(
+                          savings.rechauffementClimatique,
+                          'kg'
+                        )}{' '}
+                        kg évités
+                      </strong>
+                    </span>
+                  </li>
+                  <li className='flex items-start'>
+                    <div className='w-1.5 h-1.5 bg-emerald-600 rounded-full mt-2 mr-3 flex-shrink-0'></div>
+                    <span>
+                      Économie d'énergie :{' '}
+                      <strong>
+                        {formatEnvironmentalImpact(
+                          savings.epuisementRessources,
+                          'MJ'
+                        )}{' '}
+                        MJ préservés
+                      </strong>
+                    </span>
+                  </li>
+                  <li className='flex items-start'>
+                    <div className='w-1.5 h-1.5 bg-emerald-600 rounded-full mt-2 mr-3 flex-shrink-0'></div>
+                    <span>
+                      Réduction acidification :{' '}
+                      <strong>
+                        {formatEnvironmentalImpact(
+                          savings.acidification,
+                          'MOL'
+                        )}{' '}
+                        MOL H⁺
+                      </strong>
+                    </span>
+                  </li>
                 </ul>
+              </div>
 
-                {/* Information sur la différence d'impact */}
-                <div className={`mt-4 p-3 rounded-lg ${
-                  selectedMode === 'achat'
-                    ? 'bg-amber-100 border border-amber-300'
-                    : 'bg-green-100 border border-green-300'
-                }`}>
-                  <p className={`text-xs ${
-                    selectedMode === 'achat' ? 'text-amber-800' : 'text-green-800'
-                  }`}>
-                    <strong>
-                      {selectedMode === 'achat' 
-                        ? 'Impact environnemental complet :' 
-                        : 'Bénéfice environnemental de la location :'
-                      }
-                    </strong>{' '}
-                    {selectedMode === 'achat'
-                      ? 'Ces valeurs incluent l\'extraction des matières premières, la fabrication, le transport et la distribution des produits neufs.'
-                      : 'En réutilisant des équipements existants, la location permet de diviser l\'impact environnemental par 3 à 10 comparé à l\'achat neuf.'
-                    }
-                  </p>
+              <div className='space-y-3'>
+                <h4 className='font-semibold text-emerald-800 flex items-center'>
+                  <TreePine className='w-4 h-4 mr-2' />
+                  Impact global
+                </h4>
+                <div className='bg-white/60 rounded-xl p-4 border border-emerald-200'>
+                  <div className='text-center'>
+                    <div className='text-2xl font-bold text-emerald-900 mb-1'>
+                      {Math.round((totalSavings / 1000) * 100)}%
+                    </div>
+                    <div className='text-xs text-emerald-700'>
+                      de réduction d'impact vs neuf
+                    </div>
+                  </div>
                 </div>
+                <p className='text-xs text-emerald-700 leading-relaxed'>
+                  En optant pour la location, ce projet évite la fabrication de
+                  nouveaux équipements, réduisant ainsi considérablement son
+                  empreinte environnementale.
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </motion.div> */}
+
+      {/* Note importante */}
+      <div className='bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-xl p-4'>
+        <div className='flex items-start space-x-3'>
+          <AlertTriangle className='w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0' />
+          <div>
+            <h4 className='font-semibold text-amber-800 mb-1'>
+              Note importante
+            </h4>
+            <p className='text-xs text-amber-700 leading-relaxed'>
+              <strong>Pour l'achat de produits neufs</strong>, nous ne disposons
+              pas actuellement de données d'impact environnemental spécifiques.
+              Les économies affichées correspondent uniquement aux bénéfices de
+              la location par rapport à une estimation d'impact pour des
+              produits neufs équivalents.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

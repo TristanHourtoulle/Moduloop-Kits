@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { getProjects, createProject, calculateProjectTotals, prisma } from "@/lib/db";
 import { Project } from "@/lib/types/project";
 import { UserRole } from "@/lib/types/user";
+import { createProjectCreatedHistory } from '@/lib/services/project-history';
 
 export async function GET(request: NextRequest) {
   try {
@@ -82,6 +83,9 @@ export async function POST(request: NextRequest) {
       status,
       userId: session.user.id,
     });
+
+    // Record project creation in history
+    await createProjectCreatedHistory(session.user.id, project);
 
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
