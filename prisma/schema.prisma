@@ -121,13 +121,13 @@ model Product {
   prixVente3Ans         Float?
   
   // Impact environnemental - DEPRECATED: utiliser *Achat à la place
-  rechauffementClimatique Float  // kg eq. CO2
-  epuisementRessources    Float  // MJ
-  acidification           Float  // MOL H+
-  eutrophisation          Float  // kg P eq.
+  rechauffementClimatique Float?  // kg eq. CO2
+  epuisementRessources    Float?  // MJ
+  acidification           Float?  // MOL H+
+  eutrophisation          Float?  // kg P eq.
   
   // Marge appliquée (coefficient) - DEPRECATED: utiliser margeCoefficientAchat/Location
-  margeCoefficient      Float
+  margeCoefficient      Float?
   
   // NOUVEAUX CHAMPS - PRIX ACHAT
   // Prix d'achat fournisseur pour l'ACHAT (1, 2, 3 ans)
