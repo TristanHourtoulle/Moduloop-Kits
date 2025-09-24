@@ -70,9 +70,19 @@ git add src/components/Navbar.tsx
 git commit -m "fix: correct navbar responsive behavior"
 ```
 
-Notes
+## Important Rules
+
+### ⚠️ CRITICAL: No AI Attribution
+
+• **NEVER** include any AI references in commit messages (Claude, Anthropic, etc.)
+• **NEVER** add Co-Authored-By tags for AI systems  
+• **NEVER** mention AI assistance or generation
+• Commit messages should only reflect the actual work done
+
+### General Notes
+
 • Always check compilation before committing.
 • Always follow conventional commit standards (type: description).
 • One commit per type of detected modification.
 • Never push automatically.
-• **Never include AI references** (Claude, Anthropic, etc.) in commit messages.
+• Keep commit messages focused on the actual changes and their purpose.
