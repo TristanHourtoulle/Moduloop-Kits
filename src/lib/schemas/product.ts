@@ -17,7 +17,8 @@ export const productSchema = z.object({
     .string()
     .max(1000, "La description ne peut pas dépasser 1000 caractères")
     .trim()
-    .optional(),
+    .nullable()
+    .transform((val) => val === "" ? null : val),
 
   // ========== LEGACY FIELDS (pour compatibilité) ==========
   // Prix d'achat fournisseur (LEGACY)
@@ -25,6 +26,7 @@ export const productSchema = z.object({
     .number()
     .min(0, "Le prix d'achat doit être positif")
     .max(999999, "Le prix d'achat ne peut pas dépasser 999,999€")
+    .nullable()
     .optional(),
 
   prixAchat2Ans: z

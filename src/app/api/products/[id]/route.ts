@@ -115,8 +115,15 @@ export async function PUT(
 
     // Filtrer les valeurs undefined pour éviter les erreurs Prisma
     const filteredUpdateData = Object.fromEntries(
-      Object.entries(updateData).filter(([_, value]) => value !== undefined)
+      Object.entries(updateData).filter(([key, value]) => {
+        return value !== undefined;
+      })
     );
+
+    // Traiter spécialement la description pour gérer les chaînes vides
+    if ('description' in updateData) {
+      filteredUpdateData.description = updateData.description || "";
+    }
 
     const updatedProduct = await prisma.product.update({
       where: { id },

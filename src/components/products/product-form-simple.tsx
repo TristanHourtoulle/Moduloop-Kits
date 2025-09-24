@@ -33,7 +33,7 @@ export function ProductFormSimple({
     defaultValues: {
       nom: initialData?.nom || "",
       reference: initialData?.reference || "",
-      description: initialData?.description || "",
+      description: initialData?.description ?? "",
       prixAchat1An: initialData?.prixAchat1An || 0,
       prixUnitaire1An: initialData?.prixUnitaire1An || 0,
       prixVente1An: initialData?.prixVente1An || 0,

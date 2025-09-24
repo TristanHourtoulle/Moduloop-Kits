@@ -102,64 +102,6 @@ export function GeneralInfoSection({
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="quantite" className="text-sm font-medium">
-                Quantité <span className="text-gray-500">(optionnel)</span>
-              </Label>
-              <Input
-                id="quantite"
-                type="number"
-                {...register("quantite", { 
-                  setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                })}
-                placeholder="Ex: 100"
-                min="0"
-                className={`transition-colors ${
-                  errors.quantite
-                    ? "border-red-500 focus:border-red-500"
-                    : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                }`}
-              />
-              {errors.quantite && (
-                <p className="text-sm text-red-500">
-                  {errors.quantite.message}
-                </p>
-              )}
-              <p className="text-xs text-gray-500">
-                Uniquement requis pour les kits
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="surfaceM2" className="text-sm font-medium">
-                Surface occupée (m²) <span className="text-gray-500">(optionnel)</span>
-              </Label>
-              <Input
-                id="surfaceM2"
-                type="number"
-                step="0.01"
-                {...register("surfaceM2", { 
-                  setValueAs: (v) => v === "" || v === null ? undefined : Number(v),
-                })}
-                placeholder="Ex: 2.5"
-                min="0"
-                className={`transition-colors ${
-                  errors.surfaceM2
-                    ? "border-red-500 focus:border-red-500"
-                    : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
-                }`}
-              />
-              {errors.surfaceM2 && (
-                <p className="text-sm text-red-500">
-                  {errors.surfaceM2.message}
-                </p>
-              )}
-              <p className="text-xs text-gray-500">
-                Uniquement requis pour les kits
-              </p>
-            </div>
-          </div>
         </div>
       </AccordionContent>
     </AccordionItem>

@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
       // Champs de base (toujours présents depuis la validation)
       nom: validatedData.nom,
       reference: validatedData.reference,
-      description: validatedData.description,
+      description: validatedData.description || "",
       
       // Valeurs par défaut pour les champs legacy requis par Prisma
       prixAchat1An: validatedData.prixAchat1An ?? 0,
