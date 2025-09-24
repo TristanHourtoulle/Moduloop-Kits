@@ -75,3 +75,4 @@ Notes
 • Always follow conventional commit standards (type: description).
 • One commit per type of detected modification.
 • Never push automatically.
+• **Never include AI references** (Claude, Anthropic, etc.) in commit messages.
