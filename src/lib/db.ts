@@ -15,6 +15,48 @@ export const prisma =
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
+// Product select object with all fields (legacy + mode-specific)
+const productSelectFields = {
+  id: true,
+  nom: true,
+  reference: true,
+  surfaceM2: true,
+  // Legacy pricing fields
+  prixAchat1An: true,
+  prixAchat2Ans: true,
+  prixAchat3Ans: true,
+  prixVente1An: true,
+  prixVente2Ans: true,
+  prixVente3Ans: true,
+  // Mode-specific pricing fields
+  prixAchatAchat1An: true,
+  prixAchatAchat2Ans: true,
+  prixAchatAchat3Ans: true,
+  prixVenteAchat1An: true,
+  prixVenteAchat2Ans: true,
+  prixVenteAchat3Ans: true,
+  prixAchatLocation1An: true,
+  prixAchatLocation2Ans: true,
+  prixAchatLocation3Ans: true,
+  prixVenteLocation1An: true,
+  prixVenteLocation2Ans: true,
+  prixVenteLocation3Ans: true,
+  // Legacy environmental fields
+  rechauffementClimatique: true,
+  epuisementRessources: true,
+  acidification: true,
+  eutrophisation: true,
+  // Mode-specific environmental fields
+  rechauffementClimatiqueAchat: true,
+  epuisementRessourcesAchat: true,
+  acidificationAchat: true,
+  eutrophisationAchat: true,
+  rechauffementClimatiqueLocation: true,
+  epuisementRessourcesLocation: true,
+  acidificationLocation: true,
+  eutrophisationLocation: true,
+} as const;
+
 // Cached data fetching functions
 export const getKits = cache(async () => {
   return await prisma.kit.findMany({
@@ -28,18 +70,7 @@ export const getKits = cache(async () => {
       kitProducts: {
         include: {
           product: {
-            select: {
-              id: true,
-              nom: true,
-              reference: true,
-              prixVente1An: true,
-              prixVente2Ans: true,
-              prixVente3Ans: true,
-              rechauffementClimatique: true,
-              epuisementRessources: true,
-              acidification: true,
-              eutrophisation: true,
-            },
+            select: productSelectFields,
           },
         },
       },
@@ -63,18 +94,7 @@ export const getKitById = cache(async (id: string) => {
       kitProducts: {
         include: {
           product: {
-            select: {
-              id: true,
-              nom: true,
-              reference: true,
-              prixVente1An: true,
-              prixVente2Ans: true,
-              prixVente3Ans: true,
-              rechauffementClimatique: true,
-              epuisementRessources: true,
-              acidification: true,
-              eutrophisation: true,
-            },
+            select: productSelectFields,
           },
         },
       },
@@ -130,19 +150,7 @@ export const getProjects = cache(async (userId: string) => {
               kitProducts: {
                 include: {
                   product: {
-                    select: {
-                      id: true,
-                      nom: true,
-                      reference: true,
-                      prixVente1An: true,
-                      prixVente2Ans: true,
-                      prixVente3Ans: true,
-                      rechauffementClimatique: true,
-                      epuisementRessources: true,
-                      acidification: true,
-                      eutrophisation: true,
-                      surfaceM2: true,
-                    },
+                    select: productSelectFields,
                   },
                 },
               },
@@ -174,19 +182,7 @@ export const getProjectById = cache(async (id: string, userId: string) => {
               kitProducts: {
                 include: {
                   product: {
-                    select: {
-                      id: true,
-                      nom: true,
-                      reference: true,
-                      prixVente1An: true,
-                      prixVente2Ans: true,
-                      prixVente3Ans: true,
-                      rechauffementClimatique: true,
-                      epuisementRessources: true,
-                      acidification: true,
-                      eutrophisation: true,
-                      surfaceM2: true,
-                    },
+                    select: productSelectFields,
                   },
                 },
               },
