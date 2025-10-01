@@ -70,14 +70,30 @@ export function KitProductsSection({
     fetchProducts();
   }, [onError]);
 
-  const handleAddProduct = (productId: string, quantite: number) => {
-    // Check if product is not already added
-    const alreadyExists = fields.some((field) => field.productId === productId);
-    if (!alreadyExists) {
-      append({ productId, quantite });
-      setShowProductSelection(false);
+  const handleQuantityChange = (productId: string, quantity: number) => {
+    // Find existing product in fields
+    const existingIndex = fields.findIndex((field) => field.productId === productId);
+
+    if (quantity === 0) {
+      // Remove product if quantity is 0
+      if (existingIndex >= 0) {
+        remove(existingIndex);
+      }
+    } else {
+      // Update or add product
+      if (existingIndex >= 0) {
+        update(existingIndex, { productId, quantite: quantity });
+      } else {
+        append({ productId, quantite: quantity });
+      }
     }
   };
+
+  // Build product quantities map for ProductSelectionGrid
+  const productQuantities: Record<string, number> = {};
+  fields.forEach((field) => {
+    productQuantities[field.productId] = field.quantite;
+  });
 
   const getSelectedProduct = (productId: string) => {
     return products.find((p) => p.id === productId);
@@ -130,7 +146,6 @@ export function KitProductsSection({
   };
 
   const totals = calculateTotalPricing();
-  const selectedProductIds = fields.map((f) => f.productId);
 
   return (
     <AccordionItem value="products" className="border rounded-lg">
@@ -274,8 +289,8 @@ export function KitProductsSection({
             <div className="border-t pt-6">
               <ProductSelectionGrid
                 products={products}
-                selectedProductIds={selectedProductIds}
-                onAddProduct={handleAddProduct}
+                productQuantities={productQuantities}
+                onQuantityChange={handleQuantityChange}
               />
             </div>
           )}

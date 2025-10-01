@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import {
   Card,
   CardContent,
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/card";
 import { Package2, Calendar, User, Calculator, Leaf, Edit, Trash2, ShoppingCart, Home } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useDialog } from "@/components/providers/dialog-provider";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
 import { type PurchaseRentalMode } from "@/lib/schemas/product";
@@ -64,21 +64,8 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
     return total;
   }, [selectedMode, kit.kitProducts]);
 
-  const { showConfirm, showError } = useDialog();
-
   const handleDelete = async () => {
     if (!onDelete) {
-      return;
-    }
-
-    const confirmed = await showConfirm(
-      "Supprimer le kit",
-      "Êtes-vous sûr de vouloir supprimer ce kit ? Cette action est irréversible.",
-      "Supprimer",
-      "Annuler"
-    );
-    
-    if (!confirmed) {
       return;
     }
 
@@ -86,10 +73,6 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
       await onDelete(kit.id);
     } catch (err) {
       console.error("Erreur:", err);
-      await showError(
-        "Erreur", 
-        "Une erreur est survenue lors de la suppression du kit. Veuillez réessayer."
-      );
     }
   };
 
@@ -239,21 +222,30 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
               </button>
             </RoleGuard>
             <RoleGuard requiredRole={UserRole.DEV}>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('Supprimer clicked for kit:', kit.id);
-                  handleDelete();
-                }}
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:text-red-600 hover:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200 transition-all duration-200 cursor-pointer relative z-10"
-                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
-                title="Supprimer le kit"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Supprimer
-              </button>
+              {onDelete && (
+                <DeleteConfirmDialog
+                  title="Supprimer le kit ?"
+                  itemName={kit.nom}
+                  description="Tous les produits associés à ce kit seront également supprimés."
+                  onConfirm={handleDelete}
+                  triggerVariant="outline"
+                  triggerSize="default"
+                  showIcon={false}
+                >
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                    className="flex-1 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:text-red-600 hover:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-200 transition-all duration-200 cursor-pointer relative z-10"
+                    style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+                    title="Supprimer le kit"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Supprimer
+                  </button>
+                </DeleteConfirmDialog>
+              )}
             </RoleGuard>
           </div>
       </CardFooter>

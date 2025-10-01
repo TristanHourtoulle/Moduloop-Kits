@@ -3,25 +3,22 @@
 import { useState, useMemo } from 'react';
 import { Product } from '@/lib/types/project';
 import { ProductSelectionCard } from './ProductSelectionCard';
-import { AddProductDialog } from './AddProductDialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, Package } from 'lucide-react';
 
 interface ProductSelectionGridProps {
   products: Product[];
-  selectedProductIds: string[];
-  onAddProduct: (productId: string, quantite: number) => void;
+  productQuantities: Record<string, number>;
+  onQuantityChange: (productId: string, quantity: number) => void;
 }
 
 export function ProductSelectionGrid({
   products,
-  selectedProductIds,
-  onAddProduct,
+  productQuantities,
+  onQuantityChange,
 }: ProductSelectionGridProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Filter products based on search
   const filteredProducts = useMemo(() => {
@@ -35,17 +32,8 @@ export function ProductSelectionGrid({
     );
   }, [products, searchQuery]);
 
-  const handleCardClick = (product: Product) => {
-    setSelectedProduct(product);
-    setDialogOpen(true);
-  };
-
-  const handleAddProduct = (productId: string, quantite: number) => {
-    onAddProduct(productId, quantite);
-  };
-
   const availableCount = filteredProducts.length;
-  const selectedCount = selectedProductIds.length;
+  const selectedCount = Object.values(productQuantities).filter(q => q > 0).length;
 
   return (
     <div className="space-y-4">
@@ -80,14 +68,13 @@ export function ProductSelectionGrid({
 
       {/* Products Grid */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filteredProducts.map((product) => (
             <ProductSelectionCard
               key={product.id}
               product={product}
-              isSelected={selectedProductIds.includes(product.id)}
-              isDisabled={selectedProductIds.includes(product.id)}
-              onClick={() => handleCardClick(product)}
+              currentQuantity={productQuantities[product.id] || 0}
+              onQuantityChange={onQuantityChange}
             />
           ))}
         </div>
@@ -106,14 +93,6 @@ export function ProductSelectionGrid({
           </p>
         </div>
       )}
-
-      {/* Add Product Dialog */}
-      <AddProductDialog
-        product={selectedProduct}
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onAdd={handleAddProduct}
-      />
     </div>
   );
 }

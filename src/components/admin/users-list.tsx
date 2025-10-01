@@ -168,7 +168,9 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
           <CardTitle>Liste des utilisateurs</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
+          {/* Responsive table wrapper - scroll horizontal sur mobile */}
+          <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
+            <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Utilisateur</TableHead>
@@ -243,6 +245,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

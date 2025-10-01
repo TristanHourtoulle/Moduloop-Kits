@@ -48,11 +48,11 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
   return (
     <Card className='group relative overflow-hidden hover:shadow-soft hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 bg-card pt-0'>
       <div className='flex flex-col'>
-        {/* Large Product Image */}
+        {/* Large Product Image - Responsive height */}
         <ProductCardImage
           image={product.image}
           name={product.nom}
-          className='h-48 w-full'
+          className='h-32 sm:h-40 md:h-48 w-full'
         />
 
         <CardContent className='flex-1 p-6'>
@@ -81,7 +81,11 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
           />
 
           {/* Action buttons */}
-          <ProductCardActions onEdit={handleEdit} onDelete={handleDelete} />
+          <ProductCardActions
+            productName={product.nom}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         </CardContent>
       </div>
     </Card>

@@ -186,7 +186,7 @@ export function AddKitModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='max-w-4xl max-h-[90vh] overflow-hidden'>
+      <DialogContent className='max-w-full sm:max-w-md md:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-hidden'>
         <DialogHeader>
           <DialogTitle className='flex items-center space-x-2'>
             <Package className='w-5 h-5' />
@@ -356,7 +356,7 @@ export function AddKitModal({
 
                         <CardContent className='space-y-4'>
                           {/* Métriques rapides */}
-                          <div className='grid grid-cols-5 gap-3'>
+                          <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3'>
                             <div className='text-center p-2 bg-gray-50 rounded text-xs'>
                               <div className='font-semibold text-red-600'>
                                 {kitImpact.rechauffementClimatique.toFixed(1)}

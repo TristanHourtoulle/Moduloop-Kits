@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DeleteConfirmDialog } from '@/components/ui/delete-confirm-dialog';
 import { Project } from '@/lib/types/project';
 import {
   Calendar,
@@ -19,9 +20,10 @@ import Link from 'next/link';
 
 interface ProjectCardProps {
   project: Project;
+  onDelete?: (projectId: string) => void | Promise<void>;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, onDelete }: ProjectCardProps) {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'ACTIF':
@@ -118,7 +120,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
         {/* Metrics Section */}
         <CardContent className='px-6 py-4 space-y-6'>
-          <div className='grid grid-cols-2 gap-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
             {/* Impact environnemental */}
             <div className='p-4 rounded-xl bg-muted/30 border border-border/50'>
               <div className='flex items-center space-x-2 mb-2'>
@@ -172,13 +174,17 @@ export function ProjectCard({ project }: ProjectCardProps) {
               <Edit3 className='w-4 h-4' />
             </Button>
 
-            <Button
-              size='sm'
-              variant='outline'
-              className='hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30'
-            >
-              <Trash2 className='w-4 h-4' />
-            </Button>
+            {onDelete && (
+              <DeleteConfirmDialog
+                title="Supprimer le projet ?"
+                itemName={project.nom}
+                description="Tous les kits et données associés à ce projet seront également supprimés."
+                onConfirm={() => onDelete(project.id)}
+                triggerVariant="outline"
+                triggerSize="sm"
+                triggerClassName="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+              />
+            )}
           </div>
         </CardContent>
       </Card>

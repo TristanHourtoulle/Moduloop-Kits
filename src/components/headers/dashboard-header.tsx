@@ -226,11 +226,11 @@ export function DashboardHeader() {
         <div
           className={`md:hidden transition-all duration-300 ease-in-out ${
             isMobileMenuOpen
-              ? "max-h-96 opacity-100 pb-4"
+              ? "max-h-screen opacity-100 pb-4"
               : "max-h-0 opacity-0 pb-0"
-          } overflow-hidden`}
+          } overflow-y-auto overflow-x-hidden`}
         >
-          <div className="pt-4 space-y-3">
+          <div className="pt-4 space-y-3 pb-safe">
             {/* Mobile Navigation */}
             <div className="space-y-2">
               {navigationItems.map((item) => {
