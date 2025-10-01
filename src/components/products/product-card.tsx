@@ -46,7 +46,7 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
   };
 
   return (
-    <Card className='group relative overflow-hidden hover:shadow-soft hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 bg-card'>
+    <Card className='group relative overflow-hidden hover:shadow-soft hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 bg-card pt-0'>
       <div className='flex flex-col'>
         {/* Large Product Image */}
         <ProductCardImage
