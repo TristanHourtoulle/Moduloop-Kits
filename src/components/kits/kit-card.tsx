@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,26 +34,36 @@ interface KitCardProps {
 export function KitCard({ kit, onDelete }: KitCardProps) {
   const router = useRouter();
   const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat');
-  
-  const calculateTotals = (mode: PurchaseRentalMode) => {
-    let totalPrice = 0;
-    let totalCO2 = 0;
+
+  // Calculate total price based on selected mode
+  const totalPrice = useMemo(() => {
+    let total = 0;
+    kit.kitProducts?.forEach((kitProduct) => {
+      const { product, quantite } = kitProduct;
+      if (product) {
+        const pricing = getProductPricing(product, selectedMode, '1an');
+        total += (pricing.prixVente || 0) * quantite;
+      }
+    });
+    return total;
+  }, [selectedMode, kit.kitProducts]);
+
+  // Calculate CO2 impact based on selected mode
+  // Note: DB values for 'location' mode already represent savings/difference
+  const totalCO2 = useMemo(() => {
+    let total = 0;
 
     kit.kitProducts?.forEach((kitProduct) => {
       const { product, quantite } = kitProduct;
       if (product) {
-        const pricing = getProductPricing(product, mode, '1an');
-        const environmentalImpact = getProductEnvironmentalImpact(product, mode);
-        
-        totalPrice += (pricing.prixVente || 0) * quantite;
-        totalCO2 += (environmentalImpact.rechauffementClimatique || 0) * quantite;
+        const environmentalImpact = getProductEnvironmentalImpact(product, selectedMode);
+        total += (environmentalImpact.rechauffementClimatique || 0) * quantite;
       }
     });
 
-    return { totalPrice, totalCO2 };
-  };
+    return total;
+  }, [selectedMode, kit.kitProducts]);
 
-  const { totalPrice, totalCO2 } = calculateTotals(selectedMode);
   const { showConfirm, showError } = useDialog();
 
   const handleDelete = async () => {
@@ -179,7 +189,9 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Leaf className="h-4 w-4 text-emerald-600" />
-              <span className="text-sm text-muted-foreground">CO₂ {selectedMode}</span>
+              <span className="text-sm text-muted-foreground">
+                {selectedMode === 'achat' ? 'CO₂ émis' : 'CO₂ économisé'}
+              </span>
             </div>
             <p className="text-2xl font-bold text-emerald-600">
               {totalCO2.toFixed(1)} kg
