@@ -35,18 +35,54 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
   const router = useRouter();
   const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat');
 
-  // Calculate total price based on selected mode
-  const totalPrice = useMemo(() => {
+  // Calculate total price based on selected mode and period
+  const totalPriceAchat = useMemo(() => {
     let total = 0;
     kit.kitProducts?.forEach((kitProduct) => {
       const { product, quantite } = kitProduct;
       if (product) {
-        const pricing = getProductPricing(product, selectedMode, '1an');
+        const pricing = getProductPricing(product, 'achat', '1an');
         total += (pricing.prixVente || 0) * quantite;
       }
     });
     return total;
-  }, [selectedMode, kit.kitProducts]);
+  }, [kit.kitProducts]);
+
+  const totalPriceLocation1An = useMemo(() => {
+    let total = 0;
+    kit.kitProducts?.forEach((kitProduct) => {
+      const { product, quantite } = kitProduct;
+      if (product) {
+        const pricing = getProductPricing(product, 'location', '1an');
+        total += (pricing.prixVente || 0) * quantite;
+      }
+    });
+    return total;
+  }, [kit.kitProducts]);
+
+  const totalPriceLocation2Ans = useMemo(() => {
+    let total = 0;
+    kit.kitProducts?.forEach((kitProduct) => {
+      const { product, quantite } = kitProduct;
+      if (product) {
+        const pricing = getProductPricing(product, 'location', '2ans');
+        total += (pricing.prixVente || 0) * quantite;
+      }
+    });
+    return total;
+  }, [kit.kitProducts]);
+
+  const totalPriceLocation3Ans = useMemo(() => {
+    let total = 0;
+    kit.kitProducts?.forEach((kitProduct) => {
+      const { product, quantite } = kitProduct;
+      if (product) {
+        const pricing = getProductPricing(product, 'location', '3ans');
+        total += (pricing.prixVente || 0) * quantite;
+      }
+    });
+    return total;
+  }, [kit.kitProducts]);
 
   // Calculate CO2 impact based on selected mode
   // Note: DB values for 'location' mode already represent savings/difference
@@ -157,30 +193,62 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
         </div>
 
         {/* Section métriques */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
+        {selectedMode === 'achat' ? (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Calculator className="h-4 w-4 text-primary" />
+                <span className="text-sm text-muted-foreground">Prix achat</span>
+              </div>
+              <p className="text-2xl font-bold text-primary">
+                {formatPrice(totalPriceAchat)}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Leaf className="h-4 w-4 text-emerald-600" />
+                <span className="text-sm text-muted-foreground">CO₂ émis</span>
+              </div>
+              <p className="text-2xl font-bold text-emerald-600">
+                {totalCO2.toFixed(1)} kg
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Calculator className="h-4 w-4 text-primary" />
-              <span className="text-sm text-muted-foreground">
-                Prix {selectedMode === 'achat' ? 'achat' : 'location'}
-              </span>
+              <span className="text-sm font-medium text-muted-foreground">Prix location</span>
             </div>
-            <p className="text-2xl font-bold text-primary">
-              {formatPrice(totalPrice)}
-            </p>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-3 border border-primary/20">
+                <div className="text-xs text-primary/70 font-medium mb-1">1 an</div>
+                <div className="text-sm font-bold text-primary">
+                  {formatPrice(totalPriceLocation1An)}
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-3 border border-primary/20">
+                <div className="text-xs text-primary/70 font-medium mb-1">2 ans</div>
+                <div className="text-sm font-bold text-primary">
+                  {formatPrice(totalPriceLocation2Ans)}
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-3 border border-primary/20">
+                <div className="text-xs text-primary/70 font-medium mb-1">3 ans</div>
+                <div className="text-sm font-bold text-primary">
+                  {formatPrice(totalPriceLocation3Ans)}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 pt-2">
               <Leaf className="h-4 w-4 text-emerald-600" />
-              <span className="text-sm text-muted-foreground">
-                {selectedMode === 'achat' ? 'CO₂ émis' : 'CO₂ économisé'}
+              <span className="text-sm text-muted-foreground">CO₂ économisé</span>
+              <span className="text-xl font-bold text-emerald-600 ml-auto">
+                {totalCO2.toFixed(1)} kg
               </span>
             </div>
-            <p className="text-2xl font-bold text-emerald-600">
-              {totalCO2.toFixed(1)} kg
-            </p>
           </div>
-        </div>
+        )}
 
         {/* Section métadonnées */}
         <div className="pt-4 border-t border-border/50 space-y-2">

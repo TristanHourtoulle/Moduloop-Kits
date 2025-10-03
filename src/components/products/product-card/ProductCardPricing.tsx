@@ -34,7 +34,7 @@ export function ProductCardPricing({ product, selectedMode, onModeChange, classN
         <div className="flex items-center gap-2">
           <Euro className="h-5 w-5 text-primary" />
           <span className="text-2xl font-bold text-primary">
-            {formatPrice(purchasePrice.prixAchat)}
+            {formatPrice(purchasePrice.prixVente)}
           </span>
         </div>
       </div>
@@ -51,23 +51,23 @@ export function ProductCardPricing({ product, selectedMode, onModeChange, classN
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-3 border border-emerald-200/50">
             <div className="text-xs text-emerald-700 font-medium mb-1">1 an</div>
             <div className="text-sm font-semibold text-emerald-800">
-              {formatPrice(rental1Year.prixAchat) || "N/A"}
+              {formatPrice(rental1Year.prixVente) || "N/A"}
             </div>
           </div>
-          
+
           {/* 2 ans */}
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-3 border border-emerald-200/50">
             <div className="text-xs text-emerald-700 font-medium mb-1">2 ans</div>
             <div className="text-sm font-semibold text-emerald-800">
-              {formatPrice(rental2Years.prixAchat) || "N/A"}
+              {formatPrice(rental2Years.prixVente) || "N/A"}
             </div>
           </div>
-          
+
           {/* 3 ans */}
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-3 border border-emerald-200/50">
             <div className="text-xs text-emerald-700 font-medium mb-1">3 ans</div>
             <div className="text-sm font-semibold text-emerald-800">
-              {formatPrice(rental3Years.prixAchat) || "N/A"}
+              {formatPrice(rental3Years.prixVente) || "N/A"}
             </div>
           </div>
         </div>
