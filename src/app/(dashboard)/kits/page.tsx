@@ -56,10 +56,7 @@ export default function KitsPage() {
     try {
       setError(null);
       const response = await fetch('/api/kits', {
-        next: {
-          revalidate: 300,
-          tags: ['kits'],
-        },
+        cache: "no-store", // Éviter le cache du navigateur
       });
 
       if (!response.ok) {
