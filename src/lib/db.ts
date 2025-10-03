@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { cache } from 'react';
 import 'server-only';
 import { Project, ProjectStatus } from './types/project';
+import { getProductPricing, getProductEnvironmentalImpact } from './utils/product-helpers';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -265,30 +266,34 @@ export const calculateProjectTotals = (project: Project) => {
         kit.kitProducts.forEach((kitProduct) => {
           const product = kitProduct.product;
           if (product) {
+            // Utiliser les helpers pour les champs mode-specific (mode achat par défaut)
+            const pricing = getProductPricing(product, 'achat', '1an');
+            const environmentalImpact = getProductEnvironmentalImpact(product, 'achat');
+
             // Prix total pour ce produit dans ce kit * quantité du kit dans le projet
             const prixProduit =
-              product.prixVente1An * kitProduct.quantite * projectKit.quantite;
+              (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite;
             totalPrix += prixProduit;
 
             // Impact environnemental
             totalImpact.rechauffementClimatique +=
-              product.rechauffementClimatique *
+              (environmentalImpact.rechauffementClimatique || 0) *
               kitProduct.quantite *
               projectKit.quantite;
             totalImpact.epuisementRessources +=
-              product.epuisementRessources *
+              (environmentalImpact.epuisementRessources || 0) *
               kitProduct.quantite *
               projectKit.quantite;
             totalImpact.acidification +=
-              product.acidification * kitProduct.quantite * projectKit.quantite;
+              (environmentalImpact.acidification || 0) * kitProduct.quantite * projectKit.quantite;
             totalImpact.eutrophisation +=
-              product.eutrophisation *
+              (environmentalImpact.eutrophisation || 0) *
               kitProduct.quantite *
               projectKit.quantite;
 
             // Surface totale
             totalSurface +=
-              product.surfaceM2 * kitProduct.quantite * projectKit.quantite;
+              (product.surfaceM2 || 0) * kitProduct.quantite * projectKit.quantite;
           }
         });
       }

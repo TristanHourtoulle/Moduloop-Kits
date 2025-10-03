@@ -210,7 +210,8 @@ export function ProductForm({
       });
 
       if (onSuccess) {
-        onSuccess();
+        // Appeler le callback onSuccess qui va refetch les données
+        await onSuccess();
       } else {
         // Afficher un message de succès temporaire
         const successMessage = productId
@@ -221,7 +222,6 @@ export function ProductForm({
         console.log('[ProductForm]', successMessage);
 
         router.push('/products');
-        router.refresh();
       }
     } catch (err) {
       console.error('Erreur lors de la soumission:', err);

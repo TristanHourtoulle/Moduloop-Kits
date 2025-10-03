@@ -16,6 +16,7 @@ import { Package, Trash2, Calculator, Plus, Minus } from 'lucide-react';
 import { KitFormData } from '@/lib/schemas/kit';
 import { ProductSelectionGrid } from '../product-selection/ProductSelectionGrid';
 import { Product } from '@/lib/types/project';
+import { getProductPricing, getProductEnvironmentalImpact } from '@/lib/utils/product-helpers';
 
 interface KitProductsSectionProps {
   control: Control<KitFormData>;
@@ -106,9 +107,17 @@ export function KitProductsSection({
   };
 
   const calculateTotalPricing = () => {
-    let total1An = 0;
-    let total2Ans = 0;
-    let total3Ans = 0;
+    // Calculs pour le mode ACHAT
+    let totalAchat1An = 0;
+    let totalAchat2Ans = 0;
+    let totalAchat3Ans = 0;
+
+    // Calculs pour le mode LOCATION
+    let totalLocation1An = 0;
+    let totalLocation2Ans = 0;
+    let totalLocation3Ans = 0;
+
+    // Impact environnemental (utilise mode ACHAT par défaut pour l'affichage)
     let totalCO2 = 0;
     let totalRessources = 0;
     let totalAcidification = 0;
@@ -123,21 +132,47 @@ export function KitProductsSection({
         const product = getSelectedProduct(productData.productId);
         if (product) {
           const quantite = Number(productData.quantite) || 0;
-          total1An += (product.prixVente1An || 0) * quantite;
-          total2Ans += (product.prixVente2Ans || 0) * quantite;
-          total3Ans += (product.prixVente3Ans || 0) * quantite;
-          totalCO2 += (product.rechauffementClimatique || 0) * quantite;
-          totalRessources += (product.epuisementRessources || 0) * quantite;
-          totalAcidification += (product.acidification || 0) * quantite;
-          totalEutrophisation += (product.eutrophisation || 0) * quantite;
+
+          // Utiliser les champs mode-specific avec getProductPricing
+          const pricingAchat1An = getProductPricing(product, 'achat', '1an');
+          const pricingAchat2Ans = getProductPricing(product, 'achat', '2ans');
+          const pricingAchat3Ans = getProductPricing(product, 'achat', '3ans');
+
+          const pricingLocation1An = getProductPricing(product, 'location', '1an');
+          const pricingLocation2Ans = getProductPricing(product, 'location', '2ans');
+          const pricingLocation3Ans = getProductPricing(product, 'location', '3ans');
+
+          totalAchat1An += (pricingAchat1An.prixVente || 0) * quantite;
+          totalAchat2Ans += (pricingAchat2Ans.prixVente || 0) * quantite;
+          totalAchat3Ans += (pricingAchat3Ans.prixVente || 0) * quantite;
+
+          totalLocation1An += (pricingLocation1An.prixVente || 0) * quantite;
+          totalLocation2Ans += (pricingLocation2Ans.prixVente || 0) * quantite;
+          totalLocation3Ans += (pricingLocation3Ans.prixVente || 0) * quantite;
+
+          // Impact environnemental (utilise mode achat)
+          const environmentalImpact = getProductEnvironmentalImpact(product, 'achat');
+          totalCO2 += (environmentalImpact.rechauffementClimatique || 0) * quantite;
+          totalRessources += (environmentalImpact.epuisementRessources || 0) * quantite;
+          totalAcidification += (environmentalImpact.acidification || 0) * quantite;
+          totalEutrophisation += (environmentalImpact.eutrophisation || 0) * quantite;
         }
       }
     });
 
     return {
-      total1An,
-      total2Ans,
-      total3Ans,
+      // Pour compatibilité, on garde total1An, total2Ans, total3Ans qui pointent vers ACHAT
+      total1An: totalAchat1An,
+      total2Ans: totalAchat2Ans,
+      total3Ans: totalAchat3Ans,
+      // Nouveaux champs mode-specific
+      totalAchat1An,
+      totalAchat2Ans,
+      totalAchat3Ans,
+      totalLocation1An,
+      totalLocation2Ans,
+      totalLocation3Ans,
+      // Impact environnemental
       totalCO2,
       totalRessources,
       totalAcidification,
