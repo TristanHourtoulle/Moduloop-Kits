@@ -12,11 +12,13 @@ import {
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Package, Trash2, Calculator, Plus, Minus } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Package, Trash2, Calculator, Plus, Minus, ShoppingCart, Home, Leaf } from 'lucide-react';
 import { KitFormData } from '@/lib/schemas/kit';
 import { ProductSelectionGrid } from '../product-selection/ProductSelectionGrid';
 import { Product } from '@/lib/types/project';
-import { getProductPricing, getProductEnvironmentalImpact } from '@/lib/utils/product-helpers';
+import { getProductPricing, getProductEnvironmentalImpact, formatPrice } from '@/lib/utils/product-helpers';
+import { type PurchaseRentalMode } from '@/lib/schemas/product';
 
 interface KitProductsSectionProps {
   control: Control<KitFormData>;
@@ -107,21 +109,25 @@ export function KitProductsSection({
   };
 
   const calculateTotalPricing = () => {
-    // Calculs pour le mode ACHAT
-    let totalAchat1An = 0;
-    let totalAchat2Ans = 0;
-    let totalAchat3Ans = 0;
+    // Calculs pour le mode ACHAT (un seul prix, pas de périodes)
+    let totalAchat = 0;
 
-    // Calculs pour le mode LOCATION
+    // Calculs pour le mode LOCATION (avec périodes 1an, 2ans, 3ans)
     let totalLocation1An = 0;
     let totalLocation2Ans = 0;
     let totalLocation3Ans = 0;
 
-    // Impact environnemental (utilise mode ACHAT par défaut pour l'affichage)
+    // Impact environnemental ACHAT (CO₂ émis)
     let totalCO2 = 0;
     let totalRessources = 0;
     let totalAcidification = 0;
     let totalEutrophisation = 0;
+
+    // Impact environnemental LOCATION (CO₂ économisé)
+    let totalCO2Location = 0;
+    let totalRessourcesLocation = 0;
+    let totalAcidificationLocation = 0;
+    let totalEutrophisationLocation = 0;
 
     const productsToCalculate = Array.isArray(watchedProducts)
       ? watchedProducts
@@ -133,50 +139,58 @@ export function KitProductsSection({
         if (product) {
           const quantite = Number(productData.quantite) || 0;
 
-          // Utiliser les champs mode-specific avec getProductPricing
-          const pricingAchat1An = getProductPricing(product, 'achat', '1an');
-          const pricingAchat2Ans = getProductPricing(product, 'achat', '2ans');
-          const pricingAchat3Ans = getProductPricing(product, 'achat', '3ans');
+          // ACHAT : un seul prix
+          const pricingAchat = getProductPricing(product, 'achat', '1an');
+          totalAchat += (pricingAchat.prixVente || 0) * quantite;
 
+          // LOCATION : 3 périodes
           const pricingLocation1An = getProductPricing(product, 'location', '1an');
           const pricingLocation2Ans = getProductPricing(product, 'location', '2ans');
           const pricingLocation3Ans = getProductPricing(product, 'location', '3ans');
-
-          totalAchat1An += (pricingAchat1An.prixVente || 0) * quantite;
-          totalAchat2Ans += (pricingAchat2Ans.prixVente || 0) * quantite;
-          totalAchat3Ans += (pricingAchat3Ans.prixVente || 0) * quantite;
 
           totalLocation1An += (pricingLocation1An.prixVente || 0) * quantite;
           totalLocation2Ans += (pricingLocation2Ans.prixVente || 0) * quantite;
           totalLocation3Ans += (pricingLocation3Ans.prixVente || 0) * quantite;
 
-          // Impact environnemental (utilise mode achat)
-          const environmentalImpact = getProductEnvironmentalImpact(product, 'achat');
-          totalCO2 += (environmentalImpact.rechauffementClimatique || 0) * quantite;
-          totalRessources += (environmentalImpact.epuisementRessources || 0) * quantite;
-          totalAcidification += (environmentalImpact.acidification || 0) * quantite;
-          totalEutrophisation += (environmentalImpact.eutrophisation || 0) * quantite;
+          // Impact environnemental ACHAT (CO₂ émis)
+          const environmentalImpactAchat = getProductEnvironmentalImpact(product, 'achat');
+          totalCO2 += (environmentalImpactAchat.rechauffementClimatique || 0) * quantite;
+          totalRessources += (environmentalImpactAchat.epuisementRessources || 0) * quantite;
+          totalAcidification += (environmentalImpactAchat.acidification || 0) * quantite;
+          totalEutrophisation += (environmentalImpactAchat.eutrophisation || 0) * quantite;
+
+          // Impact environnemental LOCATION (CO₂ économisé - valeurs négatives dans la DB)
+          const environmentalImpactLocation = getProductEnvironmentalImpact(product, 'location');
+          totalCO2Location += (environmentalImpactLocation.rechauffementClimatique || 0) * quantite;
+          totalRessourcesLocation += (environmentalImpactLocation.epuisementRessources || 0) * quantite;
+          totalAcidificationLocation += (environmentalImpactLocation.acidification || 0) * quantite;
+          totalEutrophisationLocation += (environmentalImpactLocation.eutrophisation || 0) * quantite;
         }
       }
     });
 
     return {
-      // Pour compatibilité, on garde total1An, total2Ans, total3Ans qui pointent vers ACHAT
-      total1An: totalAchat1An,
-      total2Ans: totalAchat2Ans,
-      total3Ans: totalAchat3Ans,
-      // Nouveaux champs mode-specific
-      totalAchat1An,
-      totalAchat2Ans,
-      totalAchat3Ans,
+      // Pour compatibilité avec le code legacy
+      total1An: totalAchat,
+      total2Ans: 0,
+      total3Ans: 0,
+      // Prix ACHAT (un seul prix)
+      totalAchat,
+      totalAchat1An: totalAchat, // Alias pour cohérence
+      // Prix LOCATION (avec périodes)
       totalLocation1An,
       totalLocation2Ans,
       totalLocation3Ans,
-      // Impact environnemental
+      // Impact environnemental ACHAT
       totalCO2,
       totalRessources,
       totalAcidification,
       totalEutrophisation,
+      // Impact environnemental LOCATION
+      totalCO2Location,
+      totalRessourcesLocation,
+      totalAcidificationLocation,
+      totalEutrophisationLocation,
     };
   };
 
@@ -286,18 +300,79 @@ export function KitProductsSection({
                               </div>
                             </div>
 
-                            {/* Price */}
-                            {selectedProduct.prixVente1An && (
-                              <p className="text-xs text-muted-foreground">
-                                Total:{' '}
-                                <span className="font-semibold text-primary">
-                                  {(
-                                    selectedProduct.prixVente1An * field.quantite
-                                  ).toFixed(2)}
-                                  €
-                                </span>
-                              </p>
-                            )}
+                            {/* Price - Achat & Location */}
+                            <div className="space-y-1.5">
+                              {(() => {
+                                const pricingAchat = getProductPricing(selectedProduct, 'achat', '1an');
+                                const pricingLocation1An = getProductPricing(selectedProduct, 'location', '1an');
+                                const pricingLocation2Ans = getProductPricing(selectedProduct, 'location', '2ans');
+                                const pricingLocation3Ans = getProductPricing(selectedProduct, 'location', '3ans');
+
+                                return (
+                                  <>
+                                    {/* Prix d'achat - toujours affiché */}
+                                    <div className="flex items-center gap-1 text-xs">
+                                      <ShoppingCart className="h-3 w-3 text-primary" />
+                                      <span className="text-muted-foreground">Achat:</span>
+                                      {pricingAchat.prixVente && pricingAchat.prixVente > 0 ? (
+                                        <span className="font-semibold text-primary">
+                                          {formatPrice(pricingAchat.prixVente * field.quantite)}
+                                        </span>
+                                      ) : (
+                                        <span className="text-xs italic text-orange-600">
+                                          Non renseigné
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {/* Prix de location - 3 périodes */}
+                                    <div className="space-y-0.5 pl-4 border-l-2 border-primary/20">
+                                      <div className="flex items-center gap-1 text-xs">
+                                        <Home className="h-3 w-3 text-primary" />
+                                        <span className="text-muted-foreground">Loc. 1an:</span>
+                                        {pricingLocation1An.prixVente && pricingLocation1An.prixVente > 0 ? (
+                                          <span className="font-semibold text-primary">
+                                            {formatPrice(pricingLocation1An.prixVente * field.quantite)}
+                                          </span>
+                                        ) : (
+                                          <span className="text-xs italic text-orange-600">
+                                            Non renseigné
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      <div className="flex items-center gap-1 text-xs">
+                                        <Home className="h-3 w-3 text-primary" />
+                                        <span className="text-muted-foreground">Loc. 2ans:</span>
+                                        {pricingLocation2Ans.prixVente && pricingLocation2Ans.prixVente > 0 ? (
+                                          <span className="font-semibold text-primary">
+                                            {formatPrice(pricingLocation2Ans.prixVente * field.quantite)}
+                                          </span>
+                                        ) : (
+                                          <span className="text-xs italic text-orange-600">
+                                            Non renseigné
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      <div className="flex items-center gap-1 text-xs">
+                                        <Home className="h-3 w-3 text-primary" />
+                                        <span className="text-muted-foreground">Loc. 3ans:</span>
+                                        {pricingLocation3Ans.prixVente && pricingLocation3Ans.prixVente > 0 ? (
+                                          <span className="font-semibold text-primary">
+                                            {formatPrice(pricingLocation3Ans.prixVente * field.quantite)}
+                                          </span>
+                                        ) : (
+                                          <span className="text-xs italic text-orange-600">
+                                            Non renseigné
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </div>
                           </div>
 
                           {/* Delete Button */}
@@ -350,69 +425,170 @@ export function KitProductsSection({
             <p className="text-sm text-red-500">{errors.products.message}</p>
           )}
 
-          {/* Summary Card */}
+          {/* Summary Card with Mode Selection */}
           {fields.length > 0 && (
-            <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-              <div className="flex items-center gap-2 mb-3">
-                <Calculator className="h-5 w-5 text-primary" />
-                <h4 className="font-semibold text-primary">
+            <div className="p-5 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Calculator className="h-5 w-5 text-primary" />
+                </div>
+                <h4 className="font-semibold text-lg text-primary">
                   Récapitulatif du kit
                 </h4>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Total 1 an:</span>
-                  <p className="font-bold text-lg">
-                    {totals.total1An.toFixed(2)}€
-                  </p>
-                </div>
-                {totals.total2Ans > 0 && (
-                  <div>
-                    <span className="text-muted-foreground">Total 2 ans:</span>
-                    <p className="font-bold text-lg">
-                      {totals.total2Ans.toFixed(2)}€
-                    </p>
-                  </div>
-                )}
-                {totals.total3Ans > 0 && (
-                  <div>
-                    <span className="text-muted-foreground">Total 3 ans:</span>
-                    <p className="font-bold text-lg">
-                      {totals.total3Ans.toFixed(2)}€
-                    </p>
-                  </div>
-                )}
-                <div>
-                  <span className="text-muted-foreground">Impact CO2:</span>
-                  <p className="font-semibold">
-                    {totals.totalCO2.toFixed(2)} kg eq.
-                  </p>
-                </div>
-              </div>
+              <Tabs defaultValue="achat" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="achat" className="gap-2">
+                    <ShoppingCart className="h-4 w-4" />
+                    Achat
+                  </TabsTrigger>
+                  <TabsTrigger value="location" className="gap-2">
+                    <Home className="h-4 w-4" />
+                    Location
+                  </TabsTrigger>
+                </TabsList>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 text-sm">
-                <div>
-                  <span className="text-muted-foreground">
-                    Épuisement ressources:
-                  </span>
-                  <p className="font-semibold">
-                    {totals.totalRessources.toFixed(2)} MJ
-                  </p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Acidification:</span>
-                  <p className="font-semibold">
-                    {totals.totalAcidification.toFixed(4)} MOL H+
-                  </p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Eutrophisation:</span>
-                  <p className="font-semibold">
-                    {totals.totalEutrophisation.toFixed(4)} kg P eq.
-                  </p>
-                </div>
-              </div>
+                {/* Achat Tab */}
+                <TabsContent value="achat" className="space-y-4">
+                  {/* Prix Achat */}
+                  <div className="bg-white/60 rounded-lg p-6 border border-primary/10">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <p className="text-sm text-muted-foreground font-medium">
+                        Prix d'achat total
+                      </p>
+                      <p className="text-3xl font-bold text-primary">
+                        {formatPrice(totals.totalAchat1An)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Impact Environnemental - Achat */}
+                  <div className="bg-emerald-50/60 rounded-lg p-4 border border-emerald-200/50">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Leaf className="h-4 w-4 text-emerald-600" />
+                      <span className="text-sm font-semibold text-emerald-900">
+                        Impact environnemental (CO₂ émis)
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      <div className="bg-white/60 rounded p-2">
+                        <span className="text-xs text-muted-foreground block">
+                          CO₂:
+                        </span>
+                        <p className="font-bold text-emerald-700">
+                          {totals.totalCO2.toFixed(2)} kg
+                        </p>
+                      </div>
+                      <div className="bg-white/60 rounded p-2">
+                        <span className="text-xs text-muted-foreground block">
+                          Ressources:
+                        </span>
+                        <p className="font-bold text-emerald-700">
+                          {totals.totalRessources.toFixed(2)} MJ
+                        </p>
+                      </div>
+                      <div className="bg-white/60 rounded p-2">
+                        <span className="text-xs text-muted-foreground block">
+                          Acidification:
+                        </span>
+                        <p className="font-bold text-emerald-700">
+                          {totals.totalAcidification.toFixed(4)} MOL
+                        </p>
+                      </div>
+                      <div className="bg-white/60 rounded p-2">
+                        <span className="text-xs text-muted-foreground block">
+                          Eutrophisation:
+                        </span>
+                        <p className="font-bold text-emerald-700">
+                          {totals.totalEutrophisation.toFixed(4)} kg P
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Location Tab */}
+                <TabsContent value="location" className="space-y-4">
+                  {/* Prix Location */}
+                  <div className="bg-white/60 rounded-lg p-4 border border-primary/10">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <p className="text-xs text-muted-foreground font-medium mb-1">
+                          Prix 1 an
+                        </p>
+                        <p className="text-xl font-bold text-primary">
+                          {formatPrice(totals.totalLocation1An)}
+                        </p>
+                      </div>
+                      {totals.totalLocation2Ans > 0 && (
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground font-medium mb-1">
+                            Prix 2 ans
+                          </p>
+                          <p className="text-xl font-bold text-primary">
+                            {formatPrice(totals.totalLocation2Ans)}
+                          </p>
+                        </div>
+                      )}
+                      {totals.totalLocation3Ans > 0 && (
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground font-medium mb-1">
+                            Prix 3 ans
+                          </p>
+                          <p className="text-xl font-bold text-primary">
+                            {formatPrice(totals.totalLocation3Ans)}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Impact Environnemental - Location */}
+                  <div className="bg-emerald-50/60 rounded-lg p-4 border border-emerald-200/50">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Leaf className="h-4 w-4 text-emerald-600" />
+                      <span className="text-sm font-semibold text-emerald-900">
+                        Impact environnemental (CO₂ économisé)
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      <div className="bg-white/60 rounded p-2">
+                        <span className="text-xs text-muted-foreground block">
+                          CO₂:
+                        </span>
+                        <p className="font-bold text-emerald-700">
+                          {totals.totalCO2Location.toFixed(2)} kg
+                        </p>
+                      </div>
+                      <div className="bg-white/60 rounded p-2">
+                        <span className="text-xs text-muted-foreground block">
+                          Ressources:
+                        </span>
+                        <p className="font-bold text-emerald-700">
+                          {totals.totalRessourcesLocation.toFixed(2)} MJ
+                        </p>
+                      </div>
+                      <div className="bg-white/60 rounded p-2">
+                        <span className="text-xs text-muted-foreground block">
+                          Acidification:
+                        </span>
+                        <p className="font-bold text-emerald-700">
+                          {totals.totalAcidificationLocation.toFixed(4)} MOL
+                        </p>
+                      </div>
+                      <div className="bg-white/60 rounded p-2">
+                        <span className="text-xs text-muted-foreground block">
+                          Eutrophisation:
+                        </span>
+                        <p className="font-bold text-emerald-700">
+                          {totals.totalEutrophisationLocation.toFixed(4)} kg P
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           )}
         </div>

@@ -33,9 +33,15 @@ export function ProductCardPricing({ product, selectedMode, onModeChange, classN
         </div>
         <div className="flex items-center gap-2">
           <Euro className="h-5 w-5 text-primary" />
-          <span className="text-2xl font-bold text-primary">
-            {formatPrice(purchasePrice.prixVente)}
-          </span>
+          {purchasePrice.prixVente && purchasePrice.prixVente > 0 ? (
+            <span className="text-2xl font-bold text-primary">
+              {formatPrice(purchasePrice.prixVente)}
+            </span>
+          ) : (
+            <span className="text-sm italic text-orange-600">
+              Non renseigné
+            </span>
+          )}
         </div>
       </div>
 
@@ -45,13 +51,16 @@ export function ProductCardPricing({ product, selectedMode, onModeChange, classN
           <div className="w-2 h-2 rounded-full bg-emerald-500" />
           <span className="text-sm font-medium text-foreground">Prix de location</span>
         </div>
-        
+
         <div className="grid grid-cols-3 gap-2">
           {/* 1 an */}
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-3 border border-emerald-200/50">
             <div className="text-xs text-emerald-700 font-medium mb-1">1 an</div>
             <div className="text-sm font-semibold text-emerald-800">
-              {formatPrice(rental1Year.prixVente) || "N/A"}
+              {rental1Year.prixVente && rental1Year.prixVente > 0
+                ? formatPrice(rental1Year.prixVente)
+                : <span className="text-xs italic text-orange-600">Non rens.</span>
+              }
             </div>
           </div>
 
@@ -59,7 +68,10 @@ export function ProductCardPricing({ product, selectedMode, onModeChange, classN
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-3 border border-emerald-200/50">
             <div className="text-xs text-emerald-700 font-medium mb-1">2 ans</div>
             <div className="text-sm font-semibold text-emerald-800">
-              {formatPrice(rental2Years.prixVente) || "N/A"}
+              {rental2Years.prixVente && rental2Years.prixVente > 0
+                ? formatPrice(rental2Years.prixVente)
+                : <span className="text-xs italic text-orange-600">Non rens.</span>
+              }
             </div>
           </div>
 
@@ -67,7 +79,10 @@ export function ProductCardPricing({ product, selectedMode, onModeChange, classN
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-3 border border-emerald-200/50">
             <div className="text-xs text-emerald-700 font-medium mb-1">3 ans</div>
             <div className="text-sm font-semibold text-emerald-800">
-              {formatPrice(rental3Years.prixVente) || "N/A"}
+              {rental3Years.prixVente && rental3Years.prixVente > 0
+                ? formatPrice(rental3Years.prixVente)
+                : <span className="text-xs italic text-orange-600">Non rens.</span>
+              }
             </div>
           </div>
         </div>
