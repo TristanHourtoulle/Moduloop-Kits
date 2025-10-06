@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 // Client component - no need for Metadata
 import { RoleGuard } from '@/components/auth/role-guard';
 import { UserRole } from '@/lib/types/user';
@@ -48,6 +49,7 @@ interface Kit {
 }
 
 export default function KitsPage() {
+  const searchParams = useSearchParams();
   const [kits, setKits] = useState<Kit[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +57,7 @@ export default function KitsPage() {
   const fetchKits = useCallback(async () => {
     try {
       setError(null);
+      setLoading(true);
       const response = await fetch('/api/kits', {
         cache: "no-store", // Éviter le cache du navigateur
       });
@@ -77,6 +80,15 @@ export default function KitsPage() {
       setLoading(false);
     }
   }, []);
+
+  // Refetch when returning from edit page (detected by 'updated' param)
+  useEffect(() => {
+    const updatedParam = searchParams.get('updated');
+    if (updatedParam) {
+      console.log('[KitsPage] Detected update, refetching kits...');
+      fetchKits();
+    }
+  }, [searchParams, fetchKits]);
 
   useEffect(() => {
     fetchKits();

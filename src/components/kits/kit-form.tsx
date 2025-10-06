@@ -110,8 +110,9 @@ export function KitForm({ initialData, kitId, onSuccess }: KitFormProps) {
       }
 
       // Always redirect to /kits after successful save
-      router.push("/kits");
-      router.refresh();
+      // Use replace instead of push to avoid keeping edit page in history
+      // Add timestamp to force a fresh navigation and bypass router cache
+      router.replace("/kits?updated=" + Date.now());
     } catch (err) {
       console.error("Erreur lors de la soumission:", err);
       setError(
