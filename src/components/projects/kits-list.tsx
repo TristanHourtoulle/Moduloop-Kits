@@ -469,122 +469,186 @@ export function KitsList({
                           const product = kitProduct.product;
                           if (!product) return null;
 
+                          // Debug: vérifier si l'image arrive
+                          if (product.image) {
+                            console.log(`[KitsList] Product ${product.nom} has image:`, product.image.substring(0, 50));
+                          } else {
+                            console.log(`[KitsList] Product ${product.nom} NO IMAGE`);
+                          }
+
                           return (
                             <div
                               key={kitProduct.id}
                               className='border border-gray-200 rounded-lg p-4 bg-white hover:shadow-sm transition-shadow'
                             >
-                              <div className='flex items-start gap-4'>
-                                <div className='w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0'>
-                                  <Package className='w-6 h-6 text-gray-400' />
+                              {/* Header: Image + Info */}
+                              <div className='flex items-start gap-4 mb-4'>
+                                {/* Product Image */}
+                                <div className='w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100'>
+                                  {product.image ? (
+                                    <img
+                                      src={product.image}
+                                      alt={product.nom}
+                                      className='w-full h-full object-cover'
+                                    />
+                                  ) : (
+                                    <div className='w-full h-full flex items-center justify-center'>
+                                      <Package className='w-10 h-10 text-gray-400' />
+                                    </div>
+                                  )}
                                 </div>
 
+                                {/* Product Info */}
                                 <div className='flex-1 min-w-0'>
-                                  <div className='flex items-start justify-between gap-4'>
-                                    <div className='flex-1 min-w-0'>
-                                      <h5 className='font-semibold text-gray-900 mb-1 truncate'>
-                                        {product.nom}
-                                      </h5>
-                                      <p className='text-sm text-gray-600 mb-2'>
-                                        Référence: {product.reference}
-                                      </p>
-                                      <div className='flex items-center gap-4 text-xs text-gray-500'>
-                                        <span className='bg-blue-50 text-blue-700 px-2 py-1 rounded-full'>
-                                          {kitProduct.quantite} unité
-                                          {kitProduct.quantite > 1 ? 's' : ''}
-                                        </span>
-                                        {product.surfaceM2 && product.surfaceM2 > 0 && (
-                                          <span>
-                                            {product.surfaceM2}m² par unité
-                                          </span>
-                                        )}
+                                  <h5 className='font-semibold text-gray-900 text-lg mb-1'>
+                                    {product.nom}
+                                  </h5>
+                                  <p className='text-sm text-gray-600 mb-2'>
+                                    Réf: <span className='font-medium'>{product.reference}</span>
+                                  </p>
+                                  <div className='flex items-center gap-4 text-xs'>
+                                    <span className='bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-medium'>
+                                      {kitProduct.quantite} unité{kitProduct.quantite > 1 ? 's' : ''}
+                                    </span>
+                                    {product.surfaceM2 && product.surfaceM2 > 0 && (
+                                      <span className='text-gray-500'>
+                                        {product.surfaceM2}m² /unité
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Pricing Section - Full Width 2 Columns */}
+                              {(() => {
+                                const pricingAchat = getProductPricing(product, 'achat', '1an');
+                                const pricingLocation1An = getProductPricing(product, 'location', '1an');
+                                const pricingLocation2Ans = getProductPricing(product, 'location', '2ans');
+                                const pricingLocation3Ans = getProductPricing(product, 'location', '3ans');
+
+                                return (
+                                  <div className='grid grid-cols-1 md:grid-cols-2 gap-3 mb-4'>
+                                    {/* Prix d'achat */}
+                                    <div className='bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg p-3 border border-primary/20'>
+                                      <div className='flex items-center gap-2 mb-2'>
+                                        <div className='p-1 bg-primary/10 rounded'>
+                                          <ShoppingCart className='h-4 w-4 text-primary' />
+                                        </div>
+                                        <span className='font-semibold text-primary'>Achat</span>
+                                      </div>
+                                      {pricingAchat.prixVente && pricingAchat.prixVente > 0 ? (
+                                        <div>
+                                          <div className='text-2xl font-bold text-primary mb-1'>
+                                            {formatPriceHelper(pricingAchat.prixVente * kitProduct.quantite)}
+                                          </div>
+                                          <div className='text-xs text-gray-600'>
+                                            {formatPriceHelper(pricingAchat.prixVente)} × {kitProduct.quantite}
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <span className='text-sm italic text-orange-600 font-medium'>Non renseigné</span>
+                                      )}
+                                    </div>
+
+                                    {/* Prix de location */}
+                                    <div className='bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-lg p-3 border border-emerald-200'>
+                                      <div className='flex items-center gap-2 mb-2'>
+                                        <div className='p-1 bg-emerald-500/10 rounded'>
+                                          <Home className='h-4 w-4 text-emerald-700' />
+                                        </div>
+                                        <span className='font-semibold text-emerald-700'>Location</span>
+                                      </div>
+                                      <div className='grid grid-cols-3 gap-2'>
+                                        <div>
+                                          <div className='text-xs text-gray-600 mb-1'>1 an</div>
+                                          {pricingLocation1An.prixVente && pricingLocation1An.prixVente > 0 ? (
+                                            <div className='font-bold text-emerald-800 text-sm'>
+                                              {formatPriceHelper(pricingLocation1An.prixVente * kitProduct.quantite)}
+                                            </div>
+                                          ) : (
+                                            <span className='text-xs italic text-orange-600'>N/R</span>
+                                          )}
+                                        </div>
+                                        <div>
+                                          <div className='text-xs text-gray-600 mb-1'>2 ans</div>
+                                          {pricingLocation2Ans.prixVente && pricingLocation2Ans.prixVente > 0 ? (
+                                            <div className='font-bold text-emerald-800 text-sm'>
+                                              {formatPriceHelper(pricingLocation2Ans.prixVente * kitProduct.quantite)}
+                                            </div>
+                                          ) : (
+                                            <span className='text-xs italic text-orange-600'>N/R</span>
+                                          )}
+                                        </div>
+                                        <div>
+                                          <div className='text-xs text-gray-600 mb-1'>3 ans</div>
+                                          {pricingLocation3Ans.prixVente && pricingLocation3Ans.prixVente > 0 ? (
+                                            <div className='font-bold text-emerald-800 text-sm'>
+                                              {formatPriceHelper(pricingLocation3Ans.prixVente * kitProduct.quantite)}
+                                            </div>
+                                          ) : (
+                                            <span className='text-xs italic text-orange-600'>N/R</span>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
-
-                                    <div className='text-right flex-shrink-0'>
-                                      {(() => {
-                                        const productPricing =
-                                          getProductPricing(
-                                            product,
-                                            selectedMode,
-                                            '1an'
-                                          );
-                                        return (
-                                          <>
-                                            <div className='text-lg font-bold text-gray-900 mb-1'>
-                                              {formatPriceHelper(
-                                                (productPricing.prixVente ||
-                                                  0) * kitProduct.quantite
-                                              )}
-                                            </div>
-                                            <div className='text-sm text-gray-500'>
-                                              {formatPriceHelper(
-                                                productPricing.prixVente || 0
-                                              )}{' '}
-                                              /unité
-                                            </div>
-                                          </>
-                                        );
-                                      })()}
-                                    </div>
                                   </div>
+                                );
+                              })()}
 
-                                  {/* Environmental metrics in a compact horizontal layout */}
-                                  <div className='mt-3 pt-3 border-t border-gray-100'>
-                                    <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs'>
-                                      {(() => {
-                                        const productImpact =
-                                          getProductEnvironmentalImpact(
-                                            product,
-                                            selectedMode
-                                          );
-                                        return (
-                                          <>
-                                            <div className='flex items-center gap-2'>
-                                              <div className='w-2 h-2 bg-red-500 rounded-full'></div>
-                                              <span className='text-gray-600'>
-                                                {(
-                                                  (productImpact.rechauffementClimatique ||
-                                                    0) * kitProduct.quantite
-                                                ).toFixed(1)}{' '}
-                                                kg CO₂
-                                              </span>
-                                            </div>
-                                            <div className='flex items-center gap-2'>
-                                              <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
-                                              <span className='text-gray-600'>
-                                                {(
-                                                  (productImpact.epuisementRessources ||
-                                                    0) * kitProduct.quantite
-                                                ).toFixed(0)}{' '}
-                                                MJ
-                                              </span>
-                                            </div>
-                                            <div className='flex items-center gap-2'>
-                                              <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
-                                              <span className='text-gray-600'>
-                                                {(
-                                                  (productImpact.acidification ||
-                                                    0) * kitProduct.quantite
-                                                ).toFixed(1)}{' '}
-                                                MOL H+
-                                              </span>
-                                            </div>
-                                            <div className='flex items-center gap-2'>
-                                              <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                                              <span className='text-gray-600'>
-                                                {(
-                                                  (productImpact.eutrophisation ||
-                                                    0) * kitProduct.quantite
-                                                ).toFixed(1)}{' '}
-                                                kg P eq
-                                              </span>
-                                            </div>
-                                          </>
-                                        );
-                                      })()}
-                                    </div>
-                                  </div>
+                              {/* Environmental metrics */}
+                              <div className='pt-3 border-t border-gray-100'>
+                                <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs'>
+                                  {(() => {
+                                    const productImpact =
+                                      getProductEnvironmentalImpact(
+                                        product,
+                                        selectedMode
+                                      );
+                                    return (
+                                      <>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='w-2 h-2 bg-red-500 rounded-full'></div>
+                                          <span className='text-gray-600'>
+                                            {(
+                                              (productImpact.rechauffementClimatique ||
+                                                0) * kitProduct.quantite
+                                            ).toFixed(1)}{' '}
+                                            kg CO₂
+                                          </span>
+                                        </div>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
+                                          <span className='text-gray-600'>
+                                            {(
+                                              (productImpact.epuisementRessources ||
+                                                0) * kitProduct.quantite
+                                            ).toFixed(0)}{' '}
+                                            MJ
+                                          </span>
+                                        </div>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                                          <span className='text-gray-600'>
+                                            {(
+                                              (productImpact.acidification ||
+                                                0) * kitProduct.quantite
+                                            ).toFixed(1)}{' '}
+                                            MOL H+
+                                          </span>
+                                        </div>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='w-2 h-2 bg-green-500 rounded-full'></div>
+                                          <span className='text-gray-600'>
+                                            {(
+                                              (productImpact.eutrophisation ||
+                                                0) * kitProduct.quantite
+                                            ).toFixed(1)}{' '}
+                                            kg P eq
+                                          </span>
+                                        </div>
+                                      </>
+                                    );
+                                  })()}
                                 </div>
                               </div>
                             </div>
