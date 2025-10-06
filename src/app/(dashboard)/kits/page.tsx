@@ -80,6 +80,15 @@ export default function KitsPage() {
 
   useEffect(() => {
     fetchKits();
+
+    // Refetch when page regains focus (user returns from edit page)
+    const handleFocus = () => {
+      console.log('[KitsPage] Page regained focus, refetching kits...');
+      fetchKits();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [fetchKits]);
 
   const handleDelete = useCallback(

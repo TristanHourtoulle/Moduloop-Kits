@@ -109,12 +109,9 @@ export function KitForm({ initialData, kitId, onSuccess }: KitFormProps) {
         throw new Error(errorData.error || "Erreur lors de la sauvegarde");
       }
 
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        router.push("/kits");
-        router.refresh();
-      }
+      // Always redirect to /kits after successful save
+      router.push("/kits");
+      router.refresh();
     } catch (err) {
       console.error("Erreur lors de la soumission:", err);
       setError(
