@@ -122,6 +122,14 @@ export function ProductForm({
     reValidateMode: 'onChange',
   });
 
+  // Reset form when initialData changes (crucial for edit mode)
+  useEffect(() => {
+    if (cleanedInitialData) {
+      console.log('[ProductForm] Resetting form with new data:', cleanedInitialData);
+      reset({ ...defaultValues, ...cleanedInitialData });
+    }
+  }, [cleanedInitialData, reset]);
+
   // Debug: log form state changes
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
@@ -209,20 +217,8 @@ export function ProductForm({
         isEdit: !!productId,
       });
 
-      if (onSuccess) {
-        // Appeler le callback onSuccess qui va refetch les données
-        await onSuccess();
-      } else {
-        // Afficher un message de succès temporaire
-        const successMessage = productId
-          ? 'Produit modifié avec succès !'
-          : 'Produit créé avec succès !';
-
-        // On pourrait ajouter un toast notification ici
-        console.log('[ProductForm]', successMessage);
-
-        router.push('/products');
-      }
+      // Toujours rediriger vers /products après succès (création ou modification)
+      router.push('/products');
     } catch (err) {
       console.error('Erreur lors de la soumission:', err);
       setError(
