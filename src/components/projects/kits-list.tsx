@@ -493,7 +493,7 @@ export function KitsList({
                                           {kitProduct.quantite} unité
                                           {kitProduct.quantite > 1 ? 's' : ''}
                                         </span>
-                                        {product.surfaceM2 > 0 && (
+                                        {product.surfaceM2 && product.surfaceM2 > 0 && (
                                           <span>
                                             {product.surfaceM2}m² par unité
                                           </span>

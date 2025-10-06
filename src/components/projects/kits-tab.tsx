@@ -1127,7 +1127,7 @@ export function KitsTab({
                                             {kitProduct.quantite} unité
                                             {kitProduct.quantite > 1 ? 's' : ''}
                                           </span>
-                                          {product.surfaceM2 > 0 && (
+                                          {product.surfaceM2 && product.surfaceM2 > 0 && (
                                             <span className='text-xs text-gray-500'>
                                               {product.surfaceM2}m² /unité
                                             </span>
