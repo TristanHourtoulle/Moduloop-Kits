@@ -51,6 +51,8 @@ export interface Product {
   nom: string;
   reference: string;
   description?: string;
+
+  // LEGACY FIELDS - Pour compatibilité
   prixAchat1An: number;
   prixAchat2Ans?: number;
   prixAchat3Ans?: number;
@@ -61,13 +63,56 @@ export interface Product {
   prixVente1An: number;
   prixVente2Ans?: number;
   prixVente3Ans?: number;
-  margeCoefficient: number;
-  surfaceM2: number;
-  rechauffementClimatique: number;
-  epuisementRessources: number;
-  acidification: number;
-  eutrophisation: number;
-  quantite: number;
+  margeCoefficient?: number;
+  rechauffementClimatique?: number;
+  epuisementRessources?: number;
+  acidification?: number;
+  eutrophisation?: number;
+
+  // NOUVEAUX CHAMPS - PRIX ACHAT (un seul prix, pas de périodes)
+  prixAchatAchat?: number;
+  prixUnitaireAchat?: number;
+  prixVenteAchat?: number;
+  margeCoefficientAchat?: number;
+
+  // DEPRECATED - PRIX ACHAT AVEC PÉRIODES
+  prixAchatAchat1An?: number;
+  prixAchatAchat2Ans?: number;
+  prixAchatAchat3Ans?: number;
+  prixUnitaireAchat1An?: number;
+  prixUnitaireAchat2Ans?: number;
+  prixUnitaireAchat3Ans?: number;
+  prixVenteAchat1An?: number;
+  prixVenteAchat2Ans?: number;
+  prixVenteAchat3Ans?: number;
+
+  // NOUVEAUX CHAMPS - PRIX LOCATION (avec périodes)
+  prixAchatLocation1An?: number;
+  prixAchatLocation2Ans?: number;
+  prixAchatLocation3Ans?: number;
+  prixUnitaireLocation1An?: number;
+  prixUnitaireLocation2Ans?: number;
+  prixUnitaireLocation3Ans?: number;
+  prixVenteLocation1An?: number;
+  prixVenteLocation2Ans?: number;
+  prixVenteLocation3Ans?: number;
+  margeCoefficientLocation?: number;
+
+  // NOUVEAUX CHAMPS - IMPACT ENVIRONNEMENTAL ACHAT
+  rechauffementClimatiqueAchat?: number;
+  epuisementRessourcesAchat?: number;
+  acidificationAchat?: number;
+  eutrophisationAchat?: number;
+
+  // NOUVEAUX CHAMPS - IMPACT ENVIRONNEMENTAL LOCATION
+  rechauffementClimatiqueLocation?: number;
+  epuisementRessourcesLocation?: number;
+  acidificationLocation?: number;
+  eutrophisationLocation?: number;
+
+  // CHAMPS COMMUNS
+  surfaceM2?: number;
+  quantite?: number;
   image?: string;
   createdAt: string;
   updatedAt: string;

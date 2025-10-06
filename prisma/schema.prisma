@@ -129,24 +129,29 @@ model Product {
   // Marge appliquée (coefficient) - DEPRECATED: utiliser margeCoefficientAchat/Location
   margeCoefficient      Float?
   
-  // NOUVEAUX CHAMPS - PRIX ACHAT
-  // Prix d'achat fournisseur pour l'ACHAT (1, 2, 3 ans)
+  // NOUVEAUX CHAMPS - PRIX ACHAT (UN SEUL PRIX, PAS DE PÉRIODES)
+  // Prix d'achat fournisseur pour l'ACHAT
+  prixAchatAchat          Float?
+
+  // Prix unitaire Moduloop pour l'ACHAT
+  prixUnitaireAchat       Float?
+
+  // Prix de vente total Moduloop pour l'ACHAT
+  prixVenteAchat          Float?
+
+  // Marge appliquée pour l'ACHAT (coefficient)
+  margeCoefficientAchat   Float?
+
+  // DEPRECATED - PRIX ACHAT AVEC PÉRIODES (à supprimer après migration complète)
   prixAchatAchat1An       Float?
   prixAchatAchat2Ans      Float?
   prixAchatAchat3Ans      Float?
-  
-  // Prix unitaire Moduloop pour l'ACHAT (1, 2, 3 ans)
   prixUnitaireAchat1An    Float?
   prixUnitaireAchat2Ans   Float?
   prixUnitaireAchat3Ans   Float?
-  
-  // Prix de vente total Moduloop pour l'ACHAT (1, 2, 3 ans)
   prixVenteAchat1An       Float?
   prixVenteAchat2Ans      Float?
   prixVenteAchat3Ans      Float?
-  
-  // Marge appliquée pour l'ACHAT (coefficient)
-  margeCoefficientAchat   Float?
   
   // NOUVEAUX CHAMPS - PRIX LOCATION
   // Prix d'achat fournisseur pour la LOCATION (1, 2, 3 ans)

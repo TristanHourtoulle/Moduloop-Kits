@@ -22,68 +22,54 @@ export interface ProductEnvironmentalImpact {
  * Récupère les prix d'un produit pour un mode (achat/location) et une période donnés
  */
 export function getProductPricing(
-  product: Product, 
-  mode: PurchaseRentalMode = 'achat', 
+  product: Product,
+  mode: PurchaseRentalMode = 'achat',
   period: ProductPeriod = '1an'
 ): ProductPricing {
-  const suffix = `${mode === 'achat' ? 'Achat' : 'Location'}${period === '1an' ? '1An' : period === '2ans' ? '2Ans' : '3Ans'}` as const;
-  
-  // Essayer d'abord les nouveaux champs spécifiques au mode
-  const prixAchatKey = `prixAchat${suffix}` as keyof Product;
-  const prixUnitaireKey = `prixUnitaire${suffix}` as keyof Product;
-  const prixVenteKey = `prixVente${suffix}` as keyof Product;
-  const margeCoefficientKey = `margeCoefficient${mode === 'achat' ? 'Achat' : 'Location'}` as keyof Product;
-  
+  // MODE ACHAT : un seul prix, pas de périodes
+  if (mode === 'achat') {
+    // Priorité: nouveaux champs -> deprecated avec périodes -> legacy
+    // Utiliser ?? (nullish coalescing) pour accepter 0 comme valeur valide
+    const prixAchat = product.prixAchatAchat ?? product.prixAchatAchat1An ?? product.prixAchat1An ?? null;
+    const prixUnitaire = product.prixUnitaireAchat ?? product.prixUnitaireAchat1An ?? product.prixUnitaire1An ?? null;
+    const prixVente = product.prixVenteAchat ?? product.prixVenteAchat1An ?? product.prixVente1An ?? null;
+    const margeCoefficient = product.margeCoefficientAchat ?? product.margeCoefficient ?? null;
+
+    return {
+      prixAchat,
+      prixUnitaire,
+      prixVente,
+      margeCoefficient,
+    };
+  }
+
+  // MODE LOCATION : avec périodes 1an, 2ans, 3ans
+  const suffix = `${period === '1an' ? '1An' : period === '2ans' ? '2Ans' : '3Ans'}` as const;
+  const prixAchatKey = `prixAchatLocation${suffix}` as keyof Product;
+  const prixUnitaireKey = `prixUnitaireLocation${suffix}` as keyof Product;
+  const prixVenteKey = `prixVenteLocation${suffix}` as keyof Product;
+
   let prixAchat = product[prixAchatKey] as number | null;
   let prixUnitaire = product[prixUnitaireKey] as number | null;
   let prixVente = product[prixVenteKey] as number | null;
-  let margeCoefficient = product[margeCoefficientKey] as number | null;
-  
-  // Fallback vers les champs legacy pour la compatibilité
-  if (prixAchat === null || prixAchat === undefined) {
-    const legacyKey = `prixAchat${period === '1an' ? '1An' : period === '2ans' ? '2Ans' : '3Ans'}` as keyof Product;
-    prixAchat = product[legacyKey] as number | null;
-  }
-  
-  if (prixUnitaire === null || prixUnitaire === undefined) {
-    const legacyKey = `prixUnitaire${period === '1an' ? '1An' : period === '2ans' ? '2Ans' : '3Ans'}` as keyof Product;
-    prixUnitaire = product[legacyKey] as number | null;
-  }
-  
-  if (prixVente === null || prixVente === undefined) {
-    const legacyKey = `prixVente${period === '1an' ? '1An' : period === '2ans' ? '2Ans' : '3Ans'}` as keyof Product;
-    prixVente = product[legacyKey] as number | null;
-  }
-  
-  if (margeCoefficient === null || margeCoefficient === undefined) {
-    margeCoefficient = product.margeCoefficient || null;
-  }
-  
-  // Si pas de prix spécifique pour 2/3 ans, utiliser le prix 1 an multiplié par la période
-  if (period !== '1an' && prixAchat === null) {
+  let margeCoefficient = product.margeCoefficientLocation as number | null;
+
+  // Fallback : si pas de prix spécifique pour 2/3 ans, utiliser le prix 1 an
+  if (period !== '1an' && (prixAchat === null || prixAchat === undefined)) {
     const prix1An = getProductPricing(product, mode, '1an');
-    if (prix1An.prixAchat !== null) {
-      const multiplier = period === '2ans' ? 2 : 3;
-      prixAchat = prix1An.prixAchat * multiplier;
-    }
+    prixAchat = prix1An.prixAchat;
   }
-  
-  if (period !== '1an' && prixUnitaire === null) {
+
+  if (period !== '1an' && (prixUnitaire === null || prixUnitaire === undefined)) {
     const prix1An = getProductPricing(product, mode, '1an');
-    if (prix1An.prixUnitaire !== null) {
-      const multiplier = period === '2ans' ? 2 : 3;
-      prixUnitaire = prix1An.prixUnitaire * multiplier;
-    }
+    prixUnitaire = prix1An.prixUnitaire;
   }
-  
-  if (period !== '1an' && prixVente === null) {
+
+  if (period !== '1an' && (prixVente === null || prixVente === undefined)) {
     const prix1An = getProductPricing(product, mode, '1an');
-    if (prix1An.prixVente !== null) {
-      const multiplier = period === '2ans' ? 2 : 3;
-      prixVente = prix1An.prixVente * multiplier;
-    }
+    prixVente = prix1An.prixVente;
   }
-  
+
   return {
     prixAchat,
     prixUnitaire,
