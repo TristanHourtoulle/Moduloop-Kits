@@ -123,12 +123,14 @@ export function ProductForm({
   });
 
   // Reset form when initialData changes (crucial for edit mode)
+  // Using productId as dependency to avoid resetting on every render
   useEffect(() => {
     if (cleanedInitialData) {
       console.log('[ProductForm] Resetting form with new data:', cleanedInitialData);
       reset({ ...defaultValues, ...cleanedInitialData });
     }
-  }, [cleanedInitialData, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productId]); // Only reset when productId changes, not on every render
 
   // Debug: log form state changes
   useEffect(() => {
