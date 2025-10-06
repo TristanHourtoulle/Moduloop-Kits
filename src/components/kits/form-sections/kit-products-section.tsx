@@ -463,49 +463,8 @@ export function KitProductsSection({
                     </div>
                   </div>
 
-                  {/* Impact Environnemental - Achat */}
-                  <div className="bg-emerald-50/60 rounded-lg p-4 border border-emerald-200/50">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Leaf className="h-4 w-4 text-emerald-600" />
-                      <span className="text-sm font-semibold text-emerald-900">
-                        Impact environnemental (CO₂ émis)
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                      <div className="bg-white/60 rounded p-2">
-                        <span className="text-xs text-muted-foreground block">
-                          CO₂:
-                        </span>
-                        <p className="font-bold text-emerald-700">
-                          {totals.totalCO2.toFixed(2)} kg
-                        </p>
-                      </div>
-                      <div className="bg-white/60 rounded p-2">
-                        <span className="text-xs text-muted-foreground block">
-                          Ressources:
-                        </span>
-                        <p className="font-bold text-emerald-700">
-                          {totals.totalRessources.toFixed(2)} MJ
-                        </p>
-                      </div>
-                      <div className="bg-white/60 rounded p-2">
-                        <span className="text-xs text-muted-foreground block">
-                          Acidification:
-                        </span>
-                        <p className="font-bold text-emerald-700">
-                          {totals.totalAcidification.toFixed(4)} MOL
-                        </p>
-                      </div>
-                      <div className="bg-white/60 rounded p-2">
-                        <span className="text-xs text-muted-foreground block">
-                          Eutrophisation:
-                        </span>
-                        <p className="font-bold text-emerald-700">
-                          {totals.totalEutrophisation.toFixed(4)} kg P
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Impact Environnemental - Achat : MASQUÉ (demande client) */}
+                  {/* L'impact environnemental n'est affiché que pour la location */}
                 </TabsContent>
 
                 {/* Location Tab */}

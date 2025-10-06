@@ -979,8 +979,9 @@ export function KitsTab({
                   </CardHeader>
 
                   <CardContent className='space-y-4 relative z-10'>
-                    {/* Environmental Metrics */}
-                    <div className='grid grid-cols-2 lg:grid-cols-5 gap-3'>
+                    {/* Environmental Metrics - Only show for location mode */}
+                    {selectedMode === 'location' && (
+                      <div className='grid grid-cols-2 lg:grid-cols-5 gap-3'>
                       <motion.div
                         whileHover={{ y: -2, scale: 1.02 }}
                         className='text-center p-4 bg-gradient-to-br from-red-50 to-pink-50 border border-red-100 rounded-xl shadow-sm hover:shadow-md transition-all duration-200'
@@ -1046,6 +1047,7 @@ export function KitsTab({
                         <div className='text-xs text-teal-700'>m²</div>
                       </motion.div>
                     </div>
+                    )}
 
                     {/* Toggle Detailed View */}
                     <div className='flex justify-center pt-2'>
@@ -1238,47 +1240,49 @@ export function KitsTab({
                                     </div>
                                   </div>
 
-                                  {/* Environmental Metrics */}
-                                  <div className='bg-gray-50 rounded-lg p-3 border border-gray-100'>
-                                    <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs'>
-                                      <div className='flex items-center gap-2'>
-                                        <div className='w-2 h-2 bg-red-500 rounded-full flex-shrink-0'></div>
-                                        <span className='text-gray-700 truncate'>
-                                          {(
-                                            (productImpact.rechauffementClimatique || 0) * kitProduct.quantite
-                                          ).toFixed(1)}{' '}
-                                          <span className='text-gray-500'>kg CO₂</span>
-                                        </span>
-                                      </div>
-                                      <div className='flex items-center gap-2'>
-                                        <div className='w-2 h-2 bg-orange-500 rounded-full flex-shrink-0'></div>
-                                        <span className='text-gray-700 truncate'>
-                                          {(
-                                            (productImpact.epuisementRessources || 0) * kitProduct.quantite
-                                          ).toFixed(0)}{' '}
-                                          <span className='text-gray-500'>MJ</span>
-                                        </span>
-                                      </div>
-                                      <div className='flex items-center gap-2'>
-                                        <div className='w-2 h-2 bg-blue-500 rounded-full flex-shrink-0'></div>
-                                        <span className='text-gray-700 truncate'>
-                                          {(
-                                            (productImpact.acidification || 0) * kitProduct.quantite
-                                          ).toFixed(1)}{' '}
-                                          <span className='text-gray-500'>MOL H+</span>
-                                        </span>
-                                      </div>
-                                      <div className='flex items-center gap-2'>
-                                        <div className='w-2 h-2 bg-green-500 rounded-full flex-shrink-0'></div>
-                                        <span className='text-gray-700 truncate'>
-                                          {(
-                                            (productImpact.eutrophisation || 0) * kitProduct.quantite
-                                          ).toFixed(1)}{' '}
-                                          <span className='text-gray-500'>kg P eq</span>
-                                        </span>
+                                  {/* Environmental Metrics - Only show for location mode */}
+                                  {selectedMode === 'location' && (
+                                    <div className='bg-gray-50 rounded-lg p-3 border border-gray-100'>
+                                      <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs'>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='w-2 h-2 bg-red-500 rounded-full flex-shrink-0'></div>
+                                          <span className='text-gray-700 truncate'>
+                                            {(
+                                              (productImpact.rechauffementClimatique || 0) * kitProduct.quantite
+                                            ).toFixed(1)}{' '}
+                                            <span className='text-gray-500'>kg CO₂</span>
+                                          </span>
+                                        </div>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='w-2 h-2 bg-orange-500 rounded-full flex-shrink-0'></div>
+                                          <span className='text-gray-700 truncate'>
+                                            {(
+                                              (productImpact.epuisementRessources || 0) * kitProduct.quantite
+                                            ).toFixed(0)}{' '}
+                                            <span className='text-gray-500'>MJ</span>
+                                          </span>
+                                        </div>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='w-2 h-2 bg-blue-500 rounded-full flex-shrink-0'></div>
+                                          <span className='text-gray-700 truncate'>
+                                            {(
+                                              (productImpact.acidification || 0) * kitProduct.quantite
+                                            ).toFixed(1)}{' '}
+                                            <span className='text-gray-500'>MOL H+</span>
+                                          </span>
+                                        </div>
+                                        <div className='flex items-center gap-2'>
+                                          <div className='w-2 h-2 bg-green-500 rounded-full flex-shrink-0'></div>
+                                          <span className='text-gray-700 truncate'>
+                                            {(
+                                              (productImpact.eutrophisation || 0) * kitProduct.quantite
+                                            ).toFixed(1)}{' '}
+                                            <span className='text-gray-500'>kg P eq</span>
+                                          </span>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
+                                  )}
                                 </div>
                               );
                             })}

@@ -353,8 +353,9 @@ export function KitsList({
                     </div>
                   </div>
                 </div>
-                {/* Métriques principales avec design moderne */}
-                <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
+                {/* Métriques principales avec design moderne - Only show for location mode */}
+                {selectedMode === 'location' && (
+                  <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
                   <motion.div
                     whileHover={{ y: -2, scale: 1.05 }}
                     className='text-center p-4 bg-gradient-to-br from-red-50 to-pink-50 border border-red-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200'
@@ -428,6 +429,7 @@ export function KitsList({
                     <div className='text-xs text-teal-700 font-medium'>m²</div>
                   </motion.div>
                 </div>
+                )}
 
                 {/* Bouton d'expansion */}
                 <div className='flex justify-center'>
@@ -595,62 +597,64 @@ export function KitsList({
                                 );
                               })()}
 
-                              {/* Environmental metrics */}
-                              <div className='pt-3 border-t border-gray-100'>
-                                <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs'>
-                                  {(() => {
-                                    const productImpact =
-                                      getProductEnvironmentalImpact(
-                                        product,
-                                        selectedMode
+                              {/* Environmental metrics - Only show for location mode */}
+                              {selectedMode === 'location' && (
+                                <div className='pt-3 border-t border-gray-100'>
+                                  <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs'>
+                                    {(() => {
+                                      const productImpact =
+                                        getProductEnvironmentalImpact(
+                                          product,
+                                          selectedMode
+                                        );
+                                      return (
+                                        <>
+                                          <div className='flex items-center gap-2'>
+                                            <div className='w-2 h-2 bg-red-500 rounded-full'></div>
+                                            <span className='text-gray-600'>
+                                              {(
+                                                (productImpact.rechauffementClimatique ||
+                                                  0) * kitProduct.quantite
+                                              ).toFixed(1)}{' '}
+                                              kg CO₂
+                                            </span>
+                                          </div>
+                                          <div className='flex items-center gap-2'>
+                                            <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
+                                            <span className='text-gray-600'>
+                                              {(
+                                                (productImpact.epuisementRessources ||
+                                                  0) * kitProduct.quantite
+                                              ).toFixed(0)}{' '}
+                                              MJ
+                                            </span>
+                                          </div>
+                                          <div className='flex items-center gap-2'>
+                                            <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                                            <span className='text-gray-600'>
+                                              {(
+                                                (productImpact.acidification ||
+                                                  0) * kitProduct.quantite
+                                              ).toFixed(1)}{' '}
+                                              MOL H+
+                                            </span>
+                                          </div>
+                                          <div className='flex items-center gap-2'>
+                                            <div className='w-2 h-2 bg-green-500 rounded-full'></div>
+                                            <span className='text-gray-600'>
+                                              {(
+                                                (productImpact.eutrophisation ||
+                                                  0) * kitProduct.quantite
+                                              ).toFixed(1)}{' '}
+                                              kg P eq
+                                            </span>
+                                          </div>
+                                        </>
                                       );
-                                    return (
-                                      <>
-                                        <div className='flex items-center gap-2'>
-                                          <div className='w-2 h-2 bg-red-500 rounded-full'></div>
-                                          <span className='text-gray-600'>
-                                            {(
-                                              (productImpact.rechauffementClimatique ||
-                                                0) * kitProduct.quantite
-                                            ).toFixed(1)}{' '}
-                                            kg CO₂
-                                          </span>
-                                        </div>
-                                        <div className='flex items-center gap-2'>
-                                          <div className='w-2 h-2 bg-orange-500 rounded-full'></div>
-                                          <span className='text-gray-600'>
-                                            {(
-                                              (productImpact.epuisementRessources ||
-                                                0) * kitProduct.quantite
-                                            ).toFixed(0)}{' '}
-                                            MJ
-                                          </span>
-                                        </div>
-                                        <div className='flex items-center gap-2'>
-                                          <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
-                                          <span className='text-gray-600'>
-                                            {(
-                                              (productImpact.acidification ||
-                                                0) * kitProduct.quantite
-                                            ).toFixed(1)}{' '}
-                                            MOL H+
-                                          </span>
-                                        </div>
-                                        <div className='flex items-center gap-2'>
-                                          <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                                          <span className='text-gray-600'>
-                                            {(
-                                              (productImpact.eutrophisation ||
-                                                0) * kitProduct.quantite
-                                            ).toFixed(1)}{' '}
-                                            kg P eq
-                                          </span>
-                                        </div>
-                                      </>
-                                    );
-                                  })()}
+                                    })()}
+                                  </div>
                                 </div>
-                              </div>
+                              )}
                             </div>
                           );
                         })}
