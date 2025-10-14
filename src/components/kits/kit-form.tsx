@@ -14,19 +14,17 @@ import { KitProductsSection } from "./form-sections/kit-products-section";
 import { KitFormActions } from "./form-sections/kit-form-actions";
 
 interface KitFormProps {
-  initialData?: Partial<KitFormData>;
-  kitId?: string;
-  onSuccess?: () => void;
+  readonly initialData?: Partial<KitFormData>;
+  readonly kitId?: string;
 }
 
-export function KitForm({ initialData, kitId, onSuccess }: KitFormProps) {
+export function KitForm({ initialData, kitId }: KitFormProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const {
-    register,
     handleSubmit,
     formState: { errors },
     reset,
@@ -34,7 +32,7 @@ export function KitForm({ initialData, kitId, onSuccess }: KitFormProps) {
     setValue,
     getValues,
   } = useZodForm(kitSchema, {
-    defaultValues: initialData || {
+    defaultValues: {
       products: [],
     },
   });
@@ -43,11 +41,11 @@ export function KitForm({ initialData, kitId, onSuccess }: KitFormProps) {
   console.log('KitForm - initialData:', initialData);
   console.log('KitForm - kitId:', kitId);
 
-  // Réinitialiser le formulaire avec les nouvelles données quand elles arrivent
+  // Réinitialiser le formulaire uniquement au montage ou quand kitId change
   useEffect(() => {
     if (initialData) {
       console.log('KitForm - resetting form with:', initialData);
-      
+
       // Utiliser setValue pour chaque champ individuellement
       if (initialData.nom) {
         setValue('nom', initialData.nom);
@@ -65,7 +63,8 @@ export function KitForm({ initialData, kitId, onSuccess }: KitFormProps) {
       // Vérifier que les valeurs ont été mises à jour
       console.log('KitForm - form values after setValue:', getValues());
     }
-  }, [initialData, setValue, getValues]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kitId]); // Only reset when kitId changes, not when initialData object reference changes
 
   const onSubmit = async (data: KitFormData) => {
     if (!session?.user) {
