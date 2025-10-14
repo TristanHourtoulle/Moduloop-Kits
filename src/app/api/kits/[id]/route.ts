@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth';
 import { kitSchema } from '@/lib/schemas/kit';
 import { UserRole } from '@/lib/types/user';
 import { getKitById, prisma } from '@/lib/db';
-import { invalidateKits, CACHE_CONFIG } from '@/lib/cache';
+import { invalidateKit, invalidateKits, CACHE_CONFIG } from '@/lib/cache';
 
 interface UserWithRole {
   role?: UserRole;
@@ -175,7 +175,7 @@ export async function PUT(
     });
 
     // Invalider le cache des kits après modification
-    invalidateKits();
+    invalidateKit(id);
 
     return NextResponse.json(updatedKit);
   } catch (error) {

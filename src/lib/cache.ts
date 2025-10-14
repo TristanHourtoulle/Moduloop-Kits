@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+import { revalidateTag, revalidatePath } from "next/cache";
 
 // Cache tags for different data types
 export const CACHE_TAGS = {
@@ -10,10 +10,29 @@ export const CACHE_TAGS = {
 // Cache invalidation functions
 export function invalidateKits() {
   revalidateTag(CACHE_TAGS.KITS);
+  // Also revalidate all kit-related paths
+  revalidatePath("/kits", "page");
+  revalidatePath("/kits/[id]/modifier", "page");
+}
+
+export function invalidateKit(kitId: string) {
+  revalidateTag(CACHE_TAGS.KITS);
+  // Revalidate specific kit pages
+  revalidatePath("/kits", "page");
+  revalidatePath(`/kits/${kitId}/modifier`, "page");
 }
 
 export function invalidateProducts() {
   revalidateTag(CACHE_TAGS.PRODUCTS);
+  // Also revalidate all product-related paths
+  revalidatePath("/products", "page");
+}
+
+export function invalidateProduct(productId: string) {
+  revalidateTag(CACHE_TAGS.PRODUCTS);
+  // Revalidate specific product pages
+  revalidatePath("/products", "page");
+  revalidatePath(`/products/${productId}/modifier`, "page");
 }
 
 export function invalidateUsers() {
