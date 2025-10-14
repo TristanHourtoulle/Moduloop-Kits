@@ -37,34 +37,18 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
     },
   });
 
-  // Debug: afficher les données initiales
-  console.log('KitForm - initialData:', initialData);
-  console.log('KitForm - kitId:', kitId);
-
-  // Réinitialiser le formulaire uniquement au montage ou quand kitId change
+  // Réinitialiser le formulaire quand les données changent
   useEffect(() => {
     if (initialData) {
-      console.log('KitForm - resetting form with:', initialData);
-
-      // Utiliser setValue pour chaque champ individuellement
-      if (initialData.nom) {
-        setValue('nom', initialData.nom);
-      }
-      if (initialData.style) {
-        setValue('style', initialData.style);
-      }
-      if (initialData.description) {
-        setValue('description', initialData.description);
-      }
-      if (initialData.products) {
-        setValue('products', initialData.products);
-      }
-
-      // Vérifier que les valeurs ont été mises à jour
-      console.log('KitForm - form values after setValue:', getValues());
+      reset({
+        nom: initialData.nom || '',
+        style: initialData.style || '',
+        description: initialData.description,
+        products: initialData.products || [],
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kitId]); // Only reset when kitId changes, not when initialData object reference changes
+  }, [kitId]); // Reset when kitId changes
 
   const onSubmit = async (data: KitFormData) => {
     if (!session?.user) {
@@ -108,15 +92,8 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
         throw new Error(errorData.error || "Erreur lors de la sauvegarde");
       }
 
-      // Invalidate the router cache for this specific kit edit page
-      // This ensures that when the user returns to the edit page,
-      // fresh data will be fetched from the server
-      router.refresh();
-
-      // Always redirect to /kits after successful save
-      // Use replace instead of push to avoid keeping edit page in history
-      // Add timestamp to force a fresh navigation and bypass router cache
-      router.replace("/kits?updated=" + Date.now());
+      // Redirect to kits list
+      router.push("/kits?updated=" + Date.now());
     } catch (err) {
       console.error("Erreur lors de la soumission:", err);
       setError(

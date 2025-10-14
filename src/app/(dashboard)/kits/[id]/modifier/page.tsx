@@ -1,116 +1,129 @@
-import { Metadata } from "next";
-import { notFound } from "next/navigation";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
 import { KitForm } from "@/components/kits/kit-form";
-import { Package2, Sparkles } from "lucide-react";
-import { prisma } from "@/lib/db";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Package2, Sparkles, AlertTriangle } from "lucide-react";
 
-// Force dynamic rendering - never cache this page
-// This ensures we always fetch fresh data from the database
-export const dynamic = 'force-dynamic';
-
-interface EditKitPageProps {
-  params: Promise<{ id: string }>;
+interface KitData {
+  nom: string;
+  style: string;
+  description?: string;
+  products: Array<{
+    productId: string;
+    quantite: number;
+  }>;
 }
 
-async function getKit(id: string) {
-  try {
-    console.log(`[SERVER] getKit called for id: ${id} at ${new Date().toISOString()}`);
+export default function EditKitPage() {
+  const params = useParams();
+  const kitId = params?.id as string;
 
-    const kit = await prisma.kit.findUnique({
-      where: { id },
-      include: {
-        kitProducts: {
-          include: {
-            product: {
-              select: {
-                id: true,
-                nom: true,
-                reference: true,
-                prixVente1An: true,
-                prixVente2Ans: true,
-                prixVente3Ans: true,
-                rechauffementClimatique: true,
-                epuisementRessources: true,
-                acidification: true,
-                eutrophisation: true,
-              },
-            },
-          },
-        },
-        createdBy: {
-          select: { id: true, name: true, email: true },
-        },
-        updatedBy: {
-          select: { id: true, name: true, email: true },
-        },
-      },
-    });
+  const [kit, setKit] = useState<KitData | null>(null);
+  const [kitName, setKitName] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    if (kit) {
-      console.log(`[SERVER] Kit found from DB:`, {
-        id: kit.id,
-        nom: kit.nom,
-        description: kit.description,
-        updatedAt: kit.updatedAt,
-      });
-    } else {
-      console.log(`[SERVER] No kit found with id: ${id}`);
+  useEffect(() => {
+    if (kitId) {
+      const fetchKit = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch(`/api/kits/${kitId}`, {
+            cache: "no-store", // Éviter le cache du navigateur
+          });
+
+          if (!response.ok) {
+            if (response.status === 404) {
+              throw new Error("Kit non trouvé");
+            }
+            throw new Error("Erreur lors du chargement du kit");
+          }
+
+          const data = await response.json();
+
+          // Transformer les données pour le formulaire
+          const kitData: KitData = {
+            nom: data.nom,
+            style: data.style,
+            description: data.description || undefined,
+            products: data.kitProducts.map(
+              (kp: { product: { id: string }; quantite: number }) => ({
+                productId: kp.product.id,
+                quantite: kp.quantite,
+              })
+            ),
+          };
+
+          setKit(kitData);
+          setKitName(data.nom);
+        } catch (err) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Une erreur inattendue s'est produite"
+          );
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchKit();
     }
+  }, [kitId]);
 
-    return kit;
-  } catch (error) {
-    console.error("[SERVER] Erreur lors du chargement du kit:", error);
-    return null;
+  if (loading) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-96" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-4">
+                <Skeleton className="h-6 w-48" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
-}
 
-export async function generateMetadata({
-  params,
-}: EditKitPageProps): Promise<Metadata> {
-  const { id } = await params;
-  const kit = await getKit(id);
-
-  return {
-    title: kit
-      ? `Modifier ${kit.nom} - Moduloop Kits`
-      : "Kit non trouvé - Moduloop Kits",
-    description: kit
-      ? `Modifier le kit ${kit.nom}`
-      : "Le kit demandé n'a pas été trouvé",
-  };
-}
-
-export default async function EditKitPage({ params }: EditKitPageProps) {
-  const { id } = await params;
-  console.log(`[SERVER] EditKitPage rendering for id: ${id}`);
-
-  const kit = await getKit(id);
+  if (error) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert className="border-red-200 bg-red-50">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">{error}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   if (!kit) {
-    console.log(`[SERVER] Kit not found, calling notFound()`);
-    notFound();
+    return (
+      <div className="container mx-auto p-6">
+        <Alert className="border-red-200 bg-red-50">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            Kit non trouvé
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
   }
-
-  // Transformer les données pour le formulaire
-  const initialData = {
-    nom: kit.nom,
-    style: kit.style,
-    description: kit.description || undefined,
-    products: kit.kitProducts.map(
-      (kp: { product: { id: string }; quantite: number }) => ({
-        productId: kp.product.id,
-        quantite: kp.quantite,
-      })
-    ),
-  };
-
-  console.log(`[SERVER] initialData prepared:`, {
-    nom: initialData.nom,
-    description: initialData.description,
-    productsCount: initialData.products.length,
-  });
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
@@ -125,7 +138,10 @@ export default async function EditKitPage({ params }: EditKitPageProps) {
               Modifier le kit
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Modifiez les détails de votre kit et ses produits associés
+              Modifiez les informations de{" "}
+              <span className="font-semibold text-[#30C1BD]">
+                &quot;{kitName}&quot;
+              </span>
             </p>
             <div className="flex items-center justify-center gap-2 mt-4">
               <Sparkles className="h-4 w-4 text-[#30C1BD]" />
@@ -136,12 +152,7 @@ export default async function EditKitPage({ params }: EditKitPageProps) {
           </div>
 
           {/* Formulaire */}
-          {/* key forces React to recreate the component when data changes */}
-          <KitForm
-            key={`${id}-${kit.updatedAt.getTime()}`}
-            initialData={initialData}
-            kitId={id}
-          />
+          <KitForm initialData={kit} kitId={kitId} />
         </div>
       </div>
     </RoleGuard>
