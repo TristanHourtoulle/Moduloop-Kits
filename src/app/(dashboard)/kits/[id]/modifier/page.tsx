@@ -6,12 +6,18 @@ import { KitForm } from "@/components/kits/kit-form";
 import { Package2, Sparkles } from "lucide-react";
 import { prisma } from "@/lib/db";
 
+// Force dynamic rendering - never cache this page
+// This ensures we always fetch fresh data from the database
+export const dynamic = 'force-dynamic';
+
 interface EditKitPageProps {
   params: Promise<{ id: string }>;
 }
 
 async function getKit(id: string) {
   try {
+    console.log(`[SERVER] getKit called for id: ${id} at ${new Date().toISOString()}`);
+
     const kit = await prisma.kit.findUnique({
       where: { id },
       include: {
@@ -42,9 +48,20 @@ async function getKit(id: string) {
       },
     });
 
+    if (kit) {
+      console.log(`[SERVER] Kit found from DB:`, {
+        id: kit.id,
+        nom: kit.nom,
+        description: kit.description,
+        updatedAt: kit.updatedAt,
+      });
+    } else {
+      console.log(`[SERVER] No kit found with id: ${id}`);
+    }
+
     return kit;
   } catch (error) {
-    console.error("Erreur lors du chargement du kit:", error);
+    console.error("[SERVER] Erreur lors du chargement du kit:", error);
     return null;
   }
 }
@@ -67,9 +84,12 @@ export async function generateMetadata({
 
 export default async function EditKitPage({ params }: EditKitPageProps) {
   const { id } = await params;
+  console.log(`[SERVER] EditKitPage rendering for id: ${id}`);
+
   const kit = await getKit(id);
 
   if (!kit) {
+    console.log(`[SERVER] Kit not found, calling notFound()`);
     notFound();
   }
 
@@ -85,6 +105,12 @@ export default async function EditKitPage({ params }: EditKitPageProps) {
       })
     ),
   };
+
+  console.log(`[SERVER] initialData prepared:`, {
+    nom: initialData.nom,
+    description: initialData.description,
+    productsCount: initialData.products.length,
+  });
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>

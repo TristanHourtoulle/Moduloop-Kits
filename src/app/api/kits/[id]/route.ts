@@ -74,6 +74,8 @@ export async function PUT(
     }
 
     const { id } = await params;
+    console.log(`[API PUT] Updating kit ${id} at ${new Date().toISOString()}`);
+
     // Vérifier que le kit existe
     const existingKit = await prisma.kit.findUnique({
       where: { id },
@@ -83,11 +85,22 @@ export async function PUT(
     });
 
     if (!existingKit) {
+      console.log(`[API PUT] Kit ${id} not found`);
       return NextResponse.json({ error: 'Kit non trouvé' }, { status: 404 });
     }
 
+    console.log(`[API PUT] Existing kit:`, {
+      nom: existingKit.nom,
+      description: existingKit.description,
+    });
+
     const body = await request.json();
     const validatedData = kitSchema.parse(body);
+
+    console.log(`[API PUT] New data received:`, {
+      nom: validatedData.nom,
+      description: validatedData.description,
+    });
 
     // Regrouper les produits identiques côté serveur aussi
     const groupedProducts = validatedData.products.reduce((acc, product) => {
@@ -174,7 +187,15 @@ export async function PUT(
       });
     });
 
+    console.log(`[API PUT] Kit updated successfully:`, {
+      id: updatedKit.id,
+      nom: updatedKit.nom,
+      description: updatedKit.description,
+      updatedAt: updatedKit.updatedAt,
+    });
+
     // Invalider le cache des kits après modification
+    console.log(`[API PUT] Invalidating cache for kit ${id}`);
     invalidateKit(id);
 
     return NextResponse.json(updatedKit);

@@ -16,10 +16,16 @@ export function invalidateKits() {
 }
 
 export function invalidateKit(kitId: string) {
+  console.log(`[CACHE] invalidateKit called for: ${kitId}`);
   revalidateTag(CACHE_TAGS.KITS);
+  console.log(`[CACHE] revalidateTag('${CACHE_TAGS.KITS}') done`);
+
   // Revalidate specific kit pages
   revalidatePath("/kits", "page");
+  console.log(`[CACHE] revalidatePath('/kits') done`);
+
   revalidatePath(`/kits/${kitId}/modifier`, "page");
+  console.log(`[CACHE] revalidatePath('/kits/${kitId}/modifier') done`);
 }
 
 export function invalidateProducts() {
