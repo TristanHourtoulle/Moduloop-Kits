@@ -136,7 +136,12 @@ export default async function EditKitPage({ params }: EditKitPageProps) {
           </div>
 
           {/* Formulaire */}
-          <KitForm initialData={initialData} kitId={id} />
+          {/* key forces React to recreate the component when data changes */}
+          <KitForm
+            key={`${id}-${kit.updatedAt.getTime()}`}
+            initialData={initialData}
+            kitId={id}
+          />
         </div>
       </div>
     </RoleGuard>
