@@ -108,6 +108,11 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
         throw new Error(errorData.error || "Erreur lors de la sauvegarde");
       }
 
+      // Invalidate the router cache for this specific kit edit page
+      // This ensures that when the user returns to the edit page,
+      // fresh data will be fetched from the server
+      router.refresh();
+
       // Always redirect to /kits after successful save
       // Use replace instead of push to avoid keeping edit page in history
       // Add timestamp to force a fresh navigation and bypass router cache

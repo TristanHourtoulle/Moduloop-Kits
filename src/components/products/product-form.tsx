@@ -209,6 +209,9 @@ export function ProductForm({
         isEdit: !!productId,
       });
 
+      // Invalidate the router cache to ensure fresh data on next visit
+      router.refresh();
+
       // Toujours rediriger vers /products après succès (création ou modification)
       router.push('/products');
     } catch (err) {

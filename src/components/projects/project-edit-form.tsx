@@ -55,6 +55,8 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
       });
 
       if (response.ok) {
+        // Invalidate the router cache to ensure fresh data on next visit
+        router.refresh();
         router.push(`/projects/${project.id}`);
       } else {
         throw new Error("Erreur lors de la modification du projet");
