@@ -18,46 +18,38 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<ProductFormData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  const fetchProduct = async (showSuccessMessage = false) => {
-    try {
-      setLoading(true);
-      const response = await fetch(`/api/products/${productId}`, {
-        cache: "no-store", // Éviter le cache du navigateur
-      });
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error("Produit non trouvé");
-        }
-        throw new Error("Erreur lors du chargement du produit");
-      }
-
-      const data = await response.json();
-      setProduct(data);
-
-      // Afficher un message de succès temporaire après le refetch (uniquement si demandé)
-      if (showSuccessMessage) {
-        setSuccessMessage("Produit mis à jour avec succès !");
-        setTimeout(() => setSuccessMessage(null), 3000);
-      }
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Une erreur inattendue s'est produite"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     if (productId) {
+      const fetchProduct = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch(`/api/products/${productId}`, {
+            cache: "no-store", // Éviter le cache du navigateur
+          });
+
+          if (!response.ok) {
+            if (response.status === 404) {
+              throw new Error("Produit non trouvé");
+            }
+            throw new Error("Erreur lors du chargement du produit");
+          }
+
+          const data = await response.json();
+          setProduct(data);
+        } catch (err) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Une erreur inattendue s'est produite"
+          );
+        } finally {
+          setLoading(false);
+        }
+      };
+
       fetchProduct();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
   if (loading) {
@@ -112,28 +104,6 @@ export default function EditProductPage() {
     <RoleGuard requiredRole={UserRole.DEV}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 w-full">
         <div className="container mx-auto px-6">
-          {/* Message de succès */}
-          {successMessage && (
-            <div className="mb-6 mx-auto max-w-2xl">
-              <Alert className="border-green-200 bg-green-50">
-                <AlertDescription className="text-green-800 flex items-center">
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {successMessage}
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
-
           {/* Header moderne */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#30C1BD] to-[#30C1BD]/80 rounded-2xl mb-4">
@@ -160,7 +130,6 @@ export default function EditProductPage() {
           <ProductForm
             initialData={product}
             productId={productId}
-            onSuccess={() => fetchProduct(true)}
           />
         </div>
       </div>

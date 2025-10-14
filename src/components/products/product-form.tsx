@@ -7,7 +7,6 @@ import { productSchema, type ProductFormData } from '@/lib/schemas/product';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Accordion } from '@/components/ui/accordion';
 import { useSession } from '@/lib/auth-client';
-import { parseNumberValue } from '@/lib/utils/form-helpers';
 import { cleanProductDataForForm } from '@/lib/utils/form-data';
 
 // Import des sections
@@ -18,15 +17,13 @@ import { FormActions } from './form-sections/form-actions';
 import { FormErrorsDebug } from './form-sections/form-errors-debug';
 
 interface ProductFormProps {
-  initialData?: Partial<ProductFormData>;
-  productId?: string;
-  onSuccess?: () => void;
+  readonly initialData?: Partial<ProductFormData>;
+  readonly productId?: string;
 }
 
 export function ProductForm({
   initialData,
   productId,
-  onSuccess,
 }: ProductFormProps) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -85,28 +82,6 @@ export function ProductForm({
     eutrophisationLocation: undefined,
   };
 
-  // Nettoyer les données initiales pour convertir null en undefined
-  const cleanedInitialData = initialData
-    ? cleanProductDataForForm(initialData)
-    : null;
-
-  // Debug: comparer les données avant/après nettoyage
-  if (initialData && cleanedInitialData) {
-    console.log('[ProductForm] Raw initial data:', initialData);
-    console.log('[ProductForm] Cleaned initial data:', cleanedInitialData);
-
-    // Identifier les champs qui ont changé
-    const changedFields = Object.keys(initialData).filter(
-      (key) => (initialData as any)[key] !== (cleanedInitialData as any)[key]
-    );
-    if (changedFields.length > 0) {
-      console.log(
-        '[ProductForm] Fields cleaned (null -> undefined):',
-        changedFields
-      );
-    }
-  }
-
   const {
     register,
     handleSubmit,
@@ -115,22 +90,37 @@ export function ProductForm({
     watch,
     reset,
   } = useZodForm(productSchema, {
-    defaultValues: cleanedInitialData
-      ? { ...defaultValues, ...cleanedInitialData }
-      : defaultValues,
+    defaultValues: defaultValues,
     mode: 'onSubmit',
     reValidateMode: 'onChange',
   });
 
   // Reset form when initialData changes (crucial for edit mode)
-  // Using productId as dependency to avoid resetting on every render
+  // Only reset once when the component mounts with initialData
   useEffect(() => {
-    if (cleanedInitialData) {
+    if (initialData) {
+      // Nettoyer les données initiales pour convertir null en undefined
+      const cleanedInitialData = cleanProductDataForForm(initialData);
+
+      console.log('[ProductForm] Raw initial data:', initialData);
+      console.log('[ProductForm] Cleaned initial data:', cleanedInitialData);
+
+      // Identifier les champs qui ont changé
+      const changedFields = Object.keys(initialData).filter(
+        (key) => (initialData as any)[key] !== (cleanedInitialData as any)[key]
+      );
+      if (changedFields.length > 0) {
+        console.log(
+          '[ProductForm] Fields cleaned (null -> undefined):',
+          changedFields
+        );
+      }
+
       console.log('[ProductForm] Resetting form with new data:', cleanedInitialData);
       reset({ ...defaultValues, ...cleanedInitialData });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId]); // Only reset when productId changes, not on every render
+  }, [productId]); // Only reset when productId changes, not when initialData object reference changes
 
   // Debug: log form state changes
   useEffect(() => {
