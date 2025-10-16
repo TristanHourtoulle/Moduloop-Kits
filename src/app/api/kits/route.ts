@@ -23,19 +23,32 @@ export async function GET(request: NextRequest) {
 
     // Configure cache headers for this response
     const response = NextResponse.json(kits);
-    response.headers.set(
-      "Cache-Control",
-      `public, s-maxage=${
-        CACHE_CONFIG.KITS.revalidate
-      }, stale-while-revalidate=${CACHE_CONFIG.KITS.revalidate * 5}`
-    );
+
+    // On Vercel production, disable cache for list to ensure fresh data
+    if (process.env.NODE_ENV === "production") {
+      response.headers.set(
+        "Cache-Control",
+        "no-cache, no-store, must-revalidate, max-age=0",
+      );
+      response.headers.set("Pragma", "no-cache");
+      response.headers.set("Expires", "0");
+      console.log("[API] Serving kits list with no-cache headers for Vercel");
+    } else {
+      // In development, use normal cache headers
+      response.headers.set(
+        "Cache-Control",
+        `public, s-maxage=${
+          CACHE_CONFIG.KITS.revalidate
+        }, stale-while-revalidate=${CACHE_CONFIG.KITS.revalidate * 5}`,
+      );
+    }
 
     return response;
   } catch (error) {
     console.error("Erreur lors de la récupération des kits:", error);
     return NextResponse.json(
       { error: "Erreur interne du serveur" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -57,7 +70,7 @@ export async function POST(request: NextRequest) {
           error:
             "Accès refusé. Seuls les développeurs et administrateurs peuvent créer des kits.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -65,17 +78,20 @@ export async function POST(request: NextRequest) {
     const validatedData = kitSchema.parse(body);
 
     // Regrouper les produits identiques côté serveur aussi
-    const groupedProducts = validatedData.products.reduce((acc, product) => {
-      const existingProduct = acc.find(
-        (p) => p.productId === product.productId
-      );
-      if (existingProduct) {
-        existingProduct.quantite += product.quantite;
-      } else {
-        acc.push({ ...product });
-      }
-      return acc;
-    }, [] as typeof validatedData.products);
+    const groupedProducts = validatedData.products.reduce(
+      (acc, product) => {
+        const existingProduct = acc.find(
+          (p) => p.productId === product.productId,
+        );
+        if (existingProduct) {
+          existingProduct.quantite += product.quantite;
+        } else {
+          acc.push({ ...product });
+        }
+        return acc;
+      },
+      [] as typeof validatedData.products,
+    );
 
     // Vérifier que tous les produits existent
     const productIds = groupedProducts.map((p) => p.productId);
@@ -86,13 +102,13 @@ export async function POST(request: NextRequest) {
 
     const existingProductIds = existingProducts.map((p) => p.id);
     const missingProducts = productIds.filter(
-      (id) => !existingProductIds.includes(id)
+      (id) => !existingProductIds.includes(id),
     );
 
     if (missingProducts.length > 0) {
       return NextResponse.json(
         { error: `Produits introuvables: ${missingProducts.join(", ")}` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -149,13 +165,13 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error && error.name === "ZodError") {
       return NextResponse.json(
         { error: "Données invalides", details: error.message },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     return NextResponse.json(
       { error: "Erreur interne du serveur" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

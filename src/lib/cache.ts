@@ -17,9 +17,10 @@ export async function invalidateKits() {
   revalidatePath("/kits/[id]/modifier", "page");
   revalidatePath("/kits/[id]/modifier", "layout");
 
-  // On Vercel, add a small delay to ensure propagation
+  // On Vercel, add a delay to ensure cache propagation
   if (process.env.NODE_ENV === "production") {
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Increased delay to ensure Vercel cache is fully invalidated
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   console.log("[Cache] Kits cache invalidated successfully");
@@ -40,8 +41,8 @@ export async function invalidateKit(kitId: string) {
   // On Vercel, also try with the exact path (not template)
   if (process.env.NODE_ENV === "production") {
     revalidatePath(`/kits/${kitId}/modifier`);
-    // Small delay to ensure Vercel propagates the invalidation
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Increased delay to ensure Vercel propagates the invalidation
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   console.log("[Cache] Kit cache invalidated successfully:", kitId);

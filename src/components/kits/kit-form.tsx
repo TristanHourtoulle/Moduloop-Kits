@@ -126,6 +126,18 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
         nom: savedKit.nom,
       });
 
+      // Add delay to ensure cache invalidation completes on Vercel
+      // Check if we're on Vercel by looking for Vercel-specific environment variable
+      const isProduction =
+        typeof window !== "undefined" &&
+        window.location.hostname !== "localhost" &&
+        !window.location.hostname.includes("127.0.0.1");
+
+      if (isProduction) {
+        console.log("[KitForm] Waiting for cache invalidation to propagate...");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
+
       // Redirect to kits list with timestamp to trigger refetch
       const redirectUrl = "/kits?updated=" + Date.now();
       console.log("[KitForm] Redirecting to:", redirectUrl);

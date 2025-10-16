@@ -49,38 +49,23 @@ interface KitsListWrapperProps {
 export function KitsListWrapper({ initialKits }: KitsListWrapperProps) {
   const searchParams = useSearchParams();
   const [kits, setKits] = useState<Kit[]>(initialKits);
-  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Update kits when initialKits prop changes (server-side data refresh)
+  useEffect(() => {
+    console.log("[KitsListWrapper] Initial kits updated:", initialKits.length);
+    setKits(initialKits);
+  }, [initialKits]);
 
   // Detect when returning from edit page with updated param
   useEffect(() => {
     const updatedParam = searchParams.get("updated");
     if (updatedParam) {
-      console.log("[KitsListWrapper] Detected update, refreshing...");
-      // Force a refresh by updating the key
-      setRefreshKey((prev) => prev + 1);
-      // Optionally refetch data client-side
-      fetchKits();
+      console.log(
+        "[KitsListWrapper] Detected update param, data already fresh from server",
+      );
+      // Data is already fresh from server-side fetch, no need to refetch
     }
   }, [searchParams]);
-
-  const fetchKits = async () => {
-    try {
-      console.log("[KitsListWrapper] Fetching fresh kits data...");
-      const response = await fetch("/api/kits", {
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors du chargement des kits");
-      }
-
-      const data = await response.json();
-      setKits(data);
-      console.log("[KitsListWrapper] Kits updated:", data.length);
-    } catch (err) {
-      console.error("[KitsListWrapper] Error fetching kits:", err);
-    }
-  };
 
   const handleDelete = useCallback(
     async (kitId: string) => {
@@ -105,7 +90,6 @@ export function KitsListWrapper({ initialKits }: KitsListWrapperProps) {
 
   return (
     <KitsGridClient
-      key={refreshKey}
       kits={kits}
       showCreateButton={false}
       onDelete={handleDelete}
