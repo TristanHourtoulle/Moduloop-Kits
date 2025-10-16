@@ -221,9 +221,15 @@ export function ProductForm({
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
-      // Redirect with timestamp to force server-side refetch
+      // Redirect based on context
       const timestamp = Date.now();
-      router.push(`/products?updated=${timestamp}`);
+      if (productId) {
+        // If editing, stay on edit page with timestamp to refresh data
+        router.push(`/products/${productId}/modifier?t=${timestamp}`);
+      } else {
+        // If creating new product, redirect to list
+        router.push(`/products?updated=${timestamp}`);
+      }
     } catch (err) {
       console.error('Erreur lors de la soumission:', err);
       setError(
