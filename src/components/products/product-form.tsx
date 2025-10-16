@@ -212,8 +212,18 @@ export function ProductForm({
       // Invalidate the router cache to ensure fresh data on next visit
       router.refresh();
 
-      // Toujours rediriger vers /products après succès (création ou modification)
-      router.push('/products');
+      // Detect if we're in production (Vercel)
+      const isProduction = process.env.NODE_ENV === 'production';
+
+      // Add delay on production to allow cache propagation on Vercel
+      if (isProduction) {
+        console.log('[ProductForm] Production environment detected, waiting for cache propagation...');
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
+
+      // Redirect with timestamp to force server-side refetch
+      const timestamp = Date.now();
+      router.push(`/products?updated=${timestamp}`);
     } catch (err) {
       console.error('Erreur lors de la soumission:', err);
       setError(

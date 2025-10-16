@@ -57,7 +57,19 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
       if (response.ok) {
         // Invalidate the router cache to ensure fresh data on next visit
         router.refresh();
-        router.push(`/projects/${project.id}`);
+
+        // Detect if we're in production (Vercel)
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        // Add delay on production to allow cache propagation on Vercel
+        if (isProduction) {
+          console.log('[ProjectEditForm] Production environment detected, waiting for cache propagation...');
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+
+        // Redirect with timestamp to force server-side refetch
+        const timestamp = Date.now();
+        router.push(`/projects/${project.id}?updated=${timestamp}`);
       } else {
         throw new Error("Erreur lors de la modification du projet");
       }

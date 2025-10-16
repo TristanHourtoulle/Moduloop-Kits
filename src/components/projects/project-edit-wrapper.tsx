@@ -3,6 +3,7 @@
 import { ProjectEditForm } from "@/components/projects/project-edit-form";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { generateProjectKey } from "@/lib/utils/project-key";
 
 interface ProjectData {
   nom: string;
@@ -24,15 +25,17 @@ export function ProjectEditWrapper({ projectId, initialProject, projectName }: P
   const [projectKey, setProjectKey] = useState("");
 
   useEffect(() => {
-    // Generate key based on project data AND timestamp from URL
-    const fullKey = timestamp ? `project-${projectId}-${timestamp}` : `project-${projectId}`;
+    // Generate data-aware key based on project content (like kit implementation)
+    const dataKey = generateProjectKey(projectId, initialProject);
+    const fullKey = timestamp ? `${dataKey}-${timestamp}` : dataKey;
     setProjectKey(fullKey);
 
     console.log("[ProjectEditWrapper] Component mounted with:", {
       projectId,
       projectName,
       timestamp,
-      key: fullKey,
+      dataKey,
+      fullKey,
       kitsCount: initialProject.kits.length,
     });
   }, [projectId, timestamp, initialProject]);

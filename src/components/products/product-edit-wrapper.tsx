@@ -3,6 +3,7 @@
 import { ProductForm } from "@/components/products/product-form";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { generateProductKey } from "@/lib/utils/product-key";
 
 interface ProductData {
   nom: string;
@@ -48,17 +49,19 @@ export function ProductEditWrapper({ productId, initialProduct, productName }: P
   const [productKey, setProductKey] = useState("");
 
   useEffect(() => {
-    // Generate key based on product data AND timestamp from URL
-    const fullKey = timestamp ? `product-${productId}-${timestamp}` : `product-${productId}`;
+    // Generate data-aware key based on product content (like kit implementation)
+    const dataKey = generateProductKey(productId, initialProduct);
+    const fullKey = timestamp ? `${dataKey}-${timestamp}` : dataKey;
     setProductKey(fullKey);
 
     console.log("[ProductEditWrapper] Component mounted with:", {
       productId,
       productName,
       timestamp,
-      key: fullKey,
+      dataKey,
+      fullKey,
     });
-  }, [productId, timestamp]);
+  }, [productId, timestamp, initialProduct]);
 
   return (
     <>
