@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProjectCard } from "@/components/projects/project-card";
 import { FolderOpen } from "lucide-react";
@@ -10,7 +10,7 @@ interface ProjectsListWrapperProps {
   initialProjects: Project[];
 }
 
-export function ProjectsListWrapper({ initialProjects }: ProjectsListWrapperProps) {
+function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
   const searchParams = useSearchParams();
   const [projects, setProjects] = useState<Project[]>(initialProjects);
 
@@ -76,5 +76,21 @@ export function ProjectsListWrapper({ initialProjects }: ProjectsListWrapperProp
         />
       ))}
     </div>
+  );
+}
+
+// Wrapper component with Suspense boundary
+export function ProjectsListWrapper(props: ProjectsListWrapperProps) {
+  return (
+    <Suspense fallback={
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Loading skeletons */}
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-[200px] bg-muted/30 rounded-lg animate-pulse" />
+        ))}
+      </div>
+    }>
+      <ProjectsListContent {...props} />
+    </Suspense>
   );
 }

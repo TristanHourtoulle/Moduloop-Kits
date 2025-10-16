@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/products/product-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -11,7 +11,7 @@ interface ProductsListWrapperProps {
   initialProducts: Product[];
 }
 
-export function ProductsListWrapper({ initialProducts }: ProductsListWrapperProps) {
+function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
@@ -77,5 +77,21 @@ export function ProductsListWrapper({ initialProducts }: ProductsListWrapperProp
         />
       ))}
     </div>
+  );
+}
+
+// Wrapper component with Suspense boundary
+export function ProductsListWrapper(props: ProductsListWrapperProps) {
+  return (
+    <Suspense fallback={
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Loading skeletons */}
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-[300px] bg-muted/30 rounded-lg animate-pulse" />
+        ))}
+      </div>
+    }>
+      <ProductsListContent {...props} />
+    </Suspense>
   );
 }
