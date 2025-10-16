@@ -58,12 +58,15 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
         // Invalidate the router cache to ensure fresh data on next visit
         router.refresh();
 
-        // Detect if we're in production (Vercel)
-        const isProduction = process.env.NODE_ENV === 'production';
+        // Add delay to ensure cache invalidation completes on Vercel
+        // Check if we're on Vercel by looking for Vercel-specific environment variable
+        const isProduction =
+          typeof window !== "undefined" &&
+          window.location.hostname !== "localhost" &&
+          !window.location.hostname.includes("127.0.0.1");
 
-        // Add delay on production to allow cache propagation on Vercel
         if (isProduction) {
-          console.log('[ProjectEditForm] Production environment detected, waiting for cache propagation...');
+          console.log("[ProjectEditForm] Waiting for cache invalidation to propagate...");
           await new Promise((resolve) => setTimeout(resolve, 300));
         }
 

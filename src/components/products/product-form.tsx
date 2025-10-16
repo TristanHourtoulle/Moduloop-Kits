@@ -212,24 +212,22 @@ export function ProductForm({
       // Invalidate the router cache to ensure fresh data on next visit
       router.refresh();
 
-      // Detect if we're in production (Vercel)
-      const isProduction = process.env.NODE_ENV === 'production';
+      // Add delay to ensure cache invalidation completes on Vercel
+      // Check if we're on Vercel by looking for Vercel-specific environment variable
+      const isProduction =
+        typeof window !== "undefined" &&
+        window.location.hostname !== "localhost" &&
+        !window.location.hostname.includes("127.0.0.1");
 
-      // Add delay on production to allow cache propagation on Vercel
       if (isProduction) {
-        console.log('[ProductForm] Production environment detected, waiting for cache propagation...');
+        console.log("[ProductForm] Waiting for cache invalidation to propagate...");
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
-      // Redirect based on context
-      const timestamp = Date.now();
-      if (productId) {
-        // If editing, stay on edit page with timestamp to refresh data
-        router.push(`/products/${productId}/modifier?t=${timestamp}`);
-      } else {
-        // If creating new product, redirect to list
-        router.push(`/products?updated=${timestamp}`);
-      }
+      // Redirect to products list with timestamp to trigger refetch (like kits)
+      const redirectUrl = "/products?updated=" + Date.now();
+      console.log("[ProductForm] Redirecting to:", redirectUrl);
+      router.push(redirectUrl);
     } catch (err) {
       console.error('Erreur lors de la soumission:', err);
       setError(
