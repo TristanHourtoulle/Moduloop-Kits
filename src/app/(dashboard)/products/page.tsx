@@ -38,12 +38,15 @@ async function getProductsData() {
 
     const data = await response.json();
 
+    // Extract products array from response
+    const products = data.products || [];
+
     console.log("[ProductsPage Server] Products fetched:", {
-      count: data.length,
+      count: products.length,
       isProduction: process.env.NODE_ENV === "production",
     });
 
-    return data;
+    return products;
   } catch (error) {
     console.error("[ProductsPage Server] Error fetching products:", error);
     return [];
