@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Package2, Sparkles, AlertTriangle } from "lucide-react";
+import { generateKitKey } from "@/lib/utils/kit-key";
 
 interface KitData {
   nom: string;
@@ -26,11 +27,14 @@ export default function EditKitPage() {
 
   const [kit, setKit] = useState<KitData | null>(null);
   const [kitName, setKitName] = useState<string>("");
+  const [kitKey, setKitKey] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (kitId) {
+      console.log("[EditKitPage] Fetching kit data for:", kitId);
+
       const fetchKit = async () => {
         try {
           setLoading(true);
@@ -46,6 +50,11 @@ export default function EditKitPage() {
           }
 
           const data = await response.json();
+          console.log("[EditKitPage] Kit data received:", {
+            kitId,
+            nom: data.nom,
+            productsCount: data.kitProducts?.length || 0,
+          });
 
           // Transformer les données pour le formulaire
           const kitData: KitData = {
@@ -56,17 +65,24 @@ export default function EditKitPage() {
               (kp: { product: { id: string }; quantite: number }) => ({
                 productId: kp.product.id,
                 quantite: kp.quantite,
-              })
+              }),
             ),
           };
 
+          // Generate unique key for this kit state
+          const newKey = generateKitKey(kitId, kitData);
+
           setKit(kitData);
           setKitName(data.nom);
+          setKitKey(newKey);
+
+          console.log("[EditKitPage] Kit state updated with new key:", newKey);
         } catch (err) {
+          console.error("[EditKitPage] Error fetching kit:", err);
           setError(
             err instanceof Error
               ? err.message
-              : "Une erreur inattendue s'est produite"
+              : "Une erreur inattendue s'est produite",
           );
         } finally {
           setLoading(false);
@@ -151,8 +167,8 @@ export default function EditKitPage() {
             </div>
           </div>
 
-          {/* Formulaire */}
-          <KitForm initialData={kit} kitId={kitId} />
+          {/* Formulaire avec key dynamique pour forcer le remontage */}
+          <KitForm key={kitKey} initialData={kit} kitId={kitId} />
         </div>
       </div>
     </RoleGuard>

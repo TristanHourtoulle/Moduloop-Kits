@@ -9,17 +9,21 @@ export const CACHE_TAGS = {
 
 // Cache invalidation functions
 export function invalidateKits() {
+  console.log("[Cache] Invalidating all kits cache");
   revalidateTag(CACHE_TAGS.KITS);
   // Also revalidate all kit-related paths
   revalidatePath("/kits", "page");
   revalidatePath("/kits/[id]/modifier", "page");
+  console.log("[Cache] Kits cache invalidated successfully");
 }
 
 export function invalidateKit(kitId: string) {
+  console.log("[Cache] Invalidating cache for kit:", kitId);
   revalidateTag(CACHE_TAGS.KITS);
   // Revalidate specific kit pages
   revalidatePath("/kits", "page");
   revalidatePath(`/kits/${kitId}/modifier`, "page");
+  console.log("[Cache] Kit cache invalidated successfully:", kitId);
 }
 
 export function invalidateProducts() {

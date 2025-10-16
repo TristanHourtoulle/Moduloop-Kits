@@ -24,6 +24,13 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  console.log("[KitForm] Component mounted/updated:", {
+    kitId,
+    hasInitialData: !!initialData,
+    initialDataName: initialData?.nom,
+    productsCount: initialData?.products?.length || 0,
+  });
+
   const {
     handleSubmit,
     formState: { errors },
@@ -40,9 +47,15 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
   // Réinitialiser le formulaire quand les données changent
   useEffect(() => {
     if (initialData) {
+      console.log("[KitForm] Resetting form with initial data:", {
+        nom: initialData.nom,
+        style: initialData.style,
+        productsCount: initialData.products?.length || 0,
+      });
+
       reset({
-        nom: initialData.nom || '',
-        style: initialData.style || '',
+        nom: initialData.nom || "",
+        style: initialData.style || "",
         description: initialData.description,
         products: initialData.products || [],
       });
@@ -56,22 +69,37 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
       return;
     }
 
+    console.log("[KitForm] Submitting form:", {
+      kitId,
+      action: kitId ? "UPDATE" : "CREATE",
+      nom: data.nom,
+      productsCount: data.products.length,
+    });
+
     setIsLoading(true);
     setError(null);
 
     try {
       // Regrouper les produits identiques avant soumission
-      const groupedProducts = data.products.reduce((acc, product) => {
-        const existingProduct = acc.find(
-          (p) => p.productId === product.productId
-        );
-        if (existingProduct) {
-          existingProduct.quantite += product.quantite;
-        } else {
-          acc.push({ ...product });
-        }
-        return acc;
-      }, [] as typeof data.products);
+      const groupedProducts = data.products.reduce(
+        (acc, product) => {
+          const existingProduct = acc.find(
+            (p) => p.productId === product.productId,
+          );
+          if (existingProduct) {
+            existingProduct.quantite += product.quantite;
+          } else {
+            acc.push({ ...product });
+          }
+          return acc;
+        },
+        [] as typeof data.products,
+      );
+
+      console.log("[KitForm] Products grouped:", {
+        original: data.products.length,
+        grouped: groupedProducts.length,
+      });
 
       const url = kitId ? `/api/kits/${kitId}` : "/api/kits";
       const method = kitId ? "PUT" : "POST";
@@ -92,14 +120,22 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
         throw new Error(errorData.error || "Erreur lors de la sauvegarde");
       }
 
-      // Redirect to kits list
-      router.push("/kits?updated=" + Date.now());
+      const savedKit = await response.json();
+      console.log("[KitForm] Kit saved successfully:", {
+        kitId: savedKit.id,
+        nom: savedKit.nom,
+      });
+
+      // Redirect to kits list with timestamp to trigger refetch
+      const redirectUrl = "/kits?updated=" + Date.now();
+      console.log("[KitForm] Redirecting to:", redirectUrl);
+      router.push(redirectUrl);
     } catch (err) {
-      console.error("Erreur lors de la soumission:", err);
+      console.error("[KitForm] Error submitting form:", err);
       setError(
         err instanceof Error
           ? err.message
-          : "Une erreur inattendue s'est produite"
+          : "Une erreur inattendue s'est produite",
       );
     } finally {
       setIsLoading(false);
