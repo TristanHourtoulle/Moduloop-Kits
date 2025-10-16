@@ -4,7 +4,7 @@ import { KitEditWrapper } from "@/components/kits/kit-edit-wrapper";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Package2, Sparkles, AlertTriangle } from "lucide-react";
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 
 interface KitData {
   nom: string;
@@ -25,12 +25,16 @@ async function getKit(kitId: string): Promise<any | null> {
     const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
     const baseUrl = `${protocol}://${host}`;
 
+    // Get cookies for authentication
+    const cookieStore = cookies();
+    const cookieHeader = cookieStore.toString();
+
     console.log("[EditKitPage Server] Fetching kit:", kitId);
 
     const response = await fetch(`${baseUrl}/api/kits/${kitId}`, {
       cache: "no-store", // Force fresh data on Vercel
-      next: {
-        revalidate: 0, // Disable ISR completely for edit pages
+      headers: {
+        Cookie: cookieHeader, // Pass cookies for authentication
       },
     });
 
