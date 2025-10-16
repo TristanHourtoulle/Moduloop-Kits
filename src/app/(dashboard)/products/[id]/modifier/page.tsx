@@ -1,104 +1,138 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
-import { ProductForm } from "@/components/products/product-form";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Package, AlertTriangle } from "lucide-react";
-import { ProductFormData } from "@/lib/schemas/product";
+import { ProductEditWrapper } from "@/components/products/product-edit-wrapper";
+import { Package, Sparkles } from "lucide-react";
+import { notFound } from "next/navigation";
+import { headers, cookies } from "next/headers";
 
-export default function EditProductPage() {
-  const params = useParams();
-  const productId = params?.id as string;
+interface ProductData {
+  nom: string;
+  reference: string;
+  description?: string;
+  quantite: number;
+  surfaceM2: number;
+  prixAchatAchat?: number;
+  prixUnitaireAchat?: number;
+  prixVenteAchat?: number;
+  margeCoefficientAchat?: number;
+  prixAchatLocation1An?: number;
+  prixUnitaireLocation1An?: number;
+  prixVenteLocation1An?: number;
+  prixAchatLocation2Ans?: number;
+  prixUnitaireLocation2Ans?: number;
+  prixVenteLocation2Ans?: number;
+  prixAchatLocation3Ans?: number;
+  prixUnitaireLocation3Ans?: number;
+  prixVenteLocation3Ans?: number;
+  margeCoefficientLocation?: number;
+  rechauffementClimatiqueAchat?: number;
+  epuisementRessourcesAchat?: number;
+  acidificationAchat?: number;
+  eutrophisationAchat?: number;
+  rechauffementClimatiqueLocation?: number;
+  epuisementRessourcesLocation?: number;
+  acidificationLocation?: number;
+  eutrophisationLocation?: number;
+}
 
-  const [product, setProduct] = useState<ProductFormData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// Fetch product data server-side with aggressive no-cache for Vercel
+async function getProduct(productId: string): Promise<any | null> {
+  try {
+    // Get the base URL from headers or environment
+    const headersList = headers();
+    const host = headersList.get("host") || "localhost:3000";
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+    const baseUrl = `${protocol}://${host}`;
 
-  useEffect(() => {
-    if (productId) {
-      const fetchProduct = async () => {
-        try {
-          setLoading(true);
-          const response = await fetch(`/api/products/${productId}`, {
-            cache: "no-store", // Éviter le cache du navigateur
-          });
+    // Get cookies for authentication
+    const cookieStore = cookies();
+    const cookieHeader = cookieStore.toString();
 
-          if (!response.ok) {
-            if (response.status === 404) {
-              throw new Error("Produit non trouvé");
-            }
-            throw new Error("Erreur lors du chargement du produit");
-          }
+    console.log("[EditProductPage Server] Fetching product:", productId);
 
-          const data = await response.json();
-          setProduct(data);
-        } catch (err) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Une erreur inattendue s'est produite"
-          );
-        } finally {
-          setLoading(false);
-        }
-      };
+    const response = await fetch(`${baseUrl}/api/products/${productId}`, {
+      cache: "no-store", // Force fresh data on Vercel
+      headers: {
+        Cookie: cookieHeader, // Pass cookies for authentication
+      },
+    });
 
-      fetchProduct();
+    if (!response.ok) {
+      console.error(
+        "[EditProductPage Server] Failed to fetch product:",
+        response.status,
+      );
+      return null;
     }
-  }, [productId]);
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-8 w-96" />
-            <Skeleton className="h-4 w-64" />
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="space-y-4">
-                <Skeleton className="h-6 w-48" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-    );
+    const data = await response.json();
+
+    console.log("[EditProductPage Server] Product data fetched:", {
+      productId,
+      nom: data.nom,
+      reference: data.reference,
+    });
+
+    return data;
+  } catch (error) {
+    console.error("[EditProductPage Server] Error fetching product:", error);
+    return null;
+  }
+}
+
+export default async function EditProductPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { t?: string };
+}) {
+  const productId = params.id;
+  const timestamp = searchParams.t;
+
+  console.log("[EditProductPage Server] Rendering page:", {
+    productId,
+    timestamp,
+    isProduction: process.env.NODE_ENV === "production",
+  });
+
+  // Fetch product data server-side
+  const productData = await getProduct(productId);
+
+  if (!productData) {
+    notFound();
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto p-6">
-        <Alert className="border-red-200 bg-red-50">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">{error}</AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  if (!product) {
-    return (
-      <div className="container mx-auto p-6">
-        <Alert className="border-red-200 bg-red-50">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">
-            Produit non trouvé
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // Transform data for the form
+  const transformedProduct: ProductData = {
+    nom: productData.nom,
+    reference: productData.reference,
+    description: productData.description || undefined,
+    quantite: productData.quantite || 0,
+    surfaceM2: productData.surfaceM2 || 0,
+    prixAchatAchat: productData.prixAchatAchat,
+    prixUnitaireAchat: productData.prixUnitaireAchat,
+    prixVenteAchat: productData.prixVenteAchat,
+    margeCoefficientAchat: productData.margeCoefficientAchat,
+    prixAchatLocation1An: productData.prixAchatLocation1An,
+    prixUnitaireLocation1An: productData.prixUnitaireLocation1An,
+    prixVenteLocation1An: productData.prixVenteLocation1An,
+    prixAchatLocation2Ans: productData.prixAchatLocation2Ans,
+    prixUnitaireLocation2Ans: productData.prixUnitaireLocation2Ans,
+    prixVenteLocation2Ans: productData.prixVenteLocation2Ans,
+    prixAchatLocation3Ans: productData.prixAchatLocation3Ans,
+    prixUnitaireLocation3Ans: productData.prixUnitaireLocation3Ans,
+    prixVenteLocation3Ans: productData.prixVenteLocation3Ans,
+    margeCoefficientLocation: productData.margeCoefficientLocation,
+    rechauffementClimatiqueAchat: productData.rechauffementClimatiqueAchat,
+    epuisementRessourcesAchat: productData.epuisementRessourcesAchat,
+    acidificationAchat: productData.acidificationAchat,
+    eutrophisationAchat: productData.eutrophisationAchat,
+    rechauffementClimatiqueLocation: productData.rechauffementClimatiqueLocation,
+    epuisementRessourcesLocation: productData.epuisementRessourcesLocation,
+    acidificationLocation: productData.acidificationLocation,
+    eutrophisationLocation: productData.eutrophisationLocation,
+  };
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
@@ -112,24 +146,19 @@ export default function EditProductPage() {
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
               Modifier le produit
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Modifiez les informations de{" "}
-              <span className="font-semibold text-[#30C1BD]">
-                &quot;{product.nom}&quot;
-              </span>
-            </p>
             <div className="flex items-center justify-center gap-2 mt-4">
-              <Package className="h-4 w-4 text-[#30C1BD]" />
+              <Sparkles className="h-4 w-4 text-[#30C1BD]" />
               <span className="text-sm text-gray-500">
-                Référence: {product.reference}
+                Calculs automatiques mis à jour en temps réel
               </span>
             </div>
           </div>
 
-          {/* Formulaire */}
-          <ProductForm
-            initialData={product}
+          {/* Client wrapper for form */}
+          <ProductEditWrapper
             productId={productId}
+            initialProduct={transformedProduct}
+            productName={productData.nom}
           />
         </div>
       </div>
