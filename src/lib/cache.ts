@@ -8,21 +8,42 @@ export const CACHE_TAGS = {
 } as const;
 
 // Cache invalidation functions
-export function invalidateKits() {
+export async function invalidateKits() {
   console.log("[Cache] Invalidating all kits cache");
   revalidateTag(CACHE_TAGS.KITS);
   // Also revalidate all kit-related paths
   revalidatePath("/kits", "page");
+  revalidatePath("/kits", "layout");
   revalidatePath("/kits/[id]/modifier", "page");
+  revalidatePath("/kits/[id]/modifier", "layout");
+
+  // On Vercel, add a small delay to ensure propagation
+  if (process.env.NODE_ENV === "production") {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
   console.log("[Cache] Kits cache invalidated successfully");
 }
 
-export function invalidateKit(kitId: string) {
+export async function invalidateKit(kitId: string) {
   console.log("[Cache] Invalidating cache for kit:", kitId);
+
+  // Revalidate tag first
   revalidateTag(CACHE_TAGS.KITS);
-  // Revalidate specific kit pages
+
+  // Revalidate all possible paths for this kit
   revalidatePath("/kits", "page");
+  revalidatePath("/kits", "layout");
   revalidatePath(`/kits/${kitId}/modifier`, "page");
+  revalidatePath(`/kits/${kitId}/modifier`, "layout");
+
+  // On Vercel, also try with the exact path (not template)
+  if (process.env.NODE_ENV === "production") {
+    revalidatePath(`/kits/${kitId}/modifier`);
+    // Small delay to ensure Vercel propagates the invalidation
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
   console.log("[Cache] Kit cache invalidated successfully:", kitId);
 }
 

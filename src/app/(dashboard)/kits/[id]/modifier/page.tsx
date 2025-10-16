@@ -1,15 +1,10 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
-import { KitForm } from "@/components/kits/kit-form";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { KitEditWrapper } from "@/components/kits/kit-edit-wrapper";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Package2, Sparkles, AlertTriangle } from "lucide-react";
-import { generateKitKey } from "@/lib/utils/kit-key";
+import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 
 interface KitData {
   nom: string;
@@ -21,125 +16,82 @@ interface KitData {
   }>;
 }
 
-export default function EditKitPage() {
-  const params = useParams();
-  const kitId = params?.id as string;
+// Fetch kit data server-side with aggressive no-cache for Vercel
+async function getKit(kitId: string): Promise<any | null> {
+  try {
+    // Get the base URL from headers or environment
+    const headersList = headers();
+    const host = headersList.get("host") || "localhost:3000";
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+    const baseUrl = `${protocol}://${host}`;
 
-  const [kit, setKit] = useState<KitData | null>(null);
-  const [kitName, setKitName] = useState<string>("");
-  const [kitKey, setKitKey] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+    console.log("[EditKitPage Server] Fetching kit:", kitId);
 
-  useEffect(() => {
-    if (kitId) {
-      console.log("[EditKitPage] Fetching kit data for:", kitId);
+    const response = await fetch(`${baseUrl}/api/kits/${kitId}`, {
+      cache: "no-store", // Force fresh data on Vercel
+      next: {
+        revalidate: 0, // Disable ISR completely for edit pages
+      },
+    });
 
-      const fetchKit = async () => {
-        try {
-          setLoading(true);
-          const response = await fetch(`/api/kits/${kitId}`, {
-            cache: "no-store", // Éviter le cache du navigateur
-          });
-
-          if (!response.ok) {
-            if (response.status === 404) {
-              throw new Error("Kit non trouvé");
-            }
-            throw new Error("Erreur lors du chargement du kit");
-          }
-
-          const data = await response.json();
-          console.log("[EditKitPage] Kit data received:", {
-            kitId,
-            nom: data.nom,
-            productsCount: data.kitProducts?.length || 0,
-          });
-
-          // Transformer les données pour le formulaire
-          const kitData: KitData = {
-            nom: data.nom,
-            style: data.style,
-            description: data.description || undefined,
-            products: data.kitProducts.map(
-              (kp: { product: { id: string }; quantite: number }) => ({
-                productId: kp.product.id,
-                quantite: kp.quantite,
-              }),
-            ),
-          };
-
-          // Generate unique key for this kit state
-          const newKey = generateKitKey(kitId, kitData);
-
-          setKit(kitData);
-          setKitName(data.nom);
-          setKitKey(newKey);
-
-          console.log("[EditKitPage] Kit state updated with new key:", newKey);
-        } catch (err) {
-          console.error("[EditKitPage] Error fetching kit:", err);
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Une erreur inattendue s'est produite",
-          );
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchKit();
+    if (!response.ok) {
+      console.error(
+        "[EditKitPage Server] Failed to fetch kit:",
+        response.status,
+      );
+      return null;
     }
-  }, [kitId]);
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-8 w-96" />
-            <Skeleton className="h-4 w-64" />
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="space-y-4">
-                <Skeleton className="h-6 w-48" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-    );
+    const data = await response.json();
+
+    console.log("[EditKitPage Server] Kit data fetched:", {
+      kitId,
+      nom: data.nom,
+      productsCount: data.kitProducts?.length || 0,
+    });
+
+    return data;
+  } catch (error) {
+    console.error("[EditKitPage Server] Error fetching kit:", error);
+    return null;
+  }
+}
+
+export default async function EditKitPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { t?: string };
+}) {
+  const kitId = params.id;
+  const timestamp = searchParams.t;
+
+  console.log("[EditKitPage Server] Rendering page:", {
+    kitId,
+    timestamp,
+    isProduction: process.env.NODE_ENV === "production",
+  });
+
+  // Fetch kit data server-side
+  const kitData = await getKit(kitId);
+
+  if (!kitData) {
+    notFound();
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto p-6">
-        <Alert className="border-red-200 bg-red-50">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">{error}</AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  if (!kit) {
-    return (
-      <div className="container mx-auto p-6">
-        <Alert className="border-red-200 bg-red-50">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">
-            Kit non trouvé
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // Transform data for the form
+  const transformedKit: KitData = {
+    nom: kitData.nom,
+    style: kitData.style,
+    description: kitData.description || undefined,
+    products: kitData.kitProducts.map(
+      (kp: { product: { id: string }; quantite: number }) => ({
+        productId: kp.product.id,
+        quantite: kp.quantite,
+      }),
+    ),
+  };
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
@@ -153,12 +105,6 @@ export default function EditKitPage() {
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
               Modifier le kit
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Modifiez les informations de{" "}
-              <span className="font-semibold text-[#30C1BD]">
-                &quot;{kitName}&quot;
-              </span>
-            </p>
             <div className="flex items-center justify-center gap-2 mt-4">
               <Sparkles className="h-4 w-4 text-[#30C1BD]" />
               <span className="text-sm text-gray-500">
@@ -167,8 +113,12 @@ export default function EditKitPage() {
             </div>
           </div>
 
-          {/* Formulaire avec key dynamique pour forcer le remontage */}
-          <KitForm key={kitKey} initialData={kit} kitId={kitId} />
+          {/* Client wrapper for form */}
+          <KitEditWrapper
+            kitId={kitId}
+            initialKit={transformedKit}
+            kitName={kitData.nom}
+          />
         </div>
       </div>
     </RoleGuard>
