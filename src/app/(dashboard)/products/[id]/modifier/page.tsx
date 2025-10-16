@@ -5,6 +5,9 @@ import { Package, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 import { headers, cookies } from "next/headers";
 
+// Force dynamic rendering since we use headers() for authentication
+export const dynamic = 'force-dynamic';
+
 interface ProductData {
   nom: string;
   reference: string;

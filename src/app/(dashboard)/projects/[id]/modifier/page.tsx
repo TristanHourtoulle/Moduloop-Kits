@@ -5,6 +5,9 @@ import { FolderOpen, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 import { headers, cookies } from "next/headers";
 
+// Force dynamic rendering since we use headers() for authentication
+export const dynamic = 'force-dynamic';
+
 interface ProjectData {
   nom: string;
   description?: string;

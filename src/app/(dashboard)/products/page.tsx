@@ -6,6 +6,9 @@ import { Package2, Plus } from "lucide-react";
 import Link from "next/link";
 import { headers, cookies } from "next/headers";
 
+// Force dynamic rendering since we use headers() for authentication
+export const dynamic = 'force-dynamic';
+
 // Fetch products data server-side with no cache for fresh data
 async function getProductsData() {
   try {

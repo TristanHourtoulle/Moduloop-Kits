@@ -6,6 +6,9 @@ import { FolderOpen, Plus } from "lucide-react";
 import Link from "next/link";
 import { headers, cookies } from "next/headers";
 
+// Force dynamic rendering since we use headers() for authentication
+export const dynamic = 'force-dynamic';
+
 // Fetch projects data server-side with no cache for fresh data
 async function getProjectsData() {
   try {
