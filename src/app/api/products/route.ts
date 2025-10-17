@@ -239,7 +239,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Invalider le cache des produits après création
-    invalidateProducts();
+    await invalidateProducts();
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {

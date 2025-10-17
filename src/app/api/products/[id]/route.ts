@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { productUpdateSchema } from "@/lib/schemas/product";
 import { UserRole } from "@/lib/types/user";
 import { getProductById, prisma } from "@/lib/db";
-import { invalidateProducts, CACHE_CONFIG } from "@/lib/cache";
+import { invalidateProduct, invalidateProducts, CACHE_CONFIG } from "@/lib/cache";
 
 interface UserWithRole {
   role?: UserRole;
@@ -35,12 +35,26 @@ export async function GET(
 
     // Configure cache headers for this response
     const response = NextResponse.json(product);
-    response.headers.set(
-      "Cache-Control",
-      `public, s-maxage=${
-        CACHE_CONFIG.PRODUCTS.revalidate
-      }, stale-while-revalidate=${CACHE_CONFIG.PRODUCTS.revalidate * 2}`
-    );
+
+    // On Vercel production, disable cache for individual product endpoints
+    // to ensure fresh data on edit pages
+    if (process.env.NODE_ENV === "production") {
+      response.headers.set(
+        "Cache-Control",
+        "no-cache, no-store, must-revalidate, max-age=0"
+      );
+      response.headers.set("Pragma", "no-cache");
+      response.headers.set("Expires", "0");
+      console.log("[API] Serving product with no-cache headers for Vercel:", id);
+    } else {
+      // In development, use normal cache headers
+      response.headers.set(
+        "Cache-Control",
+        `public, s-maxage=${
+          CACHE_CONFIG.PRODUCTS.revalidate
+        }, stale-while-revalidate=${CACHE_CONFIG.PRODUCTS.revalidate * 2}`
+      );
+    }
 
     return response;
   } catch (error) {
@@ -142,7 +156,7 @@ export async function PUT(
     });
 
     // Invalider le cache des produits après modification
-    invalidateProducts();
+    await invalidateProduct(id);
 
     return NextResponse.json(updatedProduct);
   } catch (error) {
@@ -204,7 +218,7 @@ export async function DELETE(
     });
 
     // Invalider le cache des produits après suppression
-    invalidateProducts();
+    await invalidateProducts();
 
     return NextResponse.json({ message: "Produit supprimé avec succès" });
   } catch (error) {
