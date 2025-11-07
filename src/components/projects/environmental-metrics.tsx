@@ -104,9 +104,8 @@ const calculateEnvironmentalSavings = (
     kit.kitProducts.forEach((kitProduct) => {
       const product = kitProduct.product;
       if (product) {
-        // Impact si c'était du neuf
-        const newImpact = getProductEnvironmentalImpact(product, 'achat');
-        // Impact en location (réduit)
+        // Les valeurs location dans la DB sont déjà des économies (valeurs positives)
+        // Elles représentent l'impact économisé en location vs achat neuf
         const locationImpact = getProductEnvironmentalImpact(
           product,
           'location'
@@ -114,23 +113,16 @@ const calculateEnvironmentalSavings = (
 
         const totalQuantity = kitProduct.quantite * projectKit.quantite;
 
-        // Économies = Impact neuf - Impact location
+        // Les valeurs sont déjà des économies, on les utilise directement
+        // On prend la valeur absolue pour s'assurer qu'elles sont positives
         totalSavingsRechauffementClimatique +=
-          ((newImpact.rechauffementClimatique || 0) -
-            (locationImpact.rechauffementClimatique || 0)) *
-          totalQuantity;
+          Math.abs(locationImpact.rechauffementClimatique || 0) * totalQuantity;
         totalSavingsEpuisementRessources +=
-          ((newImpact.epuisementRessources || 0) -
-            (locationImpact.epuisementRessources || 0)) *
-          totalQuantity;
+          Math.abs(locationImpact.epuisementRessources || 0) * totalQuantity;
         totalSavingsAcidification +=
-          ((newImpact.acidification || 0) -
-            (locationImpact.acidification || 0)) *
-          totalQuantity;
+          Math.abs(locationImpact.acidification || 0) * totalQuantity;
         totalSavingsEutrophisation +=
-          ((newImpact.eutrophisation || 0) -
-            (locationImpact.eutrophisation || 0)) *
-          totalQuantity;
+          Math.abs(locationImpact.eutrophisation || 0) * totalQuantity;
       }
     });
   });
@@ -303,7 +295,6 @@ export function EnvironmentalMetrics({ project }: EnvironmentalMetricsProps) {
                           : 'bg-gradient-to-br from-green-500 to-emerald-500'
                       } bg-clip-text text-transparent`}
                     >
-                      {value > 0 ? '+' : ''}
                       {formatEnvironmentalImpact(value, info.formatUnit)}
                     </div>
                     <div className='text-sm text-gray-600 font-medium'>
