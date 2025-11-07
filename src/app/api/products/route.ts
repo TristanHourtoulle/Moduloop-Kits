@@ -226,6 +226,21 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Map form fields to database fields for achat prices
+    // Form uses prixAchatAchat1An but DB uses prixAchatAchat (no period)
+    if ('prixAchatAchat1An' in createData) {
+      createData.prixAchatAchat = createData.prixAchatAchat1An;
+      delete createData.prixAchatAchat1An;
+    }
+    if ('prixUnitaireAchat1An' in createData) {
+      createData.prixUnitaireAchat = createData.prixUnitaireAchat1An;
+      delete createData.prixUnitaireAchat1An;
+    }
+    if ('prixVenteAchat1An' in createData) {
+      createData.prixVenteAchat = createData.prixVenteAchat1An;
+      delete createData.prixVenteAchat1An;
+    }
+
     const product = await prisma.product.create({
       data: createData,
       include: {

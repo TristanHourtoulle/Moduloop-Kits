@@ -139,6 +139,21 @@ export async function PUT(
       filteredUpdateData.description = updateData.description || "";
     }
 
+    // Map form fields to database fields for achat prices
+    // Form uses prixAchatAchat1An but DB uses prixAchatAchat (no period)
+    if ('prixAchatAchat1An' in filteredUpdateData) {
+      filteredUpdateData.prixAchatAchat = filteredUpdateData.prixAchatAchat1An;
+      delete filteredUpdateData.prixAchatAchat1An;
+    }
+    if ('prixUnitaireAchat1An' in filteredUpdateData) {
+      filteredUpdateData.prixUnitaireAchat = filteredUpdateData.prixUnitaireAchat1An;
+      delete filteredUpdateData.prixUnitaireAchat1An;
+    }
+    if ('prixVenteAchat1An' in filteredUpdateData) {
+      filteredUpdateData.prixVenteAchat = filteredUpdateData.prixVenteAchat1An;
+      delete filteredUpdateData.prixVenteAchat1An;
+    }
+
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {

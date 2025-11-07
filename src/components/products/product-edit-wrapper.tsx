@@ -11,6 +11,7 @@ interface ProductData {
   description?: string;
   quantite: number;
   surfaceM2: number;
+  image?: string;
   prixAchatAchat?: number;
   prixUnitaireAchat?: number;
   prixVenteAchat?: number;
@@ -63,6 +64,16 @@ export function ProductEditWrapper({ productId, initialProduct, productName }: P
     });
   }, [productId, timestamp, initialProduct]);
 
+  // Map database fields to form fields
+  // Database uses prixAchatAchat (without period) but form expects prixAchatAchat1An
+  const mappedInitialData = {
+    ...initialProduct,
+    // Map achat fields from DB (no period) to form (with 1An)
+    prixAchatAchat1An: initialProduct.prixAchatAchat,
+    prixUnitaireAchat1An: initialProduct.prixUnitaireAchat,
+    prixVenteAchat1An: initialProduct.prixVenteAchat,
+  };
+
   return (
     <>
       <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-8">
@@ -75,7 +86,7 @@ export function ProductEditWrapper({ productId, initialProduct, productName }: P
       {/* Form with dynamic key for forcing remount on Vercel */}
       <ProductForm
         key={productKey}
-        initialData={initialProduct}
+        initialData={mappedInitialData}
         productId={productId}
       />
     </>
