@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UseFormSetValue, FieldErrors } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,14 @@ export function ImageSection({
   const [imagePreview, setImagePreview] = useState<string | null>(
     initialImage || null
   );
+
+  // Update preview when initialImage changes (important for edit mode)
+  useEffect(() => {
+    if (initialImage) {
+      setImagePreview(initialImage);
+      setValue("image", initialImage);
+    }
+  }, [initialImage, setValue]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

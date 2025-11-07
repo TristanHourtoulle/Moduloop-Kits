@@ -14,6 +14,7 @@ interface ProductData {
   description?: string;
   quantite: number;
   surfaceM2: number;
+  image?: string;
   prixAchatAchat?: number;
   prixUnitaireAchat?: number;
   prixVenteAchat?: number;
@@ -113,6 +114,7 @@ export default async function EditProductPage({
     description: productData.description || undefined,
     quantite: productData.quantite || 0,
     surfaceM2: productData.surfaceM2 || 0,
+    image: productData.image || undefined,
     prixAchatAchat: productData.prixAchatAchat,
     prixUnitaireAchat: productData.prixUnitaireAchat,
     prixVenteAchat: productData.prixVenteAchat,
