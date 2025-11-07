@@ -56,11 +56,13 @@ function ProjectContent() {
   }
 
   return (
-    <ProjectDetail
-      project={project}
-      onProjectUpdate={updateProject}
-      refreshProject={fetchProject}
-    />
+    <Suspense fallback={<ProjectDetailSkeleton />}>
+      <ProjectDetail
+        project={project}
+        onProjectUpdate={updateProject}
+        refreshProject={fetchProject}
+      />
+    </Suspense>
   );
 }
 

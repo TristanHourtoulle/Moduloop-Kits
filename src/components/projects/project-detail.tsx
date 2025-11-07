@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +30,7 @@ import {
   formatPrice,
 } from '@/lib/utils/product-helpers';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { EnvironmentalMetrics } from './environmental-metrics';
 import { PricingBreakdown } from './pricing-breakdown';
 import { KitsTab } from './kits-tab';
@@ -60,7 +60,19 @@ export function ProjectDetail({
   const [pricingMode, setPricingMode] = useState<PurchaseRentalMode>('achat');
   const [pricingPeriod, setPricingPeriod] = useState<ProductPeriod>('1an');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const { showError, showSuccess, showConfirm } = useDialog();
+
+  // Get active tab from URL or default to 'overview'
+  const activeTab = searchParams.get('tab') || 'overview';
+
+  // Function to update URL with new tab
+  const handleTabChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', value);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   // Calculate total prices for all modes and periods
   const totalPrices = useMemo(() => {
@@ -373,7 +385,7 @@ export function ProjectDetail({
         </div>
 
         {/* Tabs navigation */}
-        <Tabs defaultValue='overview' className='space-y-6'>
+        <Tabs value={activeTab} onValueChange={handleTabChange} className='space-y-6'>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
