@@ -226,25 +226,16 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
 
         {/* Section métriques */}
         {selectedMode === 'achat' ? (
-          <div className='grid grid-cols-2 gap-4'>
-            <div className='space-y-2'>
+          <div className='bg-white/60 rounded-lg p-6 border border-primary/10'>
+            <div className='flex flex-col items-center justify-center gap-2'>
               <div className='flex items-center gap-2'>
                 <Calculator className='h-4 w-4 text-primary' />
-                <span className='text-sm text-muted-foreground'>
-                  Prix achat
+                <span className='text-sm text-muted-foreground font-medium'>
+                  Prix d'achat total
                 </span>
               </div>
-              <p className='text-2xl font-bold text-primary'>
+              <p className='text-3xl font-bold text-primary'>
                 {formatPrice(totalPriceAchat)}
-              </p>
-            </div>
-            <div className='space-y-2'>
-              <div className='flex items-center gap-2'>
-                <Leaf className='h-4 w-4 text-emerald-600' />
-                <span className='text-sm text-muted-foreground'>CO₂ émis</span>
-              </div>
-              <p className='text-2xl font-bold text-emerald-600'>
-                {totalCO2.toFixed(1)} kg
               </p>
             </div>
           </div>
