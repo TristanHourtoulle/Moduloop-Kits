@@ -57,6 +57,7 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
         nom: initialData.nom || "",
         style: initialData.style || "",
         description: initialData.description,
+        surfaceM2: initialData.surfaceM2,
         products: initialData.products || [],
       });
     }

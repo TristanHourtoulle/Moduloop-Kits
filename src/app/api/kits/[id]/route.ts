@@ -155,6 +155,7 @@ export async function PUT(
           nom: validatedData.nom,
           style: validatedData.style,
           description: validatedData.description,
+          surfaceM2: validatedData.surfaceM2,
           updatedById: session.user.id,
           kitProducts: {
             create: groupedProducts.map((p) => ({

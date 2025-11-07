@@ -263,6 +263,9 @@ export const calculateProjectTotals = (project: Project) => {
     project.projectKits.forEach((projectKit) => {
       const kit = projectKit.kit;
       if (kit && kit.kitProducts) {
+        // Surface totale du kit (définie au niveau du kit, pas des produits)
+        totalSurface += (kit.surfaceM2 || 0) * projectKit.quantite;
+
         kit.kitProducts.forEach((kitProduct) => {
           const product = kitProduct.product;
           if (product) {
@@ -290,10 +293,6 @@ export const calculateProjectTotals = (project: Project) => {
               (environmentalImpact.eutrophisation || 0) *
               kitProduct.quantite *
               projectKit.quantite;
-
-            // Surface totale
-            totalSurface +=
-              (product.surfaceM2 || 0) * kitProduct.quantite * projectKit.quantite;
           }
         });
       }

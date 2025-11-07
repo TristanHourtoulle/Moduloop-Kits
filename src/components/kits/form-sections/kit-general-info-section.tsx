@@ -38,7 +38,7 @@ export function KitGeneralInfoSection({
       </AccordionTrigger>
       <AccordionContent className="px-6 pb-6">
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <Label htmlFor="nom" className="text-sm font-medium">
                 Nom du kit *
@@ -86,6 +86,39 @@ export function KitGeneralInfoSection({
               />
               {errors.style && (
                 <p className="text-sm text-red-500">{errors.style.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="surfaceM2" className="text-sm font-medium">
+                Surface (m²)
+              </Label>
+              <Controller
+                name="surfaceM2"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="surfaceM2"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Ex: 25.5"
+                    value={field.value ?? ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(value === "" ? undefined : parseFloat(value));
+                    }}
+                    className={`transition-colors ${
+                      errors.surfaceM2
+                        ? "border-red-500 focus:border-red-500"
+                        : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                    }`}
+                  />
+                )}
+              />
+              {errors.surfaceM2 && (
+                <p className="text-sm text-red-500">{errors.surfaceM2.message}</p>
               )}
             </div>
           </div>

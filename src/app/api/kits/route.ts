@@ -118,6 +118,7 @@ export async function POST(request: NextRequest) {
         nom: validatedData.nom,
         style: validatedData.style,
         description: validatedData.description,
+        surfaceM2: validatedData.surfaceM2,
         createdById: session.user.id,
         updatedById: session.user.id,
         kitProducts: {

@@ -15,6 +15,12 @@ export const kitSchema = z.object({
     .min(1, "Le style est requis")
     .max(50, "Le style ne peut pas dépasser 50 caractères"),
   description: z.string().optional(),
+  surfaceM2: z
+    .number()
+    .min(0, "La surface doit être positive")
+    .max(10000, "La surface ne peut pas dépasser 10 000 m²")
+    .optional()
+    .or(z.literal(0).transform(() => undefined)), // Allow 0 to be treated as undefined
   products: z.array(kitProductSchema).min(1, "Au moins un produit est requis"),
 });
 

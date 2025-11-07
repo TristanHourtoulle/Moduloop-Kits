@@ -27,6 +27,7 @@ export interface Kit {
   nom: string;
   style: string;
   description?: string;
+  surfaceM2?: number; // Surface totale occupée par le kit en m²
   createdAt: string;
   updatedAt: string;
   createdById: string;
