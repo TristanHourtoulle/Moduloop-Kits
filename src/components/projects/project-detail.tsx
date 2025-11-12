@@ -328,11 +328,17 @@ export function ProjectDetail({
         <div className='space-y-4'>
           {/* Navigation et statut */}
           <div className='flex items-center justify-between'>
-            <Button asChild variant='ghost' size='sm' className='text-muted-foreground'>
-              <Link href='/projects'>
-                <ArrowLeft className='w-4 h-4 mr-2' />
-                Retour aux projets
-              </Link>
+            <Button
+              variant='ghost'
+              size='sm'
+              className='text-muted-foreground'
+              onClick={() => {
+                router.refresh();
+                router.push('/projects');
+              }}
+            >
+              <ArrowLeft className='w-4 h-4 mr-2' />
+              Retour aux projets
             </Button>
             
             <div className='flex items-center gap-2'>

@@ -57,8 +57,11 @@ export function CreateProjectModal({
       if (response.ok) {
         const project = await response.json();
         await showSuccess('Projet créé', 'Le projet a été créé avec succès!');
-        router.push(`/projects/${project.id}`);
+
+        // Close modal and redirect
+        // Note: revalidatePath is called server-side in the API route
         onClose();
+        router.push(`/projects/${project.id}`);
       } else {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Erreur lors de la création du projet');

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { getProjects, createProject, calculateProjectTotals, prisma } from "@/lib/db";
 import { Project } from "@/lib/types/project";
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
     const projects = await getProjects(targetUserId);
 
     // Calculer les totaux pour chaque projet
-    const projectsWithTotals = projects.map((project) => {
+    const projectsWithTotals = projects.map((project: any) => {
       const totals = calculateProjectTotals(project as unknown as Project);
       return {
         ...project,
@@ -86,6 +87,9 @@ export async function POST(request: NextRequest) {
 
     // Record project creation in history
     await createProjectCreatedHistory(session.user.id, project);
+
+    // Invalidate the projects page cache to show the new project
+    revalidatePath('/projects');
 
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
