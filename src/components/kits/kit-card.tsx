@@ -22,6 +22,7 @@ import {
   Trash2,
   ShoppingCart,
   Home,
+  Square,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { RoleGuard } from '@/components/auth/role-guard';
@@ -170,6 +171,17 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
               {(kit.kitProducts?.length || 0) > 1 ? 's' : ''}
             </span>
           </div>
+          {kit.surfaceM2 && (
+            <div className='flex items-center gap-2'>
+              <Square className='h-4 w-4 text-primary' />
+              <span className='text-sm text-muted-foreground'>
+                Surface:{' '}
+                <span className='font-medium text-foreground'>
+                  {kit.surfaceM2} m²
+                </span>
+              </span>
+            </div>
+          )}
           <div className='space-y-2 max-h-24 overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent'>
             {kit.kitProducts
               ?.map((kitProduct) => {

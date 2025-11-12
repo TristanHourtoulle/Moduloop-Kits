@@ -9,6 +9,7 @@ interface KitData {
   nom: string;
   style: string;
   description?: string;
+  surfaceM2?: number;
   products: Array<{
     productId: string;
     quantite: number;

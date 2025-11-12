@@ -10,6 +10,7 @@ interface KitData {
   nom: string;
   style: string;
   description?: string;
+  surfaceM2?: number;
   products: Array<{
     productId: string;
     quantite: number;
@@ -89,6 +90,7 @@ export default async function EditKitPage({
     nom: kitData.nom,
     style: kitData.style,
     description: kitData.description || undefined,
+    surfaceM2: kitData.surfaceM2 || undefined,
     products: kitData.kitProducts.map(
       (kp: { product: { id: string }; quantite: number }) => ({
         productId: kp.product.id,
