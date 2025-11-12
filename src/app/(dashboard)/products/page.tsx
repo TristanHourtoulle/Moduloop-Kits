@@ -4,60 +4,11 @@ import { ProductsListWrapper } from "@/components/products/products-list-wrapper
 import { Button } from "@/components/ui/button";
 import { Package2, Plus } from "lucide-react";
 import Link from "next/link";
-import { headers, cookies } from "next/headers";
-
-// Force dynamic rendering since we use headers() for authentication
-export const dynamic = 'force-dynamic';
-
-// Fetch products data server-side with no cache for fresh data
-async function getProductsData() {
-  try {
-    // Get the base URL from headers or environment
-    const headersList = headers();
-    const host = headersList.get("host") || "localhost:3000";
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const baseUrl = `${protocol}://${host}`;
-
-    // Get cookies for authentication
-    const cookieStore = cookies();
-    const cookieHeader = cookieStore.toString();
-
-    console.log("[ProductsPage Server] Fetching products list");
-
-    const response = await fetch(`${baseUrl}/api/products?all=true`, {
-      cache: "no-store", // Force fresh data
-      headers: {
-        Cookie: cookieHeader, // Pass cookies for authentication
-      },
-    });
-
-    if (!response.ok) {
-      console.error("[ProductsPage Server] Failed to fetch products:", response.status);
-      return [];
-    }
-
-    const data = await response.json();
-
-    // Extract products array from response
-    const products = data.products || [];
-
-    console.log("[ProductsPage Server] Products fetched:", {
-      count: products.length,
-      isProduction: process.env.NODE_ENV === "production",
-    });
-
-    return products;
-  } catch (error) {
-    console.error("[ProductsPage Server] Error fetching products:", error);
-    return [];
-  }
-}
+import { getProducts } from "@/lib/db";
 
 export default async function ProductsPage() {
-  // Fetch products data server-side
-  const products = await getProductsData();
-
-  console.log("[ProductsPage Server] Rendering page with", products.length, "products");
+  // Fetch products directly from database using Prisma
+  const products = await getProducts();
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>

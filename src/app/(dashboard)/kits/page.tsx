@@ -4,55 +4,11 @@ import { KitsListWrapper } from "@/components/kits/kits-list-wrapper";
 import { Button } from "@/components/ui/button";
 import { Package2, Plus } from "lucide-react";
 import Link from "next/link";
-import { headers, cookies } from "next/headers";
 import { getKits } from "@/lib/db";
 
-// Fetch kits data server-side with no cache for fresh data
-async function getKitsData() {
-  try {
-    // Get the base URL from headers or environment
-    const headersList = headers();
-    const host = headersList.get("host") || "localhost:3000";
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const baseUrl = `${protocol}://${host}`;
-
-    // Get cookies for authentication
-    const cookieStore = cookies();
-    const cookieHeader = cookieStore.toString();
-
-    console.log("[KitsPage Server] Fetching kits list");
-
-    const response = await fetch(`${baseUrl}/api/kits`, {
-      cache: "no-store", // Force fresh data
-      headers: {
-        Cookie: cookieHeader, // Pass cookies for authentication
-      },
-    });
-
-    if (!response.ok) {
-      console.error("[KitsPage Server] Failed to fetch kits:", response.status);
-      return [];
-    }
-
-    const data = await response.json();
-
-    console.log("[KitsPage Server] Kits fetched:", {
-      count: data.length,
-      isProduction: process.env.NODE_ENV === "production",
-    });
-
-    return data;
-  } catch (error) {
-    console.error("[KitsPage Server] Error fetching kits:", error);
-    return [];
-  }
-}
-
 export default async function KitsPage() {
-  // Fetch kits data server-side
-  const kits = await getKitsData();
-
-  console.log("[KitsPage Server] Rendering page with", kits.length, "kits");
+  // Fetch kits directly from database using Prisma
+  const kits = await getKits();
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>

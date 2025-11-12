@@ -58,9 +58,44 @@ const productSelectFields = {
   eutrophisationLocation: true,
 } as const;
 
+// Helper to transform Prisma data to match frontend types
+const transformDates = (data: any): any => {
+  if (data === null || data === undefined) {
+    return data;
+  }
+
+  if (data instanceof Date) {
+    return data.toISOString();
+  }
+
+  if (Array.isArray(data)) {
+    return data.map((item) => transformDates(item));
+  }
+
+  if (typeof data === 'object') {
+    const transformed: any = {};
+    Object.keys(data).forEach((key) => {
+      const value = data[key];
+      if (value instanceof Date) {
+        transformed[key] = value.toISOString();
+      } else if (value === null && key === 'description') {
+        // Convert null to undefined for description fields
+        transformed[key] = undefined;
+      } else if (typeof value === 'object' && value !== null) {
+        transformed[key] = transformDates(value);
+      } else {
+        transformed[key] = value;
+      }
+    });
+    return transformed;
+  }
+
+  return data;
+};
+
 // Cached data fetching functions
 export const getKits = cache(async () => {
-  return await prisma.kit.findMany({
+  const kits = await prisma.kit.findMany({
     include: {
       createdBy: {
         select: { id: true, name: true, email: true },
@@ -80,6 +115,7 @@ export const getKits = cache(async () => {
       createdAt: 'desc',
     },
   });
+  return transformDates(kits) as any;
 });
 
 export const getKitById = cache(async (id: string) => {
@@ -104,11 +140,12 @@ export const getKitById = cache(async (id: string) => {
 });
 
 export const getProducts = cache(async () => {
-  return await prisma.product.findMany({
+  const products = await prisma.product.findMany({
     orderBy: {
       nom: 'asc',
     },
   });
+  return transformDates(products) as any;
 });
 
 export const getProductById = cache(async (id: string) => {
@@ -136,7 +173,7 @@ export const preloadProduct = (id: string) => {
 
 // Project-related functions
 export const getProjects = cache(async (userId: string) => {
-  return await prisma.project.findMany({
+  const projects = await prisma.project.findMany({
     where: {
       createdById: userId,
     },
@@ -164,6 +201,7 @@ export const getProjects = cache(async (userId: string) => {
       createdAt: 'desc',
     },
   });
+  return transformDates(projects) as any;
 });
 
 export const getProjectById = cache(async (id: string, userId: string) => {
@@ -195,58 +233,54 @@ export const getProjectById = cache(async (id: string, userId: string) => {
   });
 });
 
-export const createProject = cache(
-  async (data: {
-    nom: string;
+export const createProject = async (data: {
+  nom: string;
+  description?: string;
+  status?: string;
+  userId: string;
+}) => {
+  return await prisma.project.create({
+    data: {
+      nom: data.nom,
+      description: data.description,
+      status: (data.status as ProjectStatus) || ProjectStatus.ACTIF,
+      createdById: data.userId,
+    },
+    include: {
+      projectKits: true,
+    },
+  });
+};
+
+export const updateProject = async (
+  id: string,
+  userId: string,
+  data: {
+    nom?: string;
     description?: string;
     status?: string;
-    userId: string;
-  }) => {
-    return await prisma.project.create({
-      data: {
-        nom: data.nom,
-        description: data.description,
-        status: (data.status as ProjectStatus) || ProjectStatus.ACTIF,
-        createdById: data.userId,
-      },
-      include: {
-        projectKits: true,
-      },
-    });
   }
-);
-
-export const updateProject = cache(
-  async (
-    id: string,
-    userId: string,
+) => {
+  return await prisma.project.updateMany({
+    where: {
+      id,
+      createdById: userId,
+    },
     data: {
-      nom?: string;
-      description?: string;
-      status?: string;
-    }
-  ) => {
-    return await prisma.project.updateMany({
-      where: {
-        id,
-        createdById: userId,
-      },
-      data: {
-        ...data,
-        status: data.status ? (data.status as ProjectStatus) : undefined,
-      },
-    });
-  }
-);
+      ...data,
+      status: data.status ? (data.status as ProjectStatus) : undefined,
+    },
+  });
+};
 
-export const deleteProject = cache(async (id: string, userId: string) => {
+export const deleteProject = async (id: string, userId: string) => {
   return await prisma.project.deleteMany({
     where: {
       id,
       createdById: userId,
     },
   });
-});
+};
 
 // Utility functions for calculations
 export const calculateProjectTotals = (project: Project) => {
