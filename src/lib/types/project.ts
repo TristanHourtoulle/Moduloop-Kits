@@ -3,6 +3,8 @@ export interface Project {
   nom: string;
   description?: string;
   status: ProjectStatus;
+  surfaceManual?: number | null;
+  surfaceOverride?: boolean;
   createdAt: string;
   updatedAt: string;
   createdById: string;

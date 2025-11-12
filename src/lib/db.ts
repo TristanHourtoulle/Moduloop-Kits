@@ -293,13 +293,28 @@ export const calculateProjectTotals = (project: Project) => {
   };
   let totalSurface = 0;
 
+  // Calculate surface: use manual override if enabled, otherwise calculate from kits
+  if (project.surfaceOverride && project.surfaceManual != null) {
+    // Use manual override value
+    totalSurface = project.surfaceManual;
+  } else {
+    // Calculate automatically from kits
+    if (project.projectKits) {
+      project.projectKits.forEach((projectKit) => {
+        const kit = projectKit.kit;
+        if (kit) {
+          // Surface totale du kit (définie au niveau du kit, pas des produits)
+          totalSurface += (kit.surfaceM2 || 0) * projectKit.quantite;
+        }
+      });
+    }
+  }
+
+  // Calculate price and environmental impact for all kits (independent of surface mode)
   if (project.projectKits) {
     project.projectKits.forEach((projectKit) => {
       const kit = projectKit.kit;
       if (kit && kit.kitProducts) {
-        // Surface totale du kit (définie au niveau du kit, pas des produits)
-        totalSurface += (kit.surfaceM2 || 0) * projectKit.quantite;
-
         kit.kitProducts.forEach((kitProduct) => {
           const product = kitProduct.product;
           if (product) {

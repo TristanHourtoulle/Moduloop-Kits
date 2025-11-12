@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma, calculateProjectTotals } from '@/lib/db';
 import { Project } from '@/lib/types/project';
@@ -85,7 +86,15 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const { nom, description, status } = body;
+    const { nom, description, status, surfaceManual, surfaceOverride } = body;
+
+    // Validate surfaceManual if provided
+    if (surfaceManual !== undefined && surfaceManual !== null && surfaceManual < 0) {
+      return NextResponse.json(
+        { error: 'La surface doit être un nombre positif' },
+        { status: 400 }
+      );
+    }
 
     // Vérifier que le projet appartient à l'utilisateur
     const existingProject = await prisma.project.findFirst({
@@ -101,14 +110,18 @@ export async function PATCH(
 
     // Use transaction to update project and record history
     const result = await prisma.$transaction(async (tx) => {
+      // Prepare update data
+      const updateData: any = {};
+      if (nom !== undefined) updateData.nom = nom;
+      if (description !== undefined) updateData.description = description;
+      if (status !== undefined) updateData.status = status;
+      if (surfaceManual !== undefined) updateData.surfaceManual = surfaceManual;
+      if (surfaceOverride !== undefined) updateData.surfaceOverride = surfaceOverride;
+
       // Mettre à jour le projet
       const updatedProject = await tx.project.update({
         where: { id },
-        data: {
-          nom,
-          description,
-          status,
-        },
+        data: updateData,
         include: {
           projectKits: {
             include: {
@@ -136,6 +149,9 @@ export async function PATCH(
 
       return updatedProject;
     });
+
+    // Revalidate the project detail page
+    revalidatePath(`/projects/${id}`);
 
     // Calculer les totaux
     const totals = calculateProjectTotals(result as unknown as Project);

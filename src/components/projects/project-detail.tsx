@@ -36,6 +36,7 @@ import { PricingBreakdown } from './pricing-breakdown';
 import { KitsTab } from './kits-tab';
 import { EditProjectDialog } from './edit-project-dialog';
 import { ProjectHistory } from './project-history';
+import { ProjectSurfaceManager } from './project-surface-manager';
 import { useDialog } from '@/components/providers/dialog-provider';
 import {
   DropdownMenu,
@@ -709,6 +710,19 @@ export function ProjectDetail({
                     </Button>
                   </div>
                 </div>
+
+                {/* Gestion de la surface */}
+                <ProjectSurfaceManager
+                  projectId={project.id}
+                  currentSurface={project.totalSurface || 0}
+                  manualSurface={project.surfaceManual}
+                  isOverride={project.surfaceOverride || false}
+                  onUpdate={() => {
+                    if (refreshProject) {
+                      refreshProject();
+                    }
+                  }}
+                />
 
                 {/* Métriques rapides */}
                 {project.projectKits && project.projectKits.length > 0 && (() => {

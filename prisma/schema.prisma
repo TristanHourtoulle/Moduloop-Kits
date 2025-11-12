@@ -250,17 +250,21 @@ model Project {
   nom         String
   description String?
   status      ProjectStatus @default(ACTIF)
-  
+
+  // Surface management
+  surfaceManual    Float?   // Manual surface override value in m²
+  surfaceOverride  Boolean  @default(false) // Use manual value instead of calculated
+
   // Métadonnées
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById String
-  
+
   // Relations
   createdBy     User         @relation("ProjectCreatedBy", fields: [createdById], references: [id])
   projectKits   ProjectKit[]
   history       ProjectHistory[]
-  
+
   @@map("projects")
 }
 
@@ -293,6 +297,7 @@ enum ProjectChangeType {
   KIT_ADDED
   KIT_REMOVED
   KIT_QUANTITY_UPDATED
+  SURFACE_UPDATED
 }
 
 model ProjectHistory {
