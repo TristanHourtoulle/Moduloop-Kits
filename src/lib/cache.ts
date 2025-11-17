@@ -8,29 +8,23 @@ export const CACHE_TAGS = {
 } as const;
 
 // Cache invalidation functions
-export async function invalidateKits() {
+export function invalidateKits() {
   console.log("[Cache] Invalidating all kits cache");
-  revalidateTag(CACHE_TAGS.KITS);
+  revalidateTag(CACHE_TAGS.KITS, 'max');
   // Also revalidate all kit-related paths
   revalidatePath("/kits", "page");
   revalidatePath("/kits", "layout");
   revalidatePath("/kits/[id]/modifier", "page");
   revalidatePath("/kits/[id]/modifier", "layout");
 
-  // On Vercel, add a delay to ensure cache propagation
-  if (process.env.NODE_ENV === "production") {
-    // Increased delay to ensure Vercel cache is fully invalidated
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-
   console.log("[Cache] Kits cache invalidated successfully");
 }
 
-export async function invalidateKit(kitId: string) {
+export function invalidateKit(kitId: string) {
   console.log("[Cache] Invalidating cache for kit:", kitId);
 
   // Revalidate tag first
-  revalidateTag(CACHE_TAGS.KITS);
+  revalidateTag(CACHE_TAGS.KITS, 'max');
 
   // Revalidate all possible paths for this kit
   revalidatePath("/kits", "page");
@@ -41,36 +35,28 @@ export async function invalidateKit(kitId: string) {
   // On Vercel, also try with the exact path (not template)
   if (process.env.NODE_ENV === "production") {
     revalidatePath(`/kits/${kitId}/modifier`);
-    // Increased delay to ensure Vercel propagates the invalidation
-    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   console.log("[Cache] Kit cache invalidated successfully:", kitId);
 }
 
-export async function invalidateProducts() {
+export function invalidateProducts() {
   console.log("[Cache] Invalidating all products cache");
-  revalidateTag(CACHE_TAGS.PRODUCTS);
+  revalidateTag(CACHE_TAGS.PRODUCTS, 'max');
   // Also revalidate all product-related paths
   revalidatePath("/products", "page");
   revalidatePath("/products", "layout");
   revalidatePath("/products/[id]/modifier", "page");
   revalidatePath("/products/[id]/modifier", "layout");
 
-  // On Vercel, add a delay to ensure cache propagation
-  if (process.env.NODE_ENV === "production") {
-    // Increased delay to ensure Vercel cache is fully invalidated
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
-
   console.log("[Cache] Products cache invalidated successfully");
 }
 
-export async function invalidateProduct(productId: string) {
+export function invalidateProduct(productId: string) {
   console.log("[Cache] Invalidating cache for product:", productId);
 
   // Revalidate tag first
-  revalidateTag(CACHE_TAGS.PRODUCTS);
+  revalidateTag(CACHE_TAGS.PRODUCTS, 'max');
 
   // Revalidate all possible paths for this product
   revalidatePath("/products", "page");
@@ -81,19 +67,17 @@ export async function invalidateProduct(productId: string) {
   // On Vercel, also try with the exact path (not template)
   if (process.env.NODE_ENV === "production") {
     revalidatePath(`/products/${productId}/modifier`);
-    // Increased delay to ensure Vercel propagates the invalidation
-    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   console.log("[Cache] Product cache invalidated successfully:", productId);
 }
 
 export function invalidateUsers() {
-  revalidateTag(CACHE_TAGS.USERS);
+  revalidateTag(CACHE_TAGS.USERS, 'max');
 }
 
 export function invalidateAll() {
-  Object.values(CACHE_TAGS).forEach(revalidateTag);
+  Object.values(CACHE_TAGS).forEach(tag => revalidateTag(tag, 'max'));
 }
 
 // Cache configuration
