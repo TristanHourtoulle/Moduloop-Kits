@@ -194,7 +194,7 @@ export async function PUT(
     });
 
     // Invalider le cache des kits après modification
-    await invalidateKit(id);
+    invalidateKit(id);
 
     return NextResponse.json(updatedKit);
   } catch (error) {
@@ -254,7 +254,7 @@ export async function DELETE(
     });
 
     // Invalider le cache des kits après suppression
-    await invalidateKits();
+    invalidateKits();
 
     return NextResponse.json({ message: "Kit supprimé avec succès" });
   } catch (error) {

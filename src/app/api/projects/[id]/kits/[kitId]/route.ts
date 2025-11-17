@@ -7,7 +7,7 @@ import { createKitQuantityUpdatedHistory, createKitRemovedHistory } from '@/lib/
 // PATCH - Mettre à jour la quantité d'un kit dans un projet
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; kitId: string } }
+  { params }: { params: Promise<{ id: string; kitId: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -18,6 +18,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
+    const { id, kitId } = await params;
     const { quantite } = await request.json();
 
     if (!quantite || quantite < 1) {
@@ -30,7 +31,7 @@ export async function PATCH(
     // Vérifier que le projet appartient à l'utilisateur
     const project = await prisma.project.findFirst({
       where: {
-        id: params.id,
+        id,
         createdById: session.user.id,
       },
     });
@@ -42,8 +43,8 @@ export async function PATCH(
     // Récupérer l'état actuel pour l'historique
     const existingProjectKit = await prisma.projectKit.findFirst({
       where: {
-        id: params.kitId,
-        projectId: params.id,
+        id: kitId,
+        projectId: id,
       },
       include: {
         kit: true,
@@ -59,8 +60,8 @@ export async function PATCH(
     // Mettre à jour la quantité du kit dans le projet
     const updatedProjectKit = await prisma.projectKit.update({
       where: {
-        id: params.kitId,
-        projectId: params.id,
+        id: kitId,
+        projectId: id,
       },
       data: {
         quantite: quantite,
@@ -71,7 +72,7 @@ export async function PATCH(
     if (oldQuantity !== quantite) {
       createKitQuantityUpdatedHistory(
         session.user.id,
-        params.id,
+        id,
         existingProjectKit.kit,
         oldQuantity,
         quantite
@@ -91,7 +92,7 @@ export async function PATCH(
 // DELETE - Supprimer un kit d'un projet
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; kitId: string } }
+  { params }: { params: Promise<{ id: string; kitId: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -102,10 +103,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
+    const { id, kitId } = await params;
+
     // Vérifier que le projet appartient à l'utilisateur
     const project = await prisma.project.findFirst({
       where: {
-        id: params.id,
+        id,
         createdById: session.user.id,
       },
     });
@@ -117,8 +120,8 @@ export async function DELETE(
     // Récupérer les détails du kit avant suppression pour l'historique
     const projectKitToDelete = await prisma.projectKit.findFirst({
       where: {
-        id: params.kitId,
-        projectId: params.id,
+        id: kitId,
+        projectId: id,
       },
       include: {
         kit: true,
@@ -132,15 +135,15 @@ export async function DELETE(
     // Supprimer le kit du projet
     await prisma.projectKit.delete({
       where: {
-        id: params.kitId,
-        projectId: params.id,
+        id: kitId,
+        projectId: id,
       },
     });
 
     // Record removal history
     createKitRemovedHistory(
       session.user.id,
-      params.id,
+      id,
       projectKitToDelete.kit,
       projectKitToDelete.quantite
     ).catch(console.error);

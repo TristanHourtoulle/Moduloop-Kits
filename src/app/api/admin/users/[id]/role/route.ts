@@ -10,11 +10,11 @@ const updateRoleSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession(request);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Non autorisé' },
@@ -34,11 +34,12 @@ export async function PATCH(
       );
     }
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updateRoleSchema.parse(body);
 
     const targetUser = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { id: true, email: true, role: true },
     });
 
@@ -49,7 +50,7 @@ export async function PATCH(
       );
     }
 
-    if (params.id === session.user.id && validatedData.role !== currentUser.role) {
+    if (id === session.user.id && validatedData.role !== currentUser.role) {
       return NextResponse.json(
         { error: 'Vous ne pouvez pas modifier votre propre rôle' },
         { status: 403 }
@@ -57,7 +58,7 @@ export async function PATCH(
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: { role: validatedData.role as UserRole },
       select: {
         id: true,

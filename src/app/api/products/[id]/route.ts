@@ -171,7 +171,7 @@ export async function PUT(
     });
 
     // Invalider le cache des produits après modification
-    await invalidateProduct(id);
+    invalidateProduct(id);
 
     return NextResponse.json(updatedProduct);
   } catch (error) {
@@ -233,7 +233,7 @@ export async function DELETE(
     });
 
     // Invalider le cache des produits après suppression
-    await invalidateProducts();
+    invalidateProducts();
 
     return NextResponse.json({ message: "Produit supprimé avec succès" });
   } catch (error) {

@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Invalider le cache des kits après création
-    await invalidateKits();
+    invalidateKits();
 
     return NextResponse.json(kit, { status: 201 });
   } catch (error) {
