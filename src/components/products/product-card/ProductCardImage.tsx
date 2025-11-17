@@ -20,7 +20,7 @@ export function ProductCardImage({
         <img
           src={image}
           alt={name}
-          className='w-full h-full object-cover transition-transform duration-300 group-hover:scale-105'
+          className='w-full h-full object-contain transition-transform duration-300 group-hover:scale-105'
           onError={(e) => {
             // Fallback si l'image ne charge pas
             const target = e.target as HTMLImageElement;
