@@ -114,6 +114,18 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
     return total;
   }, [selectedMode, kit.kitProducts]);
 
+  // Calculate total surface area from products
+  const totalProductsSurface = useMemo(() => {
+    let total = 0;
+    kit.kitProducts?.forEach((kitProduct) => {
+      const { product, quantite } = kitProduct;
+      if (product && product.surfaceM2) {
+        total += product.surfaceM2 * quantite;
+      }
+    });
+    return total;
+  }, [kit.kitProducts]);
+
   const handleDelete = async () => {
     if (!onDelete) {
       return;
@@ -171,13 +183,13 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
               {(kit.kitProducts?.length || 0) > 1 ? 's' : ''}
             </span>
           </div>
-          {kit.surfaceM2 && (
+          {totalProductsSurface > 0 && (
             <div className='flex items-center gap-2'>
               <Square className='h-4 w-4 text-primary' />
               <span className='text-sm text-muted-foreground'>
-                Surface:{' '}
+                Surface totale:{' '}
                 <span className='font-medium text-foreground'>
-                  {kit.surfaceM2} m²
+                  {totalProductsSurface.toFixed(2)} m²
                 </span>
               </span>
             </div>

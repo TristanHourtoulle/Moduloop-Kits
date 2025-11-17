@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Control, useFieldArray, FieldErrors, useWatch } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, Trash2, Calculator, Plus, Minus, ShoppingCart, Home, Leaf } from 'lucide-react';
+import { Package, Trash2, Calculator, Plus, Minus, ShoppingCart, Home, Leaf, Square } from 'lucide-react';
 import { KitFormData } from '@/lib/schemas/kit';
 import { ProductSelectionGrid } from '../product-selection/ProductSelectionGrid';
 import { Product } from '@/lib/types/project';
@@ -108,7 +108,9 @@ export function KitProductsSection({
     update(index, { ...field, quantite: newQuantity });
   };
 
-  const calculateTotalPricing = () => {
+  // Calculate totals with useMemo for performance optimization
+  // Updates in real-time when products or quantities change
+  const totals = useMemo(() => {
     // Calculs pour le mode ACHAT (un seul prix, pas de périodes)
     let totalAchat = 0;
 
@@ -128,6 +130,9 @@ export function KitProductsSection({
     let totalRessourcesLocation = 0;
     let totalAcidificationLocation = 0;
     let totalEutrophisationLocation = 0;
+
+    // Surface totale utilisée par les produits
+    let totalSurface = 0;
 
     const productsToCalculate = Array.isArray(watchedProducts)
       ? watchedProducts
@@ -165,6 +170,11 @@ export function KitProductsSection({
           totalRessourcesLocation += (environmentalImpactLocation.epuisementRessources || 0) * quantite;
           totalAcidificationLocation += (environmentalImpactLocation.acidification || 0) * quantite;
           totalEutrophisationLocation += (environmentalImpactLocation.eutrophisation || 0) * quantite;
+
+          // Surface totale (surfaceM2 du produit × quantité)
+          if (product.surfaceM2) {
+            totalSurface += product.surfaceM2 * quantite;
+          }
         }
       }
     });
@@ -191,10 +201,10 @@ export function KitProductsSection({
       totalRessourcesLocation,
       totalAcidificationLocation,
       totalEutrophisationLocation,
+      // Surface totale
+      totalSurface,
     };
-  };
-
-  const totals = calculateTotalPricing();
+  }, [watchedProducts, products]);
 
   return (
     <AccordionItem value="products" className="border rounded-lg">
@@ -463,6 +473,21 @@ export function KitProductsSection({
                     </div>
                   </div>
 
+                  {/* Surface totale */}
+                  {totals.totalSurface > 0 && (
+                    <div className="bg-white/60 rounded-lg p-4 border border-primary/10">
+                      <div className="flex items-center justify-center gap-2">
+                        <Square className="h-5 w-5 text-primary" />
+                        <p className="text-sm text-muted-foreground font-medium">
+                          Surface totale utilisée:
+                        </p>
+                        <p className="text-2xl font-bold text-primary">
+                          {totals.totalSurface.toFixed(2)} m²
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Impact Environnemental - Achat : MASQUÉ (demande client) */}
                   {/* L'impact environnemental n'est affiché que pour la location */}
                 </TabsContent>
@@ -502,6 +527,21 @@ export function KitProductsSection({
                       )}
                     </div>
                   </div>
+
+                  {/* Surface totale */}
+                  {totals.totalSurface > 0 && (
+                    <div className="bg-white/60 rounded-lg p-4 border border-primary/10">
+                      <div className="flex items-center justify-center gap-2">
+                        <Square className="h-5 w-5 text-primary" />
+                        <p className="text-sm text-muted-foreground font-medium">
+                          Surface totale utilisée:
+                        </p>
+                        <p className="text-2xl font-bold text-primary">
+                          {totals.totalSurface.toFixed(2)} m²
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Impact Environnemental - Location */}
                   <div className="bg-emerald-50/60 rounded-lg p-4 border border-emerald-200/50">
