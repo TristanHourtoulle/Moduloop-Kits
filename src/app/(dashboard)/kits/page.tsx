@@ -6,6 +6,10 @@ import { Package2, Plus } from "lucide-react";
 import Link from "next/link";
 import { getKits } from "@/lib/db";
 
+// Disable all caching for this page
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function KitsPage() {
   // Fetch kits directly from database using Prisma
   const kits = await getKits();

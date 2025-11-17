@@ -3,10 +3,11 @@ import { UserRole } from "@/lib/types/user";
 import { ProductEditWrapper } from "@/components/products/product-edit-wrapper";
 import { Package, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
-import { headers, cookies } from "next/headers";
+import { getProductById } from "@/lib/db";
 
-// Force dynamic rendering since we use headers() for authentication
+// Disable all caching for this page
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface ProductData {
   nom: string;
@@ -39,45 +40,25 @@ interface ProductData {
   eutrophisationLocation?: number;
 }
 
-// Fetch product data server-side with aggressive no-cache for Vercel
+// Fetch product data directly from database
 async function getProduct(productId: string): Promise<any | null> {
   try {
-    // Get the base URL from headers or environment
-    const headersList = headers();
-    const host = headersList.get("host") || "localhost:3000";
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const baseUrl = `${protocol}://${host}`;
+    console.log("[EditProductPage Server] Fetching product from DB:", productId);
 
-    // Get cookies for authentication
-    const cookieStore = cookies();
-    const cookieHeader = cookieStore.toString();
+    const product = await getProductById(productId);
 
-    console.log("[EditProductPage Server] Fetching product:", productId);
-
-    const response = await fetch(`${baseUrl}/api/products/${productId}`, {
-      cache: "no-store", // Force fresh data on Vercel
-      headers: {
-        Cookie: cookieHeader, // Pass cookies for authentication
-      },
-    });
-
-    if (!response.ok) {
-      console.error(
-        "[EditProductPage Server] Failed to fetch product:",
-        response.status,
-      );
+    if (!product) {
+      console.error("[EditProductPage Server] Product not found:", productId);
       return null;
     }
 
-    const data = await response.json();
-
     console.log("[EditProductPage Server] Product data fetched:", {
       productId,
-      nom: data.nom,
-      reference: data.reference,
+      nom: product.nom,
+      reference: product.reference,
     });
 
-    return data;
+    return product;
   } catch (error) {
     console.error("[EditProductPage Server] Error fetching product:", error);
     return null;
@@ -88,11 +69,11 @@ export default async function EditProductPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { t?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ t?: string }>;
 }) {
-  const productId = params.id;
-  const timestamp = searchParams.t;
+  const { id: productId } = await params;
+  const { t: timestamp } = await searchParams;
 
   console.log("[EditProductPage Server] Rendering page:", {
     productId,
@@ -139,6 +120,10 @@ export default async function EditProductPage({
     eutrophisationLocation: productData.eutrophisationLocation,
   };
 
+  // Generate a unique key based on product data + updatedAt timestamp
+  // This forces remount when data changes
+  const productKey = `${productId}-${productData.updatedAt || Date.now()}`;
+
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 w-full">
@@ -159,8 +144,9 @@ export default async function EditProductPage({
             </div>
           </div>
 
-          {/* Client wrapper for form */}
+          {/* Client wrapper for form - key forces remount on data change */}
           <ProductEditWrapper
+            key={productKey}
             productId={productId}
             initialProduct={transformedProduct}
             productName={productData.nom}

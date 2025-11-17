@@ -3,10 +3,12 @@ import { UserRole } from "@/lib/types/user";
 import { ProjectEditWrapper } from "@/components/projects/project-edit-wrapper";
 import { FolderOpen, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
-import { headers, cookies } from "next/headers";
+import { getProjectById } from "@/lib/db";
+import { getCurrentUserId } from "@/lib/auth-helpers";
 
-// Force dynamic rendering since we use headers() for authentication
+// Disable all caching for this page
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface ProjectData {
   nom: string;
@@ -14,45 +16,25 @@ interface ProjectData {
   kits: Array<{ kitId: string }>;
 }
 
-// Fetch project data server-side with aggressive no-cache for Vercel
-async function getProject(projectId: string): Promise<any | null> {
+// Fetch project data directly from database
+async function getProject(projectId: string, userId: string): Promise<any | null> {
   try {
-    // Get the base URL from headers or environment
-    const headersList = headers();
-    const host = headersList.get("host") || "localhost:3000";
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const baseUrl = `${protocol}://${host}`;
+    console.log("[EditProjectPage Server] Fetching project from DB:", projectId);
 
-    // Get cookies for authentication
-    const cookieStore = cookies();
-    const cookieHeader = cookieStore.toString();
+    const project = await getProjectById(projectId, userId);
 
-    console.log("[EditProjectPage Server] Fetching project:", projectId);
-
-    const response = await fetch(`${baseUrl}/api/projects/${projectId}`, {
-      cache: "no-store", // Force fresh data on Vercel
-      headers: {
-        Cookie: cookieHeader, // Pass cookies for authentication
-      },
-    });
-
-    if (!response.ok) {
-      console.error(
-        "[EditProjectPage Server] Failed to fetch project:",
-        response.status,
-      );
+    if (!project) {
+      console.error("[EditProjectPage Server] Project not found:", projectId);
       return null;
     }
 
-    const data = await response.json();
-
     console.log("[EditProjectPage Server] Project data fetched:", {
       projectId,
-      nom: data.nom,
-      kitsCount: data.kits?.length || 0,
+      nom: project.nom,
+      kitsCount: project.projectKits?.length || 0,
     });
 
-    return data;
+    return project;
   } catch (error) {
     console.error("[EditProjectPage Server] Error fetching project:", error);
     return null;
@@ -63,11 +45,11 @@ export default async function EditProjectPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { t?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ t?: string }>;
 }) {
-  const projectId = params.id;
-  const timestamp = searchParams.t;
+  const { id: projectId } = await params;
+  const { t: timestamp } = await searchParams;
 
   console.log("[EditProjectPage Server] Rendering page:", {
     projectId,
@@ -75,8 +57,14 @@ export default async function EditProjectPage({
     isProduction: process.env.NODE_ENV === "production",
   });
 
+  // Get current user ID
+  const userId = await getCurrentUserId();
+  if (!userId) {
+    notFound();
+  }
+
   // Fetch project data server-side
-  const projectData = await getProject(projectId);
+  const projectData = await getProject(projectId, userId);
 
   if (!projectData) {
     notFound();
@@ -86,8 +74,12 @@ export default async function EditProjectPage({
   const transformedProject: ProjectData = {
     nom: projectData.nom,
     description: projectData.description || undefined,
-    kits: projectData.kits?.map((kit: any) => ({ kitId: kit.id })) || [],
+    kits: projectData.projectKits?.map((pk: any) => ({ kitId: pk.kit.id })) || [],
   };
+
+  // Generate a unique key based on project data + updatedAt timestamp
+  // This forces remount when data changes
+  const projectKey = `${projectId}-${projectData.updatedAt || Date.now()}`;
 
   return (
     <RoleGuard requiredRole={UserRole.USER}>
@@ -109,8 +101,9 @@ export default async function EditProjectPage({
             </div>
           </div>
 
-          {/* Client wrapper for form */}
+          {/* Client wrapper for form - key forces remount on data change */}
           <ProjectEditWrapper
+            key={projectKey}
             projectId={projectId}
             initialProject={transformedProject}
             projectName={projectData.nom}

@@ -4,7 +4,11 @@ import { KitEditWrapper } from "@/components/kits/kit-edit-wrapper";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Package2, Sparkles, AlertTriangle } from "lucide-react";
 import { notFound } from "next/navigation";
-import { headers, cookies } from "next/headers";
+import { getKitById } from "@/lib/db";
+
+// Disable all caching for this page
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface KitData {
   nom: string;
@@ -17,45 +21,25 @@ interface KitData {
   }>;
 }
 
-// Fetch kit data server-side with aggressive no-cache for Vercel
+// Fetch kit data directly from database
 async function getKit(kitId: string): Promise<any | null> {
   try {
-    // Get the base URL from headers or environment
-    const headersList = headers();
-    const host = headersList.get("host") || "localhost:3000";
-    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-    const baseUrl = `${protocol}://${host}`;
+    console.log("[EditKitPage Server] Fetching kit from DB:", kitId);
 
-    // Get cookies for authentication
-    const cookieStore = cookies();
-    const cookieHeader = cookieStore.toString();
+    const kit = await getKitById(kitId);
 
-    console.log("[EditKitPage Server] Fetching kit:", kitId);
-
-    const response = await fetch(`${baseUrl}/api/kits/${kitId}`, {
-      cache: "no-store", // Force fresh data on Vercel
-      headers: {
-        Cookie: cookieHeader, // Pass cookies for authentication
-      },
-    });
-
-    if (!response.ok) {
-      console.error(
-        "[EditKitPage Server] Failed to fetch kit:",
-        response.status,
-      );
+    if (!kit) {
+      console.error("[EditKitPage Server] Kit not found:", kitId);
       return null;
     }
 
-    const data = await response.json();
-
     console.log("[EditKitPage Server] Kit data fetched:", {
       kitId,
-      nom: data.nom,
-      productsCount: data.kitProducts?.length || 0,
+      nom: kit.nom,
+      productsCount: kit.kitProducts?.length || 0,
     });
 
-    return data;
+    return kit;
   } catch (error) {
     console.error("[EditKitPage Server] Error fetching kit:", error);
     return null;
@@ -66,11 +50,11 @@ export default async function EditKitPage({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { t?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ t?: string }>;
 }) {
-  const kitId = params.id;
-  const timestamp = searchParams.t;
+  const { id: kitId } = await params;
+  const { t: timestamp } = await searchParams;
 
   console.log("[EditKitPage Server] Rendering page:", {
     kitId,
@@ -99,6 +83,10 @@ export default async function EditKitPage({
     ),
   };
 
+  // Generate a unique key based on kit data + updatedAt timestamp
+  // This forces remount when data changes
+  const kitKey = `${kitId}-${kitData.updatedAt || Date.now()}`;
+
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 w-full">
@@ -119,8 +107,9 @@ export default async function EditKitPage({
             </div>
           </div>
 
-          {/* Client wrapper for form */}
+          {/* Client wrapper for form - key forces remount on data change */}
           <KitEditWrapper
+            key={kitKey}
             kitId={kitId}
             initialKit={transformedKit}
             kitName={kitData.nom}

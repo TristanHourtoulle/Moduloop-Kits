@@ -6,8 +6,9 @@ import { FolderOpen } from "lucide-react";
 import { getProjects } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth-helpers";
 
-// Force dynamic rendering since we use headers() for authentication
+// Disable all caching for this page
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function ProjectsPage() {
   // Get current user ID from session
