@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { cache } from 'react';
 import 'server-only';
+import { unstable_noStore as noStore } from 'next/cache';
 import { Project, ProjectStatus } from './types/project';
 import { getProductPricing, getProductEnvironmentalImpact } from './utils/product-helpers';
 
@@ -93,8 +93,9 @@ const transformDates = (data: any): any => {
   return data;
 };
 
-// Cached data fetching functions
-export const getKits = cache(async () => {
+// Data fetching functions - with noStore() to disable Next.js Data Cache
+export const getKits = async () => {
+  noStore(); // Disable Next.js Data Cache for fresh data
   const kits = await prisma.kit.findMany({
     include: {
       createdBy: {
@@ -116,9 +117,10 @@ export const getKits = cache(async () => {
     },
   });
   return transformDates(kits) as any;
-});
+};
 
-export const getKitById = cache(async (id: string) => {
+export const getKitById = async (id: string) => {
+  noStore(); // Disable Next.js Data Cache for fresh data
   return await prisma.kit.findUnique({
     where: { id },
     include: {
@@ -137,22 +139,24 @@ export const getKitById = cache(async (id: string) => {
       },
     },
   });
-});
+};
 
-export const getProducts = cache(async () => {
+export const getProducts = async () => {
+  noStore(); // Disable Next.js Data Cache for fresh data
   const products = await prisma.product.findMany({
     orderBy: {
       nom: 'asc',
     },
   });
   return transformDates(products) as any;
-});
+};
 
-export const getProductById = cache(async (id: string) => {
+export const getProductById = async (id: string) => {
+  noStore(); // Disable Next.js Data Cache for fresh data
   return await prisma.product.findUnique({
     where: { id },
   });
-});
+};
 
 // Preload functions for eager loading
 export const preloadKits = () => {
@@ -172,7 +176,8 @@ export const preloadProduct = (id: string) => {
 };
 
 // Project-related functions
-export const getProjects = cache(async (userId: string) => {
+export const getProjects = async (userId: string) => {
+  noStore(); // Disable Next.js Data Cache for fresh data
   const projects = await prisma.project.findMany({
     where: {
       createdById: userId,
@@ -202,9 +207,10 @@ export const getProjects = cache(async (userId: string) => {
     },
   });
   return transformDates(projects) as any;
-});
+};
 
-export const getProjectById = cache(async (id: string, userId: string) => {
+export const getProjectById = async (id: string, userId: string) => {
+  noStore(); // Disable Next.js Data Cache for fresh data
   return await prisma.project.findFirst({
     where: {
       id,
@@ -231,7 +237,7 @@ export const getProjectById = cache(async (id: string, userId: string) => {
       },
     },
   });
-});
+};
 
 export const createProject = async (data: {
   nom: string;
