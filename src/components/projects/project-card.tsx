@@ -1,21 +1,24 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState, useMemo } from 'react';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DeleteConfirmDialog } from '@/components/ui/delete-confirm-dialog';
 import { Project } from '@/lib/types/project';
+import { ProjectCardPricingMode } from '@/lib/types/project-card';
 import {
-  Calendar,
-  Package,
-  Leaf,
-  Euro,
-  Eye,
-  Edit3,
-  Trash2,
-  MoreHorizontal,
-} from 'lucide-react';
+  calculateProjectCardMetrics,
+  getSurfaceMode,
+} from '@/lib/utils/project-card-helpers';
+import { QuickStatsBar } from './project-card/quick-stats-bar';
+import {
+  PriceMetricCard,
+  SurfaceMetricCard,
+  CO2MetricCard,
+  KitSummaryCard,
+} from './project-card/metric-cards';
+import { Package, Eye, Edit3, ShoppingCart, Home } from 'lucide-react';
 import Link from 'next/link';
 
 interface ProjectCardProps {
@@ -23,19 +26,36 @@ interface ProjectCardProps {
   onDelete?: (projectId: string) => void | Promise<void>;
 }
 
+/**
+ * Project Card Component - Enhanced version
+ * Displays project information with mode-aware pricing, surface, and environmental metrics
+ */
 export function ProjectCard({ project, onDelete }: ProjectCardProps) {
+  // Local state for pricing mode (each card is independent)
+  const [pricingMode, setPricingMode] = useState<ProjectCardPricingMode>('achat');
+
+  // Calculate all metrics based on current mode
+  const metrics = useMemo(
+    () => calculateProjectCardMetrics(project, pricingMode),
+    [project, pricingMode]
+  );
+
+  // Get surface display mode
+  const surfaceMode = useMemo(() => getSurfaceMode(project), [project]);
+
+  // Status configuration
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'ACTIF':
         return {
-          color: 'bg-primary/10 text-primary border-primary/20',
-          dot: 'bg-primary',
+          color: 'bg-green-50 text-green-700 border-green-200',
+          dot: 'bg-green-500',
           label: 'Actif',
         };
       case 'TERMINE':
         return {
-          color: 'bg-primary/10 text-primary border-primary/20',
-          dot: 'bg-primary',
+          color: 'bg-blue-50 text-blue-700 border-blue-200',
+          dot: 'bg-blue-500',
           label: 'Terminé',
         };
       case 'EN_PAUSE':
@@ -62,15 +82,13 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
   const statusConfig = getStatusConfig(project.status);
 
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
-      className='h-full'
+    <Card
+      className='h-full group overflow-hidden transition-transform duration-200 hover:-translate-y-1'
+      style={{ pointerEvents: 'auto' }}
     >
-      <Card className='h-full group cursor-pointer'>
         {/* Header Section */}
-        <div className='p-6 pb-4'>
-          <div className='flex items-start justify-between mb-4'>
+        <div className='p-6 pb-4 space-y-4'>
+          <div className='flex items-start justify-between'>
             <div className='flex-1 min-w-0 space-y-2'>
               <div className='flex items-start gap-3'>
                 <div className='w-10 h-10 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center flex-shrink-0'>
@@ -99,63 +117,72 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
             </Badge>
           </div>
 
-          {/* Meta info */}
-          <div className='flex items-center text-xs text-muted-foreground space-x-4 pl-13'>
-            <div className='flex items-center space-x-1.5'>
-              <Calendar className='w-3.5 h-3.5' />
-              <span>
-                {new Date(project.createdAt).toLocaleDateString('fr-FR', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                })}
-              </span>
-            </div>
-            <div className='flex items-center space-x-1.5'>
-              <Package className='w-3.5 h-3.5' />
-              <span>{project.projectKits?.length || 0} kits</span>
-            </div>
+          {/* Mode Selector */}
+          <div className='flex gap-1 mb-4'>
+            <Button
+              variant={pricingMode === 'achat' ? 'default' : 'outline'}
+              size='sm'
+              onClick={() => setPricingMode('achat')}
+              className={`h-7 px-2 text-xs flex-1 ${
+                pricingMode === 'achat'
+                  ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90'
+                  : ''
+              }`}
+            >
+              <ShoppingCart className='w-3 h-3 mr-1' />
+              Achat
+            </Button>
+            <Button
+              variant={pricingMode === 'location' ? 'default' : 'outline'}
+              size='sm'
+              onClick={() => setPricingMode('location')}
+              className={`h-7 px-2 text-xs flex-1 ${
+                pricingMode === 'location'
+                  ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90'
+                  : ''
+              }`}
+            >
+              <Home className='w-3 h-3 mr-1' />
+              Location 3 ans
+            </Button>
+          </div>
+
+          {/* Quick Stats Bar */}
+          <QuickStatsBar
+            kitCount={metrics.kitCount}
+            productCount={metrics.productCount}
+            totalUnits={metrics.totalUnits}
+            createdAt={project.createdAt}
+          />
+        </div>
+
+        {/* Metrics Grid */}
+        <div className='px-6 pb-4'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
+            <PriceMetricCard
+              totalPrice={metrics.totalPrice}
+              pricePerM2={metrics.pricePerM2}
+              mode={pricingMode}
+            />
+
+            <SurfaceMetricCard
+              totalSurface={project.totalSurface || 0}
+              surfaceMode={surfaceMode}
+            />
+
+            <CO2MetricCard totalCO2={metrics.totalCO2} mode={pricingMode} />
+
+            <KitSummaryCard
+              kitCount={metrics.kitCount}
+              totalUnits={metrics.totalUnits}
+            />
           </div>
         </div>
 
-        {/* Metrics Section */}
-        <CardContent className='px-6 py-4 space-y-6'>
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
-            {/* Impact environnemental */}
-            <div className='p-4 rounded-xl bg-muted/30 border border-border/50'>
-              <div className='flex items-center space-x-2 mb-2'>
-                <Leaf className='w-4 h-4 text-emerald-600' />
-                <span className='text-xs font-medium text-muted-foreground'>
-                  Impact CO₂
-                </span>
-              </div>
-              <div className='text-lg font-bold text-emerald-600'>
-                {project.totalImpact?.rechauffementClimatique?.toFixed(1) ||
-                  '0'} kg
-              </div>
-            </div>
-
-            {/* Prix total */}
-            <div className='p-4 rounded-xl bg-muted/30 border border-border/50'>
-              <div className='flex items-center space-x-2 mb-2'>
-                <Euro className='w-4 h-4 text-primary' />
-                <span className='text-xs font-medium text-muted-foreground'>
-                  Prix Total
-                </span>
-              </div>
-              <div className='text-lg font-bold text-primary'>
-                {project.totalPrix?.toLocaleString('fr-FR') || '0'}€
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className='flex items-center space-x-3 pt-2'>
-            <Button
-              asChild
-              size='sm'
-              className='flex-1'
-            >
+        {/* Actions */}
+        <div className='px-6 pb-6'>
+          <div className='flex items-center gap-3 pt-2'>
+            <Button asChild size='sm' className='flex-1'>
               <Link href={`/projects/${project.id}`}>
                 <Eye className='w-4 h-4 mr-2' />
                 Voir le projet
@@ -167,7 +194,7 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
               variant='outline'
               className='hover:bg-primary/10 hover:text-primary hover:border-primary/30'
               onClick={() => {
-                // TODO: Ajouter la fonctionnalité d'édition
+                // TODO: Navigate to edit page or open edit modal
                 console.log('Édition du projet:', project.id);
               }}
             >
@@ -176,18 +203,17 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
 
             {onDelete && (
               <DeleteConfirmDialog
-                title="Supprimer le projet ?"
+                title='Supprimer le projet ?'
                 itemName={project.nom}
-                description="Tous les kits et données associés à ce projet seront également supprimés."
+                description='Tous les kits et données associés à ce projet seront également supprimés.'
                 onConfirm={() => onDelete(project.id)}
-                triggerVariant="outline"
-                triggerSize="sm"
-                triggerClassName="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                triggerVariant='outline'
+                triggerSize='sm'
+                triggerClassName='hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30'
               />
             )}
           </div>
-        </CardContent>
+        </div>
       </Card>
-    </motion.div>
   );
 }
