@@ -169,6 +169,38 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
         </p>
       </div>
 
+      {/* Time Horizon Selector - Moved to top */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl">
+                <Clock className="w-5 h-5 text-purple-600" />
+              </div>
+              Horizon temporel d'analyse
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3 justify-center">
+              {timeHorizons.map((years) => (
+                <Button
+                  key={years}
+                  variant={selectedTimeHorizon === years ? 'default' : 'outline'}
+                  onClick={() => setSelectedTimeHorizon(years)}
+                  className={selectedTimeHorizon === years ? 'bg-purple-500 hover:bg-purple-600' : ''}
+                >
+                  {years} an{years > 1 ? 's' : ''}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Main Comparison Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Purchase Option */}
@@ -194,19 +226,21 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
             <CardContent className="space-y-6">
               <div className="text-center">
                 <div className="text-4xl font-bold text-green-900 mb-2">
-                  {formatPriceHelper(purchaseData.totalPrice)}
+                  {formatPriceHelper(projectedCosts.purchase)}
                 </div>
-                <div className="text-sm text-green-700 font-medium">Coût total unique</div>
+                <div className="text-sm text-green-700 font-medium">
+                  Coût total sur {selectedTimeHorizon} an{selectedTimeHorizon > 1 ? 's' : ''}
+                </div>
               </div>
 
               <div className="space-y-4">
                 <div className="bg-white/60 rounded-xl p-4 border border-white/50">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-green-800">Coût d'acquisition</span>
+                    <span className="text-sm font-medium text-green-800">Coût d'acquisition (unique)</span>
                     <span className="font-bold text-green-900">{formatPriceHelper(purchaseData.totalPrice)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-green-800">Coût sur {selectedTimeHorizon} ans</span>
+                    <span className="text-sm font-medium text-green-800">Coût sur {selectedTimeHorizon} an{selectedTimeHorizon > 1 ? 's' : ''}</span>
                     <span className="font-bold text-green-900">{formatPriceHelper(projectedCosts.purchase)}</span>
                   </div>
                 </div>
@@ -268,9 +302,11 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
             <CardContent className="space-y-6">
               <div className="text-center">
                 <div className="text-4xl font-bold text-blue-900 mb-2">
-                  {formatPriceHelper(rental1Year.totalPrice)}
+                  {formatPriceHelper(projectedCosts.rental)}
                 </div>
-                <div className="text-sm text-blue-700 font-medium">Par an</div>
+                <div className="text-sm text-blue-700 font-medium">
+                  Coût total sur {selectedTimeHorizon} an{selectedTimeHorizon > 1 ? 's' : ''}
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -280,7 +316,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                     <span className="font-bold text-blue-900">{formatPriceHelper(rental1Year.totalPrice)}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-blue-800">Coût sur {selectedTimeHorizon} ans</span>
+                    <span className="text-sm font-medium text-blue-800">Coût sur {selectedTimeHorizon} an{selectedTimeHorizon > 1 ? 's' : ''}</span>
                     <span className="font-bold text-blue-900">{formatPriceHelper(projectedCosts.rental)}</span>
                   </div>
                 </div>
@@ -320,44 +356,12 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
         </motion.div>
       </div>
 
-      {/* Time Horizon Selector */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl">
-                <Clock className="w-5 h-5 text-purple-600" />
-              </div>
-              Horizon temporel d'analyse
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3 justify-center">
-              {timeHorizons.map((years) => (
-                <Button
-                  key={years}
-                  variant={selectedTimeHorizon === years ? 'default' : 'outline'}
-                  onClick={() => setSelectedTimeHorizon(years)}
-                  className={selectedTimeHorizon === years ? 'bg-purple-500 hover:bg-purple-600' : ''}
-                >
-                  {years} an{years > 1 ? 's' : ''}
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-
       {/* Break-Even Analysis */}
       {breakEvenPoint && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
         >
           <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 shadow-lg">
             <CardHeader>
@@ -411,7 +415,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
       >
         <Card className="bg-gradient-to-br from-indigo-50 to-violet-50 border-indigo-200 shadow-lg">
           <CardHeader>
