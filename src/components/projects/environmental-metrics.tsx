@@ -37,7 +37,7 @@ const getMetricInfo = (metric: string) => {
         unit: 'kg CO₂ eq',
         description: 'Économie de CO₂ vs produits neufs',
         icon: Flame,
-        color: 'text-red-500',
+        color: '#FE9E58', // CO₂ - Orange
         formatUnit: 'kg' as const,
       };
     case 'epuisementRessources':
@@ -46,7 +46,7 @@ const getMetricInfo = (metric: string) => {
         unit: 'MJ',
         description: "Économie d'énergie vs produits neufs",
         icon: Zap,
-        color: 'text-amber-500',
+        color: '#FE5858', // Ressources - Rouge
         formatUnit: 'MJ' as const,
       };
     case 'acidification':
@@ -55,7 +55,7 @@ const getMetricInfo = (metric: string) => {
         unit: 'MOL H⁺',
         description: 'Réduction acidification vs produits neufs',
         icon: Droplets,
-        color: 'text-blue-500',
+        color: '#55D789', // Acidification - Vert
         formatUnit: 'MOL' as const,
       };
     case 'eutrophisation':
@@ -64,7 +64,7 @@ const getMetricInfo = (metric: string) => {
         unit: 'kg P eq',
         description: 'Économie eutrophisation vs produits neufs',
         icon: Leaf,
-        color: 'text-green-500',
+        color: '#55D789', // Eutrophisation - Vert
         formatUnit: 'kg' as const,
       };
     default:
@@ -73,7 +73,7 @@ const getMetricInfo = (metric: string) => {
         unit: 'unit',
         description: 'Description',
         icon: Info,
-        color: 'text-gray-500',
+        color: '#6B7280', // Gray
         formatUnit: 'kg' as const,
       };
   }
@@ -254,17 +254,10 @@ export function EnvironmentalMetrics({ project }: EnvironmentalMetricsProps) {
                   <div className='flex items-center justify-between mb-6'>
                     <div className='flex items-center space-x-3'>
                       <div
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-transform duration-300 ${
-                          info.color === 'text-red-500'
-                            ? 'bg-gradient-to-br from-red-100 to-pink-100'
-                            : info.color === 'text-amber-500'
-                            ? 'bg-gradient-to-br from-amber-100 to-yellow-100'
-                            : info.color === 'text-blue-500'
-                            ? 'bg-gradient-to-br from-blue-100 to-cyan-100'
-                            : 'bg-gradient-to-br from-green-100 to-emerald-100'
-                        }`}
+                        className='w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm transition-transform duration-300'
+                        style={{ backgroundColor: `${info.color}20` }}
                       >
-                        <IconComponent className={`w-6 h-6 ${info.color}`} />
+                        <IconComponent className='w-6 h-6' style={{ color: info.color }} />
                       </div>
                       <div>
                         <h3 className='text-lg font-bold text-gray-900'>
@@ -285,15 +278,8 @@ export function EnvironmentalMetrics({ project }: EnvironmentalMetricsProps) {
 
                   <div className='text-center mb-6'>
                     <div
-                      className={`text-4xl font-bold mb-2 ${
-                        info.color === 'text-red-500'
-                          ? 'bg-gradient-to-br from-red-500 to-pink-500'
-                          : info.color === 'text-amber-500'
-                          ? 'bg-gradient-to-br from-amber-500 to-yellow-500'
-                          : info.color === 'text-blue-500'
-                          ? 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                          : 'bg-gradient-to-br from-green-500 to-emerald-500'
-                      } bg-clip-text text-transparent`}
+                      className='text-4xl font-bold mb-2'
+                      style={{ color: info.color }}
                     >
                       {formatEnvironmentalImpact(value, info.formatUnit)}
                     </div>

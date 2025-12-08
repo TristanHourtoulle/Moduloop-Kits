@@ -298,11 +298,11 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
               </div>
             </div>
             <div className='flex items-center gap-2 pt-2'>
-              <Leaf className='h-4 w-4 text-emerald-600' />
+              <Leaf className='h-4 w-4' style={{ color: '#FE9E58' }} />
               <span className='text-sm text-muted-foreground'>
                 CO₂ économisé
               </span>
-              <span className='text-xl font-bold text-emerald-600 ml-auto'>
+              <span className='text-xl font-bold ml-auto' style={{ color: '#FE9E58' }}>
                 {totalCO2.toFixed(1)} kg
               </span>
             </div>

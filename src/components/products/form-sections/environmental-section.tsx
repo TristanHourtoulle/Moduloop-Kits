@@ -33,7 +33,7 @@ export function EnvironmentalSection({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FE9E58' }}></div>
               Réchauffement climatique (kg eq. CO₂) - {modeLabel} *
             </Label>
             <Input
@@ -65,7 +65,7 @@ export function EnvironmentalSection({
 
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-2">
-              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FE5858' }}></div>
               Épuisement des ressources fossiles (MJ) - {modeLabel} *
             </Label>
             <Input
@@ -97,7 +97,7 @@ export function EnvironmentalSection({
 
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-2">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#55D789' }}></div>
               Acidification des sols et des eaux (MOL H+) - {modeLabel} *
             </Label>
             <Input
@@ -129,7 +129,7 @@ export function EnvironmentalSection({
 
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#55D789' }}></div>
               Eutrophisation marine (kg P eq.) - {modeLabel} *
             </Label>
             <Input

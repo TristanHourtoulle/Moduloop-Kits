@@ -358,25 +358,25 @@ export function AddKitModal({
                           {/* Métriques rapides */}
                           <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3'>
                             <div className='text-center p-2 bg-gray-50 rounded text-xs'>
-                              <div className='font-semibold text-red-600'>
+                              <div className='font-semibold' style={{ color: '#FE9E58' }}>
                                 {kitImpact.rechauffementClimatique.toFixed(1)}
                               </div>
                               <div className='text-gray-500'>kg CO₂</div>
                             </div>
                             <div className='text-center p-2 bg-gray-50 rounded text-xs'>
-                              <div className='font-semibold text-orange-600'>
+                              <div className='font-semibold' style={{ color: '#FE5858' }}>
                                 {kitImpact.epuisementRessources.toFixed(0)}
                               </div>
                               <div className='text-gray-500'>MJ</div>
                             </div>
                             <div className='text-center p-2 bg-gray-50 rounded text-xs'>
-                              <div className='font-semibold text-blue-600'>
+                              <div className='font-semibold' style={{ color: '#55D789' }}>
                                 {kitImpact.acidification.toFixed(2)}
                               </div>
                               <div className='text-gray-500'>mol H+</div>
                             </div>
                             <div className='text-center p-2 bg-gray-50 rounded text-xs'>
-                              <div className='font-semibold text-green-600'>
+                              <div className='font-semibold' style={{ color: '#55D789' }}>
                                 {kitImpact.eutrophisation.toFixed(2)}
                               </div>
                               <div className='text-gray-500'>kg PO₄</div>
