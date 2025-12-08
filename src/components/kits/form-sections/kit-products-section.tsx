@@ -551,7 +551,7 @@ export function KitProductsSection({
                         <span className="text-xs text-muted-foreground block">
                           CO₂:
                         </span>
-                        <p className="font-bold text-emerald-700">
+                        <p className="font-bold" style={{ color: '#FE9E58' }}>
                           {totals.totalCO2Location.toFixed(2)} kg
                         </p>
                       </div>
@@ -559,7 +559,7 @@ export function KitProductsSection({
                         <span className="text-xs text-muted-foreground block">
                           Ressources:
                         </span>
-                        <p className="font-bold text-emerald-700">
+                        <p className="font-bold" style={{ color: '#FE5858' }}>
                           {totals.totalRessourcesLocation.toFixed(2)} MJ
                         </p>
                       </div>
@@ -567,7 +567,7 @@ export function KitProductsSection({
                         <span className="text-xs text-muted-foreground block">
                           Acidification:
                         </span>
-                        <p className="font-bold text-emerald-700">
+                        <p className="font-bold" style={{ color: '#55D789' }}>
                           {totals.totalAcidificationLocation.toFixed(4)} MOL
                         </p>
                       </div>
@@ -575,7 +575,7 @@ export function KitProductsSection({
                         <span className="text-xs text-muted-foreground block">
                           Eutrophisation:
                         </span>
-                        <p className="font-bold text-emerald-700">
+                        <p className="font-bold" style={{ color: '#55D789' }}>
                           {totals.totalEutrophisationLocation.toFixed(4)} kg P
                         </p>
                       </div>
