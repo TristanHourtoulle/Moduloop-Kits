@@ -46,16 +46,11 @@ export function KitProductsSection({
     name: 'products',
   });
 
-  // Load products
+  // Load all products (no pagination for product selection)
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products', {
-          next: {
-            revalidate: 300,
-            tags: ['products'],
-          },
-        });
+        const response = await fetch('/api/products?all=true');
         if (!response.ok) {
           throw new Error('Erreur lors du chargement des produits');
         }
