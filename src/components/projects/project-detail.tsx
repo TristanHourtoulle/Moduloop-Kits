@@ -725,27 +725,22 @@ export function ProjectDetail({
                 />
 
                 {/* Métriques rapides */}
-                {project.projectKits && project.projectKits.length > 0 && (() => {
-                  // Calculate total surface from all kits
-                  const totalSurfaceM2 = project.projectKits.reduce((total, projectKit) => {
-                    const kitSurface = projectKit.kit?.surfaceM2 || 0;
-                    return total + (kitSurface * projectKit.quantite);
-                  }, 0);
-
-                  return totalSurfaceM2 > 0 ? (
-                    <div className='bg-white border border-gray-200 rounded-2xl p-6 shadow-sm'>
-                      <h3 className='text-lg font-semibold text-gray-900 mb-4'>Aperçu financier</h3>
-                      <div className='space-y-3'>
-                        <div className='flex justify-between items-center'>
-                          <span className='text-gray-600'>Prix moyen/m²</span>
-                          <span className='font-semibold text-gray-900'>
-                            {Math.round((project.totalPrix || 0) / totalSurfaceM2).toLocaleString('fr-FR')}€/m²
-                          </span>
-                        </div>
+                {project.totalSurface && project.totalSurface > 0 && (
+                  <div className='bg-white border border-gray-200 rounded-2xl p-6 shadow-sm'>
+                    <h3 className='text-lg font-semibold text-gray-900 mb-4'>Aperçu financier</h3>
+                    <div className='space-y-3'>
+                      <div className='flex justify-between items-center'>
+                        <span className='text-gray-600'>Prix moyen/m²</span>
+                        <span className='font-semibold text-gray-900'>
+                          {(currentPrice / project.totalSurface).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€/m²
+                        </span>
                       </div>
+                      <p className='text-xs text-gray-500'>
+                        {pricingMode === 'achat' ? 'Mode Achat' : `Location ${pricingPeriod === '1an' ? '1 an' : pricingPeriod === '2ans' ? '2 ans' : '3 ans'}`}
+                      </p>
                     </div>
-                  ) : null;
-                })()}
+                  </div>
+                )}
               </motion.div>
             </div>
           </TabsContent>
