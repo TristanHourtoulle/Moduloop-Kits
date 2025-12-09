@@ -18,8 +18,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    // Use cached function for better performance
-    const kits = await getKits();
+    // Extract query parameters for filtering
+    const searchParams = request.nextUrl.searchParams;
+    const search = searchParams.get("search") || undefined;
+    const style = searchParams.get("style") || undefined;
+
+    // Use cached function for better performance with optional filters
+    const kits = await getKits({ search, style });
 
     // Configure cache headers for this response
     const response = NextResponse.json(kits);

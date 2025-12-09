@@ -94,9 +94,28 @@ const transformDates = (data: any): any => {
 };
 
 // Data fetching functions - with noStore() to disable Next.js Data Cache
-export const getKits = async () => {
+export const getKits = async (filters?: { search?: string; style?: string }) => {
   noStore(); // Disable Next.js Data Cache for fresh data
+
+  // Build where clause dynamically based on filters
+  const whereClause: {
+    nom?: { contains: string; mode: 'insensitive' };
+    style?: string;
+  } = {};
+
+  if (filters?.search) {
+    whereClause.nom = {
+      contains: filters.search,
+      mode: 'insensitive',
+    };
+  }
+
+  if (filters?.style) {
+    whereClause.style = filters.style;
+  }
+
   const kits = await prisma.kit.findMany({
+    where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
     include: {
       createdBy: {
         select: { id: true, name: true, email: true },
