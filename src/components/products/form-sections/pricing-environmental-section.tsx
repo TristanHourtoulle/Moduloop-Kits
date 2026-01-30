@@ -26,6 +26,7 @@ import {
   Leaf,
 } from 'lucide-react';
 import { ProductFormData, PurchaseRentalMode } from '@/lib/schemas/product';
+import { ceilPrice } from '@/lib/utils/product-helpers';
 
 interface PricingEnvironmentalSectionProps {
   register: UseFormRegister<ProductFormData>;
@@ -71,11 +72,9 @@ export function PricingEnvironmentalSection({
       ) {
         // Formule: Prix de Revient / (1 - % de marge) = Prix de vente
         // Le coefficient représente directement le multiplicateur (ex: 1.25 pour 20% de marge)
-        const nouveauPrixUnitaire = Number(
-          (
-            watchedValues.prixAchatAchat1An *
+        const nouveauPrixUnitaire = ceilPrice(
+          watchedValues.prixAchatAchat1An *
             watchedValues.margeCoefficientAchat
-          ).toFixed(2)
         );
         setValue('prixUnitaireAchat1An', nouveauPrixUnitaire);
         setValue('prixVenteAchat1An', nouveauPrixUnitaire); // Prix total = prix unitaire car pas de quantité
@@ -98,11 +97,9 @@ export function PricingEnvironmentalSection({
         watchedValues.prixAchatLocation1An > 0
       ) {
         // Formule: Prix de Revient / (1 - % de marge) = Prix de vente
-        const nouveauPrixUnitaire = Number(
-          (
-            watchedValues.prixAchatLocation1An *
+        const nouveauPrixUnitaire = ceilPrice(
+          watchedValues.prixAchatLocation1An *
             watchedValues.margeCoefficientLocation
-          ).toFixed(2)
         );
         setValue('prixUnitaireLocation1An', nouveauPrixUnitaire);
         setValue('prixVenteLocation1An', nouveauPrixUnitaire);
@@ -111,11 +108,9 @@ export function PricingEnvironmentalSection({
         watchedValues.prixAchatLocation2Ans &&
         watchedValues.prixAchatLocation2Ans > 0
       ) {
-        const nouveauPrixUnitaire = Number(
-          (
-            watchedValues.prixAchatLocation2Ans *
+        const nouveauPrixUnitaire = ceilPrice(
+          watchedValues.prixAchatLocation2Ans *
             watchedValues.margeCoefficientLocation
-          ).toFixed(2)
         );
         setValue('prixUnitaireLocation2Ans', nouveauPrixUnitaire);
         setValue('prixVenteLocation2Ans', nouveauPrixUnitaire);
@@ -124,11 +119,9 @@ export function PricingEnvironmentalSection({
         watchedValues.prixAchatLocation3Ans &&
         watchedValues.prixAchatLocation3Ans > 0
       ) {
-        const nouveauPrixUnitaire = Number(
-          (
-            watchedValues.prixAchatLocation3Ans *
+        const nouveauPrixUnitaire = ceilPrice(
+          watchedValues.prixAchatLocation3Ans *
             watchedValues.margeCoefficientLocation
-          ).toFixed(2)
         );
         setValue('prixUnitaireLocation3Ans', nouveauPrixUnitaire);
         setValue('prixVenteLocation3Ans', nouveauPrixUnitaire);
@@ -146,10 +139,8 @@ export function PricingEnvironmentalSection({
     if (mode === 'achat') {
       const coefficient = watchedValues.margeCoefficientAchat;
       if (watchedValues.prixAchatAchat1An && coefficient) {
-        // Formule: Prix de Revient / (1 - % de marge) = Prix de vente
-        // Le coefficient est le multiplicateur direct (ex: 1.25 pour 20% de marge)
-        const nouveauPrixUnitaire = Number(
-          (watchedValues.prixAchatAchat1An * coefficient).toFixed(2)
+        const nouveauPrixUnitaire = ceilPrice(
+          watchedValues.prixAchatAchat1An * coefficient
         );
         setValue('prixUnitaireAchat1An', nouveauPrixUnitaire);
         setValue('prixVenteAchat1An', nouveauPrixUnitaire);
@@ -157,22 +148,22 @@ export function PricingEnvironmentalSection({
     } else {
       const coefficient = watchedValues.margeCoefficientLocation;
       if (watchedValues.prixAchatLocation1An && coefficient) {
-        const nouveauPrixUnitaire = Number(
-          (watchedValues.prixAchatLocation1An * coefficient).toFixed(2)
+        const nouveauPrixUnitaire = ceilPrice(
+          watchedValues.prixAchatLocation1An * coefficient
         );
         setValue('prixUnitaireLocation1An', nouveauPrixUnitaire);
         setValue('prixVenteLocation1An', nouveauPrixUnitaire);
       }
       if (watchedValues.prixAchatLocation2Ans && coefficient) {
-        const nouveauPrixUnitaire = Number(
-          (watchedValues.prixAchatLocation2Ans * coefficient).toFixed(2)
+        const nouveauPrixUnitaire = ceilPrice(
+          watchedValues.prixAchatLocation2Ans * coefficient
         );
         setValue('prixUnitaireLocation2Ans', nouveauPrixUnitaire);
         setValue('prixVenteLocation2Ans', nouveauPrixUnitaire);
       }
       if (watchedValues.prixAchatLocation3Ans && coefficient) {
-        const nouveauPrixUnitaire = Number(
-          (watchedValues.prixAchatLocation3Ans * coefficient).toFixed(2)
+        const nouveauPrixUnitaire = ceilPrice(
+          watchedValues.prixAchatLocation3Ans * coefficient
         );
         setValue('prixUnitaireLocation3Ans', nouveauPrixUnitaire);
         setValue('prixVenteLocation3Ans', nouveauPrixUnitaire);
