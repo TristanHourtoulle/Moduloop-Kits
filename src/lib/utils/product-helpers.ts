@@ -172,18 +172,32 @@ export function getDefaultProductMode(product: Product): PurchaseRentalMode {
 }
 
 /**
- * Converts an annual price to its monthly equivalent, rounded to 2 decimal places.
- * Uses Math.round to avoid banker's rounding issues with Intl.NumberFormat.
+ * Rounds a price UP to the next cent for profitability.
+ * Handles floating-point precision artifacts.
+ * Whole numbers and prices already at cent precision are unchanged.
+ *
+ * @example ceilPrice(15.123) // 15.13
+ * @example ceilPrice(16)     // 16
+ * @example ceilPrice(16.50)  // 16.50
+ */
+export function ceilPrice(price: number): number {
+  const cleaned = Math.round(price * 1e10) / 1e10;
+  return Math.ceil(cleaned * 100) / 100;
+}
+
+/**
+ * Converts an annual price to its monthly equivalent, rounded UP to the next cent.
  *
  * @param annualPrice - The yearly price to convert
- * @returns The monthly price rounded to 2 decimals
+ * @returns The monthly price ceiled to 2 decimals
  */
 export function annualToMonthly(annualPrice: number): number {
-  return Math.round((annualPrice / 12) * 100) / 100;
+  return ceilPrice(annualPrice / 12);
 }
 
 /**
  * Formats a numeric price for display using French locale and EUR currency.
+ * Applies ceil rounding to ensure profitability before formatting.
  *
  * @param price - The price value to format, or null if unavailable
  * @returns A formatted string (e.g. "1 200 €") or "N/A" when price is null
@@ -195,7 +209,7 @@ export function formatPrice(price: number | null): string {
     currency: 'EUR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(price);
+  }).format(ceilPrice(price));
 }
 
 /**
