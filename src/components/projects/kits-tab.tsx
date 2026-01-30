@@ -136,7 +136,8 @@ export function KitsTab({
   const totalUnits = projectKits.reduce((sum, pk) => sum + pk.quantite, 0);
   const totalValue = projectKits.reduce((sum, pk) => {
     if (!pk.kit?.kitProducts) return sum;
-    return sum + calculateKitPrice(pk.kit.kitProducts, selectedMode) * pk.quantite;
+    const period = selectedMode === 'location' ? '3ans' as const : '1an' as const;
+    return sum + calculateKitPrice(pk.kit.kitProducts, selectedMode, period) * pk.quantite;
   }, 0);
 
   return (
@@ -196,7 +197,7 @@ export function KitsTab({
                 <span>
                   Valeur:{' '}
                   {selectedMode === 'location'
-                    ? `${formatPriceHelper(annualToMonthly(totalValue))}/mois`
+                    ? `${formatPriceHelper(annualToMonthly(totalValue))}/mois (base 3 ans)`
                     : formatPriceHelper(totalValue)}
                 </span>
               </div>

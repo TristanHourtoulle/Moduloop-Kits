@@ -56,10 +56,11 @@ export function KitsCatalogSection({
   const selectedKitsTotalPrice = Object.entries(selectedKits).reduce(
     (sum, [kitId, quantity]) => {
       const kit = availableKits.find((k) => k.id === kitId);
+      const period = selectedMode === 'location' ? '3ans' as const : '1an' as const;
       return (
         sum +
         (kit
-          ? calculateKitPrice(kit.kitProducts, selectedMode) * quantity
+          ? calculateKitPrice(kit.kitProducts, selectedMode, period) * quantity
           : 0)
       );
     },
@@ -104,7 +105,7 @@ export function KitsCatalogSection({
                   </div>
                   <div className='text-green-600 font-medium'>
                     {selectedMode === 'location'
-                      ? `${formatPriceHelper(annualToMonthly(selectedKitsTotalPrice))}/mois`
+                      ? `${formatPriceHelper(annualToMonthly(selectedKitsTotalPrice))}/mois (base 3 ans)`
                       : formatPriceHelper(selectedKitsTotalPrice)}
                   </div>
                 </div>
