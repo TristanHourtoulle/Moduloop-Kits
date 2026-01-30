@@ -24,84 +24,33 @@ import {
   Calendar,
   Lightbulb
 } from 'lucide-react';
-import { Project } from '@/lib/types/project';
-import { type ProductPeriod } from '@/lib/schemas/product';
+import type { Project } from '@/lib/types/project';
 import {
-  getProductPricing,
   formatPrice as formatPriceHelper,
   annualToMonthly,
 } from '@/lib/utils/product-helpers';
+import {
+  calculateProjectPurchaseCosts,
+  calculateProjectRentalCosts,
+  calculateBreakEvenPoint,
+} from '@/lib/utils/project/calculations';
 
 interface PurchaseRentalComparisonProps {
   project: Project;
 }
 
-// Calculate purchase costs (one-time)
-const calculatePurchaseCosts = (project: Project) => {
-  if (!project.projectKits) return { totalPrice: 0, totalCost: 0, totalMargin: 0 };
-
-  let totalPrice = 0;
-  let totalCost = 0;
-
-  project.projectKits.forEach((projectKit) => {
-    const kit = projectKit.kit;
-    if (!kit || !kit.kitProducts) return;
-
-    kit.kitProducts.forEach((kitProduct) => {
-      const product = kitProduct.product;
-      if (product) {
-        const pricing = getProductPricing(product, 'achat', '1an');
-        totalPrice += (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite;
-        totalCost += (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite;
-      }
-    });
-  });
-
-  return { totalPrice, totalCost, totalMargin: totalPrice - totalCost };
-};
-
-// Calculate rental costs for different periods
-const calculateRentalCosts = (project: Project, period: ProductPeriod) => {
-  if (!project.projectKits) return { totalPrice: 0, totalCost: 0, totalMargin: 0 };
-
-  let totalPrice = 0;
-  let totalCost = 0;
-
-  project.projectKits.forEach((projectKit) => {
-    const kit = projectKit.kit;
-    if (!kit || !kit.kitProducts) return;
-
-    kit.kitProducts.forEach((kitProduct) => {
-      const product = kitProduct.product;
-      if (product) {
-        const pricing = getProductPricing(product, 'location', period);
-        totalPrice += (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite;
-        totalCost += (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite;
-      }
-    });
-  });
-
-  return { totalPrice, totalCost, totalMargin: totalPrice - totalCost };
-};
-
-// Calculate break-even point
-const calculateBreakEvenPoint = (project: Project) => {
-  const purchaseCost = calculatePurchaseCosts(project);
-  const rental1Year = calculateRentalCosts(project, '1an');
-  
-  if (rental1Year.totalPrice === 0) return null;
-  
-  const breakEvenYears = purchaseCost.totalPrice / rental1Year.totalPrice;
-  return breakEvenYears;
-};
-
+/**
+ * Side-by-side comparison of purchase vs rental options with break-even analysis.
+ * @param props - Project data for cost calculations
+ * @returns Interactive comparison view with time horizon selector and recommendation
+ */
 export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonProps) {
   const [selectedTimeHorizon, setSelectedTimeHorizon] = useState(3);
 
-  const purchaseData = calculatePurchaseCosts(project);
-  const rental1Year = calculateRentalCosts(project, '1an');
-  const rental2Years = calculateRentalCosts(project, '2ans');
-  const rental3Years = calculateRentalCosts(project, '3ans');
+  const purchaseData = calculateProjectPurchaseCosts(project);
+  const rental1Year = calculateProjectRentalCosts(project, '1an');
+  const rental2Years = calculateProjectRentalCosts(project, '2ans');
+  const rental3Years = calculateProjectRentalCosts(project, '3ans');
 
   const breakEvenPoint = calculateBreakEvenPoint(project);
 
