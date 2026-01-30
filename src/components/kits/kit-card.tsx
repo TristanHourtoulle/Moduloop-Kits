@@ -32,6 +32,8 @@ import {
   getProductPricing,
   getProductEnvironmentalImpact,
   formatPrice,
+  annualToMonthly,
+  ceilPrice,
 } from '@/lib/utils/product-helpers';
 
 // Utiliser le type Kit complet du system
@@ -261,6 +263,11 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
               <p className='text-3xl font-bold text-primary'>
                 {formatPrice(totalPriceAchat)}
               </p>
+              {totalProductsSurface > 0 && (
+                <div className='text-xs text-muted-foreground mt-2'>
+                  {ceilPrice(totalPriceAchat / totalProductsSurface).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}€/m²
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -297,6 +304,22 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
                 </div>
               </div>
             </div>
+            {totalProductsSurface > 0 && (() => {
+              const annualPerM2 = ceilPrice(totalPriceLocation3Ans / totalProductsSurface);
+              const monthlyPerM2 = ceilPrice(annualPerM2 / 12);
+              return (
+                <div className='text-xs text-muted-foreground mt-2 pt-2 border-t border-border/50'>
+                  <div>
+                    Prix/m² :{' '}
+                    {monthlyPerM2.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}€/mois
+                    <span className='text-muted-foreground/70 ml-1'>(base 3 ans)</span>
+                  </div>
+                  <div className='text-muted-foreground/70'>
+                    {annualPerM2.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}€/an
+                  </div>
+                </div>
+              );
+            })()}
             <div className='flex items-center gap-2 pt-2'>
               <Leaf className='h-4 w-4' style={{ color: '#FE9E58' }} />
               <span className='text-sm text-muted-foreground'>

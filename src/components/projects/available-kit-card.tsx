@@ -51,7 +51,11 @@ export function AvailableKitCard({
   onToggleExpand,
 }: AvailableKitCardProps) {
   const kitImpact = calculateKitImpact(kit.kitProducts, selectedMode);
-  const kitPrice = calculateKitPrice(kit.kitProducts, selectedMode);
+  const kitPrice = calculateKitPrice(
+    kit.kitProducts,
+    selectedMode,
+    selectedMode === 'location' ? '3ans' : '1an'
+  );
 
   return (
     <motion.div
@@ -105,7 +109,7 @@ export function AvailableKitCard({
                   </Badge>
                 </div>
                 <div className='text-xs text-gray-400'>
-                  {formatPriceHelper(kitPrice)} /an
+                  {formatPriceHelper(kitPrice)} /an (base 3 ans)
                 </div>
               </>
             ) : (

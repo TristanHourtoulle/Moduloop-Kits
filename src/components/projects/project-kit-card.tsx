@@ -29,6 +29,7 @@ import {
   getProductEnvironmentalImpact,
   formatPrice as formatPriceHelper,
   annualToMonthly,
+  ceilPrice,
 } from '@/lib/utils/product-helpers';
 import { QuantityEditor } from './shared/quantity-editor';
 import { EnvironmentalImpactGrid } from './shared/environmental-impact-grid';
@@ -188,7 +189,10 @@ export function ProjectKitCard({
                   </div>
                   {kit.surfaceM2 && kit.surfaceM2 > 0 && (
                     <div className='text-xs text-gray-500 mt-1'>
-                      {Math.round(kitPrice / kit.surfaceM2).toLocaleString('fr-FR')}€/m²
+                      {ceilPrice(kitPrice / kit.surfaceM2).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}€/m²
+                      <span className='text-gray-400 ml-1'>
+                        ({(kit.surfaceM2 * projectKit.quantite).toFixed(1)} m² total)
+                      </span>
                     </div>
                   )}
                   <div className='text-xs text-gray-500 mt-1'>
@@ -242,12 +246,24 @@ export function ProjectKitCard({
                               </div>
                             </div>
                           ))}
-                          {kit.surfaceM2 && kit.surfaceM2 > 0 && (
-                            <div className='text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200'>
-                              <div>Prix/m²: {Math.round(annualToMonthly(price1an) / kit.surfaceM2).toLocaleString('fr-FR')}€/mois</div>
-                              <div className='text-gray-400'>{Math.round(price1an / kit.surfaceM2).toLocaleString('fr-FR')}€/an</div>
-                            </div>
-                          )}
+                          {kit.surfaceM2 && kit.surfaceM2 > 0 && (() => {
+                            const annualPerM2 = ceilPrice(price3ans / kit.surfaceM2);
+                            const monthlyPerM2 = ceilPrice(annualPerM2 / 12);
+                            return (
+                              <div className='text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200'>
+                                <div>
+                                  Prix/m² : {monthlyPerM2.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}€/mois
+                                  <span className='text-gray-400 ml-1'>(base 3 ans)</span>
+                                </div>
+                                <div className='text-gray-400'>
+                                  {annualPerM2.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}€/an
+                                </div>
+                                <div className='text-gray-400 mt-1'>
+                                  {(kit.surfaceM2 * projectKit.quantite).toFixed(1)} m² total
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </>
                       );
                     })()}
