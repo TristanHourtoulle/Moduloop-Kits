@@ -25,9 +25,11 @@ import {
   type PurchaseRentalMode,
   type ProductPeriod,
 } from '@/lib/schemas/product';
+import { LocationPriceDisplay } from './location-price-display';
 import {
   getProductPricing,
   formatPrice as formatPriceHelper,
+  annualToMonthly,
 } from '@/lib/utils/product-helpers';
 import { PurchaseRentalComparison } from './purchase-rental-comparison';
 
@@ -307,12 +309,27 @@ export function PricingBreakdown({ project }: PricingBreakdownProps) {
             <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm">
               <Euro className="w-8 h-8 text-green-600" />
             </div>
-            <div className="text-4xl font-bold text-green-900 mb-2">
-              {formatPriceHelper(currentData.totalPrice)}
-            </div>
-            <div className="text-base text-green-700 font-semibold">
-              Prix total {selectedMode === 'achat' ? '(Achat)' : `(Location ${periodLabels[selectedPeriod]})`}
-            </div>
+            {selectedMode === 'location' ? (
+              <LocationPriceDisplay
+                annualPrice={currentData.totalPrice}
+                label={`Prix total location`}
+                variant="card"
+                priceClassName="text-green-900 text-4xl"
+                secondaryClassName="text-green-600"
+                labelClassName="text-green-700 text-base font-semibold"
+                badgeClassName="border-green-500 text-green-600 bg-green-50"
+                secondaryBadgeClassName="border-green-300 text-green-500 bg-green-50"
+              />
+            ) : (
+              <>
+                <div className="text-4xl font-bold text-green-900 mb-2">
+                  {formatPriceHelper(currentData.totalPrice)}
+                </div>
+                <div className="text-base text-green-700 font-semibold">
+                  Prix total (Achat)
+                </div>
+              </>
+            )}
           </div>
         </motion.div>
 
@@ -325,10 +342,25 @@ export function PricingBreakdown({ project }: PricingBreakdownProps) {
             <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm">
               <Calculator className="w-8 h-8 text-blue-600" />
             </div>
-            <div className="text-4xl font-bold text-blue-900 mb-2">
-              {formatPriceHelper(currentData.totalCost)}
-            </div>
-            <div className="text-base text-blue-700 font-semibold">Coût total</div>
+            {selectedMode === 'location' ? (
+              <LocationPriceDisplay
+                annualPrice={currentData.totalCost}
+                label="Coût total"
+                variant="card"
+                priceClassName="text-blue-900 text-4xl"
+                secondaryClassName="text-blue-600"
+                labelClassName="text-blue-700 text-base font-semibold"
+                badgeClassName="border-blue-500 text-blue-600 bg-blue-50"
+                secondaryBadgeClassName="border-blue-300 text-blue-500 bg-blue-50"
+              />
+            ) : (
+              <>
+                <div className="text-4xl font-bold text-blue-900 mb-2">
+                  {formatPriceHelper(currentData.totalCost)}
+                </div>
+                <div className="text-base text-blue-700 font-semibold">Coût total</div>
+              </>
+            )}
           </div>
         </motion.div>
 
@@ -341,10 +373,25 @@ export function PricingBreakdown({ project }: PricingBreakdownProps) {
             <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-violet-100 rounded-3xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm">
               <TrendingUp className="w-8 h-8 text-purple-600" />
             </div>
-            <div className="text-4xl font-bold text-purple-900 mb-2">
-              {formatPriceHelper(currentData.totalMargin)}
-            </div>
-            <div className="text-base text-purple-700 font-semibold">Marge totale</div>
+            {selectedMode === 'location' ? (
+              <LocationPriceDisplay
+                annualPrice={currentData.totalMargin}
+                label="Marge totale"
+                variant="card"
+                priceClassName="text-purple-900 text-4xl"
+                secondaryClassName="text-purple-600"
+                labelClassName="text-purple-700 text-base font-semibold"
+                badgeClassName="border-purple-500 text-purple-600 bg-purple-50"
+                secondaryBadgeClassName="border-purple-300 text-purple-500 bg-purple-50"
+              />
+            ) : (
+              <>
+                <div className="text-4xl font-bold text-purple-900 mb-2">
+                  {formatPriceHelper(currentData.totalMargin)}
+                </div>
+                <div className="text-base text-purple-700 font-semibold">Marge totale</div>
+              </>
+            )}
           </div>
         </motion.div>
       </motion.div>
@@ -396,27 +443,56 @@ export function PricingBreakdown({ project }: PricingBreakdownProps) {
                   <div className="text-sm text-amber-700 space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Coût</span>
-                      <span className="font-semibold text-amber-900">{formatPriceHelper(currentData.totalCost)}</span>
+                      <div className="text-right">
+                        <span className="font-semibold text-amber-900">{formatPriceHelper(selectedMode === 'location' ? annualToMonthly(currentData.totalCost) : currentData.totalCost)}</span>
+                        {selectedMode === 'location' && <span className="text-xs text-amber-600 ml-1">/mois</span>}
+                      </div>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Marge</span>
-                      <span className="font-semibold text-amber-900">{formatPriceHelper(currentData.totalMargin)}</span>
+                      <div className="text-right">
+                        <span className="font-semibold text-amber-900">{formatPriceHelper(selectedMode === 'location' ? annualToMonthly(currentData.totalMargin) : currentData.totalMargin)}</span>
+                        {selectedMode === 'location' && <span className="text-xs text-amber-600 ml-1">/mois</span>}
+                      </div>
                     </div>
                     <div className="h-px bg-amber-200"></div>
                     <div className="flex justify-between items-center">
                       <span className="font-semibold">Prix de vente</span>
-                      <span className="font-bold text-amber-900">{formatPriceHelper(currentData.totalPrice)}</span>
+                      <div className="text-right">
+                        <span className="font-bold text-amber-900">{formatPriceHelper(selectedMode === 'location' ? annualToMonthly(currentData.totalPrice) : currentData.totalPrice)}</span>
+                        {selectedMode === 'location' && <span className="text-xs text-amber-600 ml-1">/mois</span>}
+                      </div>
                     </div>
+                    {selectedMode === 'location' && (
+                      <div className="text-xs text-amber-500 text-right pt-1">
+                        {formatPriceHelper(currentData.totalPrice)} /an
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div className="text-center p-6 bg-gradient-to-br from-white to-amber-50 border border-amber-200 rounded-2xl shadow-sm">
-                  <div className="text-3xl font-bold text-amber-900 mb-2">
-                    {formatPriceHelper(averagePricePerKit)}
-                  </div>
-                  <div className="text-sm text-amber-700 font-medium">Prix moyen par kit</div>
+                  {selectedMode === 'location' ? (
+                    <LocationPriceDisplay
+                      annualPrice={averagePricePerKit}
+                      label="Prix moyen par kit"
+                      variant="card"
+                      priceClassName="text-amber-900 text-3xl"
+                      secondaryClassName="text-amber-600"
+                      labelClassName="text-amber-700"
+                      badgeClassName="border-amber-500 text-amber-600 bg-amber-50"
+                      secondaryBadgeClassName="border-amber-300 text-amber-500 bg-amber-50"
+                    />
+                  ) : (
+                    <>
+                      <div className="text-3xl font-bold text-amber-900 mb-2">
+                        {formatPriceHelper(averagePricePerKit)}
+                      </div>
+                      <div className="text-sm text-amber-700 font-medium">Prix moyen par kit</div>
+                    </>
+                  )}
                 </div>
 
                 <div className="text-center p-6 bg-gradient-to-br from-white to-amber-50 border border-amber-200 rounded-2xl shadow-sm">
@@ -490,22 +566,67 @@ export function PricingBreakdown({ project }: PricingBreakdownProps) {
 
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 rounded-xl">
-                        <div className="text-lg font-bold text-green-900 mb-1">
-                          {formatPriceHelper(kit.totalPrice)}
-                        </div>
-                        <div className="text-xs text-green-700 font-medium">Prix total</div>
+                        {selectedMode === 'location' ? (
+                          <LocationPriceDisplay
+                            annualPrice={kit.totalPrice}
+                            label="Prix total"
+                            variant="card"
+                            priceClassName="text-green-900 text-lg"
+                            secondaryClassName="text-green-600 text-xs"
+                            labelClassName="text-green-700 text-xs"
+                            badgeClassName="border-green-500 text-green-600 bg-green-50 text-[10px] px-1 py-0"
+                            secondaryBadgeClassName="border-green-300 text-green-500 bg-green-50"
+                          />
+                        ) : (
+                          <>
+                            <div className="text-lg font-bold text-green-900 mb-1">
+                              {formatPriceHelper(kit.totalPrice)}
+                            </div>
+                            <div className="text-xs text-green-700 font-medium">Prix total</div>
+                          </>
+                        )}
                       </div>
                       <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl">
-                        <div className="text-lg font-bold text-blue-900 mb-1">
-                          {formatPriceHelper(kit.totalCost)}
-                        </div>
-                        <div className="text-xs text-blue-700 font-medium">Coût total</div>
+                        {selectedMode === 'location' ? (
+                          <LocationPriceDisplay
+                            annualPrice={kit.totalCost}
+                            label="Coût total"
+                            variant="card"
+                            priceClassName="text-blue-900 text-lg"
+                            secondaryClassName="text-blue-600 text-xs"
+                            labelClassName="text-blue-700 text-xs"
+                            badgeClassName="border-blue-500 text-blue-600 bg-blue-50 text-[10px] px-1 py-0"
+                            secondaryBadgeClassName="border-blue-300 text-blue-500 bg-blue-50"
+                          />
+                        ) : (
+                          <>
+                            <div className="text-lg font-bold text-blue-900 mb-1">
+                              {formatPriceHelper(kit.totalCost)}
+                            </div>
+                            <div className="text-xs text-blue-700 font-medium">Coût total</div>
+                          </>
+                        )}
                       </div>
                       <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100 rounded-xl">
-                        <div className="text-lg font-bold text-purple-900 mb-1">
-                          {formatPriceHelper(kit.totalMargin)}
-                        </div>
-                        <div className="text-xs text-purple-700 font-medium">Marge</div>
+                        {selectedMode === 'location' ? (
+                          <LocationPriceDisplay
+                            annualPrice={kit.totalMargin}
+                            label="Marge"
+                            variant="card"
+                            priceClassName="text-purple-900 text-lg"
+                            secondaryClassName="text-purple-600 text-xs"
+                            labelClassName="text-purple-700 text-xs"
+                            badgeClassName="border-purple-500 text-purple-600 bg-purple-50 text-[10px] px-1 py-0"
+                            secondaryBadgeClassName="border-purple-300 text-purple-500 bg-purple-50"
+                          />
+                        ) : (
+                          <>
+                            <div className="text-lg font-bold text-purple-900 mb-1">
+                              {formatPriceHelper(kit.totalMargin)}
+                            </div>
+                            <div className="text-xs text-purple-700 font-medium">Marge</div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -547,9 +668,9 @@ export function PricingBreakdown({ project }: PricingBreakdownProps) {
                   <thead>
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-3 px-4 font-semibold text-gray-700">Période</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Prix total</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Coût total</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Marge</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Prix /mois</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Coût /mois</th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Marge /mois</th>
                       <th className="text-right py-3 px-4 font-semibold text-gray-700">Marge %</th>
                     </tr>
                   </thead>
@@ -573,14 +694,17 @@ export function PricingBreakdown({ project }: PricingBreakdownProps) {
                               <span className="font-medium">{periodLabels[period]}</span>
                             </div>
                           </td>
-                          <td className="text-right py-4 px-4 font-semibold">
-                            {formatPriceHelper(prices.totalPrice)}
+                          <td className="text-right py-4 px-4">
+                            <div className="font-semibold">{formatPriceHelper(annualToMonthly(prices.totalPrice))}</div>
+                            <div className="text-xs text-gray-400">{formatPriceHelper(prices.totalPrice)} /an</div>
                           </td>
-                          <td className="text-right py-4 px-4 text-gray-600">
-                            {formatPriceHelper(prices.totalCost)}
+                          <td className="text-right py-4 px-4">
+                            <div className="text-gray-600">{formatPriceHelper(annualToMonthly(prices.totalCost))}</div>
+                            <div className="text-xs text-gray-400">{formatPriceHelper(prices.totalCost)} /an</div>
                           </td>
-                          <td className="text-right py-4 px-4 text-green-600 font-medium">
-                            {formatPriceHelper(prices.totalMargin)}
+                          <td className="text-right py-4 px-4">
+                            <div className="text-green-600 font-medium">{formatPriceHelper(annualToMonthly(prices.totalMargin))}</div>
+                            <div className="text-xs text-gray-400">{formatPriceHelper(prices.totalMargin)} /an</div>
                           </td>
                           <td className="text-right py-4 px-4">
                             <Badge

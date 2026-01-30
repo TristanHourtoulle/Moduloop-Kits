@@ -172,7 +172,21 @@ export function getDefaultProductMode(product: Product): PurchaseRentalMode {
 }
 
 /**
- * Formats les prix pour l'affichage
+ * Converts an annual price to its monthly equivalent, rounded to 2 decimal places.
+ * Uses Math.round to avoid banker's rounding issues with Intl.NumberFormat.
+ *
+ * @param annualPrice - The yearly price to convert
+ * @returns The monthly price rounded to 2 decimals
+ */
+export function annualToMonthly(annualPrice: number): number {
+  return Math.round((annualPrice / 12) * 100) / 100;
+}
+
+/**
+ * Formats a numeric price for display using French locale and EUR currency.
+ *
+ * @param price - The price value to format, or null if unavailable
+ * @returns A formatted string (e.g. "1 200 €") or "N/A" when price is null
  */
 export function formatPrice(price: number | null): string {
   if (price === null) return 'N/A';

@@ -37,7 +37,9 @@ import {
   getProductPricing,
   getProductEnvironmentalImpact,
   formatPrice as formatPriceHelper,
+  annualToMonthly,
 } from '@/lib/utils/product-helpers';
+import { LocationPriceDisplay } from './location-price-display';
 
 interface KitsTabProps {
   projectKits: ProjectKit[];
@@ -331,16 +333,19 @@ export function KitsTab({
                 <Euro className='w-4 h-4' />
                 <span>
                   Valeur:{' '}
-                  {formatPriceHelper(
-                    projectKits.reduce((sum, pk) => {
+                  {(() => {
+                    const totalValue = projectKits.reduce((sum, pk) => {
                       if (!pk.kit?.kitProducts) return sum;
                       return (
                         sum +
                         getKitPrice(pk.kit.kitProducts, selectedMode) *
                           pk.quantite
                       );
-                    }, 0)
-                  )}
+                    }, 0);
+                    return selectedMode === 'location'
+                      ? `${formatPriceHelper(annualToMonthly(totalValue))}/mois`
+                      : formatPriceHelper(totalValue);
+                  })()}
                 </span>
               </div>
             </div>
@@ -390,7 +395,9 @@ export function KitsTab({
                             {selectedKitsCount > 1 ? 's' : ''}
                           </div>
                           <div className='text-green-600 font-medium'>
-                            {formatPriceHelper(selectedKitsTotalPrice)}
+                            {selectedMode === 'location'
+                              ? `${formatPriceHelper(annualToMonthly(selectedKitsTotalPrice))}/mois`
+                              : formatPriceHelper(selectedKitsTotalPrice)}
                           </div>
                         </div>
                         <Button
@@ -516,14 +523,30 @@ export function KitsTab({
                                 </div>
 
                                 <div className='text-right flex-shrink-0 ml-4'>
-                                  <div className='text-2xl font-bold text-[#30C1BD] mb-1'>
-                                    {formatPriceHelper(kitPrice)}
-                                  </div>
-                                  <div className='text-xs text-gray-500'>
-                                    {selectedMode === 'achat'
-                                      ? "Prix d'achat"
-                                      : 'Prix location'}
-                                  </div>
+                                  {selectedMode === 'location' ? (
+                                    <>
+                                      <div className='flex items-baseline justify-end gap-1 mb-0.5'>
+                                        <span className='text-2xl font-bold text-[#30C1BD]'>
+                                          {formatPriceHelper(annualToMonthly(kitPrice))}
+                                        </span>
+                                        <Badge variant='outline' className='text-[10px] px-1 py-0 border-[#30C1BD] text-[#30C1BD] bg-[#30C1BD]/10'>
+                                          /mois
+                                        </Badge>
+                                      </div>
+                                      <div className='text-xs text-gray-400'>
+                                        {formatPriceHelper(kitPrice)} /an
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className='text-2xl font-bold text-[#30C1BD] mb-1'>
+                                        {formatPriceHelper(kitPrice)}
+                                      </div>
+                                      <div className='text-xs text-gray-500'>
+                                        {"Prix d'achat"}
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
                               </div>
 
@@ -689,20 +712,32 @@ export function KitsTab({
                                                   </div>
 
                                                   <div className='text-right flex-shrink-0'>
-                                                    <div className='text-sm font-semibold text-gray-900'>
-                                                      {formatPriceHelper(
-                                                        (productPricing.prixVente ||
-                                                          0) *
-                                                          kitProduct.quantite
-                                                      )}
-                                                    </div>
-                                                    <div className='text-xs text-gray-500'>
-                                                      {formatPriceHelper(
-                                                        productPricing.prixVente ||
-                                                          0
-                                                      )}
-                                                      /u
-                                                    </div>
+                                                    {selectedMode === 'location' ? (
+                                                      <>
+                                                        <div className='text-sm font-semibold text-gray-900'>
+                                                          {formatPriceHelper(
+                                                            annualToMonthly((productPricing.prixVente || 0) * kitProduct.quantite)
+                                                          )}
+                                                          <span className='text-[10px] font-normal text-gray-500'>/mois</span>
+                                                        </div>
+                                                        <div className='text-xs text-gray-400'>
+                                                          {formatPriceHelper(
+                                                            (productPricing.prixVente || 0) * kitProduct.quantite
+                                                          )} /an
+                                                        </div>
+                                                      </>
+                                                    ) : (
+                                                      <>
+                                                        <div className='text-sm font-semibold text-gray-900'>
+                                                          {formatPriceHelper(
+                                                            (productPricing.prixVente || 0) * kitProduct.quantite
+                                                          )}
+                                                        </div>
+                                                        <div className='text-xs text-gray-500'>
+                                                          {formatPriceHelper(productPricing.prixVente || 0)}/u
+                                                        </div>
+                                                      </>
+                                                    )}
                                                   </div>
                                                 </div>
 
@@ -987,7 +1022,7 @@ export function KitsTab({
                             <div className='text-sm text-gray-600 mb-2'>
                               Prix location par kit
                             </div>
-                            <div className='space-y-1'>
+                            <div className='space-y-2'>
                               {(() => {
                                 const price1an = kit.kitProducts?.reduce((acc, kp) => {
                                   if (!kp.product) return acc;
@@ -1007,27 +1042,32 @@ export function KitsTab({
 
                                 return (
                                   <>
-                                    <div className='flex justify-end items-baseline gap-2'>
-                                      <span className='text-xs text-gray-500'>1 an:</span>
-                                      <span className='text-lg font-bold text-[#30C1BD]'>
-                                        {formatPriceHelper(price1an)}
-                                      </span>
-                                    </div>
-                                    <div className='flex justify-end items-baseline gap-2'>
-                                      <span className='text-xs text-gray-500'>2 ans:</span>
-                                      <span className='text-lg font-bold text-[#30C1BD]'>
-                                        {formatPriceHelper(price2ans)}
-                                      </span>
-                                    </div>
-                                    <div className='flex justify-end items-baseline gap-2'>
-                                      <span className='text-xs text-gray-500'>3 ans:</span>
-                                      <span className='text-lg font-bold text-[#30C1BD]'>
-                                        {formatPriceHelper(price3ans)}
-                                      </span>
-                                    </div>
+                                    {[
+                                      { label: '1 an', price: price1an },
+                                      { label: '2 ans', price: price2ans },
+                                      { label: '3 ans', price: price3ans },
+                                    ].map(({ label, price }) => (
+                                      <div key={label} className='flex justify-end items-start gap-2'>
+                                        <span className='text-xs text-gray-500 mt-1'>{label}:</span>
+                                        <div className='text-right'>
+                                          <div className='flex items-baseline gap-1'>
+                                            <span className='text-lg font-bold text-[#30C1BD]'>
+                                              {formatPriceHelper(annualToMonthly(price))}
+                                            </span>
+                                            <Badge variant='outline' className='text-[10px] px-1 py-0 border-[#30C1BD] text-[#30C1BD] bg-[#30C1BD]/10'>
+                                              /mois
+                                            </Badge>
+                                          </div>
+                                          <div className='text-xs text-gray-400'>
+                                            {formatPriceHelper(price)} /an
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
                                     {kit.surfaceM2 && kit.surfaceM2 > 0 && (
                                       <div className='text-xs text-gray-500 mt-2 pt-2 border-t border-gray-200'>
-                                        Prix/m²: {Math.round(price1an / kit.surfaceM2).toLocaleString('fr-FR')}€
+                                        <div>Prix/m²: {Math.round(annualToMonthly(price1an) / kit.surfaceM2).toLocaleString('fr-FR')}€/mois</div>
+                                        <div className='text-gray-400'>{Math.round(price1an / kit.surfaceM2).toLocaleString('fr-FR')}€/an</div>
                                       </div>
                                     )}
                                   </>
@@ -1277,41 +1317,28 @@ export function KitsTab({
                                       </div>
 
                                       <div className='grid grid-cols-3 gap-2 text-xs'>
-                                        {/* 1 an */}
-                                        <div>
-                                          <div className='text-gray-600 mb-1'>1 an</div>
-                                          {pricingLocation1An.prixVente && pricingLocation1An.prixVente > 0 ? (
-                                            <div className='font-bold text-emerald-900'>
-                                              {formatPriceHelper(pricingLocation1An.prixVente * kitProduct.quantite)}
-                                            </div>
-                                          ) : (
-                                            <div className='italic text-orange-600'>N/R</div>
-                                          )}
-                                        </div>
-
-                                        {/* 2 ans */}
-                                        <div>
-                                          <div className='text-gray-600 mb-1'>2 ans</div>
-                                          {pricingLocation2Ans.prixVente && pricingLocation2Ans.prixVente > 0 ? (
-                                            <div className='font-bold text-emerald-900'>
-                                              {formatPriceHelper(pricingLocation2Ans.prixVente * kitProduct.quantite)}
-                                            </div>
-                                          ) : (
-                                            <div className='italic text-orange-600'>N/R</div>
-                                          )}
-                                        </div>
-
-                                        {/* 3 ans */}
-                                        <div>
-                                          <div className='text-gray-600 mb-1'>3 ans</div>
-                                          {pricingLocation3Ans.prixVente && pricingLocation3Ans.prixVente > 0 ? (
-                                            <div className='font-bold text-emerald-900'>
-                                              {formatPriceHelper(pricingLocation3Ans.prixVente * kitProduct.quantite)}
-                                            </div>
-                                          ) : (
-                                            <div className='italic text-orange-600'>N/R</div>
-                                          )}
-                                        </div>
+                                        {[
+                                          { label: '1 an', pricing: pricingLocation1An },
+                                          { label: '2 ans', pricing: pricingLocation2Ans },
+                                          { label: '3 ans', pricing: pricingLocation3Ans },
+                                        ].map(({ label, pricing }) => (
+                                          <div key={label}>
+                                            <div className='text-gray-600 mb-1'>{label}</div>
+                                            {pricing.prixVente && pricing.prixVente > 0 ? (
+                                              <>
+                                                <div className='font-bold text-emerald-900'>
+                                                  {formatPriceHelper(annualToMonthly(pricing.prixVente * kitProduct.quantite))}
+                                                  <span className='text-[10px] font-normal text-emerald-600'>/mois</span>
+                                                </div>
+                                                <div className='text-[10px] text-gray-400'>
+                                                  {formatPriceHelper(pricing.prixVente * kitProduct.quantite)} /an
+                                                </div>
+                                              </>
+                                            ) : (
+                                              <div className='italic text-orange-600'>N/R</div>
+                                            )}
+                                          </div>
+                                        ))}
                                       </div>
                                     </div>
                                   </div>

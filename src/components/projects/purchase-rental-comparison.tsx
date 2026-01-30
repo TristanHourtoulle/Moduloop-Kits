@@ -29,6 +29,7 @@ import { type ProductPeriod } from '@/lib/schemas/product';
 import {
   getProductPricing,
   formatPrice as formatPriceHelper,
+  annualToMonthly,
 } from '@/lib/utils/product-helpers';
 
 interface PurchaseRentalComparisonProps {
@@ -101,15 +102,23 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
   const rental1Year = calculateRentalCosts(project, '1an');
   const rental2Years = calculateRentalCosts(project, '2ans');
   const rental3Years = calculateRentalCosts(project, '3ans');
-  
+
   const breakEvenPoint = calculateBreakEvenPoint(project);
-  
-  // Calculate costs for different time horizons
+
+  const getRentalDataForHorizon = (years: number) => {
+    if (years <= 1) return rental1Year;
+    if (years <= 2) return rental2Years;
+    return rental3Years;
+  };
+
+  const currentRentalData = getRentalDataForHorizon(selectedTimeHorizon);
+
   const getProjectedCosts = (years: number) => {
     const purchaseCostTotal = purchaseData.totalPrice;
-    const rentalCostPerYear = rental1Year.totalPrice;
+    const rentalData = getRentalDataForHorizon(years);
+    const rentalCostPerYear = rentalData.totalPrice;
     const rentalCostTotal = rentalCostPerYear * years;
-    
+
     return {
       purchase: purchaseCostTotal,
       rental: rentalCostTotal,
@@ -301,20 +310,35 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="text-center">
-                <div className="text-4xl font-bold text-blue-900 mb-2">
-                  {formatPriceHelper(projectedCosts.rental)}
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <span className="text-4xl font-bold text-blue-900">
+                    {formatPriceHelper(projectedCosts.rental / (selectedTimeHorizon * 12))}
+                  </span>
+                  <Badge variant="outline" className="text-xs px-2 py-0.5 border-blue-400 text-blue-600 bg-blue-50">
+                    /mois
+                  </Badge>
                 </div>
-                <div className="text-sm text-blue-700 font-medium">
-                  Coût total sur {selectedTimeHorizon} an{selectedTimeHorizon > 1 ? 's' : ''}
+                <div className="text-sm text-blue-500 mb-2">
+                  {formatPriceHelper(projectedCosts.rental)} total sur {selectedTimeHorizon} an{selectedTimeHorizon > 1 ? 's' : ''}
                 </div>
               </div>
 
               <div className="space-y-4">
-                <div className="bg-white/60 rounded-xl p-4 border border-white/50">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-blue-800">Coût annuel</span>
-                    <span className="font-bold text-blue-900">{formatPriceHelper(rental1Year.totalPrice)}</span>
+                <div className="bg-white/60 rounded-xl p-4 border border-white/50 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-blue-800">Coût mensuel</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-bold text-blue-900">{formatPriceHelper(annualToMonthly(currentRentalData.totalPrice))}</span>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-blue-400 text-blue-600 bg-blue-50">
+                        /mois
+                      </Badge>
+                    </div>
                   </div>
+                  <div className="flex justify-between items-center text-xs text-blue-600">
+                    <span>Coût annuel</span>
+                    <span>{formatPriceHelper(currentRentalData.totalPrice)} /an</span>
+                  </div>
+                  <div className="h-px bg-blue-200/50"></div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-blue-800">Coût sur {selectedTimeHorizon} an{selectedTimeHorizon > 1 ? 's' : ''}</span>
                     <span className="font-bold text-blue-900">{formatPriceHelper(projectedCosts.rental)}</span>
@@ -400,10 +424,16 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   </div>
                 </div>
                 <div className="text-center p-4 bg-white/60 rounded-xl border border-white/50">
-                  <div className="text-2xl font-bold text-amber-900 mb-1">
-                    {formatPriceHelper(rental1Year.totalPrice / 12)}
+                  <div className="flex items-center justify-center gap-1.5 mb-1">
+                    <span className="text-2xl font-bold text-amber-900">
+                      {formatPriceHelper(annualToMonthly(currentRentalData.totalPrice))}
+                    </span>
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-400 text-amber-600 bg-amber-50">
+                      /mois
+                    </Badge>
                   </div>
                   <div className="text-sm text-amber-700">Coût mensuel location</div>
+                  <div className="text-xs text-amber-500 mt-0.5">{formatPriceHelper(currentRentalData.totalPrice)} /an</div>
                 </div>
               </div>
             </CardContent>
