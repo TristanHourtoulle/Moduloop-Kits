@@ -28,6 +28,7 @@ import {
 import {
   getProductPricing,
   formatPrice,
+  annualToMonthly,
 } from '@/lib/utils/product-helpers';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
@@ -38,6 +39,7 @@ import { EditProjectDialog } from './edit-project-dialog';
 import { ProjectHistory } from './project-history';
 import { ProjectSurfaceManager } from './project-surface-manager';
 import { useDialog } from '@/components/providers/dialog-provider';
+import { LocationPriceDisplay } from './location-price-display';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -570,16 +572,43 @@ export function ProjectDetail({
               <div className='w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-300'>
                 <Euro className='w-6 h-6 text-green-600' />
               </div>
-              <p className='text-3xl font-bold text-green-900 mb-2'>
-                {formatPrice(currentPrice)}
-              </p>
-              <p className='text-sm text-green-700 font-medium'>Prix Total</p>
+              {pricingMode === 'location' ? (
+                <LocationPriceDisplay
+                  annualPrice={currentPrice}
+                  label='Prix Total'
+                  variant='card'
+                  priceClassName='text-green-900'
+                  secondaryClassName='text-green-600'
+                  labelClassName='text-green-700'
+                  badgeClassName='border-green-500 text-green-600 bg-green-50'
+                  secondaryBadgeClassName='border-green-300 text-green-500 bg-green-50'
+                />
+              ) : (
+                <>
+                  <p className='text-3xl font-bold text-green-900 mb-2'>
+                    {formatPrice(currentPrice)}
+                  </p>
+                  <p className='text-sm text-green-700 font-medium'>Prix Total</p>
+                </>
+              )}
               {project.totalSurface && project.totalSurface > 0 && (
                 <div className='mt-3 pt-3 border-t border-green-200'>
                   <p className='text-xs text-green-600 mb-1'>Prix moyen/m²</p>
-                  <p className='text-lg font-bold text-green-800'>
-                    {Math.round(currentPrice / project.totalSurface).toLocaleString('fr-FR')}€/m²
-                  </p>
+                  {pricingMode === 'location' ? (
+                    <>
+                      <p className='text-lg font-bold text-green-800'>
+                        {Math.round(annualToMonthly(currentPrice) / project.totalSurface).toLocaleString('fr-FR')}€/m²
+                        <span className='text-xs font-normal text-green-600 ml-1'>/mois</span>
+                      </p>
+                      <p className='text-xs text-green-600'>
+                        {Math.round(currentPrice / project.totalSurface).toLocaleString('fr-FR')}€/m² /an
+                      </p>
+                    </>
+                  ) : (
+                    <p className='text-lg font-bold text-green-800'>
+                      {Math.round(currentPrice / project.totalSurface).toLocaleString('fr-FR')}€/m²
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -729,12 +758,30 @@ export function ProjectDetail({
                   <div className='bg-white border border-gray-200 rounded-2xl p-6 shadow-sm'>
                     <h3 className='text-lg font-semibold text-gray-900 mb-4'>Aperçu financier</h3>
                     <div className='space-y-3'>
-                      <div className='flex justify-between items-center'>
-                        <span className='text-gray-600'>Prix moyen/m²</span>
-                        <span className='font-semibold text-gray-900'>
-                          {(currentPrice / project.totalSurface).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€/m²
-                        </span>
-                      </div>
+                      {pricingMode === 'location' ? (
+                        <>
+                          <div className='flex justify-between items-center'>
+                            <span className='text-gray-600'>Prix moyen/m²</span>
+                            <span className='font-semibold text-gray-900'>
+                              {(annualToMonthly(currentPrice) / project.totalSurface).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€/m²
+                              <span className='text-xs font-normal text-gray-500 ml-1'>/mois</span>
+                            </span>
+                          </div>
+                          <div className='flex justify-between items-center text-xs text-gray-500'>
+                            <span>Prix annuel/m²</span>
+                            <span>
+                              {(currentPrice / project.totalSurface).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€/m² /an
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className='flex justify-between items-center'>
+                          <span className='text-gray-600'>Prix moyen/m²</span>
+                          <span className='font-semibold text-gray-900'>
+                            {(currentPrice / project.totalSurface).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}€/m²
+                          </span>
+                        </div>
+                      )}
                       <p className='text-xs text-gray-500'>
                         {pricingMode === 'achat' ? 'Mode Achat' : `Location ${pricingPeriod === '1an' ? '1 an' : pricingPeriod === '2ans' ? '2 ans' : '3 ans'}`}
                       </p>
