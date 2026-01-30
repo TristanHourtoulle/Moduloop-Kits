@@ -39,6 +39,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import type { Project } from '@/lib/types/project';
+import { ProjectPdfDownloadButton } from '@/features/pdf/project-pdf-download-button';
 
 interface ProjectDetailProps {
   project: Project;
@@ -112,6 +113,8 @@ export function ProjectDetail({
               >
                 {getStatusIcon(project.status)} {project.status}
               </Badge>
+
+              <ProjectPdfDownloadButton project={project} />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
