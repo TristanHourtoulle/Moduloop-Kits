@@ -1,18 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import '@/test/register-api-mocks';
 
-vi.mock('server-only', () => ({}));
-vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
-vi.mock('@/lib/db', async () => {
-  const { createDbMock } = await import('@/test/mocks/db');
-  return createDbMock();
-});
 vi.mock('@/lib/cache', async () => {
   const { createCacheMock } = await import('@/test/mocks/cache');
   return createCacheMock();
-});
-vi.mock('next/cache', async () => {
-  const { createNextCacheMock } = await import('@/test/mocks/cache');
-  return createNextCacheMock();
 });
 
 import { auth } from '@/lib/auth';
@@ -61,6 +52,20 @@ describe('GET /api/kits/[id]', () => {
 
     expect(res.status).toBe(200);
     expect(body.id).toBe('k1');
+  });
+
+  it('returns 500 when getKitById throws', async () => {
+    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockGetKitById.mockRejectedValueOnce(new Error('DB error'));
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const req = createMockRequest('GET', '/api/kits/k1');
+    const res = await GET(req, makeParams('k1'));
+
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
+    consoleSpy.mockRestore();
   });
 });
 

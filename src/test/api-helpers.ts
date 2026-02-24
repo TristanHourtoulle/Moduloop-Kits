@@ -3,6 +3,12 @@ import { UserRole } from '@/lib/types/user';
 
 /**
  * Builds a NextRequest suitable for route handler integration tests.
+ *
+ * @param method - HTTP method (GET, POST, PUT, PATCH, DELETE)
+ * @param url - Request URL path (e.g., '/api/products')
+ * @param body - Optional JSON body for non-GET requests
+ * @param headers - Optional additional headers
+ * @returns NextRequest instance ready for route handler invocation
  */
 export function createMockRequest(
   method: string,
@@ -20,6 +26,9 @@ export function createMockRequest(
   if (body !== undefined) {
     init.body = JSON.stringify(body);
   }
+  // Cast needed: NextRequest constructor expects NextRequestInit which extends
+  // RequestInit with Next.js-specific fields (geo, ip, nextUrl). Standard
+  // RequestInit is sufficient for testing but the types don't overlap exactly.
   return new NextRequest(new URL(url, 'http://localhost:3000'), init as ConstructorParameters<typeof NextRequest>[1]);
 }
 

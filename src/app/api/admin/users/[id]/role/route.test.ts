@@ -1,15 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-vi.mock('server-only', () => ({}));
-vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
-vi.mock('@/lib/db', async () => {
-  const { createDbMock } = await import('@/test/mocks/db');
-  return createDbMock();
-});
-vi.mock('next/cache', async () => {
-  const { createNextCacheMock } = await import('@/test/mocks/cache');
-  return createNextCacheMock();
-});
+import '@/test/register-api-mocks';
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';

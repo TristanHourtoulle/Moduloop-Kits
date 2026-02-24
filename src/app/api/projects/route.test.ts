@@ -1,18 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import '@/test/register-api-mocks';
 
-vi.mock('server-only', () => ({}));
-vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
-vi.mock('@/lib/db', async () => {
-  const { createDbMock } = await import('@/test/mocks/db');
-  return createDbMock();
-});
 vi.mock('@/lib/cache', async () => {
   const { createCacheMock } = await import('@/test/mocks/cache');
   return createCacheMock();
-});
-vi.mock('next/cache', async () => {
-  const { createNextCacheMock } = await import('@/test/mocks/cache');
-  return createNextCacheMock();
 });
 vi.mock('@/lib/services/project-history', async () => {
   const { createProjectHistoryMock } = await import('@/test/mocks/project-history');
