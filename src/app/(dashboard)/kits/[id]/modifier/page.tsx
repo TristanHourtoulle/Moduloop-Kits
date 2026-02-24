@@ -1,8 +1,7 @@
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
 import { KitEditWrapper } from "@/components/kits/kit-edit-wrapper";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Package2, Sparkles, AlertTriangle } from "lucide-react";
+import { Package2, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getKitById } from "@/lib/db";
 
@@ -21,43 +20,6 @@ interface KitData {
   }>;
 }
 
-// Fetch kit data directly from database
-interface KitRecord {
-  nom: string;
-  style: string;
-  description?: string;
-  surfaceM2?: number;
-  updatedAt?: Date | string;
-  kitProducts: Array<{
-    product: { id: string };
-    quantite: number;
-  }>;
-}
-
-async function getKit(kitId: string): Promise<KitRecord | null> {
-  try {
-    console.log("[EditKitPage Server] Fetching kit from DB:", kitId);
-
-    const kit = await getKitById(kitId);
-
-    if (!kit) {
-      console.error("[EditKitPage Server] Kit not found:", kitId);
-      return null;
-    }
-
-    console.log("[EditKitPage Server] Kit data fetched:", {
-      kitId,
-      nom: kit.nom,
-      productsCount: kit.kitProducts?.length || 0,
-    });
-
-    return kit as KitRecord;
-  } catch (error) {
-    console.error("[EditKitPage Server] Error fetching kit:", error);
-    return null;
-  }
-}
-
 export default async function EditKitPage({
   params,
   searchParams,
@@ -66,16 +28,9 @@ export default async function EditKitPage({
   searchParams: Promise<{ t?: string }>;
 }) {
   const { id: kitId } = await params;
-  const { t: timestamp } = await searchParams;
+  const { t: _timestamp } = await searchParams;
 
-  console.log("[EditKitPage Server] Rendering page:", {
-    kitId,
-    timestamp,
-    isProduction: process.env.NODE_ENV === "production",
-  });
-
-  // Fetch kit data server-side
-  const kitData = await getKit(kitId);
+  const kitData = await getKitById(kitId);
 
   if (!kitData) {
     notFound();
@@ -88,22 +43,19 @@ export default async function EditKitPage({
     description: kitData.description || undefined,
     surfaceM2: kitData.surfaceM2 || undefined,
     products: kitData.kitProducts.map(
-      (kp: { product: { id: string }; quantite: number }) => ({
+      (kp) => ({
         productId: kp.product.id,
         quantite: kp.quantite,
       }),
     ),
   };
 
-  // Generate a unique key based on kit data + updatedAt timestamp
-  // This forces remount when data changes
   const kitKey = `${kitId}-${String(kitData.updatedAt ?? 'initial')}`;
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 w-full">
         <div className="container mx-auto px-6">
-          {/* Header moderne */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#30C1BD] to-[#30C1BD]/80 rounded-2xl mb-4">
               <Package2 className="h-8 w-8 text-white" />
@@ -119,7 +71,6 @@ export default async function EditKitPage({
             </div>
           </div>
 
-          {/* Client wrapper for form - key forces remount on data change */}
           <KitEditWrapper
             key={kitKey}
             kitId={kitId}

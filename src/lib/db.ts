@@ -58,7 +58,11 @@ const productSelectFields = {
   eutrophisationLocation: true,
 } as const;
 
-// Helper to transform Prisma data to match frontend types
+/**
+ * Recursively transforms Prisma query results for frontend consumption:
+ * - Converts Date instances to ISO strings
+ * - Converts null description fields to undefined
+ */
 const transformDates = (data: unknown): unknown => {
   if (data === null || data === undefined) {
     return data;
