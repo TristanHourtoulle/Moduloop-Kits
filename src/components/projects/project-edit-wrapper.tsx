@@ -4,11 +4,12 @@ import { ProjectEditForm } from "@/components/projects/project-edit-form";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { generateProjectKey } from "@/lib/utils/project-key";
-import type { Project } from "@/lib/types/project";
+import type { ProjectStatus } from "@/lib/types/project";
 
 interface ProjectData {
   nom: string;
   description?: string;
+  status: string;
   kits: Array<{ kitId: string }>;
 }
 
@@ -24,7 +25,7 @@ export function ProjectEditWrapper({ projectId, initialProject, projectName }: P
 
   // Generate a key that includes timestamp for forcing remount
   const projectKey = useMemo(() => {
-    const dataKey = generateProjectKey(projectId, initialProject as unknown as Record<string, unknown>);
+    const dataKey = generateProjectKey(projectId, initialProject);
     return timestamp ? `${dataKey}-${timestamp}` : dataKey;
   }, [projectId, timestamp, initialProject]);
 
@@ -40,7 +41,7 @@ export function ProjectEditWrapper({ projectId, initialProject, projectName }: P
       {/* Form with dynamic key for forcing remount on Vercel */}
       <ProjectEditForm
         key={projectKey}
-        project={{ ...initialProject, id: projectId } as unknown as Project}
+        project={{ id: projectId, nom: initialProject.nom, description: initialProject.description, status: initialProject.status as ProjectStatus }}
       />
     </>
   );

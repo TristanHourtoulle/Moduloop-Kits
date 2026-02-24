@@ -1,13 +1,11 @@
-import { type ComponentProps } from "react";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
+import { type Kit } from "@/lib/types/project";
 import { KitsListWrapper } from "@/components/kits/kits-list-wrapper";
 import { Button } from "@/components/ui/button";
 import { Package2, Plus } from "lucide-react";
 import Link from "next/link";
 import { getKits } from "@/lib/db";
-
-type Kit = ComponentProps<typeof KitsListWrapper>["initialKits"][number];
 
 // Disable all caching for this page
 export const dynamic = 'force-dynamic';
@@ -15,7 +13,7 @@ export const revalidate = 0;
 
 export default async function KitsPage() {
   // Fetch kits directly from database using Prisma
-  const kits = await getKits() as unknown as Kit[];
+  const kits = await getKits() as Kit[];
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>

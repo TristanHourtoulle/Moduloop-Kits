@@ -26,10 +26,12 @@ import {
   Euro,
 } from "lucide-react";
 import Link from "next/link";
-import { Project } from "@/lib/types/project";
+import { type Project } from "@/lib/types/project";
+
+type ProjectEditData = Pick<Project, 'id' | 'nom' | 'status'> & Partial<Pick<Project, 'description' | 'projectKits' | 'totalImpact' | 'totalPrix'>>;
 
 interface ProjectEditFormProps {
-  project: Project;
+  project: ProjectEditData;
 }
 
 export function ProjectEditForm({ project }: ProjectEditFormProps) {

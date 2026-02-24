@@ -51,7 +51,7 @@ async function getKit(kitId: string): Promise<KitRecord | null> {
       productsCount: kit.kitProducts?.length || 0,
     });
 
-    return kit as unknown as KitRecord;
+    return kit as KitRecord;
   } catch (error) {
     console.error("[EditKitPage Server] Error fetching kit:", error);
     return null;

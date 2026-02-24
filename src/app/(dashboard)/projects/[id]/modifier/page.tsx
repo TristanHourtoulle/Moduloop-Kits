@@ -13,6 +13,7 @@ export const revalidate = 0;
 interface ProjectData {
   nom: string;
   description?: string;
+  status: string;
   kits: Array<{ kitId: string }>;
 }
 
@@ -20,6 +21,7 @@ interface ProjectData {
 interface ProjectRecord {
   nom: string;
   description?: string;
+  status: string;
   updatedAt?: Date | string;
   projectKits?: Array<{
     kit: { id: string };
@@ -43,7 +45,7 @@ async function getProject(projectId: string, userId: string): Promise<ProjectRec
       kitsCount: project.projectKits?.length || 0,
     });
 
-    return project as unknown as ProjectRecord;
+    return project as ProjectRecord;
   } catch (error) {
     console.error("[EditProjectPage Server] Error fetching project:", error);
     return null;
@@ -83,6 +85,7 @@ export default async function EditProjectPage({
   const transformedProject: ProjectData = {
     nom: projectData.nom,
     description: projectData.description || undefined,
+    status: projectData.status,
     kits: projectData.projectKits?.map((pk) => ({ kitId: pk.kit.id })) || [],
   };
 

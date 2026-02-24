@@ -90,7 +90,7 @@ async function getProduct(productId: string): Promise<ProductRecord | null> {
       reference: product.reference,
     });
 
-    return product as unknown as ProductRecord;
+    return product as ProductRecord;
   } catch (error) {
     console.error("[EditProductPage Server] Error fetching product:", error);
     return null;

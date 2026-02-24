@@ -48,7 +48,7 @@ export function ProductEditWrapper({ productId, initialProduct, productName }: P
 
   // Generate a key that includes timestamp for forcing remount
   const productKey = useMemo(() => {
-    const dataKey = generateProductKey(productId, initialProduct as unknown as Record<string, unknown>);
+    const dataKey = generateProductKey(productId, initialProduct);
     return timestamp ? `${dataKey}-${timestamp}` : dataKey;
   }, [productId, timestamp, initialProduct]);
 

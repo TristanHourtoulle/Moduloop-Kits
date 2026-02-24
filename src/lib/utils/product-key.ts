@@ -13,43 +13,45 @@
  * This approach ensures the component remounts when any significant data changes,
  * forcing a fresh render with updated props.
  */
-export function generateProductKey(productId: string, productData: Record<string, unknown>): string {
+export function generateProductKey(productId: string, productData: object): string {
   if (!productData) {
     return `product-${productId}-empty`;
   }
 
+  const data = productData as Record<string, unknown>;
+
   // Create a deterministic string from product data
   const dataPoints = [
     productId,
-    productData.nom || '',
-    productData.reference || '',
-    productData.description || '',
-    productData.quantite || 0,
-    productData.surfaceM2 || 0,
+    data.nom || '',
+    data.reference || '',
+    data.description || '',
+    data.quantite || 0,
+    data.surfaceM2 || 0,
     // Include all pricing data for both purchase and rental modes
-    productData.prixAchatAchat || 0,
-    productData.prixUnitaireAchat || 0,
-    productData.prixVenteAchat || 0,
-    productData.margeCoefficientAchat || 0,
-    productData.prixAchatLocation1An || 0,
-    productData.prixUnitaireLocation1An || 0,
-    productData.prixVenteLocation1An || 0,
-    productData.prixAchatLocation2Ans || 0,
-    productData.prixUnitaireLocation2Ans || 0,
-    productData.prixVenteLocation2Ans || 0,
-    productData.prixAchatLocation3Ans || 0,
-    productData.prixUnitaireLocation3Ans || 0,
-    productData.prixVenteLocation3Ans || 0,
-    productData.margeCoefficientLocation || 0,
+    data.prixAchatAchat || 0,
+    data.prixUnitaireAchat || 0,
+    data.prixVenteAchat || 0,
+    data.margeCoefficientAchat || 0,
+    data.prixAchatLocation1An || 0,
+    data.prixUnitaireLocation1An || 0,
+    data.prixVenteLocation1An || 0,
+    data.prixAchatLocation2Ans || 0,
+    data.prixUnitaireLocation2Ans || 0,
+    data.prixVenteLocation2Ans || 0,
+    data.prixAchatLocation3Ans || 0,
+    data.prixUnitaireLocation3Ans || 0,
+    data.prixVenteLocation3Ans || 0,
+    data.margeCoefficientLocation || 0,
     // Include environmental impact data
-    productData.rechauffementClimatiqueAchat || 0,
-    productData.epuisementRessourcesAchat || 0,
-    productData.acidificationAchat || 0,
-    productData.eutrophisationAchat || 0,
-    productData.rechauffementClimatiqueLocation || 0,
-    productData.epuisementRessourcesLocation || 0,
-    productData.acidificationLocation || 0,
-    productData.eutrophisationLocation || 0,
+    data.rechauffementClimatiqueAchat || 0,
+    data.epuisementRessourcesAchat || 0,
+    data.acidificationAchat || 0,
+    data.eutrophisationAchat || 0,
+    data.rechauffementClimatiqueLocation || 0,
+    data.epuisementRessourcesLocation || 0,
+    data.acidificationLocation || 0,
+    data.eutrophisationLocation || 0,
   ].join('-');
 
   // Simple hash function to create a shorter key

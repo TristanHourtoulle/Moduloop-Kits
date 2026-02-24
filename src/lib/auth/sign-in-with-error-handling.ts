@@ -66,7 +66,7 @@ export async function signInWithErrorHandling(
       const error = result.error;
       return {
         success: false,
-        error: typeof error === 'string' ? error : (error as Record<string, unknown>)?.message as string || 'Authentication failed'
+        error: typeof error === 'string' ? error : error instanceof Error ? error.message : 'Authentication failed'
       };
     }
 
