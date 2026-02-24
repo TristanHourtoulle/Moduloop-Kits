@@ -6,6 +6,15 @@ import {
   makeProjectKit,
   makeProject,
 } from '../test-fixtures';
+
+function makeOrphanKitProduct(): KitProduct {
+  return {
+    id: 'kp-orphan',
+    kitId: 'kit-1',
+    productId: 'prod-missing',
+    quantite: 1,
+  };
+}
 import {
   calculateProjectPriceTotals,
   calculateProjectPurchaseCosts,
@@ -125,13 +134,7 @@ describe('calculateProjectPurchaseCosts', () => {
   });
 
   it('skips kitProducts without product data', () => {
-    const orphanKitProduct: KitProduct = {
-      id: 'kp-orphan',
-      kitId: 'kit-1',
-      productId: 'prod-missing',
-      quantite: 1,
-    };
-    const kit = makeKit([orphanKitProduct]);
+    const kit = makeKit([makeOrphanKitProduct()]);
     const project = makeProject([makeProjectKit(1, kit)]);
     const costs = calculateProjectPurchaseCosts(project);
     expect(costs).toEqual({ totalPrice: 0, totalCost: 0, totalMargin: 0 });
@@ -296,13 +299,7 @@ describe('calculateEnvironmentalSavings', () => {
   });
 
   it('skips kitProducts without product data', () => {
-    const orphanKitProduct: KitProduct = {
-      id: 'kp-orphan',
-      kitId: 'kit-1',
-      productId: 'prod-missing',
-      quantite: 1,
-    };
-    const kit = makeKit([orphanKitProduct]);
+    const kit = makeKit([makeOrphanKitProduct()]);
     const project = makeProject([makeProjectKit(1, kit)]);
     const savings = calculateEnvironmentalSavings(project);
     expect(savings.rechauffementClimatique).toBe(0);

@@ -374,4 +374,18 @@ describe('getProjectHistory', () => {
     });
     expect(result).toEqual(mockHistory);
   });
+
+  it('returns empty array when no history exists', async () => {
+    mockFindMany.mockResolvedValueOnce([] as never);
+
+    const result = await getProjectHistory('project-nonexistent');
+
+    expect(result).toEqual([]);
+  });
+
+  it('propagates database errors to the caller', async () => {
+    mockFindMany.mockRejectedValueOnce(new Error('DB read failed'));
+
+    await expect(getProjectHistory('project-1')).rejects.toThrow('DB read failed');
+  });
 });
