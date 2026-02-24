@@ -374,6 +374,27 @@ describe('getDefaultProductMode', () => {
     const product = makeProduct();
     expect(getDefaultProductMode(product)).toBe('achat');
   });
+
+  it('returns location when only location data exists (legacy fields nullified)', () => {
+    const product = makeProduct({
+      prixAchat1An: null as unknown as number,
+      prixUnitaire1An: null as unknown as number,
+      prixVente1An: null as unknown as number,
+      prixAchatLocation1An: 50,
+      prixUnitaireLocation1An: 60,
+      prixVenteLocation1An: 60,
+    });
+    expect(getDefaultProductMode(product)).toBe('location');
+  });
+
+  it('returns achat as fallback when neither mode has data (all null)', () => {
+    const product = makeProduct({
+      prixAchat1An: null as unknown as number,
+      prixUnitaire1An: null as unknown as number,
+      prixVente1An: null as unknown as number,
+    });
+    expect(getDefaultProductMode(product)).toBe('achat');
+  });
 });
 
 describe('formatPrice', () => {
