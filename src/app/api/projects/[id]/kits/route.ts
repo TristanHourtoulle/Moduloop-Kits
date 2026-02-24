@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { createKitAddedHistory, createKitQuantityUpdatedHistory } from '@/lib/services/project-history';
-import { UserRole } from '@/lib/types/user';
-import { isAdminOrDev } from '@/lib/utils/roles';
+import {
+  createKitAddedHistory,
+  createKitQuantityUpdatedHistory,
+} from '@/lib/services/project-history';
+import { verifyProjectAccess } from '@/lib/utils/project/access';
 
 interface KitRequest {
   kitId: string;
@@ -12,7 +14,7 @@ interface KitRequest {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth.api.getSession(request);
@@ -147,34 +149,13 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id: projectId } = await params;
 
-    const currentUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
-
-    const role = (currentUser?.role as UserRole | undefined) ?? UserRole.USER;
-    const isAdmin = isAdminOrDev(role);
-
-    const project = await prisma.project.findFirst({
-      where: isAdmin
-        ? { id: projectId }
-        : { id: projectId, createdById: session.user.id },
-      select: { id: true },
-    });
-
-    if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
-    }
+    const access = await verifyProjectAccess(request, projectId);
+    if (!access.ok) return access.response;
 
     const projectKits = await prisma.projectKit.findMany({
       where: {

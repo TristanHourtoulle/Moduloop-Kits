@@ -4,8 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma, calculateProjectTotals } from '@/lib/db';
 import { type Project } from '@/lib/types/project';
-import { UserRole } from '@/lib/types/user';
-import { isAdminOrDev } from '@/lib/utils/roles';
+import { verifyProjectAccess } from '@/lib/utils/project/access';
 import {
   createProjectUpdatedHistory,
   createProjectDeletedHistory,
@@ -16,26 +15,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
-
-    // Récupérer le rôle de l'utilisateur connecté
-    const currentUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
-
-    const role = (currentUser?.role as UserRole | undefined) ?? UserRole.USER;
-    const isAdmin = isAdminOrDev(role);
-
     const { id } = await params;
 
-    const whereClause = isAdmin ? { id } : { id, createdById: session.user.id };
+    const access = await verifyProjectAccess(request, id);
+    if (!access.ok) return access.response;
 
-    const project = await prisma.project.findFirst({
-      where: whereClause,
+    const project = await prisma.project.findUnique({
+      where: { id },
       include: {
         createdBy: {
           select: { id: true, name: true, email: true },
@@ -55,10 +41,6 @@ export async function GET(
         },
       },
     });
-
-    if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
-    }
 
     // Calculer les totaux
     const totals = calculateProjectTotals(project as unknown as Project);
