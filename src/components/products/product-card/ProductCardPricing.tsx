@@ -29,7 +29,7 @@ export function ProductCardPricing({ product, selectedMode, onModeChange, classN
       <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
         <div className="flex items-center gap-2 mb-2">
           <ShoppingCart className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium text-primary">Prix d'achat</span>
+          <span className="text-sm font-medium text-primary">Prix d&apos;achat</span>
         </div>
         <div className="flex items-center gap-2">
           <Euro className="h-5 w-5 text-primary" />

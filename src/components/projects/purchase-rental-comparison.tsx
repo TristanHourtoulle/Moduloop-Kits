@@ -139,7 +139,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
               <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl">
                 <Clock className="w-5 h-5 text-purple-600" />
               </div>
-              Horizon temporel d'analyse
+              Horizon temporel d&apos;analyse
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -194,7 +194,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
               <div className="space-y-4">
                 <div className="bg-white/60 rounded-xl p-4 border border-white/50">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-green-800">Coût d'acquisition (unique)</span>
+                    <span className="text-sm font-medium text-green-800">Coût d&apos;acquisition (unique)</span>
                     <span className="font-bold text-green-900">{formatPriceHelper(purchaseData.totalPrice)}</span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -351,7 +351,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   {breakEvenPoint.toFixed(1)} ans
                 </div>
                 <div className="text-sm text-amber-700">
-                  Point d'équilibre entre achat et location
+                  Point d&apos;équilibre entre achat et location
                 </div>
               </div>
 
@@ -471,15 +471,15 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                 <h4 className="font-semibold text-indigo-900 mb-2">Contexte de projet</h4>
                 <ul className="space-y-1 text-indigo-800">
                   <li>• {project.projectKits?.length || 0} types de kits configurés</li>
-                  <li>• Durée d'analyse : {selectedTimeHorizon} an{selectedTimeHorizon > 1 ? 's' : ''}</li>
+                  <li>• Durée d&apos;analyse : {selectedTimeHorizon} an{selectedTimeHorizon > 1 ? 's' : ''}</li>
                   <li>• {breakEvenPoint ? `Point d'équilibre : ${breakEvenPoint.toFixed(1)} ans` : 'Pas de données de location disponibles'}</li>
                 </ul>
               </div>
               <div className="p-4 bg-white/60 rounded-xl border border-white/50">
                 <h4 className="font-semibold text-indigo-900 mb-2">Facteurs à considérer</h4>
                 <ul className="space-y-1 text-indigo-800">
-                  <li>• Capacité d'investissement initial</li>
-                  <li>• Durée prévue d'utilisation</li>
+                  <li>• Capacité d&apos;investissement initial</li>
+                  <li>• Durée prévue d&apos;utilisation</li>
                   <li>• Besoins de flexibilité</li>
                   <li>• Évolution technologique prévue</li>
                 </ul>

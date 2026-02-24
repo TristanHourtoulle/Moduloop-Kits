@@ -210,12 +210,12 @@ export function EnvironmentalSection({
           <div className="flex gap-3">
             <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-900">
-              <p className="font-semibold mb-1">Différence d'impact Achat / Location :</p>
+              <p className="font-semibold mb-1">Différence d&apos;impact Achat / Location :</p>
               <ul className="space-y-1 text-xs">
                 <li>• <strong>Achat</strong> : Impact complet de la fabrication (extraction + production + transport)</li>
-                <li>• <strong>Location</strong> : Impact réduit grâce à la réutilisation d'équipements existants</li>
-                <li>• La location permet généralement de diviser l'impact environnemental par 3 à 10</li>
-                <li>• Chaque mode nécessite ses propres données d'impact environnemental</li>
+                <li>• <strong>Location</strong> : Impact réduit grâce à la réutilisation d&apos;équipements existants</li>
+                <li>• La location permet généralement de diviser l&apos;impact environnemental par 3 à 10</li>
+                <li>• Chaque mode nécessite ses propres données d&apos;impact environnemental</li>
               </ul>
             </div>
           </div>
@@ -251,8 +251,8 @@ export function EnvironmentalSection({
             </h4>
           </div>
           <p className="text-xs text-gray-700">
-            Ces données d'impact environnemental sont basées sur une analyse du cycle de vie (ACV) 
-            et permettent d'évaluer l'empreinte écologique des produits selon différents scénarios d'usage. 
+            Ces données d&apos;impact environnemental sont basées sur une analyse du cycle de vie (ACV)
+            et permettent d&apos;évaluer l&apos;empreinte écologique des produits selon différents scénarios d&apos;usage.
             Elles informent vos clients sur les bénéfices environnementaux de chaque option.
           </p>
         </div>

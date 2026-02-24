@@ -460,7 +460,7 @@ export function KitProductsSection({
                   <div className="bg-white/60 rounded-lg p-6 border border-primary/10">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <p className="text-sm text-muted-foreground font-medium">
-                        Prix d'achat total
+                        Prix d&apos;achat total
                       </p>
                       <p className="text-3xl font-bold text-primary">
                         {formatPrice(totals.totalAchat1An)}

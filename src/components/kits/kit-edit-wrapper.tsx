@@ -3,7 +3,7 @@
 import { KitForm } from "@/components/kits/kit-form";
 import { generateKitKey } from "@/lib/utils/kit-key";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 interface KitData {
   nom: string;
@@ -31,21 +31,9 @@ export function KitEditWrapper({
   const timestamp = searchParams.get("t");
 
   // Generate a key that includes both kit data and timestamp
-  const [kitKey, setKitKey] = useState("");
-
-  useEffect(() => {
-    // Generate key based on kit data AND timestamp from URL
+  const kitKey = useMemo(() => {
     const dataKey = generateKitKey(kitId, initialKit);
-    const fullKey = timestamp ? `${dataKey}-${timestamp}` : dataKey;
-    setKitKey(fullKey);
-
-    console.log("[KitEditWrapper] Component mounted with:", {
-      kitId,
-      kitName,
-      timestamp,
-      key: fullKey,
-      productsCount: initialKit.products.length,
-    });
+    return timestamp ? `${dataKey}-${timestamp}` : dataKey;
   }, [kitId, initialKit, timestamp]);
 
   return (

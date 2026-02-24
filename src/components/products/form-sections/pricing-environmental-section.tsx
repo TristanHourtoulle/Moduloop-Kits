@@ -352,7 +352,7 @@ export function PricingEnvironmentalSection({
             </h4>
           </div>
           <p className='text-xs text-blue-700'>
-            Pour les achats de produits neufs, l'impact environnemental n'est
+            Pour les achats de produits neufs, l&apos;impact environnemental n&apos;est
             pas saisi ici. Il sera géré ailleurs dans le système.
           </p>
         </div>
@@ -801,7 +801,7 @@ export function PricingEnvironmentalSection({
                 </p>
               )}
               <p className='text-xs text-gray-500'>
-                Différence d'énergie par réutilisation
+                Différence d&apos;énergie par réutilisation
               </p>
             </div>
 
@@ -830,7 +830,7 @@ export function PricingEnvironmentalSection({
                 </p>
               )}
               <p className='text-xs text-gray-500'>
-                Différence d'impact grâce à la réutilisation
+                Différence d&apos;impact grâce à la réutilisation
               </p>
             </div>
 
@@ -873,9 +873,9 @@ export function PricingEnvironmentalSection({
               </h4>
             </div>
             <p className='text-xs text-green-700'>
-              Ces valeurs représentent la <strong>différence</strong> d'impact
-              environnemental entre la location (réutilisation d'équipements
-              existants) et l'achat neuf. Vous saisissez directement la
+              Ces valeurs représentent la <strong>différence</strong> d&apos;impact
+              environnemental entre la location (réutilisation d&apos;équipements
+              existants) et l&apos;achat neuf. Vous saisissez directement la
               différence finale calculée.
             </p>
           </div>
@@ -910,16 +910,16 @@ export function PricingEnvironmentalSection({
               <p className='font-semibold mb-1'>Achat vs Location :</p>
               <ul className='space-y-1 text-xs'>
                 <li>
-                  • <strong>Achat</strong> : Prix unique pour l'acquisition
-                  définitive d'équipements neufs
+                  • <strong>Achat</strong> : Prix unique pour l&apos;acquisition
+                  définitive d&apos;équipements neufs
                 </li>
                 <li>
                   • <strong>Location</strong> : Prix sur 1, 2 ou 3 ans pour la
-                  location d'équipements existants
+                  location d&apos;équipements existants
                 </li>
                 <li>
                   • <strong>Impact</strong> : Seulement en location (différence
-                  vs neuf), pas d'impact saisi pour l'achat
+                  vs neuf), pas d&apos;impact saisi pour l&apos;achat
                 </li>
               </ul>
             </div>

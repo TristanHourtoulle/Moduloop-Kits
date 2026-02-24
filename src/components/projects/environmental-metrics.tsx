@@ -123,10 +123,10 @@ export function EnvironmentalMetrics({ project }: EnvironmentalMetricsProps) {
             </h3>
             <p className='text-sm text-blue-800 leading-relaxed'>
               Les données ci-dessous représentent les{' '}
-              <strong>économies d'impact environnemental</strong> réalisées en
-              choisissant la location d'équipements existants par rapport à
-              l'achat de produits neufs. Cette approche permet de réduire
-              significativement l'empreinte carbone et l'utilisation de
+              <strong>économies d&apos;impact environnemental</strong> réalisées en
+              choisissant la location d&apos;équipements existants par rapport à
+              l&apos;achat de produits neufs. Cette approche permet de réduire
+              significativement l&apos;empreinte carbone et l&apos;utilisation de
               ressources.
             </p>
           </div>
@@ -200,10 +200,10 @@ export function EnvironmentalMetrics({ project }: EnvironmentalMetricsProps) {
               Note importante
             </h4>
             <p className='text-xs text-amber-700 leading-relaxed'>
-              <strong>Pour l'achat de produits neufs</strong>, nous ne disposons
-              pas actuellement de données d'impact environnemental spécifiques.
+              <strong>Pour l&apos;achat de produits neufs</strong>, nous ne disposons
+              pas actuellement de données d&apos;impact environnemental spécifiques.
               Les économies affichées correspondent uniquement aux bénéfices de
-              la location par rapport à une estimation d'impact pour des
+              la location par rapport à une estimation d&apos;impact pour des
               produits neufs équivalents.
             </p>
           </div>

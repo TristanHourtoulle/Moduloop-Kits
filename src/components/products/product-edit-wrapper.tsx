@@ -2,7 +2,7 @@
 
 import { ProductForm } from "@/components/products/product-form";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { generateProductKey } from "@/lib/utils/product-key";
 
 interface ProductData {
@@ -47,21 +47,9 @@ export function ProductEditWrapper({ productId, initialProduct, productName }: P
   const timestamp = searchParams.get("t");
 
   // Generate a key that includes timestamp for forcing remount
-  const [productKey, setProductKey] = useState("");
-
-  useEffect(() => {
-    // Generate data-aware key based on product content (like kit implementation)
-    const dataKey = generateProductKey(productId, initialProduct);
-    const fullKey = timestamp ? `${dataKey}-${timestamp}` : dataKey;
-    setProductKey(fullKey);
-
-    console.log("[ProductEditWrapper] Component mounted with:", {
-      productId,
-      productName,
-      timestamp,
-      dataKey,
-      fullKey,
-    });
+  const productKey = useMemo(() => {
+    const dataKey = generateProductKey(productId, initialProduct as unknown as Record<string, unknown>);
+    return timestamp ? `${dataKey}-${timestamp}` : dataKey;
   }, [productId, timestamp, initialProduct]);
 
   // Map database fields to form fields

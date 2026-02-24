@@ -75,7 +75,7 @@ export function ProjectsGrid({ projects, selectedUserId }: ProjectsGridProps) {
           </h3>
           <p className='text-gray-600 mb-8 leading-relaxed'>
             Commencez votre premier projet de construction modulaire. Organisez
-            vos kits, suivez vos coûts et analysez l'impact environnemental.
+            vos kits, suivez vos coûts et analysez l&apos;impact environnemental.
           </p>
 
           <CreateProjectButton />
