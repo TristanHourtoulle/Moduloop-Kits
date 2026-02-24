@@ -30,13 +30,6 @@ export function ProductForm({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Debug logging
-  console.log('[ProductForm] Component mounted with:', {
-    initialData,
-    productId,
-    isEditMode: !!productId,
-  });
-
   // Préparer les valeurs par défaut
   const defaultValues: Partial<ProductFormData> = {
     nom: '',
@@ -102,63 +95,15 @@ export function ProductForm({
       // Nettoyer les données initiales pour convertir null en undefined
       const cleanedInitialData = cleanProductDataForForm(initialData);
 
-      console.log('[ProductForm] Raw initial data:', initialData);
-      console.log('[ProductForm] Cleaned initial data:', cleanedInitialData);
-
-      // Identifier les champs qui ont changé
-      const changedFields = Object.keys(initialData).filter(
-        (key) => (initialData as Record<string, unknown>)[key] !== (cleanedInitialData as Record<string, unknown>)[key]
-      );
-      if (changedFields.length > 0) {
-        console.log(
-          '[ProductForm] Fields cleaned (null -> undefined):',
-          changedFields
-        );
-      }
-
-      console.log('[ProductForm] Resetting form with new data:', cleanedInitialData);
       reset({ ...defaultValues, ...cleanedInitialData });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]); // Only reset when productId changes, not when initialData object reference changes
 
-  // Debug: log form state changes
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      console.log('[ProductForm] Field changed:', {
-        name,
-        type,
-        value: value[name as keyof typeof value],
-      });
-
-      // Debug spécial pour description
-      if (name === 'description') {
-        console.log('[ProductForm] Description debug:', {
-          rawValue: value[name as keyof typeof value],
-          allFormValues: value,
-          descriptionType: typeof value.description,
-        });
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [watch]);
-
   const onSubmit = async (data: ProductFormData) => {
-    console.log('[ProductForm] onSubmit called with data:', data);
-    console.log('[ProductForm] Form errors:', errors);
-    console.log('[ProductForm] ProductId:', productId);
-    console.log('[ProductForm] Is editing:', !!productId);
-    console.log('[ProductForm] Data types:', {
-      nom: typeof data.nom,
-      reference: typeof data.reference,
-      prixAchat1An: typeof data.prixAchat1An,
-      margeCoefficient: typeof data.margeCoefficient,
-    });
-
     // Vérifier si on a des erreurs de validation
     const hasErrors = Object.keys(errors).length > 0;
     if (hasErrors) {
-      console.error('[ProductForm] Validation errors found:', errors);
       setError(
         'Des erreurs de validation sont présentes dans le formulaire. Veuillez les corriger avant de continuer.'
       );
@@ -177,9 +122,6 @@ export function ProductForm({
       const url = productId ? `/api/products/${productId}` : '/api/products';
       const method = productId ? 'PUT' : 'POST';
 
-      console.log('[ProductForm] Sending request to:', url);
-      console.log('[ProductForm] Request body:', JSON.stringify(data, null, 2));
-
       const response = await fetch(url, {
         method,
         headers: {
@@ -188,26 +130,14 @@ export function ProductForm({
         body: JSON.stringify(data),
       });
 
-      console.log('[ProductForm] Response status:', response.status);
-      console.log(
-        '[ProductForm] Response headers:',
-        Object.fromEntries(response.headers.entries())
-      );
-
       if (!response.ok) {
         const errorData = await response
           .json()
           .catch(() => ({ error: 'Erreur de communication avec le serveur' }));
-        console.error('[ProductForm] API Error:', errorData);
         throw new Error(
           errorData.error || `Erreur ${response.status} lors de la sauvegarde`
         );
       }
-
-      console.log('[ProductForm] Success! Product saved:', {
-        productId,
-        isEdit: !!productId,
-      });
 
       // Invalidate the router cache to ensure fresh data on next visit
       router.refresh();
@@ -220,16 +150,12 @@ export function ProductForm({
         !window.location.hostname.includes("127.0.0.1");
 
       if (isProduction) {
-        console.log("[ProductForm] Waiting for cache invalidation to propagate...");
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
       // Redirect to products list with timestamp to trigger refetch (like kits)
-      const redirectUrl = "/products?updated=" + Date.now();
-      console.log("[ProductForm] Redirecting to:", redirectUrl);
-      router.push(redirectUrl);
+      router.push("/products?updated=" + Date.now());
     } catch (err) {
-      console.error('Erreur lors de la soumission:', err);
       setError(
         err instanceof Error
           ? err.message

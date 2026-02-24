@@ -54,7 +54,6 @@ export function ProjectHistory({ projectId, projectCreatedAt }: ProjectHistoryPr
       const data = await response.json();
       setHistory(data);
     } catch (err) {
-      console.error('Error fetching project history:', err);
       setError('Impossible de charger l\'historique du projet');
     } finally {
       setLoading(false);
