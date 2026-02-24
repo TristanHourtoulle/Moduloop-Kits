@@ -9,7 +9,7 @@ export function ProjectsPageClient() {
   const searchParams = useSearchParams();
   const userId = searchParams.get('userId');
 
-  const handleUserChange = (newUserId: string) => {
+  const handleUserChange = (_newUserId: string) => {
     // Le UserSelector gère déjà la navigation
   };
 

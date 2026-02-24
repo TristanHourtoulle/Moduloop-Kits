@@ -91,7 +91,7 @@ export async function PATCH(
 
 // DELETE - Supprimer un kit d'un projet
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string; kitId: string }> }
 ) {
   try {

@@ -11,7 +11,7 @@ interface ProjectPdfDocumentProps {
   project: Project;
 }
 
-function PdfHeader({ projectName }: { projectName: string }) {
+function PdfHeader({ projectName: _projectName }: { projectName: string }) {
   const today = new Date().toLocaleDateString('fr-FR', {
     day: 'numeric',
     month: 'long',

@@ -32,7 +32,6 @@ import {
   getProductPricing,
   getProductEnvironmentalImpact,
   formatPrice,
-  annualToMonthly,
   ceilPrice,
 } from '@/lib/utils/product-helpers';
 

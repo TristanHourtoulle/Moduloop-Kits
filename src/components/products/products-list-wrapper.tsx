@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/products/product-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Package2, Search, X, SortAsc, SortDesc, Image, ImageOff } from "lucide-react";
+import { Package2, Search, X, Image, ImageOff } from "lucide-react";
 import { type Product } from "@/lib/types/project";
 import { useDebounce } from "@/hooks/use-debounce";
 

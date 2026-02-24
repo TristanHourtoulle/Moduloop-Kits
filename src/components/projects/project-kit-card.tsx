@@ -12,13 +12,10 @@ import {
   ShoppingCart,
   Home,
   Target,
-  Zap,
-  Droplets,
-  Leaf,
   Eye,
   EyeOff,
 } from 'lucide-react';
-import type { ProjectKit, KitProduct } from '@/lib/types/project';
+import type { ProjectKit } from '@/lib/types/project';
 import { type PurchaseRentalMode } from '@/lib/schemas/product';
 import {
   calculateKitImpact,

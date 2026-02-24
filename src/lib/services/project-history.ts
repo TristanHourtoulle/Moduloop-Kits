@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db';
-import { ProjectChangeType, Project, ProjectKit, Kit } from '@prisma/client';
+import { ProjectChangeType, Project, Kit } from '@prisma/client';
 
 export interface ProjectHistoryContext {
   userId: string;

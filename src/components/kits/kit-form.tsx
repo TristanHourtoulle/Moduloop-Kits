@@ -36,8 +36,6 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
     formState: { errors },
     reset,
     control,
-    setValue,
-    getValues,
   } = useZodForm(kitSchema, {
     defaultValues: {
       products: [],

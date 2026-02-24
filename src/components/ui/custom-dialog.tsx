@@ -149,35 +149,35 @@ export function CustomDialog({
 
 // Hook pour utiliser facilement les dialogues
 export function useCustomDialog() {
-  const showInfo = (title: string, message: string | ReactNode) => {
+  const showInfo = (_title: string, _message: string | ReactNode) => {
     return new Promise<void>((resolve) => {
       // Cette fonction sera remplacée par le contexte
       resolve();
     });
   };
 
-  const showSuccess = (title: string, message: string | ReactNode) => {
+  const showSuccess = (_title: string, _message: string | ReactNode) => {
     return new Promise<void>((resolve) => {
       // Cette fonction sera remplacée par le contexte
       resolve();
     });
   };
 
-  const showWarning = (title: string, message: string | ReactNode) => {
+  const showWarning = (_title: string, _message: string | ReactNode) => {
     return new Promise<void>((resolve) => {
       // Cette fonction sera remplacée par le contexte
       resolve();
     });
   };
 
-  const showError = (title: string, message: string | ReactNode) => {
+  const showError = (_title: string, _message: string | ReactNode) => {
     return new Promise<void>((resolve) => {
       // Cette fonction sera remplacée par le contexte
       resolve();
     });
   };
 
-  const showConfirm = (title: string, message: string | ReactNode) => {
+  const showConfirm = (_title: string, _message: string | ReactNode) => {
     return new Promise<boolean>((resolve) => {
       // Cette fonction sera remplacée par le contexte
       resolve(false);

@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import { ProjectCard } from './project-card';
 import { Project } from '@/lib/types/project';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, FolderOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { FolderOpen } from 'lucide-react';
 import { CreateProjectButton } from './create-project-button';
 import { useSearchParams } from 'next/navigation';
 

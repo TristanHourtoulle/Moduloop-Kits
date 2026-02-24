@@ -29,7 +29,7 @@ function getPlaceholderColor(name?: string): string {
   ];
 
   const index = name.charCodeAt(0) % colors.length;
-  return colors[index];
+  return colors[index] ?? "bg-gray-100 text-gray-600";
 }
 
 // Fonction pour générer les initiales
@@ -37,11 +37,13 @@ function getInitials(name?: string): string {
   if (!name) return "U";
 
   const words = name.trim().split(" ");
+  const firstWord = words[0] ?? "";
+  const lastWord = words[words.length - 1] ?? "";
   if (words.length === 1) {
-    return words[0].charAt(0).toUpperCase();
+    return firstWord.charAt(0).toUpperCase();
   }
 
-  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
+  return (firstWord.charAt(0) + lastWord.charAt(0)).toUpperCase();
 }
 
 export function SafeAvatar({

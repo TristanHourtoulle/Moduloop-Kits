@@ -196,11 +196,12 @@ describe('getProjectKitBreakdown', () => {
 
     const breakdown = getProjectKitBreakdown(project, 'achat');
     expect(breakdown).toHaveLength(1);
-    expect(breakdown[0].kitName).toBe('Kit A');
-    expect(breakdown[0].quantity).toBe(2);
-    expect(breakdown[0].totalPrice).toBe(300);  // 150 * 1 * 2
-    expect(breakdown[0].totalCost).toBe(200);    // 100 * 1 * 2
-    expect(breakdown[0].totalMargin).toBe(100);
+    const first = breakdown[0]!;
+    expect(first.kitName).toBe('Kit A');
+    expect(first.quantity).toBe(2);
+    expect(first.totalPrice).toBe(300);  // 150 * 1 * 2
+    expect(first.totalCost).toBe(200);    // 100 * 1 * 2
+    expect(first.totalMargin).toBe(100);
   });
 
   it('calculates margin percentage', () => {
@@ -213,7 +214,7 @@ describe('getProjectKitBreakdown', () => {
 
     const breakdown = getProjectKitBreakdown(project, 'achat');
     // margin% = (100 / 200) * 100 = 50%
-    expect(breakdown[0].marginPercentage).toBe(50);
+    expect(breakdown[0]!.marginPercentage).toBe(50);
   });
 
   it('returns 0 margin percentage when totalPrice is 0', () => {
@@ -222,7 +223,7 @@ describe('getProjectKitBreakdown', () => {
     const project = makeProject([makeProjectKit(1, kit)]);
 
     const breakdown = getProjectKitBreakdown(project, 'achat');
-    expect(breakdown[0].marginPercentage).toBe(0);
+    expect(breakdown[0]!.marginPercentage).toBe(0);
   });
 
   it('filters out kits without kitProducts', () => {

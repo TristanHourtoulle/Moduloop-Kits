@@ -74,7 +74,7 @@ export default function ProfilePage() {
       setFormData({
         name: data.user.name || '',
       });
-    } catch (error) {
+    } catch (_error) {
       setMessage({ type: 'error', text: 'Erreur lors du chargement du profil' });
     } finally {
       setIsPageLoading(false);

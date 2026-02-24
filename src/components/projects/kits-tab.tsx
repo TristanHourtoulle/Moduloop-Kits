@@ -14,7 +14,7 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/use-debounce';
-import { ProjectKit, Kit, KitProduct } from '@/lib/types/project';
+import { ProjectKit } from '@/lib/types/project';
 import { type PurchaseRentalMode } from '@/lib/schemas/product';
 import { calculateKitPrice } from '@/lib/utils/kit/calculations';
 import {
@@ -125,12 +125,6 @@ export function KitsTab({
   const cancelEditingQuantity = () => {
     setEditingQuantity(null);
     setTempQuantity(0);
-  };
-
-  const handleRemoveKit = async (projectKitId: string) => {
-    if (onRemoveKit) {
-      await onRemoveKit(projectKitId);
-    }
   };
 
   const totalUnits = projectKits.reduce((sum, pk) => sum + pk.quantite, 0);
