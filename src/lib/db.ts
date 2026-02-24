@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import 'server-only';
 import { unstable_noStore as noStore } from 'next/cache';
-import { Project, ProjectStatus } from './types/project';
+import { type Kit, type Product, type Project, ProjectStatus } from './types/project';
 import { getProductPricing, getProductEnvironmentalImpact } from './utils/product-helpers';
 
 const globalForPrisma = globalThis as unknown as {
@@ -135,7 +135,7 @@ export const getKits = async (filters?: { search?: string; style?: string }) => 
       createdAt: 'desc',
     },
   });
-  return transformDates(kits) as unknown[];
+  return transformDates(kits) as Kit[];
 };
 
 export const getKitById = async (id: string) => {
@@ -167,7 +167,7 @@ export const getProducts = async () => {
       nom: 'asc',
     },
   });
-  return transformDates(products) as unknown[];
+  return transformDates(products) as Product[];
 };
 
 export const getProductById = async (id: string) => {
@@ -225,7 +225,7 @@ export const getProjects = async (userId: string) => {
       createdAt: 'desc',
     },
   });
-  return transformDates(projects) as unknown[];
+  return transformDates(projects) as Project[];
 };
 
 export const getProjectById = async (id: string, userId: string) => {

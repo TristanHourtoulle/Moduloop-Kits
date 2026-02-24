@@ -1,6 +1,5 @@
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
-import { type Kit } from "@/lib/types/project";
 import { KitsListWrapper } from "@/components/kits/kits-list-wrapper";
 import { Button } from "@/components/ui/button";
 import { Package2, Plus } from "lucide-react";
@@ -13,7 +12,7 @@ export const revalidate = 0;
 
 export default async function KitsPage() {
   // Fetch kits directly from database using Prisma
-  const kits = await getKits() as Kit[];
+  const kits = await getKits();
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Package2, Plus } from "lucide-react";
 import Link from "next/link";
 import { getProducts } from "@/lib/db";
-import { type Product } from "@/lib/types/project";
 
 // Disable all caching for this page
 export const dynamic = 'force-dynamic';
@@ -13,7 +12,7 @@ export const revalidate = 0;
 
 export default async function ProductsPage() {
   // Fetch products directly from database using Prisma
-  const products = await getProducts() as Product[];
+  const products = await getProducts();
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
