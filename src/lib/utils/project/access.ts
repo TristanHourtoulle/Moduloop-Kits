@@ -26,12 +26,12 @@ export async function verifyProjectAccess(
   request: Request,
   projectId: string,
 ): Promise<ProjectAccessResult> {
-  const session = await auth.api.getSession(request);
+  const session = await auth.api.getSession({ headers: request.headers });
   if (!session?.user?.id) {
     return {
       ok: false,
       response: NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: { code: 'AUTH_UNAUTHORIZED', message: 'Unauthorized' } },
         { status: 401 },
       ),
     };
@@ -56,7 +56,7 @@ export async function verifyProjectAccess(
     return {
       ok: false,
       response: NextResponse.json(
-        { error: 'Project not found' },
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
         { status: 404 },
       ),
     };

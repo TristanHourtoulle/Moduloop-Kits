@@ -42,6 +42,13 @@ export async function GET(
       },
     });
 
+    if (!project) {
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      );
+    }
+
     // Calculer les totaux
     const totals = calculateProjectTotals(project as unknown as Project);
 
