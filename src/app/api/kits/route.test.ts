@@ -2,36 +2,23 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
-vi.mock('@/lib/db', () => ({
-  prisma: {
-    product: { findMany: vi.fn() },
-    kit: { create: vi.fn() },
-    user: { findUnique: vi.fn() },
-  },
-  getKits: vi.fn(),
-  getKitById: vi.fn(),
-  getProductById: vi.fn(),
-  getProducts: vi.fn(),
-  getProjects: vi.fn(),
-  createProject: vi.fn(),
-  calculateProjectTotals: vi.fn(),
-}));
-vi.mock('@/lib/cache', () => ({
-  invalidateProducts: vi.fn(),
-  invalidateProduct: vi.fn(),
-  invalidateKits: vi.fn(),
-  invalidateKit: vi.fn(),
-  CACHE_CONFIG: { PRODUCTS: { revalidate: 300 }, KITS: { revalidate: 60 } },
-}));
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
-}));
+vi.mock('@/lib/db', async () => {
+  const { createDbMock } = await import('@/test/mocks/db');
+  return createDbMock();
+});
+vi.mock('@/lib/cache', async () => {
+  const { createCacheMock } = await import('@/test/mocks/cache');
+  return createCacheMock();
+});
+vi.mock('next/cache', async () => {
+  const { createNextCacheMock } = await import('@/test/mocks/cache');
+  return createNextCacheMock();
+});
 
 import { auth } from '@/lib/auth';
 import { prisma, getKits } from '@/lib/db';
 import { GET, POST } from './route';
-import { createMockRequest, mockDevSession, mockUserSession } from '@/test/api-helpers';
+import { createMockRequest, mockAdminSession, mockDevSession, mockUserSession } from '@/test/api-helpers';
 
 const mockGetSession = vi.mocked(auth.api.getSession);
 const mockGetKits = vi.mocked(getKits);
@@ -81,6 +68,8 @@ describe('GET /api/kits', () => {
     const req = createMockRequest('GET', '/api/kits');
     const res = await GET(req);
     expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
     consoleSpy.mockRestore();
   });
 });
@@ -131,6 +120,18 @@ describe('POST /api/kits', () => {
     expect(body.id).toBe('k1');
   });
 
+  it('returns 201 when kit created by ADMIN', async () => {
+    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
+    mockProductFindMany.mockResolvedValueOnce([{ id: 'p1' }] as never);
+    const createdKit = { id: 'k2', nom: 'Admin Kit' };
+    mockKitCreate.mockResolvedValueOnce(createdKit as never);
+
+    const req = createMockRequest('POST', '/api/kits', validKit);
+    const res = await POST(req);
+
+    expect(res.status).toBe(201);
+  });
+
   it('groups duplicate product ids and sums quantities', async () => {
     mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
     mockProductFindMany.mockResolvedValueOnce([{ id: 'p1' }] as never);
@@ -165,6 +166,21 @@ describe('POST /api/kits', () => {
     const req = createMockRequest('POST', '/api/kits', { nom: '', style: '', products: [] });
     const res = await POST(req);
     expect(res.status).toBe(400);
+    consoleSpy.mockRestore();
+  });
+
+  it('returns 500 on DB error', async () => {
+    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockProductFindMany.mockResolvedValueOnce([{ id: 'p1' }] as never);
+    mockKitCreate.mockRejectedValueOnce(new Error('DB error'));
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const req = createMockRequest('POST', '/api/kits', validKit);
+    const res = await POST(req);
+
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
     consoleSpy.mockRestore();
   });
 });

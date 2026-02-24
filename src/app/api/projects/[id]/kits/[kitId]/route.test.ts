@@ -5,45 +5,22 @@ vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
 vi.mock('next/headers', () => ({
   headers: vi.fn().mockReturnValue(new Headers()),
 }));
-vi.mock('@/lib/db', () => ({
-  prisma: {
-    project: { findFirst: vi.fn() },
-    projectKit: {
-      findFirst: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-    },
-    user: { findUnique: vi.fn() },
-  },
-  getProductById: vi.fn(),
-  getKitById: vi.fn(),
-  getKits: vi.fn(),
-  getProducts: vi.fn(),
-  getProjects: vi.fn(),
-  createProject: vi.fn(),
-  calculateProjectTotals: vi.fn(),
-}));
-vi.mock('@/lib/cache', () => ({
-  invalidateProducts: vi.fn(),
-  invalidateProduct: vi.fn(),
-  invalidateKits: vi.fn(),
-  invalidateKit: vi.fn(),
-  CACHE_CONFIG: { PRODUCTS: { revalidate: 300 }, KITS: { revalidate: 60 } },
-}));
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
-}));
-vi.mock('@/lib/services/project-history', () => ({
-  createProjectCreatedHistory: vi.fn().mockResolvedValue(undefined),
-  createProjectUpdatedHistory: vi.fn().mockResolvedValue(undefined),
-  createProjectDeletedHistory: vi.fn().mockResolvedValue(undefined),
-  createKitAddedHistory: vi.fn().mockResolvedValue(undefined),
-  createKitRemovedHistory: vi.fn().mockResolvedValue(undefined),
-  createKitQuantityUpdatedHistory: vi.fn().mockResolvedValue(undefined),
-  getProjectHistory: vi.fn(),
-  recordProjectHistory: vi.fn(),
-}));
+vi.mock('@/lib/db', async () => {
+  const { createDbMock } = await import('@/test/mocks/db');
+  return createDbMock();
+});
+vi.mock('@/lib/cache', async () => {
+  const { createCacheMock } = await import('@/test/mocks/cache');
+  return createCacheMock();
+});
+vi.mock('next/cache', async () => {
+  const { createNextCacheMock } = await import('@/test/mocks/cache');
+  return createNextCacheMock();
+});
+vi.mock('@/lib/services/project-history', async () => {
+  const { createProjectHistoryMock } = await import('@/test/mocks/project-history');
+  return createProjectHistoryMock();
+});
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
@@ -124,6 +101,8 @@ describe('PATCH /api/projects/[id]/kits/[kitId]', () => {
     const req = createMockRequest('PATCH', '/api/projects/proj-1/kits/pk1', { quantite: 5 });
     const res = await PATCH(req, makeParams('proj-1', 'pk1'));
     expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
     consoleSpy.mockRestore();
   });
 });
@@ -171,5 +150,25 @@ describe('DELETE /api/projects/[id]/kits/[kitId]', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.success).toBe(true);
+  });
+
+  it('returns 500 on DB error', async () => {
+    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockProjectFindFirst.mockResolvedValueOnce({ id: 'proj-1', createdById: 'user-123' } as never);
+    mockProjectKitFindFirst.mockResolvedValueOnce({
+      id: 'pk1',
+      quantite: 2,
+      kit: { id: 'k1', nom: 'Kit 1' },
+    } as never);
+    mockProjectKitDelete.mockRejectedValueOnce(new Error('DB error'));
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const req = createMockRequest('DELETE', '/api/projects/proj-1/kits/pk1');
+    const res = await DELETE(req, makeParams('proj-1', 'pk1'));
+
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
+    consoleSpy.mockRestore();
   });
 });

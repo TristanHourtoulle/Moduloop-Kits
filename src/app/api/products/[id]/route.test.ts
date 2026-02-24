@@ -2,42 +2,23 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
-vi.mock('@/lib/db', () => ({
-  prisma: {
-    product: {
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      count: vi.fn(),
-    },
-    user: { findUnique: vi.fn() },
-  },
-  getProductById: vi.fn(),
-  getKitById: vi.fn(),
-  getKits: vi.fn(),
-  getProducts: vi.fn(),
-  getProjects: vi.fn(),
-  createProject: vi.fn(),
-  calculateProjectTotals: vi.fn(),
-}));
-vi.mock('@/lib/cache', () => ({
-  invalidateProducts: vi.fn(),
-  invalidateProduct: vi.fn(),
-  invalidateKits: vi.fn(),
-  invalidateKit: vi.fn(),
-  CACHE_CONFIG: { PRODUCTS: { revalidate: 300 }, KITS: { revalidate: 60 } },
-}));
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
-}));
+vi.mock('@/lib/db', async () => {
+  const { createDbMock } = await import('@/test/mocks/db');
+  return createDbMock();
+});
+vi.mock('@/lib/cache', async () => {
+  const { createCacheMock } = await import('@/test/mocks/cache');
+  return createCacheMock();
+});
+vi.mock('next/cache', async () => {
+  const { createNextCacheMock } = await import('@/test/mocks/cache');
+  return createNextCacheMock();
+});
 
 import { auth } from '@/lib/auth';
 import { prisma, getProductById } from '@/lib/db';
 import { GET, PUT, DELETE } from './route';
-import { createMockRequest, mockDevSession, mockUserSession } from '@/test/api-helpers';
+import { createMockRequest, mockAdminSession, mockDevSession, mockUserSession } from '@/test/api-helpers';
 
 const mockGetSession = vi.mocked(auth.api.getSession);
 const mockGetProductById = vi.mocked(getProductById);
@@ -156,6 +137,33 @@ describe('PUT /api/products/[id]', () => {
     expect(res.status).toBe(400);
     consoleSpy.mockRestore();
   });
+
+  it('returns 200 when ADMIN updates a product', async () => {
+    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
+    mockFindUnique.mockResolvedValueOnce({ id: VALID_ID, reference: 'REF-001' } as never);
+    const updatedProduct = { id: VALID_ID, nom: 'Admin Updated' };
+    mockUpdate.mockResolvedValueOnce(updatedProduct as never);
+
+    const req = createMockRequest('PUT', `/api/products/${VALID_ID}`, { nom: 'Admin Updated' });
+    const res = await PUT(req, makeParams(VALID_ID));
+
+    expect(res.status).toBe(200);
+  });
+
+  it('returns 500 on DB error', async () => {
+    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockFindUnique.mockResolvedValueOnce({ id: VALID_ID, reference: 'REF-001' } as never);
+    mockUpdate.mockRejectedValueOnce(new Error('DB error'));
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const req = createMockRequest('PUT', `/api/products/${VALID_ID}`, { nom: 'Will Fail' });
+    const res = await PUT(req, makeParams(VALID_ID));
+
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
+    consoleSpy.mockRestore();
+  });
 });
 
 describe('DELETE /api/products/[id]', () => {
@@ -193,5 +201,31 @@ describe('DELETE /api/products/[id]', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.message).toBeDefined();
+  });
+
+  it('returns 200 when ADMIN deletes a product', async () => {
+    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
+    mockFindUnique.mockResolvedValueOnce({ id: VALID_ID } as never);
+    mockDelete.mockResolvedValueOnce({} as never);
+
+    const req = createMockRequest('DELETE', `/api/products/${VALID_ID}`);
+    const res = await DELETE(req, makeParams(VALID_ID));
+
+    expect(res.status).toBe(200);
+  });
+
+  it('returns 500 on DB error', async () => {
+    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockFindUnique.mockResolvedValueOnce({ id: VALID_ID } as never);
+    mockDelete.mockRejectedValueOnce(new Error('DB error'));
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const req = createMockRequest('DELETE', `/api/products/${VALID_ID}`);
+    const res = await DELETE(req, makeParams(VALID_ID));
+
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
+    consoleSpy.mockRestore();
   });
 });

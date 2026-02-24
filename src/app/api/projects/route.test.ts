@@ -2,44 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
-vi.mock('@/lib/db', () => ({
-  prisma: {
-    user: { findUnique: vi.fn() },
-    project: { findMany: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn(), create: vi.fn() },
-  },
-  getProjects: vi.fn(),
-  createProject: vi.fn(),
-  calculateProjectTotals: vi.fn().mockReturnValue({
-    totalPrix: 0,
-    totalImpact: { rechauffementClimatique: 0, epuisementRessources: 0, acidification: 0, eutrophisation: 0 },
-    totalSurface: 0,
-  }),
-  getProductById: vi.fn(),
-  getKitById: vi.fn(),
-  getKits: vi.fn(),
-  getProducts: vi.fn(),
-}));
-vi.mock('@/lib/cache', () => ({
-  invalidateProducts: vi.fn(),
-  invalidateProduct: vi.fn(),
-  invalidateKits: vi.fn(),
-  invalidateKit: vi.fn(),
-  CACHE_CONFIG: { PRODUCTS: { revalidate: 300 }, KITS: { revalidate: 60 } },
-}));
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
-}));
-vi.mock('@/lib/services/project-history', () => ({
-  createProjectCreatedHistory: vi.fn().mockResolvedValue(undefined),
-  createProjectUpdatedHistory: vi.fn().mockResolvedValue(undefined),
-  createProjectDeletedHistory: vi.fn().mockResolvedValue(undefined),
-  createKitAddedHistory: vi.fn().mockResolvedValue(undefined),
-  createKitRemovedHistory: vi.fn().mockResolvedValue(undefined),
-  createKitQuantityUpdatedHistory: vi.fn().mockResolvedValue(undefined),
-  getProjectHistory: vi.fn(),
-  recordProjectHistory: vi.fn(),
-}));
+vi.mock('@/lib/db', async () => {
+  const { createDbMock } = await import('@/test/mocks/db');
+  return createDbMock();
+});
+vi.mock('@/lib/cache', async () => {
+  const { createCacheMock } = await import('@/test/mocks/cache');
+  return createCacheMock();
+});
+vi.mock('next/cache', async () => {
+  const { createNextCacheMock } = await import('@/test/mocks/cache');
+  return createNextCacheMock();
+});
+vi.mock('@/lib/services/project-history', async () => {
+  const { createProjectHistoryMock } = await import('@/test/mocks/project-history');
+  return createProjectHistoryMock();
+});
 
 import { auth } from '@/lib/auth';
 import { prisma, getProjects, createProject, calculateProjectTotals } from '@/lib/db';
@@ -119,6 +97,8 @@ describe('GET /api/projects', () => {
     const req = createMockRequest('GET', '/api/projects');
     const res = await GET(req);
     expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
     consoleSpy.mockRestore();
   });
 });
@@ -159,6 +139,8 @@ describe('POST /api/projects', () => {
     const req = createMockRequest('POST', '/api/projects', { nom: 'New' });
     const res = await POST(req);
     expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
     consoleSpy.mockRestore();
   });
 });

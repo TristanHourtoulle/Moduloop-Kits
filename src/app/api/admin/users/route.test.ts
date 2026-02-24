@@ -2,29 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
-vi.mock('@/lib/db', () => ({
-  prisma: {
-    user: {
-      findUnique: vi.fn(),
-      findMany: vi.fn(),
-      update: vi.fn(),
-    },
-    product: { findMany: vi.fn() },
-    kit: { findMany: vi.fn() },
-    project: { findMany: vi.fn() },
-  },
-  getProductById: vi.fn(),
-  getKitById: vi.fn(),
-  getKits: vi.fn(),
-  getProducts: vi.fn(),
-  getProjects: vi.fn(),
-  createProject: vi.fn(),
-  calculateProjectTotals: vi.fn(),
-}));
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
-}));
+vi.mock('@/lib/db', async () => {
+  const { createDbMock } = await import('@/test/mocks/db');
+  return createDbMock();
+});
+vi.mock('next/cache', async () => {
+  const { createNextCacheMock } = await import('@/test/mocks/cache');
+  return createNextCacheMock();
+});
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
@@ -101,6 +86,8 @@ describe('GET /api/admin/users', () => {
     const req = createMockRequest('GET', '/api/admin/users');
     const res = await GET(req);
     expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
     consoleSpy.mockRestore();
   });
 });

@@ -3,49 +3,25 @@ import { NextResponse } from 'next/server';
 
 vi.mock('server-only', () => ({}));
 vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
-vi.mock('@/lib/db', () => ({
-  prisma: {
-    project: { findFirst: vi.fn() },
-    kit: { findMany: vi.fn() },
-    projectKit: {
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-    },
-    user: { findUnique: vi.fn() },
-  },
-  getProductById: vi.fn(),
-  getKitById: vi.fn(),
-  getKits: vi.fn(),
-  getProducts: vi.fn(),
-  getProjects: vi.fn(),
-  createProject: vi.fn(),
-  calculateProjectTotals: vi.fn(),
-}));
-vi.mock('@/lib/cache', () => ({
-  invalidateProducts: vi.fn(),
-  invalidateProduct: vi.fn(),
-  invalidateKits: vi.fn(),
-  invalidateKit: vi.fn(),
-  CACHE_CONFIG: { PRODUCTS: { revalidate: 300 }, KITS: { revalidate: 60 } },
-}));
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
-}));
+vi.mock('@/lib/db', async () => {
+  const { createDbMock } = await import('@/test/mocks/db');
+  return createDbMock();
+});
+vi.mock('@/lib/cache', async () => {
+  const { createCacheMock } = await import('@/test/mocks/cache');
+  return createCacheMock();
+});
+vi.mock('next/cache', async () => {
+  const { createNextCacheMock } = await import('@/test/mocks/cache');
+  return createNextCacheMock();
+});
 vi.mock('@/lib/utils/project/access', () => ({
   verifyProjectAccess: vi.fn(),
 }));
-vi.mock('@/lib/services/project-history', () => ({
-  createProjectCreatedHistory: vi.fn().mockResolvedValue(undefined),
-  createProjectUpdatedHistory: vi.fn().mockResolvedValue(undefined),
-  createProjectDeletedHistory: vi.fn().mockResolvedValue(undefined),
-  createKitAddedHistory: vi.fn().mockResolvedValue(undefined),
-  createKitRemovedHistory: vi.fn().mockResolvedValue(undefined),
-  createKitQuantityUpdatedHistory: vi.fn().mockResolvedValue(undefined),
-  getProjectHistory: vi.fn(),
-  recordProjectHistory: vi.fn(),
-}));
+vi.mock('@/lib/services/project-history', async () => {
+  const { createProjectHistoryMock } = await import('@/test/mocks/project-history');
+  return createProjectHistoryMock();
+});
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';

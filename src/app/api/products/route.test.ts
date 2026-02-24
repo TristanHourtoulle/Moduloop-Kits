@@ -2,35 +2,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
-vi.mock('@/lib/db', () => ({
-  prisma: {
-    product: {
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      create: vi.fn(),
-      count: vi.fn(),
-    },
-    user: { findUnique: vi.fn() },
-  },
-  getProductById: vi.fn(),
-  getKitById: vi.fn(),
-  getKits: vi.fn(),
-  getProducts: vi.fn(),
-  getProjects: vi.fn(),
-  createProject: vi.fn(),
-  calculateProjectTotals: vi.fn(),
-}));
-vi.mock('@/lib/cache', () => ({
-  invalidateProducts: vi.fn(),
-  invalidateProduct: vi.fn(),
-  invalidateKits: vi.fn(),
-  invalidateKit: vi.fn(),
-  CACHE_CONFIG: { PRODUCTS: { revalidate: 300 }, KITS: { revalidate: 60 } },
-}));
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
-}));
+vi.mock('@/lib/db', async () => {
+  const { createDbMock } = await import('@/test/mocks/db');
+  return createDbMock();
+});
+vi.mock('@/lib/cache', async () => {
+  const { createCacheMock } = await import('@/test/mocks/cache');
+  return createCacheMock();
+});
+vi.mock('next/cache', async () => {
+  const { createNextCacheMock } = await import('@/test/mocks/cache');
+  return createNextCacheMock();
+});
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
@@ -132,6 +115,8 @@ describe('GET /api/products', () => {
     const res = await GET(req);
 
     expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
     consoleSpy.mockRestore();
   });
 });
@@ -214,6 +199,8 @@ describe('POST /api/products', () => {
     const res = await POST(req);
 
     expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBeDefined();
     consoleSpy.mockRestore();
   });
 });
