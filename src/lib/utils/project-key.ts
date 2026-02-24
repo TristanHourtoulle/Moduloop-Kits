@@ -11,7 +11,14 @@
  * This approach ensures the component remounts when any significant data changes,
  * forcing a fresh render with updated props.
  */
-export function generateProjectKey(projectId: string, projectData: any): string {
+
+interface ProjectKeyData {
+  nom?: string;
+  description?: string;
+  kits?: Array<{ kitId?: string; id?: string }>;
+}
+
+export function generateProjectKey(projectId: string, projectData: ProjectKeyData): string {
   if (!projectData) {
     return `project-${projectId}-empty`;
   }
@@ -26,7 +33,7 @@ export function generateProjectKey(projectId: string, projectData: any): string 
   // Add sorted kit IDs if they exist
   if (projectData.kits && Array.isArray(projectData.kits)) {
     const sortedKitIds = projectData.kits
-      .map((kit: any) => kit.kitId || kit.id || '')
+      .map((kit) => kit.kitId || kit.id || '')
       .sort()
       .join(',');
     dataPoints.push(sortedKitIds);

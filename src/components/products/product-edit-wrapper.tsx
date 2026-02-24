@@ -2,7 +2,7 @@
 
 import { ProductForm } from "@/components/products/product-form";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { generateProductKey } from "@/lib/utils/product-key";
 
 interface ProductData {
@@ -39,29 +39,16 @@ interface ProductData {
 interface ProductEditWrapperProps {
   productId: string;
   initialProduct: ProductData;
-  productName: string;
 }
 
-export function ProductEditWrapper({ productId, initialProduct, productName }: ProductEditWrapperProps) {
+export function ProductEditWrapper({ productId, initialProduct }: ProductEditWrapperProps) {
   const searchParams = useSearchParams();
   const timestamp = searchParams.get("t");
 
   // Generate a key that includes timestamp for forcing remount
-  const [productKey, setProductKey] = useState("");
-
-  useEffect(() => {
-    // Generate data-aware key based on product content (like kit implementation)
+  const productKey = useMemo(() => {
     const dataKey = generateProductKey(productId, initialProduct);
-    const fullKey = timestamp ? `${dataKey}-${timestamp}` : dataKey;
-    setProductKey(fullKey);
-
-    console.log("[ProductEditWrapper] Component mounted with:", {
-      productId,
-      productName,
-      timestamp,
-      dataKey,
-      fullKey,
-    });
+    return timestamp ? `${dataKey}-${timestamp}` : dataKey;
   }, [productId, timestamp, initialProduct]);
 
   // Map database fields to form fields
@@ -79,7 +66,7 @@ export function ProductEditWrapper({ productId, initialProduct, productName }: P
       <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-8">
         Modifiez les informations de{" "}
         <span className="font-semibold text-[#30C1BD]">
-          &quot;{productName}&quot;
+          &quot;{initialProduct.nom}&quot;
         </span>
       </p>
 

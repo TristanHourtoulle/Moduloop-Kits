@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import 'server-only';
 import { unstable_noStore as noStore } from 'next/cache';
-import { Project, ProjectStatus } from './types/project';
+import { type Kit, type Product, type Project, ProjectStatus } from './types/project';
 import { getProductPricing, getProductEnvironmentalImpact } from './utils/product-helpers';
 
 const globalForPrisma = globalThis as unknown as {
@@ -58,8 +58,12 @@ const productSelectFields = {
   eutrophisationLocation: true,
 } as const;
 
-// Helper to transform Prisma data to match frontend types
-const transformDates = (data: any): any => {
+/**
+ * Recursively transforms Prisma query results for frontend consumption:
+ * - Converts Date instances to ISO strings
+ * - Converts null description fields to undefined
+ */
+const transformDates = (data: unknown): unknown => {
   if (data === null || data === undefined) {
     return data;
   }
@@ -73,9 +77,9 @@ const transformDates = (data: any): any => {
   }
 
   if (typeof data === 'object') {
-    const transformed: any = {};
-    Object.keys(data).forEach((key) => {
-      const value = data[key];
+    const transformed: Record<string, unknown> = {};
+    Object.keys(data as Record<string, unknown>).forEach((key) => {
+      const value = (data as Record<string, unknown>)[key];
       if (value instanceof Date) {
         transformed[key] = value.toISOString();
       } else if (value === null && key === 'description') {
@@ -135,7 +139,7 @@ export const getKits = async (filters?: { search?: string; style?: string }) => 
       createdAt: 'desc',
     },
   });
-  return transformDates(kits) as any;
+  return transformDates(kits) as Kit[];
 };
 
 export const getKitById = async (id: string) => {
@@ -167,7 +171,7 @@ export const getProducts = async () => {
       nom: 'asc',
     },
   });
-  return transformDates(products) as any;
+  return transformDates(products) as Product[];
 };
 
 export const getProductById = async (id: string) => {
@@ -225,7 +229,7 @@ export const getProjects = async (userId: string) => {
       createdAt: 'desc',
     },
   });
-  return transformDates(projects) as any;
+  return transformDates(projects) as Project[];
 };
 
 export const getProjectById = async (id: string, userId: string) => {

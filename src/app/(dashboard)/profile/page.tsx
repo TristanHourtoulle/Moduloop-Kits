@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { SafeAvatar } from '@/components/ui/safe-avatar';
 import { RoleBadge } from '@/components/ui/role-badge';
+import { UserRole } from '@/lib/types/user';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -253,7 +254,7 @@ export default function ProfilePage() {
                 <p className='text-sm text-muted-foreground mb-3'>
                   {profileData.user.email}
                 </p>
-                <RoleBadge role={profileData.user.role as any} />
+                <RoleBadge role={profileData.user.role as UserRole} />
               </div>
 
               <Separator />
@@ -323,7 +324,7 @@ export default function ProfilePage() {
                     />
                     {profileData.user.hasGoogleAccount && (
                       <p className='text-xs text-muted-foreground'>
-                        L'email ne peut pas être modifié pour les comptes Google
+                        L&apos;email ne peut pas être modifié pour les comptes Google
                       </p>
                     )}
                   </div>
@@ -408,7 +409,7 @@ export default function ProfilePage() {
                     <Palette className='h-5 w-5 text-muted-foreground' />
                     <div>
                       <div className='font-medium'>Thème</div>
-                      <div className='text-sm text-muted-foreground'>Thème de l'interface</div>
+                      <div className='text-sm text-muted-foreground'>Thème de l&apos;interface</div>
                     </div>
                   </div>
                   <Badge variant='outline'>Auto</Badge>

@@ -196,15 +196,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Préparer les données en supprimant seulement les valeurs undefined non requises
-    // et en fournissant des valeurs par défaut pour les champs legacy requis
-    const createData: any = {
-      // Champs de base (toujours présents depuis la validation)
-      nom: validatedData.nom,
-      reference: validatedData.reference,
+    // Build create data: spread validated fields, override with defaults for legacy required fields,
+    // then remap form field names to DB column names
+    const { prixAchatAchat1An, prixUnitaireAchat1An, prixVenteAchat1An, ...restValidated } = validatedData;
+
+    const createData: Prisma.ProductUncheckedCreateInput = {
+      ...restValidated,
       description: validatedData.description || "",
-      
-      // Valeurs par défaut pour les champs legacy requis par Prisma
+      // Legacy required fields with defaults
       prixAchat1An: validatedData.prixAchat1An ?? 0,
       prixUnitaire1An: validatedData.prixUnitaire1An ?? 0,
       prixVente1An: validatedData.prixVente1An ?? 0,
@@ -213,33 +212,14 @@ export async function POST(request: NextRequest) {
       epuisementRessources: validatedData.epuisementRessources ?? 0,
       acidification: validatedData.acidification ?? 0,
       eutrophisation: validatedData.eutrophisation ?? 0,
-      
-      // Métadonnées
+      // Remap form fields (with period) to DB columns (without period)
+      prixAchatAchat: prixAchatAchat1An,
+      prixUnitaireAchat: prixUnitaireAchat1An,
+      prixVenteAchat: prixVenteAchat1An,
+      // Metadata
       createdById: session.user.id,
       updatedById: session.user.id,
     };
-
-    // Ajouter tous les autres champs non-undefined du schema validé
-    Object.entries(validatedData).forEach(([key, value]) => {
-      if (value !== undefined && !createData.hasOwnProperty(key)) {
-        createData[key] = value;
-      }
-    });
-
-    // Map form fields to database fields for achat prices
-    // Form uses prixAchatAchat1An but DB uses prixAchatAchat (no period)
-    if ('prixAchatAchat1An' in createData) {
-      createData.prixAchatAchat = createData.prixAchatAchat1An;
-      delete createData.prixAchatAchat1An;
-    }
-    if ('prixUnitaireAchat1An' in createData) {
-      createData.prixUnitaireAchat = createData.prixUnitaireAchat1An;
-      delete createData.prixUnitaireAchat1An;
-    }
-    if ('prixVenteAchat1An' in createData) {
-      createData.prixVenteAchat = createData.prixVenteAchat1An;
-      delete createData.prixVenteAchat1An;
-    }
 
     const product = await prisma.product.create({
       data: createData,

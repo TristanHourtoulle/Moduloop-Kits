@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { getProjects, createProject, calculateProjectTotals, prisma } from "@/lib/db";
-import { Project } from "@/lib/types/project";
 import { UserRole } from "@/lib/types/user";
 import { createProjectCreatedHistory } from '@/lib/services/project-history';
 
@@ -43,8 +42,8 @@ export async function GET(request: NextRequest) {
     const projects = await getProjects(targetUserId);
 
     // Calculer les totaux pour chaque projet
-    const projectsWithTotals = projects.map((project: any) => {
-      const totals = calculateProjectTotals(project as unknown as Project);
+    const projectsWithTotals = projects.map((project) => {
+      const totals = calculateProjectTotals(project);
       return {
         ...project,
         ...totals,

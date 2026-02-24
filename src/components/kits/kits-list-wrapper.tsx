@@ -5,42 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { KitsGridClient } from "@/components/kits/kits-grid-client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-
-interface Kit {
-  id: string;
-  nom: string;
-  style: string;
-  description?: string | null;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: {
-    id: string;
-    name?: string | null;
-    email: string;
-  };
-  updatedBy: {
-    id: string;
-    name?: string | null;
-    email: string;
-  };
-  kitProducts: Array<{
-    id: string;
-    quantite: number;
-    product: {
-      id: string;
-      nom: string;
-      reference: string;
-      prixVente1An: number;
-      prixVente2Ans?: number;
-      prixVente3Ans?: number;
-      rechauffementClimatique: number;
-      epuisementRessources: number;
-      acidification: number;
-      eutrophisation: number;
-      surfaceM2: number;
-    };
-  }>;
-}
+import { type Kit } from "@/lib/types/project";
 
 interface KitsListWrapperProps {
   initialKits: Kit[];

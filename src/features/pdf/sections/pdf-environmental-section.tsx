@@ -67,8 +67,8 @@ export function PdfEnvironmentalSection({ savings }: PdfEnvironmentalSectionProp
         }}
       >
         <Text style={tw('text-xs text-gray-700')}>
-          Les données ci-dessous représentent les économies d'impact environnemental
-          réalisées en choisissant la location par rapport à l'achat de produits neufs.
+          Les données ci-dessous représentent les économies d&apos;impact environnemental
+          réalisées en choisissant la location par rapport à l&apos;achat de produits neufs.
         </Text>
       </View>
 

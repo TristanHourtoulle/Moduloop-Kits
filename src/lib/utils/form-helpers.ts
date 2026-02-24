@@ -1,5 +1,5 @@
 // Fonction pour parser les valeurs numériques depuis les inputs
-export function parseNumberValue(value: any): number | undefined {
+export function parseNumberValue(value: unknown): number | undefined {
   // Si la valeur est vide, undefined ou null
   if (value === "" || value === null || value === undefined) {
     return undefined;

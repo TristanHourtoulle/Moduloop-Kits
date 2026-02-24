@@ -25,7 +25,7 @@ interface ProjectHistoryItem {
     lastName?: string;
     email: string;
   };
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 interface ProjectHistoryProps {
@@ -54,7 +54,6 @@ export function ProjectHistory({ projectId, projectCreatedAt }: ProjectHistoryPr
       const data = await response.json();
       setHistory(data);
     } catch (err) {
-      console.error('Error fetching project history:', err);
       setError('Impossible de charger l\'historique du projet');
     } finally {
       setLoading(false);
@@ -178,17 +177,17 @@ export function ProjectHistory({ projectId, projectCreatedAt }: ProjectHistoryPr
                     {/* Display metadata if available */}
                     {item.metadata && (
                       <div className="mt-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-2">
-                        {item.changeType === 'KIT_ADDED' && item.metadata.kitName && (
-                          <p>Kit: {item.metadata.kitName} ({item.metadata.quantity} unité{item.metadata.quantity > 1 ? 's' : ''})</p>
+                        {item.changeType === 'KIT_ADDED' && typeof item.metadata.kitName === 'string' && (
+                          <p>Kit: {item.metadata.kitName} ({typeof item.metadata.quantity === 'number' ? item.metadata.quantity : 0} unité{typeof item.metadata.quantity === 'number' && item.metadata.quantity > 1 ? 's' : ''})</p>
                         )}
-                        {item.changeType === 'KIT_REMOVED' && item.metadata.kitName && (
-                          <p>Kit retiré: {item.metadata.kitName} ({item.metadata.quantity} unité{item.metadata.quantity > 1 ? 's' : ''})</p>
+                        {item.changeType === 'KIT_REMOVED' && typeof item.metadata.kitName === 'string' && (
+                          <p>Kit retiré: {item.metadata.kitName} ({typeof item.metadata.quantity === 'number' ? item.metadata.quantity : 0} unité{typeof item.metadata.quantity === 'number' && item.metadata.quantity > 1 ? 's' : ''})</p>
                         )}
-                        {item.changeType === 'KIT_QUANTITY_UPDATED' && item.metadata.kitName && (
-                          <p>Kit: {item.metadata.kitName} ({item.metadata.oldQuantity} → {item.metadata.newQuantity})</p>
+                        {item.changeType === 'KIT_QUANTITY_UPDATED' && typeof item.metadata.kitName === 'string' && (
+                          <p>Kit: {item.metadata.kitName} ({String(item.metadata.oldQuantity ?? 0)} → {String(item.metadata.newQuantity ?? 0)})</p>
                         )}
-                        {(item.changeType === 'CREATED' || item.changeType === 'DELETED') && item.metadata.projectName && (
-                          <p>Projet: {item.metadata.projectName}</p>
+                        {(item.changeType === 'CREATED' || item.changeType === 'DELETED') && !!item.metadata.projectName && (
+                          <p>Projet: {String(item.metadata.projectName)}</p>
                         )}
                       </div>
                     )}

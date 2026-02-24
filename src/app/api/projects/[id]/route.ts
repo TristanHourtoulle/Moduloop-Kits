@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma, calculateProjectTotals } from '@/lib/db';
-import { Project } from '@/lib/types/project';
+import { type Project } from '@/lib/types/project';
 import { UserRole } from '@/lib/types/user';
 import { createProjectUpdatedHistory, createProjectDeletedHistory } from '@/lib/services/project-history';
 
@@ -111,7 +112,7 @@ export async function PATCH(
     // Use transaction to update project and record history
     const result = await prisma.$transaction(async (tx) => {
       // Prepare update data
-      const updateData: any = {};
+      const updateData: Prisma.ProjectUpdateInput = {};
       if (nom !== undefined) updateData.nom = nom;
       if (description !== undefined) updateData.description = description;
       if (status !== undefined) updateData.status = status;

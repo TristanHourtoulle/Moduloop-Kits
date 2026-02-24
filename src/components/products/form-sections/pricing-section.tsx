@@ -542,8 +542,8 @@ export function PricingSection({
             <div className="text-sm text-blue-900">
               <p className="font-semibold mb-1">Différence Achat / Location :</p>
               <ul className="space-y-1 text-xs">
-                <li>• <strong>Achat</strong> : Prix pour l'acquisition définitive d'équipements neufs</li>
-                <li>• <strong>Location</strong> : Prix pour la location temporaire d'équipements existants</li>
+                <li>• <strong>Achat</strong> : Prix pour l&apos;acquisition définitive d&apos;équipements neufs</li>
+                <li>• <strong>Location</strong> : Prix pour la location temporaire d&apos;équipements existants</li>
                 <li>• Chaque mode a ses propres prix et impacts environnementaux</li>
               </ul>
             </div>

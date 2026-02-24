@@ -257,7 +257,7 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
               <div className='flex items-center gap-2'>
                 <Calculator className='h-4 w-4 text-primary' />
                 <span className='text-sm text-muted-foreground font-medium'>
-                  Prix d'achat total
+                  Prix d&apos;achat total
                 </span>
               </div>
               <p className='text-3xl font-bold text-primary'>

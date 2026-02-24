@@ -30,7 +30,7 @@ export function FormErrorsDebug({ errors }: FormErrorsDebugProps) {
             ))}
           </ul>
           <p className="text-xs mt-2 opacity-80">
-            Nombre total d'erreurs : {errorEntries.length}
+            Nombre total d&apos;erreurs : {errorEntries.length}
           </p>
         </div>
       </AlertDescription>

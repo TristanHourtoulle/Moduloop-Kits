@@ -13,7 +13,38 @@
  * This approach ensures the component remounts when any significant data changes,
  * forcing a fresh render with updated props.
  */
-export function generateProductKey(productId: string, productData: any): string {
+
+interface ProductKeyData {
+  nom?: string;
+  reference?: string;
+  description?: string;
+  quantite?: number;
+  surfaceM2?: number;
+  prixAchatAchat?: number;
+  prixUnitaireAchat?: number;
+  prixVenteAchat?: number;
+  margeCoefficientAchat?: number;
+  prixAchatLocation1An?: number;
+  prixUnitaireLocation1An?: number;
+  prixVenteLocation1An?: number;
+  prixAchatLocation2Ans?: number;
+  prixUnitaireLocation2Ans?: number;
+  prixVenteLocation2Ans?: number;
+  prixAchatLocation3Ans?: number;
+  prixUnitaireLocation3Ans?: number;
+  prixVenteLocation3Ans?: number;
+  margeCoefficientLocation?: number;
+  rechauffementClimatiqueAchat?: number;
+  epuisementRessourcesAchat?: number;
+  acidificationAchat?: number;
+  eutrophisationAchat?: number;
+  rechauffementClimatiqueLocation?: number;
+  epuisementRessourcesLocation?: number;
+  acidificationLocation?: number;
+  eutrophisationLocation?: number;
+}
+
+export function generateProductKey(productId: string, productData: ProductKeyData): string {
   if (!productData) {
     return `product-${productId}-empty`;
   }

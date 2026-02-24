@@ -1,7 +1,4 @@
 import { getKits } from '@/lib/db';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { UserRole } from '@/lib/types/user';
 import { KitsGridClient } from './kits-grid-client';
 
 interface KitsGridProps {
@@ -13,6 +10,6 @@ export async function KitsGrid({ showCreateButton = true }: KitsGridProps) {
   const kits = await getKits();
 
   return (
-    <KitsGridClient kits={kits as any} showCreateButton={showCreateButton} />
+    <KitsGridClient kits={kits} showCreateButton={showCreateButton} />
   );
 }

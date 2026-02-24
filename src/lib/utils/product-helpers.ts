@@ -49,26 +49,19 @@ export function getProductPricing(
   const prixUnitaireKey = `prixUnitaireLocation${suffix}` as keyof Product;
   const prixVenteKey = `prixVenteLocation${suffix}` as keyof Product;
 
-  let prixAchat = product[prixAchatKey] as number | null;
-  let prixUnitaire = product[prixUnitaireKey] as number | null;
-  let prixVente = product[prixVenteKey] as number | null;
-  let margeCoefficient = product.margeCoefficientLocation as number | null;
+  const rawPrixAchat = product[prixAchatKey] as number | null;
+  const rawPrixUnitaire = product[prixUnitaireKey] as number | null;
+  const rawPrixVente = product[prixVenteKey] as number | null;
+  const margeCoefficient = product.margeCoefficientLocation as number | null;
 
   // Fallback : si pas de prix spécifique pour 2/3 ans, utiliser le prix 1 an
-  if (period !== '1an' && (prixAchat === null || prixAchat === undefined)) {
-    const prix1An = getProductPricing(product, mode, '1an');
-    prixAchat = prix1An.prixAchat;
-  }
+  const fallback = period !== '1an' && (rawPrixAchat == null || rawPrixUnitaire == null || rawPrixVente == null)
+    ? getProductPricing(product, mode, '1an')
+    : null;
 
-  if (period !== '1an' && (prixUnitaire === null || prixUnitaire === undefined)) {
-    const prix1An = getProductPricing(product, mode, '1an');
-    prixUnitaire = prix1An.prixUnitaire;
-  }
-
-  if (period !== '1an' && (prixVente === null || prixVente === undefined)) {
-    const prix1An = getProductPricing(product, mode, '1an');
-    prixVente = prix1An.prixVente;
-  }
+  const prixAchat = rawPrixAchat ?? fallback?.prixAchat ?? null;
+  const prixUnitaire = rawPrixUnitaire ?? fallback?.prixUnitaire ?? null;
+  const prixVente = rawPrixVente ?? fallback?.prixVente ?? null;
 
   return {
     prixAchat,
