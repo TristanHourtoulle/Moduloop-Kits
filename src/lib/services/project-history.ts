@@ -7,9 +7,9 @@ export interface ProjectHistoryContext {
   changeType: ProjectChangeType;
   description: string;
   changedFields?: string[];
-  oldValues?: Record<string, any>;
-  newValues?: Record<string, any>;
-  metadata?: Record<string, any>;
+  oldValues?: Record<string, unknown>;
+  newValues?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -61,8 +61,8 @@ export function createProjectUpdatedHistory(
   newProject: Partial<Project>
 ) {
   const changedFields: string[] = [];
-  const oldValues: Record<string, any> = {};
-  const newValues: Record<string, any> = {};
+  const oldValues: Record<string, unknown> = {};
+  const newValues: Record<string, unknown> = {};
 
   // Check each field for changes
   if (oldProject.nom !== newProject.nom) {

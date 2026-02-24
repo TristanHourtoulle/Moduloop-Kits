@@ -63,9 +63,9 @@ export function ConnexionForm() {
         setError(errorMessage);
       }
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.log("🔴 Unexpected error:", err);
-      const errorMessage = getSpecificAuthError(err, 'signin');
+      const errorMessage = getSpecificAuthError(err instanceof Error ? err.message : String(err), 'signin');
       setError(errorMessage);
     } finally {
       setIsLoading(false);

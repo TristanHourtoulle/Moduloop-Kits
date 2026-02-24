@@ -22,7 +22,19 @@ interface KitData {
 }
 
 // Fetch kit data directly from database
-async function getKit(kitId: string): Promise<any | null> {
+interface KitRecord {
+  nom: string;
+  style: string;
+  description?: string;
+  surfaceM2?: number;
+  updatedAt?: Date | string;
+  kitProducts: Array<{
+    product: { id: string };
+    quantite: number;
+  }>;
+}
+
+async function getKit(kitId: string): Promise<KitRecord | null> {
   try {
     console.log("[EditKitPage Server] Fetching kit from DB:", kitId);
 
@@ -39,7 +51,7 @@ async function getKit(kitId: string): Promise<any | null> {
       productsCount: kit.kitProducts?.length || 0,
     });
 
-    return kit;
+    return kit as unknown as KitRecord;
   } catch (error) {
     console.error("[EditKitPage Server] Error fetching kit:", error);
     return null;
@@ -85,7 +97,7 @@ export default async function EditKitPage({
 
   // Generate a unique key based on kit data + updatedAt timestamp
   // This forces remount when data changes
-  const kitKey = `${kitId}-${kitData.updatedAt || Date.now()}`;
+  const kitKey = `${kitId}-${String(kitData.updatedAt ?? 'initial')}`;
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>

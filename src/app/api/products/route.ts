@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
 
     // Préparer les données en supprimant seulement les valeurs undefined non requises
     // et en fournissant des valeurs par défaut pour les champs legacy requis
-    const createData: any = {
+    const createData: Record<string, unknown> = {
       // Champs de base (toujours présents depuis la validation)
       nom: validatedData.nom,
       reference: validatedData.reference,
@@ -242,7 +242,7 @@ export async function POST(request: NextRequest) {
     }
 
     const product = await prisma.product.create({
-      data: createData,
+      data: createData as Prisma.ProductCreateInput,
       include: {
         createdBy: {
           select: { id: true, name: true, email: true },

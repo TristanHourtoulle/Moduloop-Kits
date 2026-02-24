@@ -2,8 +2,9 @@
 
 import { ProjectEditForm } from "@/components/projects/project-edit-form";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { generateProjectKey } from "@/lib/utils/project-key";
+import type { Project } from "@/lib/types/project";
 
 interface ProjectData {
   nom: string;
@@ -22,22 +23,9 @@ export function ProjectEditWrapper({ projectId, initialProject, projectName }: P
   const timestamp = searchParams.get("t");
 
   // Generate a key that includes timestamp for forcing remount
-  const [projectKey, setProjectKey] = useState("");
-
-  useEffect(() => {
-    // Generate data-aware key based on project content (like kit implementation)
-    const dataKey = generateProjectKey(projectId, initialProject);
-    const fullKey = timestamp ? `${dataKey}-${timestamp}` : dataKey;
-    setProjectKey(fullKey);
-
-    console.log("[ProjectEditWrapper] Component mounted with:", {
-      projectId,
-      projectName,
-      timestamp,
-      dataKey,
-      fullKey,
-      kitsCount: initialProject.kits.length,
-    });
+  const projectKey = useMemo(() => {
+    const dataKey = generateProjectKey(projectId, initialProject as unknown as Record<string, unknown>);
+    return timestamp ? `${dataKey}-${timestamp}` : dataKey;
   }, [projectId, timestamp, initialProject]);
 
   return (
@@ -52,7 +40,7 @@ export function ProjectEditWrapper({ projectId, initialProject, projectName }: P
       {/* Form with dynamic key for forcing remount on Vercel */}
       <ProjectEditForm
         key={projectKey}
-        project={{ ...initialProject, id: projectId } as any}
+        project={{ ...initialProject, id: projectId } as unknown as Project}
       />
     </>
   );

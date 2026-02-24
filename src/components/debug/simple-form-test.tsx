@@ -38,7 +38,7 @@ export function SimpleFormTest() {
     alert("Form valid! Check console for data.");
   };
 
-  const onError = (errors: any) => {
+  const onError = (errors: Record<string, unknown>) => {
     console.log("❌ Form errors:", errors);
   };
 

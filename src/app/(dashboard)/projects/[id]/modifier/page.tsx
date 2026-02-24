@@ -17,7 +17,16 @@ interface ProjectData {
 }
 
 // Fetch project data directly from database
-async function getProject(projectId: string, userId: string): Promise<any | null> {
+interface ProjectRecord {
+  nom: string;
+  description?: string;
+  updatedAt?: Date | string;
+  projectKits?: Array<{
+    kit: { id: string };
+  }>;
+}
+
+async function getProject(projectId: string, userId: string): Promise<ProjectRecord | null> {
   try {
     console.log("[EditProjectPage Server] Fetching project from DB:", projectId);
 
@@ -34,7 +43,7 @@ async function getProject(projectId: string, userId: string): Promise<any | null
       kitsCount: project.projectKits?.length || 0,
     });
 
-    return project;
+    return project as unknown as ProjectRecord;
   } catch (error) {
     console.error("[EditProjectPage Server] Error fetching project:", error);
     return null;
@@ -74,12 +83,12 @@ export default async function EditProjectPage({
   const transformedProject: ProjectData = {
     nom: projectData.nom,
     description: projectData.description || undefined,
-    kits: projectData.projectKits?.map((pk: any) => ({ kitId: pk.kit.id })) || [],
+    kits: projectData.projectKits?.map((pk) => ({ kitId: pk.kit.id })) || [],
   };
 
   // Generate a unique key based on project data + updatedAt timestamp
   // This forces remount when data changes
-  const projectKey = `${projectId}-${projectData.updatedAt || Date.now()}`;
+  const projectKey = `${projectId}-${String(projectData.updatedAt ?? 'initial')}`;
 
   return (
     <RoleGuard requiredRole={UserRole.USER}>

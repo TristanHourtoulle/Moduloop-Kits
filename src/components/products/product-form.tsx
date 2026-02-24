@@ -107,7 +107,7 @@ export function ProductForm({
 
       // Identifier les champs qui ont changé
       const changedFields = Object.keys(initialData).filter(
-        (key) => (initialData as any)[key] !== (cleanedInitialData as any)[key]
+        (key) => (initialData as Record<string, unknown>)[key] !== (cleanedInitialData as Record<string, unknown>)[key]
       );
       if (changedFields.length > 0) {
         console.log(

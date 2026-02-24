@@ -41,7 +41,39 @@ interface ProductData {
 }
 
 // Fetch product data directly from database
-async function getProduct(productId: string): Promise<any | null> {
+interface ProductRecord {
+  nom: string;
+  reference: string;
+  description?: string;
+  quantite?: number;
+  surfaceM2?: number;
+  image?: string;
+  updatedAt?: Date | string;
+  prixAchatAchat?: number;
+  prixUnitaireAchat?: number;
+  prixVenteAchat?: number;
+  margeCoefficientAchat?: number;
+  prixAchatLocation1An?: number;
+  prixUnitaireLocation1An?: number;
+  prixVenteLocation1An?: number;
+  prixAchatLocation2Ans?: number;
+  prixUnitaireLocation2Ans?: number;
+  prixVenteLocation2Ans?: number;
+  prixAchatLocation3Ans?: number;
+  prixUnitaireLocation3Ans?: number;
+  prixVenteLocation3Ans?: number;
+  margeCoefficientLocation?: number;
+  rechauffementClimatiqueAchat?: number;
+  epuisementRessourcesAchat?: number;
+  acidificationAchat?: number;
+  eutrophisationAchat?: number;
+  rechauffementClimatiqueLocation?: number;
+  epuisementRessourcesLocation?: number;
+  acidificationLocation?: number;
+  eutrophisationLocation?: number;
+}
+
+async function getProduct(productId: string): Promise<ProductRecord | null> {
   try {
     console.log("[EditProductPage Server] Fetching product from DB:", productId);
 
@@ -58,7 +90,7 @@ async function getProduct(productId: string): Promise<any | null> {
       reference: product.reference,
     });
 
-    return product;
+    return product as unknown as ProductRecord;
   } catch (error) {
     console.error("[EditProductPage Server] Error fetching product:", error);
     return null;
@@ -122,7 +154,7 @@ export default async function EditProductPage({
 
   // Generate a unique key based on product data + updatedAt timestamp
   // This forces remount when data changes
-  const productKey = `${productId}-${productData.updatedAt || Date.now()}`;
+  const productKey = `${productId}-${String(productData.updatedAt ?? 'initial')}`;
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>

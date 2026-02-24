@@ -4,7 +4,7 @@ import { signIn } from "@/lib/auth-client";
 interface SignInResult {
   success: boolean;
   error?: string;
-  data?: any;
+  data?: unknown;
 }
 
 export async function signInWithErrorHandling(
@@ -66,7 +66,7 @@ export async function signInWithErrorHandling(
       const error = result.error;
       return {
         success: false,
-        error: typeof error === 'string' ? error : (error as any)?.message || 'Authentication failed'
+        error: typeof error === 'string' ? error : (error as Record<string, unknown>)?.message as string || 'Authentication failed'
       };
     }
 
@@ -83,9 +83,9 @@ export async function signInWithErrorHandling(
       data: result
     };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log("🔴 Caught exception:", error);
-    
+
     // Vérifier si c'est une erreur HTTP que nous avons capturée
     if (capturedError) {
       return {
@@ -96,7 +96,7 @@ export async function signInWithErrorHandling(
 
     return {
       success: false,
-      error: error.message || error.toString()
+      error: error instanceof Error ? error.message : String(error)
     };
   } finally {
     // Restaurer fetch original

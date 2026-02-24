@@ -5,6 +5,7 @@ import { CreateProjectButton } from "@/components/projects/create-project-button
 import { FolderOpen } from "lucide-react";
 import { getProjects } from "@/lib/db";
 import { getCurrentUserId } from "@/lib/auth-helpers";
+import { type Project } from "@/lib/types/project";
 
 // Disable all caching for this page
 export const dynamic = 'force-dynamic';
@@ -16,7 +17,7 @@ export default async function ProjectsPage() {
 
   // Fetch projects directly from database using Prisma
   // If no userId, return empty array (user not authenticated)
-  const projects = userId ? await getProjects(userId) : [];
+  const projects = userId ? await getProjects(userId) as Project[] : [];
 
   return (
     <RoleGuard requiredRole={UserRole.USER}>

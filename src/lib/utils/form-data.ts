@@ -2,7 +2,7 @@
  * Nettoie les données venant de la base de données pour les formulaires
  * Convertit null en undefined pour les champs optionnels
  */
-export function cleanProductDataForForm(data: any) {
+export function cleanProductDataForForm(data: Record<string, unknown>) {
   if (!data) return undefined;
 
   const cleanedData = { ...data };
@@ -56,7 +56,7 @@ export function cleanProductDataForForm(data: any) {
  * Prépare les données pour l'envoi à l'API
  * Convertit undefined en null pour certains champs si nécessaire
  */
-export function prepareProductDataForAPI(data: any) {
+export function prepareProductDataForAPI(data: Record<string, unknown>) {
   // Pour l'instant, on laisse tel quel
   // L'API gère déjà la conversion undefined -> null
   return data;

@@ -13,7 +13,7 @@
  * This approach ensures the component remounts when any significant data changes,
  * forcing a fresh render with updated props.
  */
-export function generateProductKey(productId: string, productData: any): string {
+export function generateProductKey(productId: string, productData: Record<string, unknown>): string {
   if (!productData) {
     return `product-${productId}-empty`;
   }

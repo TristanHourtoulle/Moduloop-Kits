@@ -11,7 +11,7 @@
  * This approach ensures the component remounts when any significant data changes,
  * forcing a fresh render with updated props.
  */
-export function generateProjectKey(projectId: string, projectData: any): string {
+export function generateProjectKey(projectId: string, projectData: Record<string, unknown>): string {
   if (!projectData) {
     return `project-${projectId}-empty`;
   }
@@ -26,7 +26,7 @@ export function generateProjectKey(projectId: string, projectData: any): string 
   // Add sorted kit IDs if they exist
   if (projectData.kits && Array.isArray(projectData.kits)) {
     const sortedKitIds = projectData.kits
-      .map((kit: any) => kit.kitId || kit.id || '')
+      .map((kit: Record<string, unknown>) => kit.kitId || kit.id || '')
       .sort()
       .join(',');
     dataPoints.push(sortedKitIds);

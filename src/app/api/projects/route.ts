@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
     const projects = await getProjects(targetUserId);
 
     // Calculer les totaux pour chaque projet
-    const projectsWithTotals = projects.map((project: any) => {
-      const totals = calculateProjectTotals(project as unknown as Project);
+    const projectsWithTotals = (projects as Project[]).map((project) => {
+      const totals = calculateProjectTotals(project);
       return {
         ...project,
         ...totals,

@@ -99,7 +99,7 @@ export function ProductFormSimple({
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = (errors: Record<string, unknown>) => {
     console.log("❌ [ProductFormSimple] Validation errors:", errors);
   };
 
@@ -191,7 +191,7 @@ export function ProductFormSimple({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="prixAchat1An">Prix d'achat *</Label>
+              <Label htmlFor="prixAchat1An">Prix d&apos;achat *</Label>
               <Input
                 id="prixAchat1An"
                 type="number"

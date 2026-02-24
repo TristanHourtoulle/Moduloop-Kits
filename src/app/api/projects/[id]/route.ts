@@ -111,7 +111,7 @@ export async function PATCH(
     // Use transaction to update project and record history
     const result = await prisma.$transaction(async (tx) => {
       // Prepare update data
-      const updateData: any = {};
+      const updateData: Record<string, unknown> = {};
       if (nom !== undefined) updateData.nom = nom;
       if (description !== undefined) updateData.description = description;
       if (status !== undefined) updateData.status = status;

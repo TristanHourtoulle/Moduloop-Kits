@@ -25,7 +25,7 @@ interface ProjectHistoryItem {
     lastName?: string;
     email: string;
   };
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 interface ProjectHistoryProps {
@@ -178,17 +178,17 @@ export function ProjectHistory({ projectId, projectCreatedAt }: ProjectHistoryPr
                     {/* Display metadata if available */}
                     {item.metadata && (
                       <div className="mt-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-2">
-                        {item.changeType === 'KIT_ADDED' && item.metadata.kitName && (
-                          <p>Kit: {item.metadata.kitName} ({item.metadata.quantity} unité{item.metadata.quantity > 1 ? 's' : ''})</p>
+                        {item.changeType === 'KIT_ADDED' && !!item.metadata.kitName && (
+                          <p>Kit: {String(item.metadata.kitName)} ({(item.metadata.quantity as number)} unité{(item.metadata.quantity as number) > 1 ? 's' : ''})</p>
                         )}
-                        {item.changeType === 'KIT_REMOVED' && item.metadata.kitName && (
-                          <p>Kit retiré: {item.metadata.kitName} ({item.metadata.quantity} unité{item.metadata.quantity > 1 ? 's' : ''})</p>
+                        {item.changeType === 'KIT_REMOVED' && !!item.metadata.kitName && (
+                          <p>Kit retiré: {String(item.metadata.kitName)} ({(item.metadata.quantity as number)} unité{(item.metadata.quantity as number) > 1 ? 's' : ''})</p>
                         )}
-                        {item.changeType === 'KIT_QUANTITY_UPDATED' && item.metadata.kitName && (
-                          <p>Kit: {item.metadata.kitName} ({item.metadata.oldQuantity} → {item.metadata.newQuantity})</p>
+                        {item.changeType === 'KIT_QUANTITY_UPDATED' && !!item.metadata.kitName && (
+                          <p>Kit: {String(item.metadata.kitName)} ({String(item.metadata.oldQuantity)} → {String(item.metadata.newQuantity)})</p>
                         )}
-                        {(item.changeType === 'CREATED' || item.changeType === 'DELETED') && item.metadata.projectName && (
-                          <p>Projet: {item.metadata.projectName}</p>
+                        {(item.changeType === 'CREATED' || item.changeType === 'DELETED') && !!item.metadata.projectName && (
+                          <p>Projet: {String(item.metadata.projectName)}</p>
                         )}
                       </div>
                     )}
