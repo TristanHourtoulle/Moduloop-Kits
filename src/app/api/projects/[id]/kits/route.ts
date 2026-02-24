@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { createKitAddedHistory, createKitQuantityUpdatedHistory } from '@/lib/services/project-history';
+import {
+  createKitAddedHistory,
+  createKitQuantityUpdatedHistory,
+} from '@/lib/services/project-history';
+import { verifyProjectAccess } from '@/lib/utils/project/access';
 
 interface KitRequest {
   kitId: string;
@@ -10,7 +14,7 @@ interface KitRequest {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth.api.getSession(request);
@@ -145,15 +149,13 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
-
     const { id: projectId } = await params;
+
+    const access = await verifyProjectAccess(request, projectId);
+    if (!access.ok) return access.response;
 
     const projectKits = await prisma.projectKit.findMany({
       where: {
