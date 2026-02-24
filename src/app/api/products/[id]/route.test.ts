@@ -37,7 +37,7 @@ vi.mock('next/cache', () => ({
 import { auth } from '@/lib/auth';
 import { prisma, getProductById } from '@/lib/db';
 import { GET, PUT, DELETE } from './route';
-import { createMockRequest, mockAdminSession, mockDevSession, mockUserSession } from '@/test/api-helpers';
+import { createMockRequest, mockDevSession, mockUserSession } from '@/test/api-helpers';
 
 const mockGetSession = vi.mocked(auth.api.getSession);
 const mockGetProductById = vi.mocked(getProductById);
