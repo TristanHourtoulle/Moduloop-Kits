@@ -57,6 +57,13 @@ export function canAccessResource(
 }
 
 /**
+ * Checks if the user has an elevated role (DEV or ADMIN).
+ */
+export function isAdminOrDev(role: UserRole): boolean {
+  return hasRole(role, UserRole.DEV);
+}
+
+/**
  * Obtient le label français d'un rôle
  */
 export function getRoleLabel(role: UserRole): string {

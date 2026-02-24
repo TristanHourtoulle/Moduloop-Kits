@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { createKitAddedHistory, createKitQuantityUpdatedHistory } from '@/lib/services/project-history';
+import { UserRole } from '@/lib/types/user';
+import { isAdminOrDev } from '@/lib/utils/roles';
 
 interface KitRequest {
   kitId: string;
@@ -154,6 +156,23 @@ export async function GET(
     }
 
     const { id: projectId } = await params;
+
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+
+    const isAdmin = isAdminOrDev(currentUser?.role as UserRole ?? UserRole.USER);
+
+    const project = await prisma.project.findFirst({
+      where: isAdmin
+        ? { id: projectId }
+        : { id: projectId, createdById: session.user.id },
+    });
+
+    if (!project) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
 
     const projectKits = await prisma.projectKit.findMany({
       where: {
