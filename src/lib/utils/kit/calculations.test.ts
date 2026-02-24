@@ -1,35 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import type { Product, KitProduct } from '@/lib/types/project';
+import type { KitProduct } from '@/lib/types/project';
+import { makeKitProduct } from '../test-fixtures';
 import { calculateKitPrice, calculateKitImpact } from './calculations';
-
-function makeProduct(overrides: Partial<Product> = {}): Product {
-  return {
-    id: 'prod-1',
-    nom: 'Test Product',
-    reference: 'REF-001',
-    prixAchat1An: 0,
-    prixUnitaire1An: 0,
-    prixVente1An: 0,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    createdById: 'user-1',
-    updatedById: 'user-1',
-    ...overrides,
-  };
-}
-
-function makeKitProduct(
-  quantite: number,
-  productOverrides: Partial<Product> = {}
-): KitProduct {
-  return {
-    id: `kp-${Math.random()}`,
-    kitId: 'kit-1',
-    productId: 'prod-1',
-    quantite,
-    product: makeProduct(productOverrides),
-  };
-}
 
 describe('calculateKitPrice', () => {
   it('returns 0 for empty array', () => {
@@ -67,7 +39,6 @@ describe('calculateKitPrice', () => {
     const kitProducts = [
       makeKitProduct(1, { prixVenteLocation1An: 50 }),
     ];
-    // DB stores monthly prices; 50 = 50€/month for 1-year commitment
     expect(calculateKitPrice(kitProducts, 'location', '1an')).toBe(50);
   });
 
@@ -75,14 +46,13 @@ describe('calculateKitPrice', () => {
     const kitProducts = [
       makeKitProduct(2, { prixVenteLocation3Ans: 30 }),
     ];
-    // 30€/month for 3-year commitment * 2 units
     expect(calculateKitPrice(kitProducts, 'location', '3ans')).toBe(60);
   });
 
   it('skips products without product data', () => {
     const kitProducts: KitProduct[] = [
       {
-        id: 'kp-1',
+        id: 'kp-orphan',
         kitId: 'kit-1',
         productId: 'prod-1',
         quantite: 1,
@@ -156,7 +126,7 @@ describe('calculateKitImpact', () => {
 
   it('skips products without product data', () => {
     const kitProducts: KitProduct[] = [
-      { id: 'kp-1', kitId: 'kit-1', productId: 'prod-1', quantite: 1 },
+      { id: 'kp-orphan', kitId: 'kit-1', productId: 'prod-1', quantite: 1 },
       makeKitProduct(1, { rechauffementClimatiqueAchat: 10 }),
     ];
     const impact = calculateKitImpact(kitProducts, 'achat');

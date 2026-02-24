@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { Product } from '@/lib/types/project';
+import { makeProduct } from './test-fixtures';
 import {
   ceilPrice,
   annualToMonthly,
@@ -13,22 +13,6 @@ import {
   formatEnvironmentalImpact,
   migrateLegacyProductData,
 } from './product-helpers';
-
-function makeProduct(overrides: Partial<Product> = {}): Product {
-  return {
-    id: 'prod-1',
-    nom: 'Test Product',
-    reference: 'REF-001',
-    prixAchat1An: 0,
-    prixUnitaire1An: 0,
-    prixVente1An: 0,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    createdById: 'user-1',
-    updatedById: 'user-1',
-    ...overrides,
-  };
-}
 
 describe('ceilPrice', () => {
   it('returns whole numbers unchanged', () => {
@@ -162,10 +146,9 @@ describe('getProductPricing', () => {
       expect(pricing.margeCoefficient).toBe(1.5);
     });
 
-    it('returns null when no fields are set', () => {
+    it('returns 0 via legacy fallback when no new fields are set', () => {
       const product = makeProduct();
       const pricing = getProductPricing(product, 'achat');
-      // prixAchat1An is 0 (required field in Product), so it falls back to 0
       expect(pricing.prixAchat).toBe(0);
     });
   });
@@ -324,16 +307,13 @@ describe('hasProductPricingData', () => {
     expect(hasProductPricingData(product, 'achat')).toBe(true);
   });
 
-  it('returns false when any price is null', () => {
+  it('returns true via legacy fallback even when new fields are missing', () => {
     const product = makeProduct({
       prixAchatAchat: 100,
       prixUnitaireAchat: 120,
-      // prixVenteAchat is missing
+      // prixVenteAchat missing -> falls back to legacy prixVente1An = 0 (non-null)
     });
-    // Falls back through deprecated and legacy; prixVente1An is 0 (not null)
-    // so actually returns true because legacy prixVente1An = 0 is non-null
-    const result = hasProductPricingData(product, 'achat');
-    expect(typeof result).toBe('boolean');
+    expect(hasProductPricingData(product, 'achat')).toBe(true);
   });
 
   it('returns true for location mode with 1an data', () => {
@@ -379,17 +359,15 @@ describe('getDefaultProductMode', () => {
     expect(getDefaultProductMode(product)).toBe('achat');
   });
 
-  it('returns location when only location has data', () => {
+  it('returns achat when only location has explicit data due to legacy fallback', () => {
     const product = makeProduct({
       prixAchatLocation1An: 50,
       prixUnitaireLocation1An: 60,
       prixVenteLocation1An: 60,
     });
-    // Legacy fields prixAchat1An/prixUnitaire1An/prixVente1An are 0 which is non-null
+    // Legacy fields prixAchat1An/prixUnitaire1An/prixVente1An default to 0 (non-null),
     // so hasProductPricingData('achat') returns true via fallback
-    // This means getDefaultProductMode returns 'achat' due to legacy defaults
-    const result = getDefaultProductMode(product);
-    expect(['achat', 'location']).toContain(result);
+    expect(getDefaultProductMode(product)).toBe('achat');
   });
 
   it('returns achat as default when no data exists', () => {
@@ -405,12 +383,12 @@ describe('formatPrice', () => {
 
   it('formats a number with EUR currency', () => {
     const result = formatPrice(1200);
-    expect(result).toContain('€');
+    expect(result).toContain('\u20ac');
   });
 
   it('applies ceilPrice before formatting', () => {
     const result = formatPrice(10.123);
-    // ceilPrice(10.123) = 10.13, should format as 10,13 €
+    // ceilPrice(10.123) = 10.13, should format as 10,13 EUR
     expect(result).toContain('10,13');
   });
 });

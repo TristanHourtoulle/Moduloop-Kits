@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import type { Product, KitProduct, Kit, ProjectKit, Project } from '@/lib/types/project';
-import { ProjectStatus } from '@/lib/types/project';
+import type { Kit } from '@/lib/types/project';
+import {
+  makeProduct,
+  makeKitProduct,
+  makeKit,
+  makeProjectKit,
+  makeProject,
+} from '../test-fixtures';
 import {
   calculateProjectPriceTotals,
   calculateProjectPurchaseCosts,
@@ -9,76 +15,6 @@ import {
   calculateEnvironmentalSavings,
   calculateBreakEvenPoint,
 } from './calculations';
-
-function makeProduct(overrides: Partial<Product> = {}): Product {
-  return {
-    id: 'prod-1',
-    nom: 'Test Product',
-    reference: 'REF-001',
-    prixAchat1An: 0,
-    prixUnitaire1An: 0,
-    prixVente1An: 0,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    createdById: 'user-1',
-    updatedById: 'user-1',
-    ...overrides,
-  };
-}
-
-function makeKitProduct(
-  quantite: number,
-  productOverrides: Partial<Product> = {}
-): KitProduct {
-  return {
-    id: `kp-${Math.random()}`,
-    kitId: 'kit-1',
-    productId: 'prod-1',
-    quantite,
-    product: makeProduct(productOverrides),
-  };
-}
-
-function makeKit(kitProducts: KitProduct[], overrides: Partial<Kit> = {}): Kit {
-  return {
-    id: 'kit-1',
-    nom: 'Test Kit',
-    style: 'modern',
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    createdById: 'user-1',
-    updatedById: 'user-1',
-    kitProducts,
-    ...overrides,
-  };
-}
-
-function makeProjectKit(
-  quantite: number,
-  kit: Kit,
-  overrides: Partial<ProjectKit> = {}
-): ProjectKit {
-  return {
-    id: `pk-${Math.random()}`,
-    projectId: 'project-1',
-    kitId: kit.id,
-    quantite,
-    kit,
-    ...overrides,
-  };
-}
-
-function makeProject(projectKits: ProjectKit[] = []): Project {
-  return {
-    id: 'project-1',
-    nom: 'Test Project',
-    status: ProjectStatus.ACTIF,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    createdById: 'user-1',
-    projectKits,
-  };
-}
 
 describe('calculateProjectPriceTotals', () => {
   it('returns all zeros when projectKits is undefined', () => {
@@ -94,14 +30,12 @@ describe('calculateProjectPriceTotals', () => {
   });
 
   it('calculates totals for single kit with single product', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       prixVenteAchat: 1000,
-      prixVenteLocation1An: 50,   // 50€/month, 1-year commitment
-      prixVenteLocation2Ans: 40,  // 40€/month, 2-year commitment
-      prixVenteLocation3Ans: 30,  // 30€/month, 3-year commitment
+      prixVenteLocation1An: 50,
+      prixVenteLocation2Ans: 40,
+      prixVenteLocation3Ans: 30,
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const projectKit = makeProjectKit(1, kit);
     const project = makeProject([projectKit]);
@@ -114,12 +48,10 @@ describe('calculateProjectPriceTotals', () => {
   });
 
   it('applies quantity cascade: kitProduct.quantite * projectKit.quantite', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(3, {
       prixVenteAchat: 100,
       prixVenteLocation1An: 10,
     });
-    const kitProduct = makeKitProduct(3, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const projectKit = makeProjectKit(2, kit); // 2 kits * 3 products = 6 units
     const project = makeProject([projectKit]);
@@ -130,11 +62,8 @@ describe('calculateProjectPriceTotals', () => {
   });
 
   it('sums across multiple kits', () => {
-    const product1 = makeProduct({ prixVenteAchat: 100 });
-    const product2 = makeProduct({ prixVenteAchat: 200 });
-
-    const kit1 = makeKit([makeKitProduct(1, product1)]);
-    const kit2 = makeKit([makeKitProduct(1, product2)]);
+    const kit1 = makeKit([makeKitProduct(1, { prixVenteAchat: 100 })]);
+    const kit2 = makeKit([makeKitProduct(1, { prixVenteAchat: 200 })]);
 
     const project = makeProject([
       makeProjectKit(1, kit1),
@@ -162,12 +91,10 @@ describe('calculateProjectPurchaseCosts', () => {
   });
 
   it('calculates price, cost, and margin', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       prixVenteAchat: 150,
       prixAchatAchat: 100,
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(1, kit)]);
 
@@ -178,12 +105,10 @@ describe('calculateProjectPurchaseCosts', () => {
   });
 
   it('applies quantity cascade', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(2, {
       prixVenteAchat: 100,
       prixAchatAchat: 60,
     });
-    const kitProduct = makeKitProduct(2, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(3, kit)]); // 2*3 = 6
 
@@ -196,12 +121,10 @@ describe('calculateProjectPurchaseCosts', () => {
 
 describe('calculateProjectRentalCosts', () => {
   it('calculates rental costs for 1an', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       prixVenteLocation1An: 50,
       prixAchatLocation1An: 30,
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(1, kit)]);
 
@@ -212,14 +135,12 @@ describe('calculateProjectRentalCosts', () => {
   });
 
   it('uses different prices per period', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       prixVenteLocation1An: 50,
       prixVenteLocation3Ans: 30,
       prixAchatLocation1An: 30,
       prixAchatLocation3Ans: 20,
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(1, kit)]);
 
@@ -237,12 +158,10 @@ describe('getProjectKitBreakdown', () => {
   });
 
   it('returns per-kit breakdown', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       prixVenteAchat: 150,
       prixAchatAchat: 100,
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct], { nom: 'Kit A' });
     const project = makeProject([makeProjectKit(2, kit)]);
 
@@ -256,12 +175,10 @@ describe('getProjectKitBreakdown', () => {
   });
 
   it('calculates margin percentage', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       prixVenteAchat: 200,
       prixAchatAchat: 100,
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(1, kit)]);
 
@@ -271,9 +188,7 @@ describe('getProjectKitBreakdown', () => {
   });
 
   it('returns 0 margin percentage when totalPrice is 0', () => {
-    const product = makeProduct(); // all prices default to 0 via legacy
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
+    const kitProduct = makeKitProduct(1, {}); // all prices default to 0 via legacy
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(1, kit)]);
 
@@ -303,14 +218,12 @@ describe('calculateEnvironmentalSavings', () => {
   });
 
   it('aggregates location impact with Math.abs', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       rechauffementClimatiqueLocation: -10,
       epuisementRessourcesLocation: 20,
       acidificationLocation: -30,
       eutrophisationLocation: 40,
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(1, kit)]);
 
@@ -322,11 +235,9 @@ describe('calculateEnvironmentalSavings', () => {
   });
 
   it('applies quantity cascade', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(3, {
       rechauffementClimatiqueLocation: 5,
     });
-    const kitProduct = makeKitProduct(3, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(2, kit)]); // 3*2 = 6
 
@@ -335,12 +246,10 @@ describe('calculateEnvironmentalSavings', () => {
   });
 
   it('uses location mode only, not achat', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       rechauffementClimatiqueAchat: 100, // should be ignored
       rechauffementClimatiqueLocation: 5,
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(1, kit)]);
 
@@ -351,12 +260,10 @@ describe('calculateEnvironmentalSavings', () => {
 
 describe('calculateBreakEvenPoint', () => {
   it('returns null when rental price is 0', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       prixVenteAchat: 1000,
       // no location price = falls back to 0
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(1, kit)]);
 
@@ -364,12 +271,10 @@ describe('calculateBreakEvenPoint', () => {
   });
 
   it('calculates break-even as purchase / rental', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       prixVenteAchat: 1200,
-      prixVenteLocation1An: 100, // 100€/month
+      prixVenteLocation1An: 100,
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(1, kit)]);
 
@@ -379,12 +284,10 @@ describe('calculateBreakEvenPoint', () => {
   });
 
   it('returns fractional break-even values', () => {
-    const product = makeProduct({
+    const kitProduct = makeKitProduct(1, {
       prixVenteAchat: 1000,
       prixVenteLocation1An: 300,
     });
-    const kitProduct = makeKitProduct(1, product);
-    Object.assign(kitProduct, { product });
     const kit = makeKit([kitProduct]);
     const project = makeProject([makeProjectKit(1, kit)]);
 
@@ -394,7 +297,7 @@ describe('calculateBreakEvenPoint', () => {
 
   it('returns null for project without kits', () => {
     const project = makeProject();
-    // Both purchase and rental are 0, so rental = 0 → null
+    // Both purchase and rental are 0, so rental = 0 -> null
     expect(calculateBreakEvenPoint(project)).toBeNull();
   });
 });
