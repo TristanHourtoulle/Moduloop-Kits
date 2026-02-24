@@ -19,13 +19,11 @@ interface KitData {
 interface KitEditWrapperProps {
   kitId: string;
   initialKit: KitData;
-  kitName: string;
 }
 
 export function KitEditWrapper({
   kitId,
   initialKit,
-  kitName,
 }: KitEditWrapperProps) {
   const searchParams = useSearchParams();
   const timestamp = searchParams.get("t");
@@ -41,7 +39,7 @@ export function KitEditWrapper({
       <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-8">
         Modifiez les informations de{" "}
         <span className="font-semibold text-[#30C1BD]">
-          &quot;{kitName}&quot;
+          &quot;{initialKit.nom}&quot;
         </span>
       </p>
 

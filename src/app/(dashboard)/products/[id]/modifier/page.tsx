@@ -48,7 +48,8 @@ export default async function EditProductPage({
   searchParams: Promise<{ t?: string }>;
 }) {
   const { id: productId } = await params;
-  const { t: _timestamp } = await searchParams;
+  // Await searchParams to opt into dynamic rendering (Next.js requirement)
+  await searchParams;
 
   const productData = await getProductById(productId);
 
@@ -63,28 +64,28 @@ export default async function EditProductPage({
     quantite: productData.quantite || 0,
     surfaceM2: productData.surfaceM2 || 0,
     image: productData.image || undefined,
-    prixAchatAchat: productData.prixAchatAchat || undefined,
-    prixUnitaireAchat: productData.prixUnitaireAchat || undefined,
-    prixVenteAchat: productData.prixVenteAchat || undefined,
-    margeCoefficientAchat: productData.margeCoefficientAchat || undefined,
-    prixAchatLocation1An: productData.prixAchatLocation1An || undefined,
-    prixUnitaireLocation1An: productData.prixUnitaireLocation1An || undefined,
-    prixVenteLocation1An: productData.prixVenteLocation1An || undefined,
-    prixAchatLocation2Ans: productData.prixAchatLocation2Ans || undefined,
-    prixUnitaireLocation2Ans: productData.prixUnitaireLocation2Ans || undefined,
-    prixVenteLocation2Ans: productData.prixVenteLocation2Ans || undefined,
-    prixAchatLocation3Ans: productData.prixAchatLocation3Ans || undefined,
-    prixUnitaireLocation3Ans: productData.prixUnitaireLocation3Ans || undefined,
-    prixVenteLocation3Ans: productData.prixVenteLocation3Ans || undefined,
-    margeCoefficientLocation: productData.margeCoefficientLocation || undefined,
-    rechauffementClimatiqueAchat: productData.rechauffementClimatiqueAchat || undefined,
-    epuisementRessourcesAchat: productData.epuisementRessourcesAchat || undefined,
-    acidificationAchat: productData.acidificationAchat || undefined,
-    eutrophisationAchat: productData.eutrophisationAchat || undefined,
-    rechauffementClimatiqueLocation: productData.rechauffementClimatiqueLocation || undefined,
-    epuisementRessourcesLocation: productData.epuisementRessourcesLocation || undefined,
-    acidificationLocation: productData.acidificationLocation || undefined,
-    eutrophisationLocation: productData.eutrophisationLocation || undefined,
+    prixAchatAchat: productData.prixAchatAchat ?? undefined,
+    prixUnitaireAchat: productData.prixUnitaireAchat ?? undefined,
+    prixVenteAchat: productData.prixVenteAchat ?? undefined,
+    margeCoefficientAchat: productData.margeCoefficientAchat ?? undefined,
+    prixAchatLocation1An: productData.prixAchatLocation1An ?? undefined,
+    prixUnitaireLocation1An: productData.prixUnitaireLocation1An ?? undefined,
+    prixVenteLocation1An: productData.prixVenteLocation1An ?? undefined,
+    prixAchatLocation2Ans: productData.prixAchatLocation2Ans ?? undefined,
+    prixUnitaireLocation2Ans: productData.prixUnitaireLocation2Ans ?? undefined,
+    prixVenteLocation2Ans: productData.prixVenteLocation2Ans ?? undefined,
+    prixAchatLocation3Ans: productData.prixAchatLocation3Ans ?? undefined,
+    prixUnitaireLocation3Ans: productData.prixUnitaireLocation3Ans ?? undefined,
+    prixVenteLocation3Ans: productData.prixVenteLocation3Ans ?? undefined,
+    margeCoefficientLocation: productData.margeCoefficientLocation ?? undefined,
+    rechauffementClimatiqueAchat: productData.rechauffementClimatiqueAchat ?? undefined,
+    epuisementRessourcesAchat: productData.epuisementRessourcesAchat ?? undefined,
+    acidificationAchat: productData.acidificationAchat ?? undefined,
+    eutrophisationAchat: productData.eutrophisationAchat ?? undefined,
+    rechauffementClimatiqueLocation: productData.rechauffementClimatiqueLocation ?? undefined,
+    epuisementRessourcesLocation: productData.epuisementRessourcesLocation ?? undefined,
+    acidificationLocation: productData.acidificationLocation ?? undefined,
+    eutrophisationLocation: productData.eutrophisationLocation ?? undefined,
   };
 
   const productKey = `${productId}-${String(productData.updatedAt ?? 'initial')}`;
@@ -112,7 +113,6 @@ export default async function EditProductPage({
             key={productKey}
             productId={productId}
             initialProduct={transformedProduct}
-            productName={productData.nom}
           />
         </div>
       </div>

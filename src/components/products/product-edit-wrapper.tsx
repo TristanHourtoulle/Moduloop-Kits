@@ -39,10 +39,9 @@ interface ProductData {
 interface ProductEditWrapperProps {
   productId: string;
   initialProduct: ProductData;
-  productName: string;
 }
 
-export function ProductEditWrapper({ productId, initialProduct, productName }: ProductEditWrapperProps) {
+export function ProductEditWrapper({ productId, initialProduct }: ProductEditWrapperProps) {
   const searchParams = useSearchParams();
   const timestamp = searchParams.get("t");
 
@@ -67,7 +66,7 @@ export function ProductEditWrapper({ productId, initialProduct, productName }: P
       <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-8">
         Modifiez les informations de{" "}
         <span className="font-semibold text-[#30C1BD]">
-          &quot;{productName}&quot;
+          &quot;{initialProduct.nom}&quot;
         </span>
       </p>
 

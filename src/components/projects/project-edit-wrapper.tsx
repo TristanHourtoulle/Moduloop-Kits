@@ -16,10 +16,9 @@ interface ProjectData {
 interface ProjectEditWrapperProps {
   projectId: string;
   initialProject: ProjectData;
-  projectName: string;
 }
 
-export function ProjectEditWrapper({ projectId, initialProject, projectName }: ProjectEditWrapperProps) {
+export function ProjectEditWrapper({ projectId, initialProject }: ProjectEditWrapperProps) {
   const searchParams = useSearchParams();
   const timestamp = searchParams.get("t");
 
@@ -34,7 +33,7 @@ export function ProjectEditWrapper({ projectId, initialProject, projectName }: P
       <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-8">
         Modifiez les informations de{" "}
         <span className="font-semibold text-[#30C1BD]">
-          &quot;{projectName}&quot;
+          &quot;{initialProject.nom}&quot;
         </span>
       </p>
 

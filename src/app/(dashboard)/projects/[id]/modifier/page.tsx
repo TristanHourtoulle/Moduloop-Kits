@@ -25,7 +25,8 @@ export default async function EditProjectPage({
   searchParams: Promise<{ t?: string }>;
 }) {
   const { id: projectId } = await params;
-  const { t: _timestamp } = await searchParams;
+  // Await searchParams to opt into dynamic rendering (Next.js requirement)
+  await searchParams;
 
   const userId = await getCurrentUserId();
   if (!userId) {
@@ -70,7 +71,6 @@ export default async function EditProjectPage({
             key={projectKey}
             projectId={projectId}
             initialProject={transformedProject}
-            projectName={projectData.nom}
           />
         </div>
       </div>

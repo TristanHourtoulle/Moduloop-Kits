@@ -28,7 +28,8 @@ export default async function EditKitPage({
   searchParams: Promise<{ t?: string }>;
 }) {
   const { id: kitId } = await params;
-  const { t: _timestamp } = await searchParams;
+  // Await searchParams to opt into dynamic rendering (Next.js requirement)
+  await searchParams;
 
   const kitData = await getKitById(kitId);
 
@@ -75,7 +76,6 @@ export default async function EditKitPage({
             key={kitKey}
             kitId={kitId}
             initialKit={transformedKit}
-            kitName={kitData.nom}
           />
         </div>
       </div>
