@@ -1,6 +1,5 @@
 import { signIn } from "@/lib/auth-client";
 
-// Interface pour gérer les erreurs de Better Auth
 interface SignInResult {
   success: boolean;
   error?: string;
@@ -8,60 +7,51 @@ interface SignInResult {
 }
 
 export async function signInWithErrorHandling(
-  email: string, 
+  email: string,
   password: string
 ): Promise<SignInResult> {
-  // Intercepter les appels réseau pour capturer les 401
+  // Intercept network calls to capture 401 errors
   const originalFetch = window.fetch;
   let capturedError: string | null = null;
   let capturedStatus: number | null = null;
 
-  // Remplacer temporairement fetch pour capturer les erreurs
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const response = await originalFetch(input, init);
-    
-    // Vérifier si c'est notre appel auth et si il y a une erreur
+
     const url = typeof input === 'string' ? input : input.toString();
     if (url.includes('/api/auth/sign-in/email')) {
       capturedStatus = response.status;
-      
+
       if (!response.ok) {
-        // Lire le body de l'erreur
         const clonedResponse = response.clone();
         try {
           const errorText = await clonedResponse.text();
           capturedError = errorText;
-          console.log("🔴 Captured auth error:", { status: response.status, error: errorText });
-        } catch (e) {
+        } catch {
           capturedError = `HTTP ${response.status}`;
         }
       }
     }
-    
+
     return response;
   };
 
   try {
-    console.log("🔵 Signing in with interceptor...");
-    
     const result = await signIn.email({
       email,
       password,
       callbackURL: "/dashboard",
     });
 
-    console.log("🔵 Better Auth result:", result);
-
-    // Si nous avons capturé une erreur HTTP
+    // If we captured an HTTP error
     if (capturedError && capturedStatus && capturedStatus >= 400) {
-      console.log("🔴 Returning captured error");
       return {
         success: false,
         error: capturedStatus === 401 ? "Credential account not found" : capturedError
       };
     }
 
-    // Vérifier le résultat de Better Auth
+    // Check Better Auth result
     if (result && typeof result === 'object' && 'error' in result && result.error) {
       const error = result.error;
       return {
@@ -77,16 +67,12 @@ export async function signInWithErrorHandling(
       };
     }
 
-    // Si pas d'erreur détectée, considérer comme un succès
     return {
       success: true,
       data: result
     };
 
   } catch (error: unknown) {
-    console.log("🔴 Caught exception:", error);
-
-    // Vérifier si c'est une erreur HTTP que nous avons capturée
     if (capturedError) {
       return {
         success: false,
@@ -99,7 +85,6 @@ export async function signInWithErrorHandling(
       error: error instanceof Error ? error.message : String(error)
     };
   } finally {
-    // Restaurer fetch original
     window.fetch = originalFetch;
   }
 }

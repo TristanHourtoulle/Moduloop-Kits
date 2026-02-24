@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/form";
 
 import { Mail, AlertCircle, Loader2 } from "lucide-react";
-import { signIn } from "@/lib/auth-client";
 import {
   connexionSchema,
   type ConnexionFormData,
@@ -48,23 +47,16 @@ export function ConnexionForm() {
     setError("");
 
     try {
-      console.log("🔵 Using custom sign-in handler...");
-      
       const result = await signInWithErrorHandling(data.email, data.password);
-      
-      console.log("🔵 Custom sign-in result:", result);
-      
+
       if (result.success) {
-        console.log("🟢 Sign-in successful, redirecting...");
         router.push("/dashboard");
       } else {
-        console.log("🔴 Sign-in failed:", result.error);
         const errorMessage = getSpecificAuthError(result.error || "Authentication failed", 'signin');
         setError(errorMessage);
       }
-      
+
     } catch (err: unknown) {
-      console.log("🔴 Unexpected error:", err);
       const errorMessage = getSpecificAuthError(err instanceof Error ? err.message : String(err), 'signin');
       setError(errorMessage);
     } finally {

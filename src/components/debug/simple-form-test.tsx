@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// Schéma Zod simple pour test
 const testSchema = z.object({
   nom: z.string().min(1, "Le nom est requis"),
   price: z.number().min(0, "Le prix doit être positif"),
@@ -21,7 +20,6 @@ export function SimpleFormTest() {
     handleSubmit,
     watch,
     formState: { errors, isValid, isDirty },
-    getValues,
   } = useForm<TestFormData>({
     resolver: zodResolver(testSchema),
     defaultValues: {
@@ -33,27 +31,18 @@ export function SimpleFormTest() {
 
   const watchedValues = watch();
 
-  const onSubmit = (data: TestFormData) => {
-    console.log("✅ Form submitted successfully:", data);
-    alert("Form valid! Check console for data.");
+  const onSubmit = (_data: TestFormData) => {
+    // Debug form test - submit handled
   };
 
-  const onError = (errors: Record<string, unknown>) => {
-    console.log("❌ Form errors:", errors);
+  const onError = (_errors: Record<string, unknown>) => {
+    // Debug form test - validation errors
   };
-
-  console.log("🔍 Form Debug Info:", {
-    errors,
-    isValid,
-    isDirty,
-    watchedValues,
-    allValues: getValues(),
-  });
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white border rounded-lg shadow">
       <h2 className="text-lg font-bold mb-4">Test Formulaire Zod + RHF</h2>
-      
+
       <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
         <div>
           <Label htmlFor="nom">Nom *</Label>
@@ -91,7 +80,7 @@ export function SimpleFormTest() {
 
         <div className="p-3 bg-gray-100 rounded text-xs">
           <strong>Debug:</strong>
-          <pre>{JSON.stringify({ errors, isValid, watchedValues }, null, 2)}</pre>
+          <pre>{JSON.stringify({ errors, isValid, isDirty, watchedValues }, null, 2)}</pre>
         </div>
       </form>
     </div>

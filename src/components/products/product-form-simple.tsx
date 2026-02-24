@@ -50,13 +50,7 @@ export function ProductFormSimple({
 
   const { register, handleSubmit, formState: { errors } } = form;
 
-  // Log des erreurs pour debug
-  console.log("🔍 [ProductFormSimple] Errors:", errors);
-  console.log("🔍 [ProductFormSimple] Form state:", form.formState);
-
   const onSubmit = async (data: ProductFormData) => {
-    console.log("📝 [ProductFormSimple] Submit data:", data);
-    
     if (!session?.user) {
       setError("Vous devez être connecté pour créer un produit");
       return;
@@ -69,8 +63,6 @@ export function ProductFormSimple({
       const url = productId ? `/api/products/${productId}` : "/api/products";
       const method = productId ? "PUT" : "POST";
 
-      console.log("🚀 [ProductFormSimple] Sending to:", url, "Method:", method);
-      
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -82,8 +74,7 @@ export function ProductFormSimple({
         throw new Error(errorData.error || "Erreur lors de la sauvegarde");
       }
 
-      const result = await response.json();
-      console.log("✅ [ProductFormSimple] Success:", result);
+      await response.json();
 
       if (onSuccess) {
         onSuccess();
@@ -92,15 +83,14 @@ export function ProductFormSimple({
         router.refresh();
       }
     } catch (err) {
-      console.error("❌ [ProductFormSimple] Error:", err);
       setError(err instanceof Error ? err.message : "Une erreur inattendue s'est produite");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const onError = (errors: Record<string, unknown>) => {
-    console.log("❌ [ProductFormSimple] Validation errors:", errors);
+  const onError = (_errors: Record<string, unknown>) => {
+    // Validation errors are displayed in the form UI
   };
 
   return (

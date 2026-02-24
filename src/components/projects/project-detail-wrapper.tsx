@@ -4,7 +4,6 @@ import { ProjectDetail } from "@/components/projects/project-detail";
 import type { Project } from "@/lib/types/project";
 
 interface ProjectDetailWrapperProps {
-  projectId: string;
   initialProject: Project;
 }
 
