@@ -58,7 +58,6 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
     "@prisma/client": "^6.13.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
