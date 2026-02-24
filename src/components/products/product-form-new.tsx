@@ -7,7 +7,6 @@ import { productSchema, type ProductFormData } from "@/lib/schemas/product";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Accordion } from "@/components/ui/accordion";
 import { useSession } from "@/lib/auth-client";
-import { parseNumberValue } from "@/lib/utils/form-helpers";
 
 // Import des sections
 import { GeneralInfoSection } from "./form-sections/general-info-section";

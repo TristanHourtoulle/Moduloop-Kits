@@ -1,4 +1,3 @@
-import { type PurchaseRentalMode, type ProductPeriod } from '@/lib/schemas/product';
 
 /**
  * Pricing mode for project cards

@@ -129,7 +129,7 @@ export async function PUT(
 
     // Filtrer les valeurs undefined pour éviter les erreurs Prisma
     const filteredUpdateData = Object.fromEntries(
-      Object.entries(updateData).filter(([key, value]) => {
+      Object.entries(updateData).filter(([_key, value]) => {
         return value !== undefined;
       })
     );

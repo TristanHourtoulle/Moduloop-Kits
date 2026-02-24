@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Clock, Ruler } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 import { SafeAvatar } from '@/components/ui/safe-avatar';
 import { cn } from '@/lib/utils';
 import { type User } from '@/lib/types/project';
@@ -17,7 +17,6 @@ export function ProductCardMeta({
   createdAt,
   updatedAt,
   createdBy,
-  surfaceM2,
   className,
 }: ProductCardMetaProps) {
   const formatDate = (dateString: string) => {

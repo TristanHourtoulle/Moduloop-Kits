@@ -5,7 +5,7 @@ import { UsersList } from '@/components/admin/users-list';
 import { RoleGuard } from '@/components/auth/role-guard';
 import { UserRole } from '@/lib/types/user';
 import { useDialog } from '@/components/providers/dialog-provider';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Shield, Loader2 } from 'lucide-react';
 
 interface UserStats {

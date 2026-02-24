@@ -232,7 +232,7 @@ export function formatEnvironmentalImpact(
  * Migre les données legacy vers le nouveau format
  * (utilitaire pour la transition)
  */
-export function migrateLegacyProductData(product: Product): Partial<Product> {
+export function migrateLegacyProductData(_product: Product): Partial<Product> {
   // TODO: Fix field names after schema update - function temporarily disabled
   return {};
   

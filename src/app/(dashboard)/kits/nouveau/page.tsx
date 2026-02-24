@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { UserRole } from "@/lib/types/user";
 import { KitForm } from "@/components/kits/kit-form";
-import { Package2, Sparkles } from "lucide-react";
+import { Package2 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Nouveau kit - Moduloop Kits",

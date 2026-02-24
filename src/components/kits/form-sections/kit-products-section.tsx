@@ -18,7 +18,6 @@ import { KitFormData } from '@/lib/schemas/kit';
 import { ProductSelectionGrid } from '../product-selection/ProductSelectionGrid';
 import { Product } from '@/lib/types/project';
 import { getProductPricing, getProductEnvironmentalImpact, formatPrice } from '@/lib/utils/product-helpers';
-import { type PurchaseRentalMode } from '@/lib/schemas/product';
 
 interface KitProductsSectionProps {
   control: Control<KitFormData>;
@@ -99,6 +98,7 @@ export function KitProductsSection({
 
   const updateQuantity = (index: number, delta: number) => {
     const field = fields[index];
+    if (!field) return;
     const newQuantity = Math.max(1, (field.quantite || 1) + delta);
     update(index, { ...field, quantite: newQuantity });
   };

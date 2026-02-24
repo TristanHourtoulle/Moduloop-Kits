@@ -173,8 +173,6 @@ export function PricingSection({
   const renderPricingForm = (mode: PurchaseRentalMode) => {
     const suffix = mode === 'achat' ? 'Achat' : 'Location';
     const modeLabel = mode === 'achat' ? 'Achat' : 'Location';
-    const modeIcon = mode === 'achat' ? ShoppingCart : Home;
-    
     return (
       <div className="space-y-6">
         {/* Coefficient de marge */}

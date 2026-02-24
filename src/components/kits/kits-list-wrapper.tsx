@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { KitsGridClient } from "@/components/kits/kits-grid-client";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
 import { type Kit } from "@/lib/types/project";
 
 interface KitsListWrapperProps {

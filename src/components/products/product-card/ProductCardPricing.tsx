@@ -1,7 +1,6 @@
 "use client";
 
 import { Euro, ShoppingCart } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { type Product } from "@/lib/types/project";
 import { type PurchaseRentalMode } from "@/lib/schemas/product";
@@ -14,7 +13,7 @@ interface ProductCardPricingProps {
   className?: string;
 }
 
-export function ProductCardPricing({ product, selectedMode, onModeChange, className }: ProductCardPricingProps) {
+export function ProductCardPricing({ product, className }: ProductCardPricingProps) {
   // Prix d'achat principal (mode achat, 1 an)
   const purchasePrice = getProductPricing(product, 'achat', '1an');
   
