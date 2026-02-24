@@ -5,11 +5,15 @@ import { auth } from '@/lib/auth';
 import { prisma, calculateProjectTotals } from '@/lib/db';
 import { type Project } from '@/lib/types/project';
 import { UserRole } from '@/lib/types/user';
-import { createProjectUpdatedHistory, createProjectDeletedHistory } from '@/lib/services/project-history';
+import { isAdminOrDev } from '@/lib/utils/roles';
+import {
+  createProjectUpdatedHistory,
+  createProjectDeletedHistory,
+} from '@/lib/services/project-history';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth.api.getSession(request);
@@ -23,15 +27,12 @@ export async function GET(
       select: { role: true },
     });
 
-    const isAdmin = currentUser?.role === UserRole.ADMIN || currentUser?.role === UserRole.DEV;
+    const role = (currentUser?.role as UserRole | undefined) ?? UserRole.USER;
+    const isAdmin = isAdminOrDev(role);
 
     const { id } = await params;
-    
-    // Si l'utilisateur est admin/dev, il peut voir tous les projets
-    // Sinon, il ne peut voir que ses propres projets
-    const whereClause = isAdmin 
-      ? { id }
-      : { id, createdById: session.user.id };
+
+    const whereClause = isAdmin ? { id } : { id, createdById: session.user.id };
 
     const project = await prisma.project.findFirst({
       where: whereClause,
@@ -70,14 +71,14 @@ export async function GET(
     console.error('Erreur lors de la récupération du projet:', error);
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth.api.getSession(request);
@@ -90,10 +91,14 @@ export async function PATCH(
     const { nom, description, status, surfaceManual, surfaceOverride } = body;
 
     // Validate surfaceManual if provided
-    if (surfaceManual !== undefined && surfaceManual !== null && surfaceManual < 0) {
+    if (
+      surfaceManual !== undefined &&
+      surfaceManual !== null &&
+      surfaceManual < 0
+    ) {
       return NextResponse.json(
         { error: 'La surface doit être un nombre positif' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -117,7 +122,8 @@ export async function PATCH(
       if (description !== undefined) updateData.description = description;
       if (status !== undefined) updateData.status = status;
       if (surfaceManual !== undefined) updateData.surfaceManual = surfaceManual;
-      if (surfaceOverride !== undefined) updateData.surfaceOverride = surfaceOverride;
+      if (surfaceOverride !== undefined)
+        updateData.surfaceOverride = surfaceOverride;
 
       // Mettre à jour le projet
       const updatedProject = await tx.project.update({
@@ -145,7 +151,7 @@ export async function PATCH(
         session.user.id,
         id,
         existingProject,
-        updatedProject
+        updatedProject,
       ).catch(console.error);
 
       return updatedProject;
@@ -165,14 +171,14 @@ export async function PATCH(
     console.error('Erreur lors de la mise à jour du projet:', error);
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth.api.getSession(request);
@@ -213,7 +219,7 @@ export async function PUT(
       session.user.id,
       id,
       existingProject,
-      project
+      project,
     ).catch(console.error);
 
     return NextResponse.json(project);
@@ -221,14 +227,14 @@ export async function PUT(
     console.error('Erreur lors de la mise à jour du projet:', error);
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const session = await auth.api.getSession(request);
@@ -237,7 +243,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    
+
     // Get project data before deletion for history
     const project = await prisma.project.findFirst({
       where: {
@@ -265,7 +271,7 @@ export async function DELETE(
     console.error('Erreur lors de la suppression du projet:', error);
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

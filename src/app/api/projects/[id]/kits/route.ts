@@ -152,7 +152,7 @@ export async function GET(
   try {
     const session = await auth.api.getSession(request);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id: projectId } = await params;
@@ -162,16 +162,18 @@ export async function GET(
       select: { role: true },
     });
 
-    const isAdmin = isAdminOrDev(currentUser?.role as UserRole ?? UserRole.USER);
+    const role = (currentUser?.role as UserRole | undefined) ?? UserRole.USER;
+    const isAdmin = isAdminOrDev(role);
 
     const project = await prisma.project.findFirst({
       where: isAdmin
         ? { id: projectId }
         : { id: projectId, createdById: session.user.id },
+      select: { id: true },
     });
 
     if (!project) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
     const projectKits = await prisma.projectKit.findMany({
