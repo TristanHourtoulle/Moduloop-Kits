@@ -11,6 +11,8 @@ export default defineConfig({
         'src/lib/utils/product-helpers.ts',
         'src/lib/utils/kit/calculations.ts',
         'src/lib/utils/project/calculations.ts',
+        'src/lib/utils/project/status.ts',
+        'src/lib/services/project-history.ts',
       ],
       thresholds: {
         lines: 80,

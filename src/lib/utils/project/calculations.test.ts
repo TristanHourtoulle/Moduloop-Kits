@@ -1,12 +1,20 @@
 import { describe, it, expect } from 'vitest';
-import type { Kit } from '@/lib/types/project';
+import type { Kit, KitProduct } from '@/lib/types/project';
 import {
-  makeProduct,
   makeKitProduct,
   makeKit,
   makeProjectKit,
   makeProject,
 } from '../test-fixtures';
+
+function makeOrphanKitProduct(): KitProduct {
+  return {
+    id: 'kp-orphan',
+    kitId: 'kit-1',
+    productId: 'prod-missing',
+    quantite: 1,
+  };
+}
 import {
   calculateProjectPriceTotals,
   calculateProjectPurchaseCosts,
@@ -117,6 +125,20 @@ describe('calculateProjectPurchaseCosts', () => {
     expect(costs.totalCost).toBe(360);
     expect(costs.totalMargin).toBe(240);
   });
+
+  it('skips kits without kitProducts', () => {
+    const kit = { ...makeKit([]), kitProducts: undefined };
+    const project = makeProject([makeProjectKit(1, kit as Kit)]);
+    const costs = calculateProjectPurchaseCosts(project);
+    expect(costs).toEqual({ totalPrice: 0, totalCost: 0, totalMargin: 0 });
+  });
+
+  it('skips kitProducts without product data', () => {
+    const kit = makeKit([makeOrphanKitProduct()]);
+    const project = makeProject([makeProjectKit(1, kit)]);
+    const costs = calculateProjectPurchaseCosts(project);
+    expect(costs).toEqual({ totalPrice: 0, totalCost: 0, totalMargin: 0 });
+  });
 });
 
 describe('calculateProjectRentalCosts', () => {
@@ -148,6 +170,13 @@ describe('calculateProjectRentalCosts', () => {
     const costs3ans = calculateProjectRentalCosts(project, '3ans');
     expect(costs1an.totalPrice).toBe(50);
     expect(costs3ans.totalPrice).toBe(30);
+  });
+
+  it('skips kits without kitProducts', () => {
+    const kit = { ...makeKit([]), kitProducts: undefined };
+    const project = makeProject([makeProjectKit(1, kit as Kit)]);
+    const costs = calculateProjectRentalCosts(project, '1an');
+    expect(costs).toEqual({ totalPrice: 0, totalCost: 0, totalMargin: 0 });
   });
 });
 
@@ -255,6 +284,25 @@ describe('calculateEnvironmentalSavings', () => {
 
     const savings = calculateEnvironmentalSavings(project);
     expect(savings.rechauffementClimatique).toBe(5);
+  });
+
+  it('skips kits without kitProducts', () => {
+    const kit = { ...makeKit([]), kitProducts: undefined };
+    const project = makeProject([makeProjectKit(1, kit as Kit)]);
+    const savings = calculateEnvironmentalSavings(project);
+    expect(savings).toEqual({
+      rechauffementClimatique: 0,
+      epuisementRessources: 0,
+      acidification: 0,
+      eutrophisation: 0,
+    });
+  });
+
+  it('skips kitProducts without product data', () => {
+    const kit = makeKit([makeOrphanKitProduct()]);
+    const project = makeProject([makeProjectKit(1, kit)]);
+    const savings = calculateEnvironmentalSavings(project);
+    expect(savings.rechauffementClimatique).toBe(0);
   });
 });
 
