@@ -36,6 +36,7 @@ export function KitFormActions({ isLoading, kitId, onReset }: KitFormActionsProp
       <Button
         type="submit"
         disabled={isLoading}
+        data-testid="kit-submit"
         className="order-1 cursor-pointer bg-[#30C1BD] text-white hover:bg-[#30C1BD]/80 sm:order-3"
       >
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

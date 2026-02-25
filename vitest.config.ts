@@ -4,9 +4,10 @@ import { resolve } from 'node:path'
 export default defineConfig({
   test: {
     environment: 'node',
+    exclude: ['e2e/**', 'node_modules/**'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov'],
+      reporter: ['text', 'lcov', 'json-summary'],
       include: [
         'src/lib/utils/product-helpers.ts',
         'src/lib/utils/kit/calculations.ts',

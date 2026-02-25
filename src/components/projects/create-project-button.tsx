@@ -14,6 +14,7 @@ export function CreateProjectButton() {
       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
         <Button
           onClick={() => setIsModalOpen(true)}
+          data-testid="projects-create-btn"
           className="rounded-xl border-0 bg-[#30C1BD] px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:bg-[#2AA9A4] hover:shadow-xl"
         >
           <Plus className="mr-2 h-5 w-5" />
