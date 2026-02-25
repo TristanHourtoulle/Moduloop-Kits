@@ -165,20 +165,27 @@ export function ProjectOverviewTab({
                 {pricingMode === 'location' ? (
                   <>
                     <p className="text-lg font-bold text-green-800">
-                      {Math.round(
-                        annualToMonthly(currentPrice) / project.totalSurface,
-                      ).toLocaleString('fr-FR')}
+                      {(annualToMonthly(currentPrice) / project.totalSurface).toLocaleString(
+                        'fr-FR',
+                        { minimumFractionDigits: 2, maximumFractionDigits: 2 },
+                      )}
                       €/m²
                       <span className="ml-1 text-xs font-normal text-green-600">/mois</span>
                     </p>
                     <p className="text-xs text-green-600">
-                      {Math.round(currentPrice / project.totalSurface).toLocaleString('fr-FR')}
+                      {(currentPrice / project.totalSurface).toLocaleString('fr-FR', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                       €/m² /an
                     </p>
                   </>
                 ) : (
                   <p className="text-lg font-bold text-green-800">
-                    {Math.round(currentPrice / project.totalSurface).toLocaleString('fr-FR')}
+                    {(currentPrice / project.totalSurface).toLocaleString('fr-FR', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                     €/m²
                   </p>
                 )}
