@@ -334,7 +334,7 @@ export function PricingEnvironmentalSection({
             <div className="mb-4 flex items-center justify-between">
               <h4 className="flex items-center gap-2 font-semibold text-gray-900">
                 <div className="h-2 w-2 rounded-full bg-[#30C1BD]"></div>
-                Tarification 1 an * - Location
+                Tarification 1 an (mensuel) * - Location
               </h4>
               {watchedValues.prixAchatLocation1An && watchedValues.prixUnitaireLocation1An && (
                 <span className="text-sm font-medium text-green-600">
@@ -395,7 +395,7 @@ export function PricingEnvironmentalSection({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Prix total</Label>
+                <Label className="text-sm font-medium text-gray-700">Prix total /mois</Label>
                 <div className="relative">
                   <Input
                     type="number"
@@ -425,7 +425,7 @@ export function PricingEnvironmentalSection({
             <div className="mb-4 flex items-center justify-between">
               <h4 className="flex items-center gap-2 font-semibold text-gray-900">
                 <div className="h-2 w-2 rounded-full bg-gray-400"></div>
-                Tarification 2 ans (optionnel) - Location
+                Tarification 2 ans (mensuel, optionnel) - Location
               </h4>
               {watchedValues.prixAchatLocation2Ans && watchedValues.prixUnitaireLocation2Ans && (
                 <span className="text-sm font-medium text-green-600">
@@ -486,7 +486,7 @@ export function PricingEnvironmentalSection({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Prix total</Label>
+                <Label className="text-sm font-medium text-gray-700">Prix total /mois</Label>
                 <div className="relative">
                   <Input
                     type="number"
@@ -516,7 +516,7 @@ export function PricingEnvironmentalSection({
             <div className="mb-4 flex items-center justify-between">
               <h4 className="flex items-center gap-2 font-semibold text-gray-900">
                 <div className="h-2 w-2 rounded-full bg-gray-400"></div>
-                Tarification 3 ans (optionnel) - Location
+                Tarification 3 ans (mensuel, optionnel) - Location
               </h4>
               {watchedValues.prixAchatLocation3Ans && watchedValues.prixUnitaireLocation3Ans && (
                 <span className="text-sm font-medium text-green-600">
@@ -577,7 +577,7 @@ export function PricingEnvironmentalSection({
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Prix total</Label>
+                <Label className="text-sm font-medium text-gray-700">Prix total /mois</Label>
                 <div className="relative">
                   <Input
                     type="number"
