@@ -12,9 +12,12 @@ test.describe('Project CRUD', () => {
     // Click the create project button to open modal
     await page.getByTestId('projects-create-btn').click()
 
-    // Fill the modal form
+    // Wait for the modal to render before interacting with form fields
+    const projectNameInput = page.getByTestId('project-nom')
+    await projectNameInput.waitFor({ state: 'visible', timeout: 15_000 })
+
     const projectName = `E2E Project ${Date.now()}`
-    await page.getByTestId('project-nom').fill(projectName)
+    await projectNameInput.fill(projectName)
     await page.getByTestId('project-description').fill('E2E test project')
 
     // Submit
