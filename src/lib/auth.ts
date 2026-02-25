@@ -62,6 +62,8 @@ export const auth = betterAuth({
       '/api/auth/forgot-password/*': { window: 60, max: 5 },
       '/api/auth/reset-password/*': { window: 60, max: 5 },
     },
+    // NOTE: 'memory' storage resets on each serverless cold start (Vercel).
+    // Consider Redis-backed storage when scaling beyond a single instance.
     storage: 'memory',
   },
 })

@@ -1,6 +1,7 @@
 import { z } from 'zod'
+import { ProjectStatus } from '@/lib/types/project'
 
-const projectStatusEnum = z.enum(['ACTIF', 'TERMINE', 'EN_PAUSE', 'ARCHIVE'])
+const projectStatusEnum = z.nativeEnum(ProjectStatus)
 
 export const createProjectSchema = z.object({
   nom: z
@@ -11,14 +12,7 @@ export const createProjectSchema = z.object({
   status: projectStatusEnum.optional(),
 })
 
-export const replaceProjectSchema = z.object({
-  nom: z
-    .string()
-    .min(1, 'Project name is required')
-    .max(200, 'Project name must not exceed 200 characters'),
-  description: z.string().max(2000, 'Description is too long').optional().nullable(),
-  status: projectStatusEnum.optional(),
-})
+export const replaceProjectSchema = createProjectSchema
 
 export const updateProjectSchema = z.object({
   nom: z

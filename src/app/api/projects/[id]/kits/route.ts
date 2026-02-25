@@ -55,8 +55,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       },
     })
 
-    // Créer un map des kits existants pour un accès rapide
-    const existingKitsMap = new Map()
+    // Build a lookup map for existing project kits
+    const existingKitsMap = new Map<string, (typeof existingProjectKits)[number]>()
     existingProjectKits.forEach((pk) => {
       existingKitsMap.set(pk.kitId, pk)
     })

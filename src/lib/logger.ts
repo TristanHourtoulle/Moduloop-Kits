@@ -9,18 +9,17 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   error: 3,
 }
 
-function getMinLevel(): LogLevel {
-  return process.env.NODE_ENV === 'production' ? 'info' : 'debug'
-}
+const MIN_LEVEL: LogLevel = process.env.NODE_ENV === 'production' ? 'info' : 'debug'
 
 function formatMessage(level: LogLevel, message: string, context?: LogContext): string {
   const timestamp = new Date().toISOString()
-  const base = { timestamp, level, message, ...context }
+  const base: Record<string, unknown> = { timestamp, level, message }
+  if (context) base.context = context
   return JSON.stringify(base)
 }
 
 function log(level: LogLevel, message: string, context?: LogContext): void {
-  if (LOG_LEVELS[level] < LOG_LEVELS[getMinLevel()]) return
+  if (LOG_LEVELS[level] < LOG_LEVELS[MIN_LEVEL]) return
 
   const formatted = formatMessage(level, message, context)
 

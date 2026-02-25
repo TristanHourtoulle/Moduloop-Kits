@@ -8,7 +8,7 @@ import { requireAuth, handleApiError } from '@/lib/api/middleware'
 import { updateProjectKitSchema } from '@/lib/schemas/project'
 import { logger } from '@/lib/logger'
 
-// PATCH - Mettre à jour la quantité d'un kit dans un projet
+// PATCH - Update kit quantity in a project
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; kitId: string }> },
@@ -90,7 +90,7 @@ export async function PATCH(
   }
 }
 
-// DELETE - Supprimer un kit d'un projet
+// DELETE - Remove a kit from a project
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; kitId: string }> },

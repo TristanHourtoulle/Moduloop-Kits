@@ -86,45 +86,38 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       )
     }
 
-    // Use transaction to update project and record history
-    const result = await prisma.$transaction(async (tx) => {
-      // Prepare update data
-      const updateData: Prisma.ProjectUpdateInput = {}
-      if (nom !== undefined) updateData.nom = nom
-      if (description !== undefined) updateData.description = description
-      if (status !== undefined) updateData.status = status
-      if (surfaceManual !== undefined) updateData.surfaceManual = surfaceManual
-      if (surfaceOverride !== undefined) updateData.surfaceOverride = surfaceOverride
+    // Prepare update data
+    const updateData: Prisma.ProjectUpdateInput = {}
+    if (nom !== undefined) updateData.nom = nom
+    if (description !== undefined) updateData.description = description
+    if (status !== undefined) updateData.status = status
+    if (surfaceManual !== undefined) updateData.surfaceManual = surfaceManual
+    if (surfaceOverride !== undefined) updateData.surfaceOverride = surfaceOverride
 
-      // Mettre à jour le projet
-      const updatedProject = await tx.project.update({
-        where: { id },
-        data: updateData,
-        include: {
-          projectKits: {
-            include: {
-              kit: {
-                include: {
-                  kitProducts: {
-                    include: {
-                      product: true,
-                    },
+    // Update the project
+    const result = await prisma.project.update({
+      where: { id },
+      data: updateData,
+      include: {
+        projectKits: {
+          include: {
+            kit: {
+              include: {
+                kitProducts: {
+                  include: {
+                    product: true,
                   },
                 },
               },
             },
           },
         },
-      })
+      },
+    })
 
-      // Record history (async, don't block transaction)
-      createProjectUpdatedHistory(auth.user.id, id, existingProject, updatedProject).catch(
-        (error) => {
-          logger.warn('Failed to record project update history', { projectId: id, error })
-        },
-      )
-
-      return updatedProject
+    // Record history (async, don't block response)
+    createProjectUpdatedHistory(auth.user.id, id, existingProject, result).catch((error) => {
+      logger.warn('Failed to record project update history', { projectId: id, error })
     })
 
     // Revalidate the project detail page
