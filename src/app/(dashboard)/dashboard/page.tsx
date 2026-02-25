@@ -26,12 +26,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="bg-background min-h-screen w-full">
+      <div className="mx-auto max-w-7xl px-6 py-8">
         {/* Header Section */}
-        <div className="pb-6 border-b border-border">
-          <div className="flex items-center space-x-2 text-sm font-medium text-muted-foreground">
-            <Home className="w-4 h-4 text-primary" />
+        <div className="border-border border-b pb-6">
+          <div className="text-muted-foreground flex items-center space-x-2 text-sm font-medium">
+            <Home className="text-primary h-4 w-4" />
             <span>Tableau de bord</span>
           </div>
         </div>
@@ -44,17 +44,13 @@ export default function DashboardPage() {
               <SafeAvatar
                 src={session.user.image}
                 name={session.user.name}
-                className="h-16 w-16 ring-2 ring-primary/20"
+                className="ring-primary/20 h-16 w-16 ring-2"
               />
               <div>
-                <h1 className="text-4xl font-bold text-foreground">
-                  Bonjour{' '}
-                  <span className="text-primary">
-                    {session.user.name?.split(' ')[0]}
-                  </span>{' '}
-                  !
+                <h1 className="text-foreground text-4xl font-bold">
+                  Bonjour <span className="text-primary">{session.user.name?.split(' ')[0]}</span> !
                 </h1>
-                <p className="text-muted-foreground max-w-2xl mt-2">
+                <p className="text-muted-foreground mt-2 max-w-2xl">
                   Bienvenue sur votre tableau de bord Moduloop Kits
                 </p>
               </div>
@@ -62,30 +58,28 @@ export default function DashboardPage() {
           </div>
 
           {/* Dashboard Content */}
-          <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
             <Card className="hover-lift border-primary/10">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Profil</CardTitle>
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Mail className="w-5 h-5 text-primary" />
+                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                    <Mail className="text-primary h-5 w-5" />
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center space-x-2 mb-2">
+                <div className="mb-2 flex items-center space-x-2">
                   <RoleBadge role={role} />
                 </div>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center space-x-2 text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center space-x-2">
                     <Mail className="h-4 w-4" />
                     <span className="truncate">{session.user.email}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center space-x-2">
                     <Calendar className="h-4 w-4" />
-                    <span>
-                      Membre depuis le {new Date().toLocaleDateString('fr-FR')}
-                    </span>
+                    <span>Membre depuis le {new Date().toLocaleDateString('fr-FR')}</span>
                   </div>
                 </div>
               </CardContent>
@@ -95,8 +89,8 @@ export default function DashboardPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Actions rapides</CardTitle>
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <LogOut className="w-5 h-5 text-primary" />
+                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                    <LogOut className="text-primary h-5 w-5" />
                   </div>
                 </div>
               </CardHeader>
@@ -122,14 +116,12 @@ export default function DashboardPage() {
 
             <Card className="hover-lift border-primary/10 md:col-span-2 lg:col-span-1">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg text-primary">
-                  Bienvenue !
-                </CardTitle>
+                <CardTitle className="text-primary text-lg">Bienvenue !</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 text-sm text-muted-foreground">
+                <div className="text-muted-foreground space-y-3 text-sm">
                   <p>Explorez les fonctionnalités disponibles :</p>
-                  <ul className="space-y-1 ml-4">
+                  <ul className="ml-4 space-y-1">
                     <li>• Gérer vos projets</li>
                     <li>• Créer des kits</li>
                     <li>• Organiser vos produits</li>

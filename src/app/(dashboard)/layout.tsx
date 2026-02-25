@@ -16,7 +16,7 @@ export default function DashboardLayout({
   return (
     <UserProvider>
       <DashboardHeader />
-      <main className="flex w-full min-h-[calc(100vh-4rem)]">
+      <main className="flex min-h-[calc(100vh-4rem)] w-full">
         <DialogProvider>{children}</DialogProvider>
       </main>
     </UserProvider>

@@ -10,9 +10,7 @@ describe('calculateKitPrice', () => {
 
   it('returns 0 for null-ish input', () => {
     expect(calculateKitPrice(null as unknown as KitProduct[], 'achat')).toBe(0)
-    expect(
-      calculateKitPrice(undefined as unknown as KitProduct[], 'achat'),
-    ).toBe(0)
+    expect(calculateKitPrice(undefined as unknown as KitProduct[], 'achat')).toBe(0)
   })
 
   it('calculates price for single product in achat mode', () => {
@@ -136,9 +134,7 @@ describe('calculateKitImpact', () => {
   })
 
   it('defaults surfaceM2 to 0 when missing', () => {
-    const kitProducts = [
-      makeKitProduct(1, { rechauffementClimatiqueAchat: 10 }),
-    ]
+    const kitProducts = [makeKitProduct(1, { rechauffementClimatiqueAchat: 10 })]
     const impact = calculateKitImpact(kitProducts, 'achat')
     expect(impact.surface).toBe(0)
   })

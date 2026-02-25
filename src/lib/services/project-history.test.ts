@@ -123,10 +123,7 @@ describe('recordProjectHistory', () => {
       }),
     ).resolves.toBeUndefined()
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Failed to record project history:',
-      expect.any(Error),
-    )
+    expect(consoleSpy).toHaveBeenCalledWith('Failed to record project history:', expect.any(Error))
     consoleSpy.mockRestore()
   })
 })
@@ -328,8 +325,7 @@ describe('createKitQuantityUpdatedHistory', () => {
     expect(mockCreate).toHaveBeenCalledWith({
       data: expect.objectContaining({
         changeType: 'KIT_QUANTITY_UPDATED',
-        description:
-          'La quantité du kit "Kit D" a été modifiée de 2 à 5 unités',
+        description: 'La quantité du kit "Kit D" a été modifiée de 2 à 5 unités',
         metadata: JSON.stringify({
           kitId: 'kit-1',
           kitName: 'Kit D',
@@ -355,9 +351,7 @@ describe('createKitQuantityUpdatedHistory', () => {
 
 describe('getProjectHistory', () => {
   it('queries with correct parameters and returns results', async () => {
-    const mockHistory = [
-      { id: 'h-1', changeType: 'CREATED', description: 'Created' },
-    ]
+    const mockHistory = [{ id: 'h-1', changeType: 'CREATED', description: 'Created' }]
     mockFindMany.mockResolvedValueOnce(mockHistory as never)
 
     const result = await getProjectHistory('project-1')
@@ -391,8 +385,6 @@ describe('getProjectHistory', () => {
   it('propagates database errors to the caller', async () => {
     mockFindMany.mockRejectedValueOnce(new Error('DB read failed'))
 
-    await expect(getProjectHistory('project-1')).rejects.toThrow(
-      'DB read failed',
-    )
+    await expect(getProjectHistory('project-1')).rejects.toThrow('DB read failed')
   })
 })

@@ -14,7 +14,7 @@ export default function AuthLayout({
   return (
     <>
       <AuthHeader />
-      <main className="flex w-full min-h-[calc(100vh-4rem)]">{children}</main>
+      <main className="flex min-h-[calc(100vh-4rem)] w-full">{children}</main>
     </>
   )
 }

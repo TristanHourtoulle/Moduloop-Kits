@@ -82,7 +82,7 @@ export function CustomDialog({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50"
+            className="fixed inset-0 z-50 bg-black/50"
             onClick={onClose}
           />
 
@@ -91,15 +91,15 @@ export function CustomDialog({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-lg shadow-xl z-50 p-6"
+            className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${config.iconBg}`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-full ${config.iconBg}`}
                 >
-                  <IconComponent className={`w-5 h-5 ${config.iconColor}`} />
+                  <IconComponent className={`h-5 w-5 ${config.iconColor}`} />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
               </div>
@@ -109,14 +109,14 @@ export function CustomDialog({
                 onClick={onClose}
                 className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </Button>
             </div>
 
             {/* Content */}
             <div className="mb-6">
               {typeof message === 'string' ? (
-                <p className="text-gray-600 leading-relaxed">{message}</p>
+                <p className="leading-relaxed text-gray-600">{message}</p>
               ) : (
                 message
               )}
@@ -133,10 +133,7 @@ export function CustomDialog({
                   {cancelText}
                 </Button>
               )}
-              <Button
-                onClick={handleConfirm}
-                className={`text-white ${config.buttonColor}`}
-              >
+              <Button onClick={handleConfirm} className={`text-white ${config.buttonColor}`}>
                 {confirmText}
               </Button>
             </div>

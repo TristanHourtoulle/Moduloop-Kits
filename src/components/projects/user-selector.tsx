@@ -25,10 +25,7 @@ interface UserSelectorProps {
   selectedUserId?: string
 }
 
-export function UserSelector({
-  onUserChange,
-  selectedUserId,
-}: UserSelectorProps) {
+export function UserSelector({ onUserChange, selectedUserId }: UserSelectorProps) {
   const [users, setUsers] = useState<SimpleUser[]>([])
   const [loading, setLoading] = useState(true)
   const { data: session } = useSession()
@@ -84,21 +81,13 @@ export function UserSelector({
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
       <div className="flex items-center space-x-3">
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex items-center space-x-2 text-sm">
           <User className="h-4 w-4" />
           <span>Projets de :</span>
         </div>
-        <Select
-          value={currentUserId}
-          onValueChange={handleUserChange}
-          disabled={loading}
-        >
+        <Select value={currentUserId} onValueChange={handleUserChange} disabled={loading}>
           <SelectTrigger className="w-64">
-            <SelectValue
-              placeholder={
-                loading ? 'Chargement...' : 'Sélectionner un utilisateur'
-              }
-            >
+            <SelectValue placeholder={loading ? 'Chargement...' : 'Sélectionner un utilisateur'}>
               {loading ? 'Chargement...' : getCurrentUserName()}
             </SelectValue>
           </SelectTrigger>
@@ -107,9 +96,7 @@ export function UserSelector({
               <SelectItem key={user.id} value={user.id}>
                 <div className="flex flex-col">
                   <span className="font-medium">{user.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {user.email}
-                  </span>
+                  <span className="text-muted-foreground text-xs">{user.email}</span>
                 </div>
               </SelectItem>
             ))}

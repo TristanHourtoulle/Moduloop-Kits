@@ -57,39 +57,30 @@ export function SafeAvatar({
   const [imageError, setImageError] = useState(false)
 
   const shouldShowImage =
-    src &&
-    src.trim() !== '' &&
-    !imageError &&
-    (src.startsWith('http') || src.startsWith('data:'))
+    src && src.trim() !== '' && !imageError && (src.startsWith('http') || src.startsWith('data:'))
 
   const placeholderColor = getPlaceholderColor(name)
   const initials = getInitials(name)
 
   // Fallback par défaut si aucun n'est fourni
   const defaultFallback = showPlaceholder ? (
-    <div className="flex items-center justify-center w-full h-full">
+    <div className="flex h-full w-full items-center justify-center">
       {name ? (
-        <span className="font-semibold text-sm">{initials}</span>
+        <span className="text-sm font-semibold">{initials}</span>
       ) : (
-        <User className="w-1/2 h-1/2 opacity-60" />
+        <User className="h-1/2 w-1/2 opacity-60" />
       )}
     </div>
   ) : (
-    <User className="w-1/2 h-1/2 opacity-60" />
+    <User className="h-1/2 w-1/2 opacity-60" />
   )
 
   return (
     <Avatar className={className}>
       {shouldShowImage && (
-        <AvatarImage
-          src={src}
-          alt={alt || name || 'User'}
-          onError={() => setImageError(true)}
-        />
+        <AvatarImage src={src} alt={alt || name || 'User'} onError={() => setImageError(true)} />
       )}
-      <AvatarFallback className={placeholderColor}>
-        {fallback || defaultFallback}
-      </AvatarFallback>
+      <AvatarFallback className={placeholderColor}>{fallback || defaultFallback}</AvatarFallback>
     </Avatar>
   )
 }

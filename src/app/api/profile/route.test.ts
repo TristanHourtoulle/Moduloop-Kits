@@ -3,11 +3,7 @@ import '@/test/register-api-mocks'
 
 import { prisma } from '@/lib/db'
 import { GET, PUT } from './route'
-import {
-  createMockRequest,
-  mockAuthNone,
-  mockAuthAsUser,
-} from '@/test/api-helpers'
+import { createMockRequest, mockAuthNone, mockAuthAsUser } from '@/test/api-helpers'
 
 const mockUserFindUnique = vi.mocked(prisma.user.findUnique)
 const mockUserUpdate = vi.mocked(prisma.user.update)

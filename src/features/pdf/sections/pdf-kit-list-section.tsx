@@ -15,13 +15,7 @@ const LOCATION_PERIODS: { key: ProductPeriod; label: string }[] = [
   { key: '3ans', label: '3 ans' },
 ]
 
-function PdfKitCard({
-  projectKit,
-  index,
-}: {
-  projectKit: ProjectKit
-  index: number
-}) {
+function PdfKitCard({ projectKit, index }: { projectKit: ProjectKit; index: number }) {
   const kit = projectKit.kit
   if (!kit) return null
 
@@ -60,9 +54,7 @@ function PdfKitCard({
                   borderRadius: 10,
                 }}
               >
-                <Text
-                  style={{ fontSize: 8, color: '#ffffff', fontWeight: 'bold' }}
-                >
+                <Text style={{ fontSize: 8, color: '#ffffff', fontWeight: 'bold' }}>
                   {kit.style}
                 </Text>
               </View>
@@ -81,16 +73,11 @@ function PdfKitCard({
           </View>
         </View>
 
-        {kit.description && (
-          <Text style={tw('text-xs text-gray-500 mt-1')}>
-            {kit.description}
-          </Text>
-        )}
+        {kit.description && <Text style={tw('text-xs text-gray-500 mt-1')}>{kit.description}</Text>}
 
         {kit.surfaceM2 != null && kit.surfaceM2 > 0 && (
           <Text style={tw('text-xs text-gray-500 mt-1')}>
-            Surface totale : {(kit.surfaceM2 * projectKit.quantite).toFixed(1)}{' '}
-            m²
+            Surface totale : {(kit.surfaceM2 * projectKit.quantite).toFixed(1)} m²
           </Text>
         )}
       </View>
@@ -106,19 +93,13 @@ function PdfKitCard({
         wrap={false}
       >
         {LOCATION_PERIODS.map((period) => {
-          const kitTotal = calculateKitPrice(
-            kitProducts,
-            'location',
-            period.key,
-          )
+          const kitTotal = calculateKitPrice(kitProducts, 'location', period.key)
           const totalForQuantity = kitTotal * projectKit.quantite
           const monthly = annualToMonthly(totalForQuantity)
 
           return (
             <View key={period.key} style={{ ...tw('items-center'), flex: 1 }}>
-              <Text style={{ fontSize: 8, color: '#6b7280', marginBottom: 2 }}>
-                {period.label}
-              </Text>
+              <Text style={{ fontSize: 8, color: '#6b7280', marginBottom: 2 }}>{period.label}</Text>
               <Text style={tw('text-xs font-bold text-gray-800')}>
                 {formatPricePdf(monthly)}/mois
               </Text>
@@ -256,13 +237,9 @@ function PdfKitCard({
                     />
                   )}
                   <View style={{ flex: 1 }}>
-                    <Text style={tw('text-xs text-gray-800')}>
-                      {product.nom}
-                    </Text>
+                    <Text style={tw('text-xs text-gray-800')}>{product.nom}</Text>
                     {product.reference && (
-                      <Text
-                        style={{ fontSize: 7, color: '#9ca3af', marginTop: 3 }}
-                      >
+                      <Text style={{ fontSize: 7, color: '#9ca3af', marginTop: 3 }}>
                         Réf: {product.reference}
                       </Text>
                     )}
@@ -324,12 +301,8 @@ export function PdfKitListSection({ projectKits }: PdfKitListSectionProps) {
   if (!projectKits || projectKits.length === 0) {
     return (
       <View style={tw('mb-8')}>
-        <Text style={tw('text-base font-bold text-gray-800 mb-4')}>
-          Kits du projet
-        </Text>
-        <Text style={tw('text-sm text-gray-400')}>
-          Aucun kit dans ce projet.
-        </Text>
+        <Text style={tw('text-base font-bold text-gray-800 mb-4')}>Kits du projet</Text>
+        <Text style={tw('text-sm text-gray-400')}>Aucun kit dans ce projet.</Text>
       </View>
     )
   }

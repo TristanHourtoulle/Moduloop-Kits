@@ -61,9 +61,7 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
     try {
       const groupedProducts = data.products.reduce(
         (acc, product) => {
-          const existingProduct = acc.find(
-            (p) => p.productId === product.productId,
-          )
+          const existingProduct = acc.find((p) => p.productId === product.productId)
           if (existingProduct) {
             existingProduct.quantite += product.quantite
           } else {
@@ -106,11 +104,7 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
       router.push('/kits?updated=' + Date.now())
     } catch (err) {
       console.error('[KitForm] Error submitting form:', err)
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Une erreur inattendue s'est produite",
-      )
+      setError(err instanceof Error ? err.message : "Une erreur inattendue s'est produite")
     } finally {
       setIsLoading(false)
     }
@@ -121,28 +115,18 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {error && (
           <Alert className="border-red-200 bg-red-50">
-            <AlertDescription className="text-red-800">
-              {error}
-            </AlertDescription>
+            <AlertDescription className="text-red-800">{error}</AlertDescription>
           </Alert>
         )}
 
-        <Accordion
-          type="multiple"
-          defaultValue={['general', 'products']}
-          className="space-y-4"
-        >
+        <Accordion type="multiple" defaultValue={['general', 'products']} className="space-y-4">
           <KitGeneralInfoSection control={control} errors={errors} />
 
-          <KitProductsSection
-            control={control}
-            errors={errors}
-            onError={handleError}
-          />
+          <KitProductsSection control={control} errors={errors} onError={handleError} />
         </Accordion>
 
         <KitFormActions isLoading={isLoading} kitId={kitId} onReset={reset} />

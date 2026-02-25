@@ -48,14 +48,10 @@ function PdfFooter({ projectName }: { projectName: string }) {
       }}
       fixed
     >
-      <Text style={{ fontSize: 8, color: '#6b7280' }}>
-        Moduloop — {projectName}
-      </Text>
+      <Text style={{ fontSize: 8, color: '#6b7280' }}>Moduloop — {projectName}</Text>
       <Text
         style={{ fontSize: 8, color: '#6b7280' }}
-        render={({ pageNumber, totalPages }) =>
-          `Page ${pageNumber} / ${totalPages}`
-        }
+        render={({ pageNumber, totalPages }) => `Page ${pageNumber} / ${totalPages}`}
       />
     </View>
   )
@@ -88,21 +84,14 @@ export function ProjectPdfDocument({ project }: ProjectPdfDocumentProps) {
 
         {/* Title block */}
         <View style={tw('mb-6')}>
-          <Text style={tw('text-2xl font-bold text-gray-900')}>
-            {project.nom}
-          </Text>
+          <Text style={tw('text-2xl font-bold text-gray-900')}>{project.nom}</Text>
           {project.description && (
-            <Text style={tw('text-sm text-gray-500 mt-2')}>
-              {project.description}
-            </Text>
+            <Text style={tw('text-sm text-gray-500 mt-2')}>{project.description}</Text>
           )}
         </View>
 
         {/* Pricing section */}
-        <PdfPricingSection
-          totalPrices={totalPrices}
-          totalSurface={totalSurface}
-        />
+        <PdfPricingSection totalPrices={totalPrices} totalSurface={totalSurface} />
 
         {/* Environmental section */}
         <PdfEnvironmentalSection savings={environmentalSavings} />

@@ -31,10 +31,7 @@ export async function GET(request: NextRequest) {
     })
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Utilisateur non trouvé' },
-        { status: 404 },
-      )
+      return NextResponse.json({ error: 'Utilisateur non trouvé' }, { status: 404 })
     }
 
     // Get statistics
@@ -51,9 +48,7 @@ export async function GET(request: NextRequest) {
     ])
 
     // Check if user has Google account
-    const hasGoogleAccount = user.accounts.some(
-      (account) => account.providerId === 'google',
-    )
+    const hasGoogleAccount = user.accounts.some((account) => account.providerId === 'google')
 
     return NextResponse.json({
       user: {

@@ -9,11 +9,7 @@ interface RoleBadgeProps {
   className?: string
 }
 
-export function RoleBadge({
-  role,
-  showIcon = true,
-  className,
-}: RoleBadgeProps) {
+export function RoleBadge({ role, showIcon = true, className }: RoleBadgeProps) {
   // Ne pas afficher le badge pour le rôle USER (par défaut)
   if (role === UserRole.USER) {
     return null
@@ -25,9 +21,9 @@ export function RoleBadge({
   const getIcon = () => {
     switch (role) {
       case UserRole.ADMIN:
-        return <Crown className="w-3 h-3 mr-1" />
+        return <Crown className="mr-1 h-3 w-3" />
       case UserRole.DEV:
-        return <Code className="w-3 h-3 mr-1" />
+        return <Code className="mr-1 h-3 w-3" />
       default:
         return null
     }

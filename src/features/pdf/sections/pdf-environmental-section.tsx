@@ -50,9 +50,7 @@ function formatMetricValue(value: number): string {
     .replace(/[\u00A0\u202F]/g, ' ')
 }
 
-export function PdfEnvironmentalSection({
-  savings,
-}: PdfEnvironmentalSectionProps) {
+export function PdfEnvironmentalSection({ savings }: PdfEnvironmentalSectionProps) {
   return (
     <View style={tw('mb-8')}>
       <Text style={tw('text-base font-bold text-gray-800 mb-4')}>
@@ -69,9 +67,8 @@ export function PdfEnvironmentalSection({
         }}
       >
         <Text style={tw('text-xs text-gray-700')}>
-          Les données ci-dessous représentent les économies d&apos;impact
-          environnemental réalisées en choisissant la location par rapport à
-          l&apos;achat de produits neufs.
+          Les données ci-dessous représentent les économies d&apos;impact environnemental réalisées
+          en choisissant la location par rapport à l&apos;achat de produits neufs.
         </Text>
       </View>
 
@@ -81,10 +78,7 @@ export function PdfEnvironmentalSection({
           const value = savings[metric.key]
 
           return (
-            <View
-              key={metric.key}
-              style={{ width: '50%', paddingRight: 6, paddingBottom: 6 }}
-            >
+            <View key={metric.key} style={{ width: '50%', paddingRight: 6, paddingBottom: 6 }}>
               <View
                 style={{
                   ...tw('rounded-md p-4'),
@@ -117,12 +111,8 @@ export function PdfEnvironmentalSection({
                     />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={tw('text-xs font-bold text-gray-800')}>
-                      {metric.label}
-                    </Text>
-                    <Text
-                      style={{ fontSize: 7, color: '#9ca3af', marginTop: 3 }}
-                    >
+                    <Text style={tw('text-xs font-bold text-gray-800')}>{metric.label}</Text>
+                    <Text style={{ fontSize: 7, color: '#9ca3af', marginTop: 3 }}>
                       {metric.description}
                     </Text>
                   </View>
@@ -139,9 +129,7 @@ export function PdfEnvironmentalSection({
                   >
                     {formatMetricValue(value)}
                   </Text>
-                  <Text style={tw('text-xs text-gray-500 mt-1')}>
-                    {metric.unit} économisés
-                  </Text>
+                  <Text style={tw('text-xs text-gray-500 mt-1')}>{metric.unit} économisés</Text>
                 </View>
               </View>
             </View>

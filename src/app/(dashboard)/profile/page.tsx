@@ -129,10 +129,7 @@ export default function ProfilePage() {
     } catch (error) {
       setMessage({
         type: 'error',
-        text:
-          error instanceof Error
-            ? error.message
-            : 'Erreur lors de la mise à jour',
+        text: error instanceof Error ? error.message : 'Erreur lors de la mise à jour',
       })
     } finally {
       setIsLoading(false)
@@ -141,12 +138,12 @@ export default function ProfilePage() {
 
   if (!session?.user || isPageLoading) {
     return (
-      <div className="min-h-screen bg-background w-full">
-        <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+      <div className="bg-background min-h-screen w-full">
+        <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
           {/* Header Skeleton */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Skeleton className="w-12 h-12 rounded-xl" />
+              <Skeleton className="h-12 w-12 rounded-xl" />
               <div className="space-y-2">
                 <Skeleton className="h-8 w-32" />
                 <Skeleton className="h-4 w-48" />
@@ -162,9 +159,9 @@ export default function ProfilePage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex flex-col items-center text-center">
-                  <Skeleton className="w-20 h-20 rounded-full mb-4" />
-                  <Skeleton className="h-6 w-32 mb-1" />
-                  <Skeleton className="h-4 w-40 mb-3" />
+                  <Skeleton className="mb-4 h-20 w-20 rounded-full" />
+                  <Skeleton className="mb-1 h-6 w-32" />
+                  <Skeleton className="mb-3 h-4 w-40" />
                   <Skeleton className="h-6 w-16" />
                 </div>
                 <Separator />
@@ -177,7 +174,7 @@ export default function ProfilePage() {
             </Card>
 
             {/* Main Content Skeleton */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="space-y-6 lg:col-span-2">
               {Array.from({ length: 3 }).map((_, i) => (
                 <Card key={i}>
                   <CardHeader>
@@ -203,16 +200,16 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+    <div className="bg-background min-h-screen w-full">
+      <div className="mx-auto max-w-6xl space-y-8 px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
-              <User className="h-6 w-6 text-primary" />
+            <div className="bg-primary/10 border-primary/20 flex h-12 w-12 items-center justify-center rounded-xl border">
+              <User className="text-primary h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Mon profil</h1>
+              <h1 className="text-foreground text-3xl font-bold">Mon profil</h1>
               <p className="text-muted-foreground">
                 Gérez vos informations personnelles et préférences
               </p>
@@ -229,9 +226,7 @@ export default function ProfilePage() {
             }
           >
             <AlertDescription
-              className={
-                message.type === 'success' ? 'text-green-800' : 'text-red-800'
-              }
+              className={message.type === 'success' ? 'text-green-800' : 'text-red-800'}
             >
               {message.text}
             </AlertDescription>
@@ -243,7 +238,7 @@ export default function ProfilePage() {
           <Card className="lg:col-span-1">
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5 text-primary" />
+                <User className="text-primary h-5 w-5" />
                 Profil
               </CardTitle>
             </CardHeader>
@@ -253,50 +248,44 @@ export default function ProfilePage() {
                   <SafeAvatar
                     src={profileData.user.image}
                     name={profileData.user.name}
-                    className="w-20 h-20 ring-4 ring-primary/10"
+                    className="ring-primary/10 h-20 w-20 ring-4"
                   />
                   <Button
                     size="sm"
-                    className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
+                    className="absolute -right-2 -bottom-2 h-8 w-8 rounded-full p-0"
                   >
                     <Camera className="h-4 w-4" />
                   </Button>
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-1">
+                <h3 className="text-foreground mb-1 text-xl font-semibold">
                   {profileData.user.name}
                 </h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {profileData.user.email}
-                </p>
+                <p className="text-muted-foreground mb-3 text-sm">{profileData.user.email}</p>
                 <RoleBadge role={profileData.user.role as UserRole} />
               </div>
 
               <Separator />
 
               <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   <span>{profileData.user.email}</span>
                 </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>
                     Membre depuis le{' '}
-                    {new Date(profileData.user.createdAt).toLocaleDateString(
-                      'fr-FR',
-                    )}
+                    {new Date(profileData.user.createdAt).toLocaleDateString('fr-FR')}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-2">
                   <Shield className="h-4 w-4" />
                   <span>
-                    {profileData.user.emailVerified
-                      ? 'Compte vérifié'
-                      : 'Compte non vérifié'}
+                    {profileData.user.emailVerified ? 'Compte vérifié' : 'Compte non vérifié'}
                   </span>
                 </div>
                 {profileData.user.hasGoogleAccount && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center gap-2">
                     <Globe className="h-4 w-4" />
                     <span>Connecté via Google</span>
                   </div>
@@ -306,13 +295,13 @@ export default function ProfilePage() {
           </Card>
 
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             {/* Informations personnelles */}
             <Card>
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
-                    <Settings className="h-5 w-5 text-primary" />
+                    <Settings className="text-primary h-5 w-5" />
                     Informations personnelles
                   </CardTitle>
                   <Button
@@ -320,7 +309,7 @@ export default function ProfilePage() {
                     onClick={() => setIsEditing(!isEditing)}
                     disabled={isLoading}
                   >
-                    <Edit3 className="h-4 w-4 mr-2" />
+                    <Edit3 className="mr-2 h-4 w-4" />
                     {isEditing ? 'Annuler' : 'Modifier'}
                   </Button>
                 </div>
@@ -332,9 +321,7 @@ export default function ProfilePage() {
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       disabled={!isEditing}
                     />
                   </div>
@@ -348,9 +335,8 @@ export default function ProfilePage() {
                       className="bg-muted/50"
                     />
                     {profileData.user.hasGoogleAccount && (
-                      <p className="text-xs text-muted-foreground">
-                        L&apos;email ne peut pas être modifié pour les comptes
-                        Google
+                      <p className="text-muted-foreground text-xs">
+                        L&apos;email ne peut pas être modifié pour les comptes Google
                       </p>
                     )}
                   </div>
@@ -359,13 +345,10 @@ export default function ProfilePage() {
                 {isEditing && (
                   <div className="flex gap-2 pt-4">
                     <Button onClick={handleSave} disabled={isLoading}>
-                      <Save className="h-4 w-4 mr-2" />
+                      <Save className="mr-2 h-4 w-4" />
                       {isLoading ? 'Sauvegarde...' : 'Sauvegarder'}
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsEditing(false)}
-                    >
+                    <Button variant="outline" onClick={() => setIsEditing(false)}>
                       Annuler
                     </Button>
                   </div>
@@ -377,38 +360,32 @@ export default function ProfilePage() {
             <Card>
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-primary" />
+                  <BarChart3 className="text-primary h-5 w-5" />
                   Statistiques
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-3">
-                  <div className="text-center p-4 bg-primary/5 rounded-xl border border-primary/10">
-                    <FolderOpen className="h-8 w-8 text-primary mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-primary mb-1">
+                  <div className="bg-primary/5 border-primary/10 rounded-xl border p-4 text-center">
+                    <FolderOpen className="text-primary mx-auto mb-2 h-8 w-8" />
+                    <div className="text-primary mb-1 text-2xl font-bold">
                       {profileData.statistics.projectsCount}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Projets créés
-                    </div>
+                    <div className="text-muted-foreground text-sm">Projets créés</div>
                   </div>
-                  <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-200">
-                    <Package className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-blue-600 mb-1">
+                  <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-center">
+                    <Package className="mx-auto mb-2 h-8 w-8 text-blue-600" />
+                    <div className="mb-1 text-2xl font-bold text-blue-600">
                       {profileData.statistics.kitsCount}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Kits créés
-                    </div>
+                    <div className="text-muted-foreground text-sm">Kits créés</div>
                   </div>
-                  <div className="text-center p-4 bg-emerald-50 rounded-xl border border-emerald-200">
-                    <Package className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
-                    <div className="text-2xl font-bold text-emerald-600 mb-1">
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center">
+                    <Package className="mx-auto mb-2 h-8 w-8 text-emerald-600" />
+                    <div className="mb-1 text-2xl font-bold text-emerald-600">
                       {profileData.statistics.productsCount}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Produits créés
-                    </div>
+                    <div className="text-muted-foreground text-sm">Produits créés</div>
                   </div>
                 </div>
               </CardContent>
@@ -418,17 +395,17 @@ export default function ProfilePage() {
             <Card>
               <CardHeader className="pb-4">
                 <CardTitle className="flex items-center gap-2">
-                  <Palette className="h-5 w-5 text-primary" />
+                  <Palette className="text-primary h-5 w-5" />
                   Préférences
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Bell className="h-5 w-5 text-muted-foreground" />
+                    <Bell className="text-muted-foreground h-5 w-5" />
                     <div>
                       <div className="font-medium">Notifications</div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-muted-foreground text-sm">
                         Recevoir des notifications par email
                       </div>
                     </div>
@@ -438,12 +415,10 @@ export default function ProfilePage() {
                 <Separator />
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Globe className="h-5 w-5 text-muted-foreground" />
+                    <Globe className="text-muted-foreground h-5 w-5" />
                     <div>
                       <div className="font-medium">Langue</div>
-                      <div className="text-sm text-muted-foreground">
-                        Français
-                      </div>
+                      <div className="text-muted-foreground text-sm">Français</div>
                     </div>
                   </div>
                   <Badge variant="outline">FR</Badge>
@@ -451,12 +426,10 @@ export default function ProfilePage() {
                 <Separator />
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Palette className="h-5 w-5 text-muted-foreground" />
+                    <Palette className="text-muted-foreground h-5 w-5" />
                     <div>
                       <div className="font-medium">Thème</div>
-                      <div className="text-sm text-muted-foreground">
-                        Thème de l&apos;interface
-                      </div>
+                      <div className="text-muted-foreground text-sm">Thème de l&apos;interface</div>
                     </div>
                   </div>
                   <Badge variant="outline">Auto</Badge>

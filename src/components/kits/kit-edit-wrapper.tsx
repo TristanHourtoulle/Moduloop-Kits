@@ -33,11 +33,9 @@ export function KitEditWrapper({ kitId, initialKit }: KitEditWrapperProps) {
 
   return (
     <>
-      <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-8">
+      <p className="mx-auto mb-8 max-w-2xl text-center text-lg text-gray-600">
         Modifiez les informations de{' '}
-        <span className="font-semibold text-[#30C1BD]">
-          &quot;{initialKit.nom}&quot;
-        </span>
+        <span className="font-semibold text-[#30C1BD]">&quot;{initialKit.nom}&quot;</span>
       </p>
 
       {/* Form with dynamic key for forcing remount on Vercel */}

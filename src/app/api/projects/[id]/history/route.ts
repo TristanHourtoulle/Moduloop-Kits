@@ -4,10 +4,7 @@ import { getProjectHistory } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
 import { UserRole } from '@/lib/types/user'
 
-export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth(request)
     if (auth.response) return auth.response
@@ -29,8 +26,7 @@ export async function GET(
 
     // Check permissions - user owns project or is admin/dev
     const isOwner = project.createdById === auth.user.id
-    const isAdminOrDev =
-      auth.user.role === UserRole.ADMIN || auth.user.role === UserRole.DEV
+    const isAdminOrDev = auth.user.role === UserRole.ADMIN || auth.user.role === UserRole.DEV
 
     if (!isOwner && !isAdminOrDev) {
       return NextResponse.json({ error: 'Accès non autorisé' }, { status: 403 })

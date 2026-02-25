@@ -4,12 +4,7 @@ import { productSchema, productFilterSchema } from '@/lib/schemas/product'
 import { UserRole } from '@/lib/types/user'
 import { prisma } from '@/lib/db'
 import { invalidateProducts, CACHE_CONFIG } from '@/lib/cache'
-import {
-  requireAuth,
-  requireRole,
-  handleApiError,
-  setListCacheHeaders,
-} from '@/lib/api/middleware'
+import { requireAuth, requireRole, handleApiError, setListCacheHeaders } from '@/lib/api/middleware'
 
 // GET /api/products - Liste des produits avec filtres
 export async function GET(request: NextRequest) {
@@ -25,12 +20,8 @@ export async function GET(request: NextRequest) {
       ...filterParams,
       minPrix: filterParams.minPrix ? Number(filterParams.minPrix) : undefined,
       maxPrix: filterParams.maxPrix ? Number(filterParams.maxPrix) : undefined,
-      minQuantite: filterParams.minQuantite
-        ? Number(filterParams.minQuantite)
-        : undefined,
-      maxQuantite: filterParams.maxQuantite
-        ? Number(filterParams.maxQuantite)
-        : undefined,
+      minQuantite: filterParams.minQuantite ? Number(filterParams.minQuantite) : undefined,
+      maxQuantite: filterParams.maxQuantite ? Number(filterParams.maxQuantite) : undefined,
       page: filterParams.page ? Number(filterParams.page) : undefined,
       limit: filterParams.limit ? Number(filterParams.limit) : undefined,
     }
@@ -164,20 +155,13 @@ export async function POST(request: NextRequest) {
     })
 
     if (existingProduct) {
-      return NextResponse.json(
-        { error: 'Cette référence existe déjà' },
-        { status: 409 },
-      )
+      return NextResponse.json({ error: 'Cette référence existe déjà' }, { status: 409 })
     }
 
     // Build create data: spread validated fields, override with defaults for legacy required fields,
     // then remap form field names to DB column names
-    const {
-      prixAchatAchat1An,
-      prixUnitaireAchat1An,
-      prixVenteAchat1An,
-      ...restValidated
-    } = validatedData
+    const { prixAchatAchat1An, prixUnitaireAchat1An, prixVenteAchat1An, ...restValidated } =
+      validatedData
 
     const createData: Prisma.ProductUncheckedCreateInput = {
       ...restValidated,

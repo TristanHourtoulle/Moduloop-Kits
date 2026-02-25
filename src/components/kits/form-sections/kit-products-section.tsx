@@ -5,11 +5,7 @@ import { Control, useFieldArray, FieldErrors, useWatch } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
+import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -39,11 +35,7 @@ interface KitProductsSectionProps {
   onError: (error: string) => void
 }
 
-export function KitProductsSection({
-  control,
-  errors,
-  onError,
-}: KitProductsSectionProps) {
+export function KitProductsSection({ control, errors, onError }: KitProductsSectionProps) {
   const [products, setProducts] = useState<Product[]>([])
   const [isLoadingProducts, setIsLoadingProducts] = useState(true)
   const [showProductSelection, setShowProductSelection] = useState(false)
@@ -83,9 +75,7 @@ export function KitProductsSection({
 
   const handleQuantityChange = (productId: string, quantity: number) => {
     // Find existing product in fields
-    const existingIndex = fields.findIndex(
-      (field) => field.productId === productId,
-    )
+    const existingIndex = fields.findIndex((field) => field.productId === productId)
 
     if (quantity === 0) {
       // Remove product if quantity is 0
@@ -145,9 +135,7 @@ export function KitProductsSection({
     // Surface totale utilisée par les produits
     let totalSurface = 0
 
-    const productsToCalculate = Array.isArray(watchedProducts)
-      ? watchedProducts
-      : []
+    const productsToCalculate = Array.isArray(watchedProducts) ? watchedProducts : []
 
     productsToCalculate.forEach((productData) => {
       if (productData && productData.productId && productData.quantite) {
@@ -160,52 +148,27 @@ export function KitProductsSection({
           totalAchat += (pricingAchat.prixVente || 0) * quantite
 
           // LOCATION : 3 périodes
-          const pricingLocation1An = getProductPricing(
-            product,
-            'location',
-            '1an',
-          )
-          const pricingLocation2Ans = getProductPricing(
-            product,
-            'location',
-            '2ans',
-          )
-          const pricingLocation3Ans = getProductPricing(
-            product,
-            'location',
-            '3ans',
-          )
+          const pricingLocation1An = getProductPricing(product, 'location', '1an')
+          const pricingLocation2Ans = getProductPricing(product, 'location', '2ans')
+          const pricingLocation3Ans = getProductPricing(product, 'location', '3ans')
 
           totalLocation1An += (pricingLocation1An.prixVente || 0) * quantite
           totalLocation2Ans += (pricingLocation2Ans.prixVente || 0) * quantite
           totalLocation3Ans += (pricingLocation3Ans.prixVente || 0) * quantite
 
           // Impact environnemental ACHAT (CO₂ émis)
-          const environmentalImpactAchat = getProductEnvironmentalImpact(
-            product,
-            'achat',
-          )
-          totalCO2 +=
-            (environmentalImpactAchat.rechauffementClimatique || 0) * quantite
-          totalRessources +=
-            (environmentalImpactAchat.epuisementRessources || 0) * quantite
-          totalAcidification +=
-            (environmentalImpactAchat.acidification || 0) * quantite
-          totalEutrophisation +=
-            (environmentalImpactAchat.eutrophisation || 0) * quantite
+          const environmentalImpactAchat = getProductEnvironmentalImpact(product, 'achat')
+          totalCO2 += (environmentalImpactAchat.rechauffementClimatique || 0) * quantite
+          totalRessources += (environmentalImpactAchat.epuisementRessources || 0) * quantite
+          totalAcidification += (environmentalImpactAchat.acidification || 0) * quantite
+          totalEutrophisation += (environmentalImpactAchat.eutrophisation || 0) * quantite
 
           // Impact environnemental LOCATION (CO₂ économisé - valeurs négatives dans la DB)
-          const environmentalImpactLocation = getProductEnvironmentalImpact(
-            product,
-            'location',
-          )
-          totalCO2Location +=
-            (environmentalImpactLocation.rechauffementClimatique || 0) *
-            quantite
+          const environmentalImpactLocation = getProductEnvironmentalImpact(product, 'location')
+          totalCO2Location += (environmentalImpactLocation.rechauffementClimatique || 0) * quantite
           totalRessourcesLocation +=
             (environmentalImpactLocation.epuisementRessources || 0) * quantite
-          totalAcidificationLocation +=
-            (environmentalImpactLocation.acidification || 0) * quantite
+          totalAcidificationLocation += (environmentalImpactLocation.acidification || 0) * quantite
           totalEutrophisationLocation +=
             (environmentalImpactLocation.eutrophisation || 0) * quantite
 
@@ -245,15 +208,15 @@ export function KitProductsSection({
   }, [watchedProducts, products])
 
   return (
-    <AccordionItem value="products" className="border rounded-lg">
+    <AccordionItem value="products" className="rounded-lg border">
       <AccordionTrigger className="px-6 py-4 hover:no-underline">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Package className="h-5 w-5 text-primary" />
+          <div className="bg-primary/10 rounded-lg p-2">
+            <Package className="text-primary h-5 w-5" />
           </div>
           <div className="text-left">
             <h3 className="font-semibold">Produits du kit</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Sélectionnez les produits et leurs quantités
             </p>
           </div>
@@ -269,10 +232,8 @@ export function KitProductsSection({
           {/* Selected Products List */}
           {fields.length > 0 && (
             <div className="space-y-3">
-              <h4 className="font-medium text-sm text-muted-foreground">
-                Produits sélectionnés
-              </h4>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <h4 className="text-muted-foreground text-sm font-medium">Produits sélectionnés</h4>
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                 {fields.map((field, index) => {
                   const selectedProduct = getSelectedProduct(field.productId)
                   if (!selectedProduct) return null
@@ -282,24 +243,24 @@ export function KitProductsSection({
                       <CardContent className="p-4">
                         <div className="flex gap-3">
                           {/* Product Image */}
-                          <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-gradient-to-br from-muted/30 to-muted/50">
+                          <div className="from-muted/30 to-muted/50 relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-gradient-to-br">
                             {selectedProduct.image ? (
                               <img
                                 src={selectedProduct.image}
                                 alt={selectedProduct.nom}
-                                className="w-full h-full object-cover"
+                                className="h-full w-full object-cover"
                               />
                             ) : (
-                              <div className="flex items-center justify-center h-full">
-                                <Package className="h-6 w-6 text-muted-foreground/40" />
+                              <div className="flex h-full items-center justify-center">
+                                <Package className="text-muted-foreground/40 h-6 w-6" />
                               </div>
                             )}
                           </div>
 
                           {/* Product Info */}
-                          <div className="flex-1 min-w-0 space-y-2">
+                          <div className="min-w-0 flex-1 space-y-2">
                             <div>
-                              <h5 className="font-semibold text-sm truncate">
+                              <h5 className="truncate text-sm font-semibold">
                                 {selectedProduct.nom}
                               </h5>
                               <Badge variant="secondary" className="text-xs">
@@ -309,9 +270,7 @@ export function KitProductsSection({
 
                             {/* Quantity Controls */}
                             <div className="flex items-center gap-2">
-                              <Label className="text-xs text-muted-foreground">
-                                Quantité:
-                              </Label>
+                              <Label className="text-muted-foreground text-xs">Quantité:</Label>
                               <div className="flex items-center gap-1">
                                 <Button
                                   type="button"
@@ -334,7 +293,7 @@ export function KitProductsSection({
                                       quantite: Math.max(1, value),
                                     })
                                   }}
-                                  className="h-6 w-12 text-center text-xs p-0"
+                                  className="h-6 w-12 p-0 text-center text-xs"
                                 />
                                 <Button
                                   type="button"
@@ -376,82 +335,67 @@ export function KitProductsSection({
                                   <>
                                     {/* Prix d'achat - toujours affiché */}
                                     <div className="flex items-center gap-1 text-xs">
-                                      <ShoppingCart className="h-3 w-3 text-primary" />
-                                      <span className="text-muted-foreground">
-                                        Achat:
-                                      </span>
-                                      {pricingAchat.prixVente &&
-                                      pricingAchat.prixVente > 0 ? (
-                                        <span className="font-semibold text-primary">
-                                          {formatPrice(
-                                            pricingAchat.prixVente *
-                                              field.quantite,
-                                          )}
+                                      <ShoppingCart className="text-primary h-3 w-3" />
+                                      <span className="text-muted-foreground">Achat:</span>
+                                      {pricingAchat.prixVente && pricingAchat.prixVente > 0 ? (
+                                        <span className="text-primary font-semibold">
+                                          {formatPrice(pricingAchat.prixVente * field.quantite)}
                                         </span>
                                       ) : (
-                                        <span className="text-xs italic text-orange-600">
+                                        <span className="text-xs text-orange-600 italic">
                                           Non renseigné
                                         </span>
                                       )}
                                     </div>
 
                                     {/* Prix de location - 3 périodes */}
-                                    <div className="space-y-0.5 pl-4 border-l-2 border-primary/20">
+                                    <div className="border-primary/20 space-y-0.5 border-l-2 pl-4">
                                       <div className="flex items-center gap-1 text-xs">
-                                        <Home className="h-3 w-3 text-primary" />
-                                        <span className="text-muted-foreground">
-                                          Loc. 1an:
-                                        </span>
+                                        <Home className="text-primary h-3 w-3" />
+                                        <span className="text-muted-foreground">Loc. 1an:</span>
                                         {pricingLocation1An.prixVente &&
                                         pricingLocation1An.prixVente > 0 ? (
-                                          <span className="font-semibold text-primary">
+                                          <span className="text-primary font-semibold">
                                             {formatPrice(
-                                              pricingLocation1An.prixVente *
-                                                field.quantite,
+                                              pricingLocation1An.prixVente * field.quantite,
                                             )}
                                           </span>
                                         ) : (
-                                          <span className="text-xs italic text-orange-600">
+                                          <span className="text-xs text-orange-600 italic">
                                             Non renseigné
                                           </span>
                                         )}
                                       </div>
 
                                       <div className="flex items-center gap-1 text-xs">
-                                        <Home className="h-3 w-3 text-primary" />
-                                        <span className="text-muted-foreground">
-                                          Loc. 2ans:
-                                        </span>
+                                        <Home className="text-primary h-3 w-3" />
+                                        <span className="text-muted-foreground">Loc. 2ans:</span>
                                         {pricingLocation2Ans.prixVente &&
                                         pricingLocation2Ans.prixVente > 0 ? (
-                                          <span className="font-semibold text-primary">
+                                          <span className="text-primary font-semibold">
                                             {formatPrice(
-                                              pricingLocation2Ans.prixVente *
-                                                field.quantite,
+                                              pricingLocation2Ans.prixVente * field.quantite,
                                             )}
                                           </span>
                                         ) : (
-                                          <span className="text-xs italic text-orange-600">
+                                          <span className="text-xs text-orange-600 italic">
                                             Non renseigné
                                           </span>
                                         )}
                                       </div>
 
                                       <div className="flex items-center gap-1 text-xs">
-                                        <Home className="h-3 w-3 text-primary" />
-                                        <span className="text-muted-foreground">
-                                          Loc. 3ans:
-                                        </span>
+                                        <Home className="text-primary h-3 w-3" />
+                                        <span className="text-muted-foreground">Loc. 3ans:</span>
                                         {pricingLocation3Ans.prixVente &&
                                         pricingLocation3Ans.prixVente > 0 ? (
-                                          <span className="font-semibold text-primary">
+                                          <span className="text-primary font-semibold">
                                             {formatPrice(
-                                              pricingLocation3Ans.prixVente *
-                                                field.quantite,
+                                              pricingLocation3Ans.prixVente * field.quantite,
                                             )}
                                           </span>
                                         ) : (
-                                          <span className="text-xs italic text-orange-600">
+                                          <span className="text-xs text-orange-600 italic">
                                             Non renseigné
                                           </span>
                                         )}
@@ -469,7 +413,7 @@ export function KitProductsSection({
                             variant="ghost"
                             size="icon"
                             onClick={() => remove(index)}
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -499,34 +443,28 @@ export function KitProductsSection({
               type="button"
               variant="outline"
               onClick={() => setShowProductSelection(true)}
-              className="w-full border-dashed border-2 hover:border-primary hover:text-primary"
+              className="hover:border-primary hover:text-primary w-full border-2 border-dashed"
               disabled={isLoadingProducts}
             >
-              <Plus className="h-4 w-4 mr-2" />
-              {fields.length === 0
-                ? 'Ajouter des produits'
-                : 'Ajouter un autre produit'}
+              <Plus className="mr-2 h-4 w-4" />
+              {fields.length === 0 ? 'Ajouter des produits' : 'Ajouter un autre produit'}
             </Button>
           )}
 
-          {errors.products && (
-            <p className="text-sm text-red-500">{errors.products.message}</p>
-          )}
+          {errors.products && <p className="text-sm text-red-500">{errors.products.message}</p>}
 
           {/* Summary Card with Mode Selection */}
           {fields.length > 0 && (
-            <div className="p-5 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl border border-primary/20 shadow-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Calculator className="h-5 w-5 text-primary" />
+            <div className="from-primary/5 to-primary/10 border-primary/20 rounded-xl border bg-gradient-to-br p-5 shadow-sm">
+              <div className="mb-4 flex items-center gap-2">
+                <div className="bg-primary/10 rounded-lg p-2">
+                  <Calculator className="text-primary h-5 w-5" />
                 </div>
-                <h4 className="font-semibold text-lg text-primary">
-                  Récapitulatif du kit
-                </h4>
+                <h4 className="text-primary text-lg font-semibold">Récapitulatif du kit</h4>
               </div>
 
               <Tabs defaultValue="achat" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsList className="mb-4 grid w-full grid-cols-2">
                   <TabsTrigger value="achat" className="gap-2">
                     <ShoppingCart className="h-4 w-4" />
                     Achat
@@ -540,12 +478,12 @@ export function KitProductsSection({
                 {/* Achat Tab */}
                 <TabsContent value="achat" className="space-y-4">
                   {/* Prix Achat */}
-                  <div className="bg-white/60 rounded-lg p-6 border border-primary/10">
+                  <div className="border-primary/10 rounded-lg border bg-white/60 p-6">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <p className="text-sm text-muted-foreground font-medium">
+                      <p className="text-muted-foreground text-sm font-medium">
                         Prix d&apos;achat total
                       </p>
-                      <p className="text-3xl font-bold text-primary">
+                      <p className="text-primary text-3xl font-bold">
                         {formatPrice(totals.totalAchat1An)}
                       </p>
                     </div>
@@ -553,13 +491,13 @@ export function KitProductsSection({
 
                   {/* Surface totale */}
                   {totals.totalSurface > 0 && (
-                    <div className="bg-white/60 rounded-lg p-4 border border-primary/10">
+                    <div className="border-primary/10 rounded-lg border bg-white/60 p-4">
                       <div className="flex items-center justify-center gap-2">
-                        <Square className="h-5 w-5 text-primary" />
-                        <p className="text-sm text-muted-foreground font-medium">
+                        <Square className="text-primary h-5 w-5" />
+                        <p className="text-muted-foreground text-sm font-medium">
                           Surface totale utilisée:
                         </p>
-                        <p className="text-2xl font-bold text-primary">
+                        <p className="text-primary text-2xl font-bold">
                           {totals.totalSurface.toFixed(2)} m²
                         </p>
                       </div>
@@ -573,32 +511,30 @@ export function KitProductsSection({
                 {/* Location Tab */}
                 <TabsContent value="location" className="space-y-4">
                   {/* Prix Location */}
-                  <div className="bg-white/60 rounded-lg p-4 border border-primary/10">
+                  <div className="border-primary/10 rounded-lg border bg-white/60 p-4">
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center">
-                        <p className="text-xs text-muted-foreground font-medium mb-1">
-                          Prix 1 an
-                        </p>
-                        <p className="text-xl font-bold text-primary">
+                        <p className="text-muted-foreground mb-1 text-xs font-medium">Prix 1 an</p>
+                        <p className="text-primary text-xl font-bold">
                           {formatPrice(totals.totalLocation1An)}
                         </p>
                       </div>
                       {totals.totalLocation2Ans > 0 && (
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground font-medium mb-1">
+                          <p className="text-muted-foreground mb-1 text-xs font-medium">
                             Prix 2 ans
                           </p>
-                          <p className="text-xl font-bold text-primary">
+                          <p className="text-primary text-xl font-bold">
                             {formatPrice(totals.totalLocation2Ans)}
                           </p>
                         </div>
                       )}
                       {totals.totalLocation3Ans > 0 && (
                         <div className="text-center">
-                          <p className="text-xs text-muted-foreground font-medium mb-1">
+                          <p className="text-muted-foreground mb-1 text-xs font-medium">
                             Prix 3 ans
                           </p>
-                          <p className="text-xl font-bold text-primary">
+                          <p className="text-primary text-xl font-bold">
                             {formatPrice(totals.totalLocation3Ans)}
                           </p>
                         </div>
@@ -608,13 +544,13 @@ export function KitProductsSection({
 
                   {/* Surface totale */}
                   {totals.totalSurface > 0 && (
-                    <div className="bg-white/60 rounded-lg p-4 border border-primary/10">
+                    <div className="border-primary/10 rounded-lg border bg-white/60 p-4">
                       <div className="flex items-center justify-center gap-2">
-                        <Square className="h-5 w-5 text-primary" />
-                        <p className="text-sm text-muted-foreground font-medium">
+                        <Square className="text-primary h-5 w-5" />
+                        <p className="text-muted-foreground text-sm font-medium">
                           Surface totale utilisée:
                         </p>
-                        <p className="text-2xl font-bold text-primary">
+                        <p className="text-primary text-2xl font-bold">
                           {totals.totalSurface.toFixed(2)} m²
                         </p>
                       </div>
@@ -622,42 +558,34 @@ export function KitProductsSection({
                   )}
 
                   {/* Impact Environnemental - Location */}
-                  <div className="bg-emerald-50/60 rounded-lg p-4 border border-emerald-200/50">
-                    <div className="flex items-center gap-2 mb-3">
+                  <div className="rounded-lg border border-emerald-200/50 bg-emerald-50/60 p-4">
+                    <div className="mb-3 flex items-center gap-2">
                       <Leaf className="h-4 w-4 text-emerald-600" />
                       <span className="text-sm font-semibold text-emerald-900">
                         Impact environnemental (CO₂ économisé)
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                      <div className="bg-white/60 rounded p-2">
-                        <span className="text-xs text-muted-foreground block">
-                          CO₂:
-                        </span>
+                    <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
+                      <div className="rounded bg-white/60 p-2">
+                        <span className="text-muted-foreground block text-xs">CO₂:</span>
                         <p className="font-bold" style={{ color: '#FE9E58' }}>
                           {totals.totalCO2Location.toFixed(2)} kg
                         </p>
                       </div>
-                      <div className="bg-white/60 rounded p-2">
-                        <span className="text-xs text-muted-foreground block">
-                          Ressources:
-                        </span>
+                      <div className="rounded bg-white/60 p-2">
+                        <span className="text-muted-foreground block text-xs">Ressources:</span>
                         <p className="font-bold" style={{ color: '#FE5858' }}>
                           {totals.totalRessourcesLocation.toFixed(2)} MJ
                         </p>
                       </div>
-                      <div className="bg-white/60 rounded p-2">
-                        <span className="text-xs text-muted-foreground block">
-                          Acidification:
-                        </span>
+                      <div className="rounded bg-white/60 p-2">
+                        <span className="text-muted-foreground block text-xs">Acidification:</span>
                         <p className="font-bold" style={{ color: '#55D789' }}>
                           {totals.totalAcidificationLocation.toFixed(4)} MOL
                         </p>
                       </div>
-                      <div className="bg-white/60 rounded p-2">
-                        <span className="text-xs text-muted-foreground block">
-                          Eutrophisation:
-                        </span>
+                      <div className="rounded bg-white/60 p-2">
+                        <span className="text-muted-foreground block text-xs">Eutrophisation:</span>
                         <p className="font-bold" style={{ color: '#55D789' }}>
                           {totals.totalEutrophisationLocation.toFixed(4)} kg P
                         </p>

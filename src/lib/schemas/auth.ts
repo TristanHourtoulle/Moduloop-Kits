@@ -1,10 +1,7 @@
 import { z } from 'zod'
 
 export const connexionSchema = z.object({
-  email: z
-    .string()
-    .min(1, "L'adresse e-mail est requise")
-    .email('Adresse e-mail invalide'),
+  email: z.string().min(1, "L'adresse e-mail est requise").email('Adresse e-mail invalide'),
   password: z
     .string()
     .min(1, 'Le mot de passe est requis')
@@ -18,10 +15,7 @@ export const inscriptionSchema = z
       .min(1, 'Le nom est requis')
       .min(2, 'Le nom doit contenir au moins 2 caractères')
       .max(50, 'Le nom ne peut pas dépasser 50 caractères'),
-    email: z
-      .string()
-      .min(1, "L'adresse e-mail est requise")
-      .email('Adresse e-mail invalide'),
+    email: z.string().min(1, "L'adresse e-mail est requise").email('Adresse e-mail invalide'),
     password: z
       .string()
       .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
@@ -40,10 +34,7 @@ export const inscriptionSchema = z
   })
 
 export const motDePasseOublieSchema = z.object({
-  email: z
-    .string()
-    .min(1, "L'adresse e-mail est requise")
-    .email('Adresse e-mail invalide'),
+  email: z.string().min(1, "L'adresse e-mail est requise").email('Adresse e-mail invalide'),
 })
 
 /** Server-side schema for sign-up action (maps to Better Auth fields) */

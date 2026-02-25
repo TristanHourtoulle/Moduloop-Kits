@@ -46,9 +46,7 @@ export async function verifyProjectAccess(
   const isAdmin = isAdminOrDev(role)
 
   const project = await prisma.project.findFirst({
-    where: isAdmin
-      ? { id: projectId }
-      : { id: projectId, createdById: session.user.id },
+    where: isAdmin ? { id: projectId } : { id: projectId, createdById: session.user.id },
     select: { id: true },
   })
 

@@ -14,19 +14,16 @@ export function CreateProjectButton() {
       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#30C1BD] hover:bg-[#2AA9A4] text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-3 text-base font-semibold rounded-xl"
+          className="rounded-xl border-0 bg-[#30C1BD] px-6 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 hover:bg-[#2AA9A4] hover:shadow-xl"
         >
-          <Plus className="w-5 h-5 mr-2" />
+          <Plus className="mr-2 h-5 w-5" />
           Nouveau Projet
         </Button>
       </motion.div>
 
       <AnimatePresence>
         {isModalOpen && (
-          <CreateProjectModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-          />
+          <CreateProjectModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
         )}
       </AnimatePresence>
     </>

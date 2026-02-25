@@ -1,12 +1,6 @@
 'use client'
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useSession } from '@/lib/auth-client'
 
 interface UserData {
@@ -108,9 +102,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     refreshUser,
   }
 
-  return (
-    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
-  )
+  return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
 }
 
 export function useUser() {

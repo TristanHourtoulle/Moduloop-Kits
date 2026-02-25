@@ -1,10 +1,6 @@
 import { signIn } from '@/lib/auth-client'
 
-export const signInSocialAction = async ({
-  provider,
-}: {
-  provider: 'google'
-}) => {
+export const signInSocialAction = async ({ provider }: { provider: 'google' }) => {
   try {
     await signIn.social({
       provider,

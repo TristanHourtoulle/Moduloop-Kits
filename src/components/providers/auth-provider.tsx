@@ -6,9 +6,7 @@ import { authClient } from '@/lib/auth-client'
 const AuthContext = createContext(authClient)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthContext.Provider value={authClient}>{children}</AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={authClient}>{children}</AuthContext.Provider>
 }
 
 export function useAuthClient() {

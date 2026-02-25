@@ -1,12 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import 'server-only'
 import { unstable_noStore as noStore } from 'next/cache'
-import {
-  type Kit,
-  type Product,
-  type Project,
-  ProjectStatus,
-} from './types/project'
+import { type Kit, type Product, type Project, ProjectStatus } from './types/project'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -102,10 +97,7 @@ const transformDates = (data: unknown): unknown => {
 }
 
 // Data fetching functions - with noStore() to disable Next.js Data Cache
-export const getKits = async (filters?: {
-  search?: string
-  style?: string
-}) => {
+export const getKits = async (filters?: { search?: string; style?: string }) => {
   noStore() // Disable Next.js Data Cache for fresh data
 
   // Build where clause dynamically based on filters

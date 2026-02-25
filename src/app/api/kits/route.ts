@@ -10,10 +10,7 @@ import {
   setResourceCacheHeaders,
 } from '@/lib/api/middleware'
 import { groupDuplicateProducts } from '@/lib/utils/kit/group-products'
-import {
-  validateProductsExist,
-  KIT_WITH_PRODUCTS_INCLUDE,
-} from '@/lib/services/kit.service'
+import { validateProductsExist, KIT_WITH_PRODUCTS_INCLUDE } from '@/lib/services/kit.service'
 
 // GET /api/kits - Liste des kits
 export async function GET(request: NextRequest) {
@@ -50,9 +47,7 @@ export async function POST(request: NextRequest) {
 
     const groupedProducts = groupDuplicateProducts(validatedData.products)
 
-    const validation = await validateProductsExist(
-      groupedProducts.map((p) => p.productId),
-    )
+    const validation = await validateProductsExist(groupedProducts.map((p) => p.productId))
     if (!validation.valid) {
       return NextResponse.json(
         { error: `Produits introuvables: ${validation.missingIds.join(', ')}` },

@@ -2,16 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import {
-  Clock,
-  Plus,
-  Package,
-  Activity,
-  Edit3,
-  Trash2,
-  User,
-  AlertCircle,
-} from 'lucide-react'
+import { Clock, Plus, Package, Activity, Edit3, Trash2, User, AlertCircle } from 'lucide-react'
 
 interface ProjectHistoryItem {
   id: string
@@ -33,10 +24,7 @@ interface ProjectHistoryProps {
   projectCreatedAt: string
 }
 
-export function ProjectHistory({
-  projectId,
-  projectCreatedAt,
-}: ProjectHistoryProps) {
+export function ProjectHistory({ projectId, projectCreatedAt }: ProjectHistoryProps) {
   const [history, setHistory] = useState<ProjectHistoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -150,7 +138,7 @@ export function ProjectHistory({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#30C1BD]"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-[#30C1BD]"></div>
       </div>
     )
   }
@@ -159,7 +147,7 @@ export function ProjectHistory({
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center text-gray-500">
-          <AlertCircle className="w-8 h-8 mx-auto mb-2" />
+          <AlertCircle className="mx-auto mb-2 h-8 w-8" />
           <p>{error}</p>
         </div>
       </div>
@@ -170,20 +158,16 @@ export function ProjectHistory({
     <div className="space-y-6">
       {/* Timeline des événements */}
       <div className="relative">
-        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-purple-200 to-transparent"></div>
+        <div className="absolute top-8 bottom-0 left-4 w-0.5 bg-gradient-to-b from-purple-200 to-transparent"></div>
 
         {history.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <Clock className="w-8 h-8 mx-auto mb-2" />
+          <div className="py-12 text-center text-gray-500">
+            <Clock className="mx-auto mb-2 h-8 w-8" />
             <p>Aucun historique disponible</p>
           </div>
         ) : (
           history.map((item, index) => {
-            const {
-              icon: Icon,
-              color,
-              iconColor,
-            } = getChangeTypeIcon(item.changeType)
+            const { icon: Icon, color, iconColor } = getChangeTypeIcon(item.changeType)
             const isLast = index === history.length - 1
 
             return (
@@ -195,26 +179,20 @@ export function ProjectHistory({
                 className={`relative flex items-start gap-4 ${isLast ? '' : 'pb-6'}`}
               >
                 <div
-                  className={`w-8 h-8 bg-gradient-to-br ${color} rounded-full flex items-center justify-center border-2 border-white shadow-sm z-10`}
+                  className={`h-8 w-8 bg-gradient-to-br ${color} z-10 flex items-center justify-center rounded-full border-2 border-white shadow-sm`}
                 >
-                  <Icon className={`w-4 h-4 ${iconColor}`} />
+                  <Icon className={`h-4 w-4 ${iconColor}`} />
                 </div>
-                <div className="flex-1 min-w-0 pb-4">
-                  <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between mb-2">
+                <div className="min-w-0 flex-1 pb-4">
+                  <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+                    <div className="mb-2 flex items-start justify-between">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900 mb-1">
-                          {item.description}
-                        </h4>
+                        <h4 className="mb-1 font-semibold text-gray-900">{item.description}</h4>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <User className="w-3 h-3" />
+                          <User className="h-3 w-3" />
                           <span>{formatUserName(item.changedBy)}</span>
                           <span>•</span>
-                          <time
-                            title={new Date(item.createdAt).toLocaleString(
-                              'fr-FR',
-                            )}
-                          >
+                          <time title={new Date(item.createdAt).toLocaleString('fr-FR')}>
                             {formatTimeAgo(item.createdAt)}
                           </time>
                         </div>
@@ -223,7 +201,7 @@ export function ProjectHistory({
 
                     {/* Display metadata if available */}
                     {item.metadata && (
-                      <div className="mt-2 text-xs text-gray-500 bg-gray-50 rounded-lg p-2">
+                      <div className="mt-2 rounded-lg bg-gray-50 p-2 text-xs text-gray-500">
                         {item.changeType === 'KIT_ADDED' &&
                           typeof item.metadata.kitName === 'string' && (
                             <p>
@@ -257,13 +235,11 @@ export function ProjectHistory({
                         {item.changeType === 'KIT_QUANTITY_UPDATED' &&
                           typeof item.metadata.kitName === 'string' && (
                             <p>
-                              Kit: {item.metadata.kitName} (
-                              {String(item.metadata.oldQuantity ?? 0)} →{' '}
-                              {String(item.metadata.newQuantity ?? 0)})
+                              Kit: {item.metadata.kitName} ({String(item.metadata.oldQuantity ?? 0)}{' '}
+                              → {String(item.metadata.newQuantity ?? 0)})
                             </p>
                           )}
-                        {(item.changeType === 'CREATED' ||
-                          item.changeType === 'DELETED') &&
+                        {(item.changeType === 'CREATED' || item.changeType === 'DELETED') &&
                           !!item.metadata.projectName && (
                             <p>Projet: {String(item.metadata.projectName)}</p>
                           )}
@@ -278,34 +254,31 @@ export function ProjectHistory({
       </div>
 
       {/* Statistiques d'évolution */}
-      <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-6">
+        <h3 className="mb-4 text-lg font-semibold text-gray-900">
           Statistiques de l&apos;historique
         </h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
-            <div className="text-lg font-bold text-gray-900 mb-1">
-              {history.length}
-            </div>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="rounded-lg border border-gray-100 bg-white p-3 text-center">
+            <div className="mb-1 text-lg font-bold text-gray-900">{history.length}</div>
             <div className="text-sm text-gray-600">Événements totaux</div>
           </div>
-          <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
-            <div className="text-lg font-bold text-gray-900 mb-1">
+          <div className="rounded-lg border border-gray-100 bg-white p-3 text-center">
+            <div className="mb-1 text-lg font-bold text-gray-900">
               {Math.ceil(
-                (Date.now() - new Date(projectCreatedAt).getTime()) /
-                  (1000 * 60 * 60 * 24),
+                (Date.now() - new Date(projectCreatedAt).getTime()) / (1000 * 60 * 60 * 24),
               )}
             </div>
             <div className="text-sm text-gray-600">Jours depuis création</div>
           </div>
-          <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
-            <div className="text-lg font-bold text-gray-900 mb-1">
+          <div className="rounded-lg border border-gray-100 bg-white p-3 text-center">
+            <div className="mb-1 text-lg font-bold text-gray-900">
               {history.filter((h) => h.changeType.startsWith('KIT_')).length}
             </div>
             <div className="text-sm text-gray-600">Actions sur les kits</div>
           </div>
-          <div className="text-center p-3 bg-white rounded-lg border border-gray-100">
-            <div className="text-lg font-bold text-gray-900 mb-1">
+          <div className="rounded-lg border border-gray-100 bg-white p-3 text-center">
+            <div className="mb-1 text-lg font-bold text-gray-900">
               {new Set(history.map((h) => h.changedBy.id)).size}
             </div>
             <div className="text-sm text-gray-600">Contributeurs</div>

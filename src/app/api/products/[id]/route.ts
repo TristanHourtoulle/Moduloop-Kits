@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { productUpdateSchema } from '@/lib/schemas/product'
 import { UserRole } from '@/lib/types/user'
 import { getProductById, prisma } from '@/lib/db'
-import {
-  invalidateProduct,
-  invalidateProducts,
-  CACHE_CONFIG,
-} from '@/lib/cache'
+import { invalidateProduct, invalidateProducts, CACHE_CONFIG } from '@/lib/cache'
 import {
   requireAuth,
   requireRole,
@@ -16,10 +12,7 @@ import {
 import { remapProductFormFields } from '@/lib/utils/product/map-form-fields'
 
 // GET /api/products/[id] - Récupérer un produit par ID
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth(request)
     if (auth.response) return auth.response
@@ -44,10 +37,7 @@ export async function GET(
 }
 
 // PUT /api/products/[id] - Mettre à jour un produit
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN])
     if (auth.response) return auth.response
@@ -70,19 +60,13 @@ export async function PUT(
     const { id: _id, ...updateData } = validatedData
 
     // Vérifier que la référence n'existe pas déjà (si elle est modifiée)
-    if (
-      updateData.reference &&
-      updateData.reference !== existingProduct.reference
-    ) {
+    if (updateData.reference && updateData.reference !== existingProduct.reference) {
       const referenceExists = await prisma.product.findUnique({
         where: { reference: updateData.reference },
       })
 
       if (referenceExists) {
-        return NextResponse.json(
-          { error: 'Cette référence existe déjà' },
-          { status: 409 },
-        )
+        return NextResponse.json({ error: 'Cette référence existe déjà' }, { status: 409 })
       }
     }
 

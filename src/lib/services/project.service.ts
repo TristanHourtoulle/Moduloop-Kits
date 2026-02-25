@@ -49,10 +49,7 @@ export function calculateProjectTotals(project: Project): ProjectTotals {
       if (!product) continue
 
       const pricing = getProductPricing(product, 'achat', '1an')
-      const environmentalImpact = getProductEnvironmentalImpact(
-        product,
-        'achat',
-      )
+      const environmentalImpact = getProductEnvironmentalImpact(product, 'achat')
 
       const prixProduit = ceilPrice(
         (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite,
@@ -64,17 +61,11 @@ export function calculateProjectTotals(project: Project): ProjectTotals {
         kitProduct.quantite *
         projectKit.quantite
       totalImpact.epuisementRessources +=
-        (environmentalImpact.epuisementRessources || 0) *
-        kitProduct.quantite *
-        projectKit.quantite
+        (environmentalImpact.epuisementRessources || 0) * kitProduct.quantite * projectKit.quantite
       totalImpact.acidification +=
-        (environmentalImpact.acidification || 0) *
-        kitProduct.quantite *
-        projectKit.quantite
+        (environmentalImpact.acidification || 0) * kitProduct.quantite * projectKit.quantite
       totalImpact.eutrophisation +=
-        (environmentalImpact.eutrophisation || 0) *
-        kitProduct.quantite *
-        projectKit.quantite
+        (environmentalImpact.eutrophisation || 0) * kitProduct.quantite * projectKit.quantite
     }
   }
 

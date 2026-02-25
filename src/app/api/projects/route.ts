@@ -11,8 +11,7 @@ export async function GET(request: NextRequest) {
     const auth = await requireAuth(request)
     if (auth.response) return auth.response
 
-    const isAdmin =
-      auth.user.role === UserRole.ADMIN || auth.user.role === UserRole.DEV
+    const isAdmin = auth.user.role === UserRole.ADMIN || auth.user.role === UserRole.DEV
 
     // Récupérer le paramètre userId depuis l'URL
     const url = new URL(request.url)
@@ -59,10 +58,7 @@ export async function POST(request: NextRequest) {
     const { nom, description, status } = body
 
     if (!nom) {
-      return NextResponse.json(
-        { error: 'Le nom du projet est requis' },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: 'Le nom du projet est requis' }, { status: 400 })
     }
 
     const project = await createProject({

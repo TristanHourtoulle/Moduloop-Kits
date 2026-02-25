@@ -69,22 +69,15 @@ export default function AdminPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(
-          errorData.error || 'Erreur lors de la mise à jour du rôle',
-        )
+        throw new Error(errorData.error || 'Erreur lors de la mise à jour du rôle')
       }
 
       // Mettre à jour la liste locale
       setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === userId ? { ...user, role: newRole } : user,
-        ),
+        prevUsers.map((user) => (user.id === userId ? { ...user, role: newRole } : user)),
       )
 
-      await showSuccess(
-        'Succès',
-        "Le rôle de l'utilisateur a été mis à jour avec succès",
-      )
+      await showSuccess('Succès', "Le rôle de l'utilisateur a été mis à jour avec succès")
     } catch (error) {
       console.error('Erreur lors de la mise à jour du rôle:', error)
       await showError(
@@ -104,18 +97,14 @@ export default function AdminPage() {
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
       <div className="bg-background w-full">
-        <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        <div className="mx-auto max-w-7xl space-y-8 px-6 py-8">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-red-200 bg-red-50">
               <Shield className="h-6 w-6 text-red-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Administration
-              </h1>
-              <p className="text-muted-foreground">
-                Gestion des utilisateurs et des rôles
-              </p>
+              <h1 className="text-foreground text-3xl font-bold">Administration</h1>
+              <p className="text-muted-foreground">Gestion des utilisateurs et des rôles</p>
             </div>
           </div>
 

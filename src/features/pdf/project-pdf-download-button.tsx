@@ -9,9 +9,7 @@ interface ProjectPdfDownloadButtonProps {
   project: Project
 }
 
-export function ProjectPdfDownloadButton({
-  project,
-}: ProjectPdfDownloadButtonProps) {
+export function ProjectPdfDownloadButton({ project }: ProjectPdfDownloadButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false)
 
   const handleDownload = useCallback(async () => {
@@ -46,9 +44,9 @@ export function ProjectPdfDownloadButton({
       title="Telecharger le resume PDF"
     >
       {isGenerating ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
+        <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
-        <Download className="w-4 h-4" />
+        <Download className="h-4 w-4" />
       )}
     </Button>
   )

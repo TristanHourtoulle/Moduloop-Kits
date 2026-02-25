@@ -8,9 +8,7 @@ const FIELD_REMAP: Record<string, string> = {
   prixVenteAchat1An: 'prixVenteAchat',
 }
 
-export function remapProductFormFields(
-  data: Record<string, unknown>,
-): Record<string, unknown> {
+export function remapProductFormFields(data: Record<string, unknown>): Record<string, unknown> {
   const result = { ...data }
 
   for (const [formField, dbField] of Object.entries(FIELD_REMAP)) {

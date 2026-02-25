@@ -4,11 +4,7 @@ import { Control, FieldErrors, Controller } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
+import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Info } from 'lucide-react'
 import { KitFormData } from '@/lib/schemas/kit'
 
@@ -17,28 +13,23 @@ interface KitGeneralInfoSectionProps {
   errors: FieldErrors<KitFormData>
 }
 
-export function KitGeneralInfoSection({
-  control,
-  errors,
-}: KitGeneralInfoSectionProps) {
+export function KitGeneralInfoSection({ control, errors }: KitGeneralInfoSectionProps) {
   return (
-    <AccordionItem value="general" className="border rounded-lg">
+    <AccordionItem value="general" className="rounded-lg border">
       <AccordionTrigger className="px-6 py-4 hover:no-underline">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-[#30C1BD]/10">
+          <div className="rounded-lg bg-[#30C1BD]/10 p-2">
             <Info className="h-5 w-5 text-[#30C1BD]" />
           </div>
           <div className="text-left">
             <h3 className="font-semibold">Informations générales</h3>
-            <p className="text-sm text-gray-500">
-              Nom, style et description du kit
-            </p>
+            <p className="text-sm text-gray-500">Nom, style et description du kit</p>
           </div>
         </div>
       </AccordionTrigger>
       <AccordionContent className="px-6 pb-6">
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="nom" className="text-sm font-medium">
                 Nom du kit *
@@ -59,9 +50,7 @@ export function KitGeneralInfoSection({
                   />
                 )}
               />
-              {errors.nom && (
-                <p className="text-sm text-red-500">{errors.nom.message}</p>
-              )}
+              {errors.nom && <p className="text-sm text-red-500">{errors.nom.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -84,9 +73,7 @@ export function KitGeneralInfoSection({
                   />
                 )}
               />
-              {errors.style && (
-                <p className="text-sm text-red-500">{errors.style.message}</p>
-              )}
+              {errors.style && <p className="text-sm text-red-500">{errors.style.message}</p>}
             </div>
 
             <div className="space-y-2">
@@ -107,9 +94,7 @@ export function KitGeneralInfoSection({
                     value={field.value ?? ''}
                     onChange={(e) => {
                       const value = e.target.value
-                      field.onChange(
-                        value === '' ? undefined : parseFloat(value),
-                      )
+                      field.onChange(value === '' ? undefined : parseFloat(value))
                     }}
                     className={`transition-colors ${
                       errors.surfaceM2
@@ -120,9 +105,7 @@ export function KitGeneralInfoSection({
                 )}
               />
               {errors.surfaceM2 && (
-                <p className="text-sm text-red-500">
-                  {errors.surfaceM2.message}
-                </p>
+                <p className="text-sm text-red-500">{errors.surfaceM2.message}</p>
               )}
             </div>
           </div>
@@ -140,7 +123,7 @@ export function KitGeneralInfoSection({
                   id="description"
                   placeholder="Description détaillée du kit et de ses avantages..."
                   rows={4}
-                  className={`transition-colors resize-none ${
+                  className={`resize-none transition-colors ${
                     errors.description
                       ? 'border-red-500 focus:border-red-500'
                       : 'focus:border-[#30C1BD] focus:ring-[#30C1BD]'
@@ -149,9 +132,7 @@ export function KitGeneralInfoSection({
               )}
             />
             {errors.description && (
-              <p className="text-sm text-red-500">
-                {errors.description.message}
-              </p>
+              <p className="text-sm text-red-500">{errors.description.message}</p>
             )}
           </div>
         </div>

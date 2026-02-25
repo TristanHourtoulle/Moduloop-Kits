@@ -14,10 +14,7 @@ interface UseProjectActionsParams {
 interface UseProjectActionsReturn {
   handleDeleteProject: () => Promise<void>
   handleAddKits: (kits: { kitId: string; quantite: number }[]) => Promise<void>
-  handleUpdateKitQuantity: (
-    projectKitId: string,
-    newQuantity: number,
-  ) => Promise<void>
+  handleUpdateKitQuantity: (projectKitId: string, newQuantity: number) => Promise<void>
   handleRemoveKit: (projectKitId: string) => Promise<void>
   handleProjectUpdated: (updatedProject: Project) => void
 }
@@ -96,10 +93,7 @@ export function useProjectActions({
 
         if (response.ok) {
           await refreshAndUpdate(project.id, onProjectUpdate)
-          await showSuccess(
-            'Succès',
-            'Les kits ont été ajoutés avec succès au projet.',
-          )
+          await showSuccess('Succès', 'Les kits ont été ajoutés avec succès au projet.')
         } else {
           await showError(
             'Erreur',
@@ -119,14 +113,11 @@ export function useProjectActions({
   const handleUpdateKitQuantity = useCallback(
     async (projectKitId: string, newQuantity: number) => {
       try {
-        const response = await fetch(
-          `/api/projects/${project.id}/kits/${projectKitId}`,
-          {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ quantite: newQuantity }),
-          },
-        )
+        const response = await fetch(`/api/projects/${project.id}/kits/${projectKitId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantite: newQuantity }),
+        })
 
         if (response.ok) {
           await refreshAndUpdate(project.id, onProjectUpdate)
@@ -158,10 +149,9 @@ export function useProjectActions({
       if (!confirmed) return
 
       try {
-        const response = await fetch(
-          `/api/projects/${project.id}/kits/${projectKitId}`,
-          { method: 'DELETE' },
-        )
+        const response = await fetch(`/api/projects/${project.id}/kits/${projectKitId}`, {
+          method: 'DELETE',
+        })
 
         if (response.ok) {
           await refreshAndUpdate(project.id, onProjectUpdate)

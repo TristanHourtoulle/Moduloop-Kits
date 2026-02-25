@@ -18,20 +18,13 @@ interface ProjectKeyData {
   kits?: Array<{ kitId?: string; id?: string }>
 }
 
-export function generateProjectKey(
-  projectId: string,
-  projectData: ProjectKeyData,
-): string {
+export function generateProjectKey(projectId: string, projectData: ProjectKeyData): string {
   if (!projectData) {
     return `project-${projectId}-empty`
   }
 
   // Create a deterministic string from project data
-  const dataPoints = [
-    projectId,
-    projectData.nom || '',
-    projectData.description || '',
-  ]
+  const dataPoints = [projectId, projectData.nom || '', projectData.description || '']
 
   // Add sorted kit IDs if they exist
   if (projectData.kits && Array.isArray(projectData.kits)) {

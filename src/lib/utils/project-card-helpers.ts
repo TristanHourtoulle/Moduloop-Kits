@@ -1,13 +1,6 @@
 import { Project } from '@/lib/types/project'
-import {
-  getProductPricing,
-  getProductEnvironmentalImpact,
-} from './product-helpers'
-import {
-  ProjectCardMetrics,
-  ProjectCardPricingMode,
-  SurfaceMode,
-} from '@/lib/types/project-card'
+import { getProductPricing, getProductEnvironmentalImpact } from './product-helpers'
+import { ProjectCardMetrics, ProjectCardPricingMode, SurfaceMode } from '@/lib/types/project-card'
 
 /**
  * Calculate total price for a project based on mode
@@ -17,10 +10,7 @@ import {
  * @param mode - 'achat' or 'location'
  * @returns Total price in euros
  */
-export function calculateProjectPrice(
-  project: Project,
-  mode: ProjectCardPricingMode,
-): number {
+export function calculateProjectPrice(project: Project, mode: ProjectCardPricingMode): number {
   if (!project.projectKits) return 0
 
   let total = 0
@@ -52,10 +42,7 @@ export function calculateProjectPrice(
  * @param mode - 'achat' or 'location'
  * @returns CO2 impact in kg (positive = savings for location)
  */
-export function calculateProjectCO2(
-  project: Project,
-  mode: ProjectCardPricingMode,
-): number {
+export function calculateProjectCO2(project: Project, mode: ProjectCardPricingMode): number {
   if (!project.projectKits) return 0
 
   let total = 0

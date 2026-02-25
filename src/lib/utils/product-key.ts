@@ -44,10 +44,7 @@ interface ProductKeyData {
   eutrophisationLocation?: number
 }
 
-export function generateProductKey(
-  productId: string,
-  productData: ProductKeyData,
-): string {
+export function generateProductKey(productId: string, productData: ProductKeyData): string {
   if (!productData) {
     return `product-${productId}-empty`
   }

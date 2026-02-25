@@ -79,9 +79,7 @@ export function mockUserSession() {
  *
  * Pass `null` to simulate an unauthenticated request.
  */
-export function mockAuthSession(
-  session: ReturnType<typeof makeMockSession> | null,
-) {
+export function mockAuthSession(session: ReturnType<typeof makeMockSession> | null) {
   const mockGetSession = vi.mocked(auth.api.getSession)
   if (!session) {
     mockGetSession.mockResolvedValueOnce(null as never)

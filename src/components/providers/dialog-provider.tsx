@@ -77,31 +77,19 @@ export function DialogProvider({ children }: { children: ReactNode }) {
     })
   }
 
-  const showInfo = async (
-    title: string,
-    message: string | ReactNode,
-  ): Promise<void> => {
+  const showInfo = async (title: string, message: string | ReactNode): Promise<void> => {
     await showDialog('info', title, message)
   }
 
-  const showSuccess = async (
-    title: string,
-    message: string | ReactNode,
-  ): Promise<void> => {
+  const showSuccess = async (title: string, message: string | ReactNode): Promise<void> => {
     await showDialog('success', title, message)
   }
 
-  const showWarning = async (
-    title: string,
-    message: string | ReactNode,
-  ): Promise<void> => {
+  const showWarning = async (title: string, message: string | ReactNode): Promise<void> => {
     await showDialog('warning', title, message)
   }
 
-  const showError = async (
-    title: string,
-    message: string | ReactNode,
-  ): Promise<void> => {
+  const showError = async (title: string, message: string | ReactNode): Promise<void> => {
     await showDialog('error', title, message)
   }
 

@@ -1,11 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calculateProjectTotals } from './project.service'
-import {
-  type Project,
-  type ProjectKit,
-  type KitProduct,
-  ProjectStatus,
-} from '../types/project'
+import { type Project, type ProjectKit, type KitProduct, ProjectStatus } from '../types/project'
 import { ceilPrice } from '../utils/product-helpers'
 
 const makeProduct = (overrides: Record<string, unknown> = {}) => ({
@@ -80,9 +75,7 @@ describe('calculateProjectTotals', () => {
   })
 
   it('returns zeros for project with undefined projectKits', () => {
-    const result = calculateProjectTotals(
-      makeProject({ projectKits: undefined }),
-    )
+    const result = calculateProjectTotals(makeProject({ projectKits: undefined }))
 
     expect(result).toEqual({
       totalPrix: 0,
@@ -264,9 +257,7 @@ describe('calculateProjectTotals', () => {
     const result = calculateProjectTotals(project)
 
     // Kit A: ceilPrice(100*2*1)=200, Kit B: ceilPrice(300*1*3)=900 => 1100
-    expect(result.totalPrix).toBe(
-      ceilPrice(100 * 2 * 1) + ceilPrice(300 * 1 * 3),
-    )
+    expect(result.totalPrix).toBe(ceilPrice(100 * 2 * 1) + ceilPrice(300 * 1 * 3))
     // Surface: kit-1(10*1) + kit-2(5*3) = 25
     expect(result.totalSurface).toBe(25)
     // Rechauffement: 5*2*1 + 15*1*3 = 10+45 = 55

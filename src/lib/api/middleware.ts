@@ -59,10 +59,7 @@ export async function requireAuth(request: Request): Promise<AuthResult> {
  * Combines authentication and role verification in a single call.
  * Returns the authenticated user when the role matches, or a 403 response.
  */
-export async function requireRole(
-  request: Request,
-  roles: UserRole[],
-): Promise<AuthResult> {
+export async function requireRole(request: Request, roles: UserRole[]): Promise<AuthResult> {
   const result = await requireAuth(request)
 
   if (result.response) {
@@ -85,19 +82,13 @@ export async function requireRole(
  */
 export function handleApiError(error: unknown): NextResponse {
   if (error instanceof ZodError) {
-    return NextResponse.json(
-      { error: 'Donnees invalides', details: error.issues },
-      { status: 400 },
-    )
+    return NextResponse.json({ error: 'Donnees invalides', details: error.issues }, { status: 400 })
   }
 
   // Log unexpected errors server-side for observability
   console.error('[API Error]', error)
 
-  return NextResponse.json(
-    { error: 'Erreur interne du serveur' },
-    { status: 500 },
-  )
+  return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 })
 }
 
 interface CacheHeaderOptions {
@@ -135,10 +126,7 @@ export function setCacheHeaders(
 
   if (strategy === 'none' || process.env.NODE_ENV === 'production') {
     if (strategy === 'none') {
-      response.headers.set(
-        'Cache-Control',
-        'no-cache, no-store, must-revalidate, max-age=0',
-      )
+      response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
       response.headers.set('Pragma', 'no-cache')
       response.headers.set('Expires', '0')
       return response
@@ -163,10 +151,7 @@ export function setResourceCacheHeaders(
   staleMultiplier = 2,
 ): NextResponse {
   if (process.env.NODE_ENV === 'production') {
-    response.headers.set(
-      'Cache-Control',
-      'no-cache, no-store, must-revalidate, max-age=0',
-    )
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
     response.headers.set('Pragma', 'no-cache')
     response.headers.set('Expires', '0')
   } else {

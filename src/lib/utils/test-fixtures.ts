@@ -1,10 +1,4 @@
-import type {
-  Product,
-  KitProduct,
-  Kit,
-  ProjectKit,
-  Project,
-} from '@/lib/types/project'
+import type { Product, KitProduct, Kit, ProjectKit, Project } from '@/lib/types/project'
 import { ProjectStatus } from '@/lib/types/project'
 
 let idCounter = 0
@@ -43,10 +37,7 @@ export function makeKitProduct(
   }
 }
 
-export function makeKit(
-  kitProducts: KitProduct[],
-  overrides: Partial<Kit> = {},
-): Kit {
+export function makeKit(kitProducts: KitProduct[], overrides: Partial<Kit> = {}): Kit {
   return {
     id: `kit-${++idCounter}`,
     nom: 'Test Kit',

@@ -97,15 +97,9 @@ export const productSchema = z.object({
     .min(0, "L'impact d'épuisement des ressources doit être positif")
     .optional(),
 
-  acidification: z
-    .number()
-    .min(0, "L'impact d'acidification doit être positif")
-    .optional(),
+  acidification: z.number().min(0, "L'impact d'acidification doit être positif").optional(),
 
-  eutrophisation: z
-    .number()
-    .min(0, "L'impact d'eutrophisation doit être positif")
-    .optional(),
+  eutrophisation: z.number().min(0, "L'impact d'eutrophisation doit être positif").optional(),
 
   // ========== NOUVEAUX CHAMPS - PRIX ACHAT ==========
   // Prix d'achat fournisseur pour l'ACHAT (1, 2, 3 ans)
@@ -248,15 +242,9 @@ export const productSchema = z.object({
     .min(0, "L'impact d'épuisement des ressources doit être positif")
     .optional(),
 
-  acidificationAchat: z
-    .number()
-    .min(0, "L'impact d'acidification doit être positif")
-    .optional(),
+  acidificationAchat: z.number().min(0, "L'impact d'acidification doit être positif").optional(),
 
-  eutrophisationAchat: z
-    .number()
-    .min(0, "L'impact d'eutrophisation doit être positif")
-    .optional(),
+  eutrophisationAchat: z.number().min(0, "L'impact d'eutrophisation doit être positif").optional(),
 
   // ========== NOUVEAUX CHAMPS - IMPACT ENVIRONNEMENTAL LOCATION ==========
   rechauffementClimatiqueLocation: z
@@ -269,10 +257,7 @@ export const productSchema = z.object({
     .min(0, "L'impact d'épuisement des ressources doit être positif")
     .optional(),
 
-  acidificationLocation: z
-    .number()
-    .min(0, "L'impact d'acidification doit être positif")
-    .optional(),
+  acidificationLocation: z.number().min(0, "L'impact d'acidification doit être positif").optional(),
 
   eutrophisationLocation: z
     .number()

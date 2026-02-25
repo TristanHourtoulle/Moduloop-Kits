@@ -35,10 +35,7 @@ export async function GET(request: NextRequest) {
 
     const usersWithStats = users.map((user) => ({
       id: user.id,
-      name:
-        user.name ||
-        `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
-        user.email,
+      name: user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,

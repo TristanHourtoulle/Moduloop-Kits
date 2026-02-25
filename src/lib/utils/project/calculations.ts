@@ -1,9 +1,6 @@
 import type { Project, EnvironmentalImpact } from '@/lib/types/project'
 import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product'
-import {
-  getProductPricing,
-  getProductEnvironmentalImpact,
-} from '@/lib/utils/product-helpers'
+import { getProductPricing, getProductEnvironmentalImpact } from '@/lib/utils/product-helpers'
 
 export interface ProjectPriceTotals {
   achat: number
@@ -52,9 +49,7 @@ const EMPTY_ENVIRONMENTAL_IMPACT: EnvironmentalImpact = {
  * @param project - The project with its kits and products
  * @returns Price totals for purchase and all rental periods
  */
-export function calculateProjectPriceTotals(
-  project: Project,
-): ProjectPriceTotals {
+export function calculateProjectPriceTotals(project: Project): ProjectPriceTotals {
   if (!project.projectKits) return { ...EMPTY_PRICE_TOTALS }
 
   let achat = 0
@@ -94,9 +89,7 @@ export function calculateProjectPriceTotals(
  * @param project - The project with its kits and products
  * @returns Total sale price, supplier cost, and margin
  */
-export function calculateProjectPurchaseCosts(
-  project: Project,
-): ProjectCostBreakdown {
+export function calculateProjectPurchaseCosts(project: Project): ProjectCostBreakdown {
   return calculateCostsForMode(project, 'achat', '1an')
 }
 
@@ -140,10 +133,8 @@ export function getProjectKitBreakdown(
         if (!product) return
 
         const pricing = getProductPricing(product, mode, period)
-        kitTotalPrice +=
-          (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite
-        kitTotalCost +=
-          (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite
+        kitTotalPrice += (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite
+        kitTotalCost += (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite
       })
 
       const kitTotalMargin = kitTotalPrice - kitTotalCost
@@ -154,8 +145,7 @@ export function getProjectKitBreakdown(
         totalPrice: kitTotalPrice,
         totalCost: kitTotalCost,
         totalMargin: kitTotalMargin,
-        marginPercentage:
-          kitTotalPrice > 0 ? (kitTotalMargin / kitTotalPrice) * 100 : 0,
+        marginPercentage: kitTotalPrice > 0 ? (kitTotalMargin / kitTotalPrice) * 100 : 0,
       }
     })
     .filter((item): item is KitBreakdownItem => item !== null)
@@ -166,9 +156,7 @@ export function getProjectKitBreakdown(
  * @param project - The project with its kits and products
  * @returns Aggregated environmental savings
  */
-export function calculateEnvironmentalSavings(
-  project: Project,
-): EnvironmentalImpact {
+export function calculateEnvironmentalSavings(project: Project): EnvironmentalImpact {
   if (!project.projectKits) return { ...EMPTY_ENVIRONMENTAL_IMPACT }
 
   let rechauffementClimatique = 0
@@ -189,12 +177,9 @@ export function calculateEnvironmentalSavings(
 
       rechauffementClimatique +=
         Math.abs(locationImpact.rechauffementClimatique || 0) * totalQuantity
-      epuisementRessources +=
-        Math.abs(locationImpact.epuisementRessources || 0) * totalQuantity
-      acidification +=
-        Math.abs(locationImpact.acidification || 0) * totalQuantity
-      eutrophisation +=
-        Math.abs(locationImpact.eutrophisation || 0) * totalQuantity
+      epuisementRessources += Math.abs(locationImpact.epuisementRessources || 0) * totalQuantity
+      acidification += Math.abs(locationImpact.acidification || 0) * totalQuantity
+      eutrophisation += Math.abs(locationImpact.eutrophisation || 0) * totalQuantity
     })
   })
 
@@ -239,10 +224,8 @@ function calculateCostsForMode(
       if (!product) return
 
       const pricing = getProductPricing(product, mode, period)
-      totalPrice +=
-        (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite
-      totalCost +=
-        (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite
+      totalPrice += (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite
+      totalCost += (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite
     })
   })
 

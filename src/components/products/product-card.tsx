@@ -46,22 +46,18 @@ export function ProductCard({ product, onDelete }: ProductCardProps) {
   }
 
   return (
-    <Card className="group relative overflow-hidden hover:shadow-soft hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 bg-card pt-0">
+    <Card className="group hover:shadow-soft hover:border-primary/20 bg-card relative overflow-hidden pt-0 transition-all duration-300 hover:-translate-y-1">
       <div className="flex flex-col">
         {/* Large Product Image - Responsive height */}
         <ProductCardImage
           image={product.image}
           name={product.nom}
-          className="h-32 sm:h-40 md:h-48 w-full"
+          className="h-32 w-full sm:h-40 md:h-48"
         />
 
         <CardContent className="flex-1 p-6">
           {/* Header with name, description, reference */}
-          <ProductCardHeader
-            name={product.nom}
-            reference={product.reference}
-            className="mb-4"
-          />
+          <ProductCardHeader name={product.nom} reference={product.reference} className="mb-4" />
 
           {/* Pricing section */}
           <ProductCardPricing

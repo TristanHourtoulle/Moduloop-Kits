@@ -36,11 +36,5 @@ export function KitsListWrapper({ initialKits }: KitsListWrapperProps) {
     [kits],
   )
 
-  return (
-    <KitsGridClient
-      kits={kits}
-      showCreateButton={false}
-      onDelete={handleDelete}
-    />
-  )
+  return <KitsGridClient kits={kits} showCreateButton={false} onDelete={handleDelete} />
 }

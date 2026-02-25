@@ -5,10 +5,7 @@ import { Eye, EyeOff, Lock } from 'lucide-react'
 import { InputWithIcon, InputWithIconProps } from './input-with-icon'
 import { Button } from './button'
 
-export interface PasswordInputProps extends Omit<
-  InputWithIconProps,
-  'type' | 'rightIcon'
-> {
+export interface PasswordInputProps extends Omit<InputWithIconProps, 'type' | 'rightIcon'> {
   showStrength?: boolean
 }
 
@@ -31,12 +28,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
 
     const passwordStrength =
       showStrength && props.value ? getPasswordStrength(String(props.value)) : 0
-    const strengthColors = [
-      'bg-red-500',
-      'bg-orange-500',
-      'bg-yellow-500',
-      'bg-green-500',
-    ]
+    const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500']
     const strengthLabels = ['Faible', 'Moyen', 'Bon', 'Excellent']
 
     return (
@@ -70,18 +62,14 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
                 <div
                   key={level}
                   className={`h-1 flex-1 rounded-full transition-colors ${
-                    level < passwordStrength
-                      ? strengthColors[passwordStrength - 1]
-                      : 'bg-gray-200'
+                    level < passwordStrength ? strengthColors[passwordStrength - 1] : 'bg-gray-200'
                   }`}
                 />
               ))}
             </div>
             <p className="text-xs text-gray-500">
               Force du mot de passe :{' '}
-              {passwordStrength > 0
-                ? strengthLabels[passwordStrength - 1]
-                : 'Trop faible'}
+              {passwordStrength > 0 ? strengthLabels[passwordStrength - 1] : 'Trop faible'}
             </p>
           </div>
         )}

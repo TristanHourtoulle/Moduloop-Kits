@@ -28,10 +28,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Project } from '@/lib/types/project'
 import { ProjectCardPricingMode } from '@/lib/types/project-card'
-import {
-  calculateProjectCardMetrics,
-  getSurfaceMode,
-} from '@/lib/utils/project-card-helpers'
+import { calculateProjectCardMetrics, getSurfaceMode } from '@/lib/utils/project-card-helpers'
 import {
   Package,
   Eye,
@@ -111,8 +108,7 @@ const formatDate = (date: Date | string): string => {
  */
 export function ProjectCard({ project, onDelete }: ProjectCardProps) {
   // Local state for pricing mode
-  const [pricingMode, setPricingMode] =
-    useState<ProjectCardPricingMode>('achat')
+  const [pricingMode, setPricingMode] = useState<ProjectCardPricingMode>('achat')
 
   // Memoized status config
   const statusConfig = useMemo(() => {
@@ -139,24 +135,20 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
     <Card>
       <CardHeader>
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/5 border border-primary/10 flex items-center justify-center flex-shrink-0">
-            <Package className="h-5 w-5 text-primary" />
+          <div className="bg-primary/5 border-primary/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border">
+            <Package className="text-primary h-5 w-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <CardTitle className="text-lg truncate">{project.nom}</CardTitle>
+            <CardTitle className="truncate text-lg">{project.nom}</CardTitle>
             {project.description && (
-              <CardDescription className="mt-1 line-clamp-2">
-                {project.description}
-              </CardDescription>
+              <CardDescription className="mt-1 line-clamp-2">{project.description}</CardDescription>
             )}
           </div>
         </div>
 
         <CardAction>
-          <Badge
-            className={`${statusConfig.className} text-xs font-medium px-3 py-1 border`}
-          >
-            <div className={`w-2 h-2 rounded-full ${statusConfig.dot} mr-2`} />
+          <Badge className={`${statusConfig.className} border px-3 py-1 text-xs font-medium`}>
+            <div className={`h-2 w-2 rounded-full ${statusConfig.dot} mr-2`} />
             {statusConfig.label}
           </Badge>
         </CardAction>
@@ -166,46 +158,44 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
         {/* Mode Selector using Tabs */}
         <Tabs
           value={pricingMode}
-          onValueChange={(value) =>
-            setPricingMode(value as ProjectCardPricingMode)
-          }
+          onValueChange={(value) => setPricingMode(value as ProjectCardPricingMode)}
           className="w-full"
         >
-          <TabsList className="grid grid-cols-2 w-full">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger
               value="achat"
               className="data-[state=active]:bg-[#30C1BD] data-[state=active]:text-white"
             >
-              <ShoppingCart className="w-3.5 h-3.5 mr-1.5" />
+              <ShoppingCart className="mr-1.5 h-3.5 w-3.5" />
               <span className="text-xs font-medium">Achat</span>
             </TabsTrigger>
             <TabsTrigger
               value="location"
               className="data-[state=active]:bg-[#30C1BD] data-[state=active]:text-white"
             >
-              <Home className="w-3.5 h-3.5 mr-1.5" />
+              <Home className="mr-1.5 h-3.5 w-3.5" />
               <span className="text-xs font-medium">Location 3 ans</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
 
         {/* Quick Stats */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+        <div className="text-muted-foreground flex flex-wrap items-center gap-4 text-xs">
           <div className="flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5" />
+            <Layers className="h-3.5 w-3.5" />
             <span>
               {metrics.kitCount} kit{metrics.kitCount > 1 ? 's' : ''}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Box className="w-3.5 h-3.5" />
+            <Box className="h-3.5 w-3.5" />
             <span>
               {metrics.productCount} produit
               {metrics.productCount > 1 ? 's' : ''}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5" />
+            <Calendar className="h-3.5 w-3.5" />
             <span>{formatDate(project.createdAt)}</span>
           </div>
         </div>
@@ -215,61 +205,59 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 gap-3">
           {/* Price Metric */}
-          <div className="rounded-lg border bg-card p-3 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Euro className="w-3.5 h-3.5" />
+          <div className="bg-card space-y-1.5 rounded-lg border p-3">
+            <div className="text-muted-foreground flex items-center gap-1.5">
+              <Euro className="h-3.5 w-3.5" />
               <span className="text-xs font-medium">
                 {pricingMode === 'achat' ? 'Prix achat' : 'Prix location'}
               </span>
             </div>
-            <div className="text-lg font-semibold text-foreground">
+            <div className="text-foreground text-lg font-semibold">
               {formatNumber(metrics.totalPrice, 0)} €
             </div>
             {metrics.pricePerM2 && metrics.pricePerM2 > 0 && (
-              <div className="text-xs text-muted-foreground">
+              <div className="text-muted-foreground text-xs">
                 {formatNumber(metrics.pricePerM2, 0)} €/m²
               </div>
             )}
           </div>
 
           {/* Surface Metric */}
-          <div className="rounded-lg border bg-card p-3 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <MapPin className="w-3.5 h-3.5" />
+          <div className="bg-card space-y-1.5 rounded-lg border p-3">
+            <div className="text-muted-foreground flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5" />
               <span className="text-xs font-medium">Surface</span>
             </div>
-            <div className="text-lg font-semibold text-foreground">
+            <div className="text-foreground text-lg font-semibold">
               {formatNumber(project.totalSurface || 0, 0)} m²
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-muted-foreground text-xs">
               {surfaceMode === 'manual' ? 'Manuelle' : 'Calculée'}
             </div>
           </div>
 
           {/* CO2 Metric */}
-          <div className="rounded-lg border bg-card p-3 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Leaf className="w-3.5 h-3.5" />
+          <div className="bg-card space-y-1.5 rounded-lg border p-3">
+            <div className="text-muted-foreground flex items-center gap-1.5">
+              <Leaf className="h-3.5 w-3.5" />
               <span className="text-xs font-medium">Impact CO₂</span>
             </div>
-            <div className="text-lg font-semibold text-foreground">
+            <div className="text-foreground text-lg font-semibold">
               {formatNumber(metrics.totalCO2, 0)} kg
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-muted-foreground text-xs">
               {pricingMode === 'achat' ? 'Achat' : 'Location'}
             </div>
           </div>
 
           {/* Units Metric */}
-          <div className="rounded-lg border bg-card p-3 space-y-1.5">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Package className="w-3.5 h-3.5" />
+          <div className="bg-card space-y-1.5 rounded-lg border p-3">
+            <div className="text-muted-foreground flex items-center gap-1.5">
+              <Package className="h-3.5 w-3.5" />
               <span className="text-xs font-medium">Total unités</span>
             </div>
-            <div className="text-lg font-semibold text-foreground">
-              {metrics.totalUnits}
-            </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-foreground text-lg font-semibold">{metrics.totalUnits}</div>
+            <div className="text-muted-foreground text-xs">
               Dans {metrics.kitCount} kit{metrics.kitCount > 1 ? 's' : ''}
             </div>
           </div>
@@ -280,7 +268,7 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
         {/* View Project Button */}
         <Button asChild size="sm" className="flex-1">
           <Link href={`/projects/${project.id}`}>
-            <Eye className="w-4 h-4 mr-2" />
+            <Eye className="mr-2 h-4 w-4" />
             Voir
           </Link>
         </Button>
@@ -293,7 +281,7 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
           asChild
         >
           <Link href={`/projects/${project.id}/modifier`}>
-            <Edit3 className="w-4 h-4" />
+            <Edit3 className="h-4 w-4" />
           </Link>
         </Button>
 
@@ -306,7 +294,7 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
                 variant="outline"
                 className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -314,9 +302,8 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
                 <AlertDialogTitle>Supprimer le projet ?</AlertDialogTitle>
                 <AlertDialogDescription>
                   Êtes-vous sûr de vouloir supprimer le projet &quot;
-                  {project.nom}&quot; ? Tous les kits et données associés à ce
-                  projet seront également supprimés. Cette action est
-                  irréversible.
+                  {project.nom}&quot; ? Tous les kits et données associés à ce projet seront
+                  également supprimés. Cette action est irréversible.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

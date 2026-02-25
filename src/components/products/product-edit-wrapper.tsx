@@ -41,10 +41,7 @@ interface ProductEditWrapperProps {
   initialProduct: ProductData
 }
 
-export function ProductEditWrapper({
-  productId,
-  initialProduct,
-}: ProductEditWrapperProps) {
+export function ProductEditWrapper({ productId, initialProduct }: ProductEditWrapperProps) {
   const searchParams = useSearchParams()
   const timestamp = searchParams.get('t')
 
@@ -66,19 +63,13 @@ export function ProductEditWrapper({
 
   return (
     <>
-      <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-8">
+      <p className="mx-auto mb-8 max-w-2xl text-center text-lg text-gray-600">
         Modifiez les informations de{' '}
-        <span className="font-semibold text-[#30C1BD]">
-          &quot;{initialProduct.nom}&quot;
-        </span>
+        <span className="font-semibold text-[#30C1BD]">&quot;{initialProduct.nom}&quot;</span>
       </p>
 
       {/* Form with dynamic key for forcing remount on Vercel */}
-      <ProductForm
-        key={productKey}
-        initialData={mappedInitialData}
-        productId={productId}
-      />
+      <ProductForm key={productKey} initialData={mappedInitialData} productId={productId} />
     </>
   )
 }

@@ -1,11 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { Kit, KitProduct } from '@/lib/types/project'
-import {
-  makeKitProduct,
-  makeKit,
-  makeProjectKit,
-  makeProject,
-} from '../test-fixtures'
+import { makeKitProduct, makeKit, makeProjectKit, makeProject } from '../test-fixtures'
 
 function makeOrphanKitProduct(): KitProduct {
   return {
@@ -83,10 +78,7 @@ describe('calculateProjectPriceTotals', () => {
     const kit1 = makeKit([makeKitProduct(1, { prixVenteAchat: 100 })])
     const kit2 = makeKit([makeKitProduct(1, { prixVenteAchat: 200 })])
 
-    const project = makeProject([
-      makeProjectKit(1, kit1),
-      makeProjectKit(1, kit2),
-    ])
+    const project = makeProject([makeProjectKit(1, kit1), makeProjectKit(1, kit2)])
 
     const totals = calculateProjectPriceTotals(project)
     expect(totals.achat).toBe(300)

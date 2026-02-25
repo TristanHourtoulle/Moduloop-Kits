@@ -8,10 +8,7 @@ const updateRoleSchema = z.object({
   role: z.enum(['USER', 'DEV', 'ADMIN']),
 })
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireRole(request, [UserRole.ADMIN, UserRole.DEV])
     if (auth.response) return auth.response
@@ -26,10 +23,7 @@ export async function PATCH(
     })
 
     if (!targetUser) {
-      return NextResponse.json(
-        { error: 'Utilisateur introuvable' },
-        { status: 404 },
-      )
+      return NextResponse.json({ error: 'Utilisateur introuvable' }, { status: 404 })
     }
 
     if (id === auth.user.id && validatedData.role !== auth.user.role) {

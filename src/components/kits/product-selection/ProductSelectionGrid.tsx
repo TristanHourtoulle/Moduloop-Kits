@@ -33,18 +33,14 @@ export function ProductSelectionGrid({
   }, [products, searchQuery])
 
   const availableCount = filteredProducts.length
-  const selectedCount = Object.values(productQuantities).filter(
-    (q) => q > 0,
-  ).length
+  const selectedCount = Object.values(productQuantities).filter((q) => q > 0).length
 
   return (
     <div className="space-y-4">
       {/* Header with search */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-foreground">
-            Sélectionner des produits
-          </h3>
+          <h3 className="text-foreground text-lg font-semibold">Sélectionner des produits</h3>
           <Badge variant="secondary">
             {availableCount} disponible{availableCount > 1 ? 's' : ''}
           </Badge>
@@ -57,7 +53,7 @@ export function ProductSelectionGrid({
 
         {/* Search */}
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
           <Input
             type="text"
             placeholder="Rechercher par nom ou référence..."
@@ -70,7 +66,7 @@ export function ProductSelectionGrid({
 
       {/* Products Grid */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredProducts.map((product) => (
             <ProductSelectionCard
               key={product.id}
@@ -82,13 +78,11 @@ export function ProductSelectionGrid({
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mb-4">
-            <Package className="h-8 w-8 text-muted-foreground/40" />
+          <div className="bg-muted/30 mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+            <Package className="text-muted-foreground/40 h-8 w-8" />
           </div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            Aucun produit trouvé
-          </h3>
-          <p className="text-sm text-muted-foreground max-w-sm">
+          <h3 className="text-foreground mb-2 text-lg font-semibold">Aucun produit trouvé</h3>
+          <p className="text-muted-foreground max-w-sm text-sm">
             {searchQuery
               ? `Aucun produit ne correspond à "${searchQuery}"`
               : 'Aucun produit disponible pour le moment'}

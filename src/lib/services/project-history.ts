@@ -22,18 +22,10 @@ export async function recordProjectHistory(context: ProjectHistoryContext) {
         projectId: context.projectId,
         changeType: context.changeType,
         description: context.description,
-        changedFields: context.changedFields
-          ? JSON.stringify(context.changedFields)
-          : undefined,
-        oldValues: context.oldValues
-          ? JSON.stringify(context.oldValues)
-          : undefined,
-        newValues: context.newValues
-          ? JSON.stringify(context.newValues)
-          : undefined,
-        metadata: context.metadata
-          ? JSON.stringify(context.metadata)
-          : undefined,
+        changedFields: context.changedFields ? JSON.stringify(context.changedFields) : undefined,
+        oldValues: context.oldValues ? JSON.stringify(context.oldValues) : undefined,
+        newValues: context.newValues ? JSON.stringify(context.newValues) : undefined,
+        metadata: context.metadata ? JSON.stringify(context.metadata) : undefined,
         changedById: context.userId,
       },
     })
@@ -113,8 +105,7 @@ export function createProjectUpdatedHistory(
     return recordProjectHistory({
       userId,
       projectId,
-      changeType:
-        oldProject.status !== newProject.status ? 'STATUS_CHANGED' : 'UPDATED',
+      changeType: oldProject.status !== newProject.status ? 'STATUS_CHANGED' : 'UPDATED',
       description,
       changedFields,
       oldValues,

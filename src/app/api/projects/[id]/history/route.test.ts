@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import '@/test/register-api-mocks'
 
 vi.mock('@/lib/services/project-history', async () => {
-  const { createProjectHistoryMock } =
-    await import('@/test/mocks/project-history')
+  const { createProjectHistoryMock } = await import('@/test/mocks/project-history')
   return createProjectHistoryMock()
 })
 

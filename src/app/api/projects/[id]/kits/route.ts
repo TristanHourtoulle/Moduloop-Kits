@@ -12,10 +12,7 @@ interface KitRequest {
   quantite: number
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth(request)
     if (auth.response) return auth.response
@@ -25,10 +22,7 @@ export async function POST(
     const { kits } = body
 
     if (!kits || !Array.isArray(kits) || kits.length === 0) {
-      return NextResponse.json(
-        { error: 'Les kits sont requis' },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: 'Les kits sont requis' }, { status: 400 })
     }
 
     // Vérifier que le projet existe et appartient à l'utilisateur
@@ -52,10 +46,7 @@ export async function POST(
     })
 
     if (existingKits.length !== kitIds.length) {
-      return NextResponse.json(
-        { error: "Certains kits n'existent pas" },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: "Certains kits n'existent pas" }, { status: 400 })
     }
 
     // Récupérer les kits existants du projet
@@ -118,12 +109,7 @@ export async function POST(
         // Record kit added history
         if (kitDetails) {
           historyOperations.push(
-            createKitAddedHistory(
-              auth.user.id,
-              projectId,
-              kitDetails,
-              kit.quantite,
-            ),
+            createKitAddedHistory(auth.user.id, projectId, kitDetails, kit.quantite),
           )
         }
       }
@@ -141,10 +127,7 @@ export async function POST(
   }
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: projectId } = await params
 

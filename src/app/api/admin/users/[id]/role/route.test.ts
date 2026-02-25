@@ -47,11 +47,7 @@ describe('PATCH /api/admin/users/[id]/role', () => {
     // Route's own findUnique for target user
     mockUserFindUnique.mockResolvedValueOnce(null as never)
 
-    const req = createMockRequest(
-      'PATCH',
-      '/api/admin/users/nonexistent/role',
-      { role: 'DEV' },
-    )
+    const req = createMockRequest('PATCH', '/api/admin/users/nonexistent/role', { role: 'DEV' })
     const res = await PATCH(req, makeParams('nonexistent'))
     expect(res.status).toBe(404)
   })
@@ -66,11 +62,9 @@ describe('PATCH /api/admin/users/[id]/role', () => {
       role: UserRole.ADMIN,
     } as never)
 
-    const req = createMockRequest(
-      'PATCH',
-      `/api/admin/users/${session.user.id}/role`,
-      { role: 'USER' },
-    )
+    const req = createMockRequest('PATCH', `/api/admin/users/${session.user.id}/role`, {
+      role: 'USER',
+    })
     const res = await PATCH(req, makeParams(session.user.id))
     expect(res.status).toBe(403)
   })

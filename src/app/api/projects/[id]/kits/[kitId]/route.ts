@@ -19,10 +19,7 @@ export async function PATCH(
     const { quantite } = await request.json()
 
     if (!quantite || quantite < 1) {
-      return NextResponse.json(
-        { error: 'La quantité doit être supérieure à 0' },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: 'La quantité doit être supérieure à 0' }, { status: 400 })
     }
 
     // Vérifier que le projet appartient à l'utilisateur
@@ -49,10 +46,7 @@ export async function PATCH(
     })
 
     if (!existingProjectKit) {
-      return NextResponse.json(
-        { error: 'Kit non trouvé dans le projet' },
-        { status: 404 },
-      )
+      return NextResponse.json({ error: 'Kit non trouvé dans le projet' }, { status: 404 })
     }
 
     const oldQuantity = existingProjectKit.quantite
@@ -120,10 +114,7 @@ export async function DELETE(
     })
 
     if (!projectKitToDelete) {
-      return NextResponse.json(
-        { error: 'Kit non trouvé dans le projet' },
-        { status: 404 },
-      )
+      return NextResponse.json({ error: 'Kit non trouvé dans le projet' }, { status: 404 })
     }
 
     // Supprimer le kit du projet

@@ -30,14 +30,11 @@ export default async function middleware(request: NextRequest) {
 
   try {
     // Check session via API call
-    const sessionResponse = await fetch(
-      new URL('/api/auth/get-session', request.url),
-      {
-        headers: {
-          cookie: request.headers.get('cookie') || '',
-        },
+    const sessionResponse = await fetch(new URL('/api/auth/get-session', request.url), {
+      headers: {
+        cookie: request.headers.get('cookie') || '',
       },
-    )
+    })
 
     let isLoggedIn = false
 

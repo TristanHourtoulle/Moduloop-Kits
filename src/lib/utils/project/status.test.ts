@@ -36,9 +36,7 @@ describe('getStatusConfig', () => {
 
 describe('getStatusColor', () => {
   it('returns color classes for known status', () => {
-    expect(getStatusColor(ProjectStatus.ACTIF)).toBe(
-      'bg-green-100 text-green-800',
-    )
+    expect(getStatusColor(ProjectStatus.ACTIF)).toBe('bg-green-100 text-green-800')
   })
 
   it('returns default color for unknown status', () => {

@@ -47,20 +47,12 @@ export async function signInWithErrorHandling(
     if (capturedError && capturedStatus && capturedStatus >= 400) {
       return {
         success: false,
-        error:
-          capturedStatus === 401
-            ? 'Credential account not found'
-            : capturedError,
+        error: capturedStatus === 401 ? 'Credential account not found' : capturedError,
       }
     }
 
     // Check Better Auth result
-    if (
-      result &&
-      typeof result === 'object' &&
-      'error' in result &&
-      result.error
-    ) {
+    if (result && typeof result === 'object' && 'error' in result && result.error) {
       const error = result.error
       return {
         success: false,
@@ -73,12 +65,7 @@ export async function signInWithErrorHandling(
       }
     }
 
-    if (
-      result &&
-      typeof result === 'object' &&
-      'success' in result &&
-      result.success === false
-    ) {
+    if (result && typeof result === 'object' && 'success' in result && result.success === false) {
       return {
         success: false,
         error: 'Authentication failed',
@@ -93,10 +80,7 @@ export async function signInWithErrorHandling(
     if (capturedError) {
       return {
         success: false,
-        error:
-          capturedStatus === 401
-            ? 'Credential account not found'
-            : capturedError,
+        error: capturedStatus === 401 ? 'Credential account not found' : capturedError,
       }
     }
 

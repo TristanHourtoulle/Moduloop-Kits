@@ -11,10 +11,7 @@ import {
 } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
 
@@ -62,10 +59,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth(request)
     if (auth.response) return auth.response
@@ -75,15 +69,8 @@ export async function PATCH(
     const { nom, description, status, surfaceManual, surfaceOverride } = body
 
     // Validate surfaceManual if provided
-    if (
-      surfaceManual !== undefined &&
-      surfaceManual !== null &&
-      surfaceManual < 0
-    ) {
-      return NextResponse.json(
-        { error: 'La surface doit être un nombre positif' },
-        { status: 400 },
-      )
+    if (surfaceManual !== undefined && surfaceManual !== null && surfaceManual < 0) {
+      return NextResponse.json({ error: 'La surface doit être un nombre positif' }, { status: 400 })
     }
 
     // Vérifier que le projet appartient à l'utilisateur
@@ -106,8 +93,7 @@ export async function PATCH(
       if (description !== undefined) updateData.description = description
       if (status !== undefined) updateData.status = status
       if (surfaceManual !== undefined) updateData.surfaceManual = surfaceManual
-      if (surfaceOverride !== undefined)
-        updateData.surfaceOverride = surfaceOverride
+      if (surfaceOverride !== undefined) updateData.surfaceOverride = surfaceOverride
 
       // Mettre à jour le projet
       const updatedProject = await tx.project.update({
@@ -131,12 +117,9 @@ export async function PATCH(
       })
 
       // Record history (async, don't block transaction)
-      createProjectUpdatedHistory(
-        auth.user.id,
-        id,
-        existingProject,
-        updatedProject,
-      ).catch(console.error)
+      createProjectUpdatedHistory(auth.user.id, id, existingProject, updatedProject).catch(
+        console.error,
+      )
 
       return updatedProject
     })
@@ -156,10 +139,7 @@ export async function PATCH(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth(request)
     if (auth.response) return auth.response
@@ -193,12 +173,7 @@ export async function PUT(
     })
 
     // Record history (async)
-    createProjectUpdatedHistory(
-      auth.user.id,
-      id,
-      existingProject,
-      project,
-    ).catch(console.error)
+    createProjectUpdatedHistory(auth.user.id, id, existingProject, project).catch(console.error)
 
     return NextResponse.json(project)
   } catch (error) {

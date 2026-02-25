@@ -4,60 +4,60 @@ import { SafeAvatar } from '@/components/ui/safe-avatar'
 
 export function AvatarExamples() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       <h2 className="text-2xl font-bold">Exemples d&apos;avatars</h2>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {/* Avatar avec image */}
-        <div className="text-center space-y-2">
+        <div className="space-y-2 text-center">
           <SafeAvatar
             src="https://github.com/shadcn.png"
             name="John Doe"
-            className="h-16 w-16 mx-auto"
+            className="mx-auto h-16 w-16"
           />
           <p className="text-sm">Avec image</p>
         </div>
 
         {/* Avatar sans image - initiales */}
-        <div className="text-center space-y-2">
-          <SafeAvatar name="Marie Dupont" className="h-16 w-16 mx-auto" />
+        <div className="space-y-2 text-center">
+          <SafeAvatar name="Marie Dupont" className="mx-auto h-16 w-16" />
           <p className="text-sm">Initiales (MD)</p>
         </div>
 
         {/* Avatar sans nom */}
-        <div className="text-center space-y-2">
-          <SafeAvatar className="h-16 w-16 mx-auto" />
+        <div className="space-y-2 text-center">
+          <SafeAvatar className="mx-auto h-16 w-16" />
           <p className="text-sm">Icône par défaut</p>
         </div>
 
         {/* Avatar avec image cassée */}
-        <div className="text-center space-y-2">
+        <div className="space-y-2 text-center">
           <SafeAvatar
             src="https://broken-image-url.com/image.jpg"
             name="Paul Martin"
-            className="h-16 w-16 mx-auto"
+            className="mx-auto h-16 w-16"
           />
           <p className="text-sm">Image cassée → Initiales</p>
         </div>
 
         {/* Différentes couleurs selon le nom */}
-        <div className="text-center space-y-2">
-          <SafeAvatar name="Alice Wonder" className="h-16 w-16 mx-auto" />
+        <div className="space-y-2 text-center">
+          <SafeAvatar name="Alice Wonder" className="mx-auto h-16 w-16" />
           <p className="text-sm">Alice (AW)</p>
         </div>
 
-        <div className="text-center space-y-2">
-          <SafeAvatar name="Bob Builder" className="h-16 w-16 mx-auto" />
+        <div className="space-y-2 text-center">
+          <SafeAvatar name="Bob Builder" className="mx-auto h-16 w-16" />
           <p className="text-sm">Bob (BB)</p>
         </div>
 
-        <div className="text-center space-y-2">
-          <SafeAvatar name="Charlie Brown" className="h-16 w-16 mx-auto" />
+        <div className="space-y-2 text-center">
+          <SafeAvatar name="Charlie Brown" className="mx-auto h-16 w-16" />
           <p className="text-sm">Charlie (CB)</p>
         </div>
 
-        <div className="text-center space-y-2">
-          <SafeAvatar name="Diana Prince" className="h-16 w-16 mx-auto" />
+        <div className="space-y-2 text-center">
+          <SafeAvatar name="Diana Prince" className="mx-auto h-16 w-16" />
           <p className="text-sm">Diana (DP)</p>
         </div>
       </div>

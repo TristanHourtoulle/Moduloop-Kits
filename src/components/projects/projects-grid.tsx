@@ -57,25 +57,22 @@ export function ProjectsGrid({ projects, selectedUserId }: ProjectsGridProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center py-20"
+        className="py-20 text-center"
       >
-        <div className="max-w-lg mx-auto">
+        <div className="mx-auto max-w-lg">
           {/* Icon container */}
-          <div className="relative mx-auto mb-8 w-32 h-32">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#30C1BD]/10 to-blue-50 rounded-full" />
-            <div className="absolute inset-4 bg-gradient-to-br from-[#30C1BD]/20 to-blue-100 rounded-full" />
-            <div className="absolute inset-8 bg-white rounded-full shadow-sm flex items-center justify-center">
-              <FolderOpen className="w-12 h-12 text-[#30C1BD]" />
+          <div className="relative mx-auto mb-8 h-32 w-32">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#30C1BD]/10 to-blue-50" />
+            <div className="absolute inset-4 rounded-full bg-gradient-to-br from-[#30C1BD]/20 to-blue-100" />
+            <div className="absolute inset-8 flex items-center justify-center rounded-full bg-white shadow-sm">
+              <FolderOpen className="h-12 w-12 text-[#30C1BD]" />
             </div>
           </div>
 
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
-            Aucun projet créé
-          </h3>
-          <p className="text-gray-600 mb-8 leading-relaxed">
-            Commencez votre premier projet de construction modulaire. Organisez
-            vos kits, suivez vos coûts et analysez l&apos;impact
-            environnemental.
+          <h3 className="mb-3 text-2xl font-bold text-gray-900">Aucun projet créé</h3>
+          <p className="mb-8 leading-relaxed text-gray-600">
+            Commencez votre premier projet de construction modulaire. Organisez vos kits, suivez vos
+            coûts et analysez l&apos;impact environnemental.
           </p>
 
           <CreateProjectButton />
@@ -90,26 +87,24 @@ export function ProjectsGrid({ projects, selectedUserId }: ProjectsGridProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+        className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3"
       >
-        <div className="bg-white rounded-xl p-6 border border-gray-200/60 shadow-sm">
+        <div className="rounded-xl border border-gray-200/60 bg-white p-6 shadow-sm">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-[#30C1BD]/10 rounded-lg flex items-center justify-center">
-              <FolderOpen className="w-5 h-5 text-[#30C1BD]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#30C1BD]/10">
+              <FolderOpen className="h-5 w-5 text-[#30C1BD]" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Total des projets</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {localProjects.length}
-              </p>
+              <p className="text-2xl font-bold text-gray-900">{localProjects.length}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-200/60 shadow-sm">
+        <div className="rounded-xl border border-gray-200/60 bg-white p-6 shadow-sm">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <span className="text-green-600 font-bold">✓</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+              <span className="font-bold text-green-600">✓</span>
             </div>
             <div>
               <p className="text-sm text-gray-600">Projets actifs</p>
@@ -120,10 +115,10 @@ export function ProjectsGrid({ projects, selectedUserId }: ProjectsGridProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-200/60 shadow-sm">
+        <div className="rounded-xl border border-gray-200/60 bg-white p-6 shadow-sm">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <span className="text-blue-600 font-bold">€</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+              <span className="font-bold text-blue-600">€</span>
             </div>
             <div>
               <p className="text-sm text-gray-600">Valeur totale</p>
@@ -142,7 +137,7 @@ export function ProjectsGrid({ projects, selectedUserId }: ProjectsGridProps) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+        className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3"
       >
         <AnimatePresence>
           {localProjects.map((project, index) => (

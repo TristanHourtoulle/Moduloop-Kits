@@ -14,17 +14,12 @@ const PERIODS = [
   { key: 'location3ans' as const, label: '3 ans' },
 ]
 
-export function PdfPricingSection({
-  totalPrices,
-  totalSurface,
-}: PdfPricingSectionProps) {
+export function PdfPricingSection({ totalPrices, totalSurface }: PdfPricingSectionProps) {
   const hasSurface = totalSurface > 0
 
   return (
     <View style={tw('mb-8')}>
-      <Text style={tw('text-base font-bold text-gray-800 mb-4')}>
-        Tarification Location
-      </Text>
+      <Text style={tw('text-base font-bold text-gray-800 mb-4')}>Tarification Location</Text>
 
       {/* Table header */}
       <View
@@ -35,11 +30,7 @@ export function PdfPricingSection({
           borderTopRightRadius: 6,
         }}
       >
-        <Text
-          style={{ ...tw('text-xs font-bold'), color: '#ffffff', width: '20%' }}
-        >
-          Durée
-        </Text>
+        <Text style={{ ...tw('text-xs font-bold'), color: '#ffffff', width: '20%' }}>Durée</Text>
         <Text
           style={{
             ...tw('text-xs font-bold text-right'),
@@ -86,12 +77,8 @@ export function PdfPricingSection({
       {PERIODS.map((period, index) => {
         const annualPrice = totalPrices[period.key]
         const monthlyPrice = annualToMonthly(annualPrice)
-        const annualPerM2 = hasSurface
-          ? ceilPrice(annualPrice / totalSurface)
-          : 0
-        const monthlyPerM2 = hasSurface
-          ? ceilPrice(monthlyPrice / totalSurface)
-          : 0
+        const annualPerM2 = hasSurface ? ceilPrice(annualPrice / totalSurface) : 0
+        const monthlyPerM2 = hasSurface ? ceilPrice(monthlyPrice / totalSurface) : 0
 
         const isLast = index === PERIODS.length - 1
         const rowBg = index % 2 === 0 ? '#ffffff' : '#f9fafb'
@@ -104,14 +91,10 @@ export function PdfPricingSection({
               backgroundColor: rowBg,
               borderBottomWidth: isLast ? 0 : 1,
               borderBottomColor: '#e5e7eb',
-              ...(isLast
-                ? { borderBottomLeftRadius: 6, borderBottomRightRadius: 6 }
-                : {}),
+              ...(isLast ? { borderBottomLeftRadius: 6, borderBottomRightRadius: 6 } : {}),
             }}
           >
-            <Text
-              style={{ ...tw('text-xs font-bold text-gray-800'), width: '20%' }}
-            >
+            <Text style={{ ...tw('text-xs font-bold text-gray-800'), width: '20%' }}>
               {period.label}
             </Text>
             <Text

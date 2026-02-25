@@ -28,10 +28,7 @@ interface CreateProjectModalProps {
   onClose: () => void
 }
 
-export function CreateProjectModal({
-  isOpen,
-  onClose,
-}: CreateProjectModalProps) {
+export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps) {
   const router = useRouter()
   const { showError, showSuccess } = useDialog()
   const [isLoading, setIsLoading] = useState(false)
@@ -64,17 +61,13 @@ export function CreateProjectModal({
         router.push(`/projects/${project.id}`)
       } else {
         const errorData = await response.json()
-        throw new Error(
-          errorData.error || 'Erreur lors de la création du projet',
-        )
+        throw new Error(errorData.error || 'Erreur lors de la création du projet')
       }
     } catch (error) {
       console.error('Erreur:', error)
       await showError(
         'Erreur de création',
-        error instanceof Error
-          ? error.message
-          : "Une erreur inattendue s'est produite",
+        error instanceof Error ? error.message : "Une erreur inattendue s'est produite",
       )
     } finally {
       setIsLoading(false)
@@ -90,13 +83,11 @@ export function CreateProjectModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
-              <Target className="w-5 h-5 text-primary" />
+            <div className="bg-primary/10 border-primary/20 flex h-10 w-10 items-center justify-center rounded-xl border">
+              <Target className="text-primary h-5 w-5" />
             </div>
             <div>
-              <DialogTitle className="text-lg font-semibold">
-                Nouveau projet
-              </DialogTitle>
+              <DialogTitle className="text-lg font-semibold">Nouveau projet</DialogTitle>
               <DialogDescription>
                 Créez un projet pour organiser vos kits et produits
               </DialogDescription>
@@ -104,7 +95,7 @@ export function CreateProjectModal({
           </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div className="space-y-2">
             <Label htmlFor="nom">Nom du projet *</Label>
             <Input
@@ -155,16 +146,12 @@ export function CreateProjectModal({
             >
               Annuler
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading || !formData.nom.trim()}
-              className="flex-1"
-            >
+            <Button type="submit" disabled={isLoading || !formData.nom.trim()} className="flex-1">
               {isLoading ? (
-                <div className="w-4 h-4 mr-2 animate-spin border-2 border-current border-t-transparent rounded-full" />
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               ) : (
                 <>
-                  <Save className="w-4 h-4 mr-2" />
+                  <Save className="mr-2 h-4 w-4" />
                   Créer
                 </>
               )}

@@ -18,9 +18,9 @@ export function useZodForm<T extends z.ZodType<any>>(
 
   // Helper pour obtenir les erreurs formatées
   const getFieldError = (fieldName: string): string | undefined => {
-    const error = form.formState.errors[
-      fieldName as keyof typeof form.formState.errors
-    ] as FieldError | undefined
+    const error = form.formState.errors[fieldName as keyof typeof form.formState.errors] as
+      | FieldError
+      | undefined
     return error?.message
   }
 

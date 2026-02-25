@@ -9,8 +9,7 @@ vi.mock('@/lib/cache', async () => {
   return createCacheMock()
 })
 vi.mock('@/lib/services/project-history', async () => {
-  const { createProjectHistoryMock } =
-    await import('@/test/mocks/project-history')
+  const { createProjectHistoryMock } = await import('@/test/mocks/project-history')
   return createProjectHistoryMock()
 })
 

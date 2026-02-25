@@ -116,7 +116,7 @@ export function EditProjectDialog({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50"
+            className="fixed inset-0 z-50 bg-black/50"
             onClick={handleClose}
           />
 
@@ -125,17 +125,15 @@ export function EditProjectDialog({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-lg shadow-xl z-50 p-6"
+            className="fixed top-1/2 left-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-[#30C1BD]/10 rounded-full flex items-center justify-center">
-                  <Edit3 className="w-5 h-5 text-[#30C1BD]" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#30C1BD]/10">
+                  <Edit3 className="h-5 w-5 text-[#30C1BD]" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Modifier le projet
-                </h3>
+                <h3 className="text-lg font-semibold text-gray-900">Modifier le projet</h3>
               </div>
               <Button
                 variant="ghost"
@@ -144,7 +142,7 @@ export function EditProjectDialog({
                 disabled={isLoading}
                 className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </Button>
             </div>
 
@@ -152,18 +150,13 @@ export function EditProjectDialog({
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Nom du projet */}
               <div>
-                <label
-                  htmlFor="nom"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
+                <label htmlFor="nom" className="mb-2 block text-sm font-medium text-gray-700">
                   Nom du projet *
                 </label>
                 <Input
                   id="nom"
                   value={formData.nom}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, nom: e.target.value }))
-                  }
+                  onChange={(e) => setFormData((prev) => ({ ...prev, nom: e.target.value }))}
                   placeholder="Entrez le nom du projet"
                   disabled={isLoading}
                   className="border-gray-300 focus:border-[#30C1BD] focus:ring-[#30C1BD]"
@@ -174,7 +167,7 @@ export function EditProjectDialog({
               <div>
                 <label
                   htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="mb-2 block text-sm font-medium text-gray-700"
                 >
                   Description
                 </label>
@@ -190,26 +183,24 @@ export function EditProjectDialog({
                   placeholder="Décrivez votre projet (optionnel)"
                   rows={3}
                   disabled={isLoading}
-                  className="border-gray-300 focus:border-[#30C1BD] focus:ring-[#30C1BD] resize-none"
+                  className="resize-none border-gray-300 focus:border-[#30C1BD] focus:ring-[#30C1BD]"
                 />
               </div>
 
               {/* Status */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="mb-3 block text-sm font-medium text-gray-700">
                   Statut du projet
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {STATUS_OPTIONS.map((option) => (
                     <Badge
                       key={option.value}
-                      variant={
-                        formData.status === option.value ? 'default' : 'outline'
-                      }
+                      variant={formData.status === option.value ? 'default' : 'outline'}
                       className={`cursor-pointer transition-all duration-200 ${
                         formData.status === option.value
-                          ? 'bg-[#30C1BD] text-white border-[#30C1BD]'
-                          : 'text-gray-600 border-gray-300 hover:border-[#30C1BD] hover:text-[#30C1BD]'
+                          ? 'border-[#30C1BD] bg-[#30C1BD] text-white'
+                          : 'border-gray-300 text-gray-600 hover:border-[#30C1BD] hover:text-[#30C1BD]'
                       }`}
                       onClick={() =>
                         !isLoading &&
@@ -226,7 +217,7 @@ export function EditProjectDialog({
               </div>
 
               {/* Actions */}
-              <div className="flex justify-end space-x-3 pt-4 border-t">
+              <div className="flex justify-end space-x-3 border-t pt-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -243,7 +234,7 @@ export function EditProjectDialog({
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Mise à jour...
                     </>
                   ) : (

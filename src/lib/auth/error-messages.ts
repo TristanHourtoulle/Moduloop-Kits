@@ -1,10 +1,6 @@
 export function translateAuthError(error: string | Error | unknown): string {
   const errorMessage =
-    typeof error === 'string'
-      ? error
-      : error instanceof Error
-        ? error.message
-        : String(error)
+    typeof error === 'string' ? error : error instanceof Error ? error.message : String(error)
 
   // Messages d'erreur Better Auth traduits en français
   const errorTranslations: Record<string, string> = {
@@ -15,23 +11,20 @@ export function translateAuthError(error: string | Error | unknown): string {
     'Invalid credentials': 'Identifiants incorrects',
     'Account not found': 'Aucun compte trouvé avec cette adresse e-mail',
     'Password mismatch': 'Mot de passe incorrect',
-    'Credential account not found':
-      "Aucun compte n'existe avec cette adresse e-mail",
+    'Credential account not found': "Aucun compte n'existe avec cette adresse e-mail",
 
     // Erreurs d'inscription
     'User already exists': 'Un compte existe déjà avec cette adresse e-mail',
     'Email already exists': 'Cette adresse e-mail est déjà utilisée',
     'Account already exists': 'Un compte existe déjà avec cette adresse e-mail',
-    'User with this email already exists':
-      'Un compte existe déjà avec cette adresse e-mail',
+    'User with this email already exists': 'Un compte existe déjà avec cette adresse e-mail',
 
     // Erreurs de validation
     'Email is required': "L'adresse e-mail est requise",
     'Password is required': 'Le mot de passe est requis',
     'Invalid email format': "Format d'adresse e-mail invalide",
     'Password too weak': 'Le mot de passe est trop faible',
-    'Password must be at least 8 characters':
-      'Le mot de passe doit contenir au moins 8 caractères',
+    'Password must be at least 8 characters': 'Le mot de passe doit contenir au moins 8 caractères',
 
     // Erreurs OAuth
     'OAuth error': 'Erreur de connexion avec Google',
@@ -73,17 +66,11 @@ export function translateAuthError(error: string | Error | unknown): string {
   // Gestion des erreurs qui contiennent des mots-clés spécifiques
   const lowerMessage = errorMessage.toLowerCase()
 
-  if (
-    lowerMessage.includes('already exists') ||
-    lowerMessage.includes('already registered')
-  ) {
+  if (lowerMessage.includes('already exists') || lowerMessage.includes('already registered')) {
     return 'Un compte existe déjà avec cette adresse e-mail'
   }
 
-  if (
-    lowerMessage.includes('not found') ||
-    lowerMessage.includes('user not found')
-  ) {
+  if (lowerMessage.includes('not found') || lowerMessage.includes('user not found')) {
     return "Aucun compte n'existe avec cette adresse e-mail"
   }
 
@@ -127,18 +114,12 @@ export function getSpecificAuthError(
   switch (context) {
     case 'signin':
       if (translatedError.includes("Aucun compte n'existe")) {
-        return (
-          translatedError +
-          ". Vous pouvez créer un compte en cliquant sur 'Créer un compte'."
-        )
+        return translatedError + ". Vous pouvez créer un compte en cliquant sur 'Créer un compte'."
       }
       break
     case 'signup':
       if (translatedError.includes('Un compte existe déjà')) {
-        return (
-          translatedError +
-          ". Vous pouvez vous connecter en cliquant sur 'Se connecter'."
-        )
+        return translatedError + ". Vous pouvez vous connecter en cliquant sur 'Se connecter'."
       }
       break
     case 'google':

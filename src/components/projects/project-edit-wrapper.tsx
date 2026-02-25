@@ -18,10 +18,7 @@ interface ProjectEditWrapperProps {
   initialProject: ProjectData
 }
 
-export function ProjectEditWrapper({
-  projectId,
-  initialProject,
-}: ProjectEditWrapperProps) {
+export function ProjectEditWrapper({ projectId, initialProject }: ProjectEditWrapperProps) {
   const searchParams = useSearchParams()
   const timestamp = searchParams.get('t')
 
@@ -33,11 +30,9 @@ export function ProjectEditWrapper({
 
   return (
     <>
-      <p className="text-lg text-gray-600 max-w-2xl mx-auto text-center mb-8">
+      <p className="mx-auto mb-8 max-w-2xl text-center text-lg text-gray-600">
         Modifiez les informations de{' '}
-        <span className="font-semibold text-[#30C1BD]">
-          &quot;{initialProject.nom}&quot;
-        </span>
+        <span className="font-semibold text-[#30C1BD]">&quot;{initialProject.nom}&quot;</span>
       </p>
 
       {/* Form with dynamic key for forcing remount on Vercel */}

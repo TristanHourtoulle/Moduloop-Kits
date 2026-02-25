@@ -1,9 +1,6 @@
 import type { KitProduct } from '@/lib/types/project'
 import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product'
-import {
-  getProductPricing,
-  getProductEnvironmentalImpact,
-} from '@/lib/utils/product-helpers'
+import { getProductPricing, getProductEnvironmentalImpact } from '@/lib/utils/product-helpers'
 
 export interface KitImpactResult {
   rechauffementClimatique: number
@@ -44,16 +41,11 @@ export function calculateKitImpact(
 
       return {
         rechauffementClimatique:
-          acc.rechauffementClimatique +
-          (impact.rechauffementClimatique || 0) * kitProduct.quantite,
+          acc.rechauffementClimatique + (impact.rechauffementClimatique || 0) * kitProduct.quantite,
         epuisementRessources:
-          acc.epuisementRessources +
-          (impact.epuisementRessources || 0) * kitProduct.quantite,
-        acidification:
-          acc.acidification + (impact.acidification || 0) * kitProduct.quantite,
-        eutrophisation:
-          acc.eutrophisation +
-          (impact.eutrophisation || 0) * kitProduct.quantite,
+          acc.epuisementRessources + (impact.epuisementRessources || 0) * kitProduct.quantite,
+        acidification: acc.acidification + (impact.acidification || 0) * kitProduct.quantite,
+        eutrophisation: acc.eutrophisation + (impact.eutrophisation || 0) * kitProduct.quantite,
         surface: acc.surface + (product.surfaceM2 || 0) * kitProduct.quantite,
       }
     },

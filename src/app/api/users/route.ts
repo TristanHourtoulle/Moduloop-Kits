@@ -26,10 +26,7 @@ export async function GET(request: NextRequest) {
 
     const usersWithDisplayNames = users.map((user) => ({
       id: user.id,
-      name:
-        user.name ||
-        `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
-        user.email,
+      name: user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
       email: user.email,
     }))
 

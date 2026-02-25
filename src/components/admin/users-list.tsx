@@ -27,14 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  User,
-  Calendar,
-  Package,
-  FolderOpen,
-  Users,
-  Settings,
-} from 'lucide-react'
+import { User, Calendar, Package, FolderOpen, Users, Settings } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { UserRole } from '@/lib/types/user'
 
@@ -101,16 +94,16 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Total Utilisateurs
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-primary" />
+              <Users className="text-primary h-4 w-4" />
               <span className="text-2xl font-bold">{users.length}</span>
             </div>
           </CardContent>
@@ -118,7 +111,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Administrateurs
             </CardTitle>
           </CardHeader>
@@ -134,7 +127,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Développeurs
             </CardTitle>
           </CardHeader>
@@ -150,7 +143,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-muted-foreground text-sm font-medium">
               Utilisateurs
             </CardTitle>
           </CardHeader>
@@ -171,7 +164,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
         </CardHeader>
         <CardContent>
           {/* Responsive table wrapper - scroll horizontal sur mobile */}
-          <div className="overflow-x-auto -mx-6 px-6 md:mx-0 md:px-0">
+          <div className="-mx-6 overflow-x-auto px-6 md:mx-0 md:px-0">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -190,9 +183,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
                     <TableCell>
                       <div className="space-y-1">
                         <div className="font-medium">{user.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {user.email}
-                        </div>
+                        <div className="text-muted-foreground text-sm">{user.email}</div>
                         {!user.emailVerified && (
                           <Badge variant="outline" className="text-xs">
                             Email non vérifié
@@ -201,15 +192,11 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getRoleColor(user.role)}>
-                        {user.role}
-                      </Badge>
+                      <Badge className={getRoleColor(user.role)}>{user.role}</Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-1">
-                        <span className="font-medium">
-                          {user.stats.projectsCount}
-                        </span>
+                        <span className="font-medium">{user.stats.projectsCount}</span>
                         {user.stats.projectsCount > 0 && (
                           <Button
                             variant="ghost"
@@ -225,11 +212,9 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
                     <TableCell>{user.stats.productsCount}</TableCell>
                     <TableCell>{user.stats.kitsCount}</TableCell>
                     <TableCell>
-                      <div className="flex items-center space-x-1 text-sm text-muted-foreground">
+                      <div className="text-muted-foreground flex items-center space-x-1 text-sm">
                         <Calendar className="h-3 w-3" />
-                        <span>
-                          {new Date(user.createdAt).toLocaleDateString('fr-FR')}
-                        </span>
+                        <span>{new Date(user.createdAt).toLocaleDateString('fr-FR')}</span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -241,7 +226,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
                           setIsRoleDialogOpen(true)
                         }}
                       >
-                        <Settings className="h-3 w-3 mr-1" />
+                        <Settings className="mr-1 h-3 w-3" />
                         Rôle
                       </Button>
                     </TableCell>
@@ -274,7 +259,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
                 <SelectItem value={UserRole.USER}>
                   <div className="flex items-center space-x-2">
                     <div
-                      className={`w-2 h-2 rounded-full ${getRoleColor(UserRole.USER).split(' ')[0]}`}
+                      className={`h-2 w-2 rounded-full ${getRoleColor(UserRole.USER).split(' ')[0]}`}
                     />
                     <span>Utilisateur</span>
                   </div>
@@ -282,7 +267,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
                 <SelectItem value={UserRole.DEV}>
                   <div className="flex items-center space-x-2">
                     <div
-                      className={`w-2 h-2 rounded-full ${getRoleColor(UserRole.DEV).split(' ')[0]}`}
+                      className={`h-2 w-2 rounded-full ${getRoleColor(UserRole.DEV).split(' ')[0]}`}
                     />
                     <span>Développeur</span>
                   </div>
@@ -290,7 +275,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
                 <SelectItem value={UserRole.ADMIN}>
                   <div className="flex items-center space-x-2">
                     <div
-                      className={`w-2 h-2 rounded-full ${getRoleColor(UserRole.ADMIN).split(' ')[0]}`}
+                      className={`h-2 w-2 rounded-full ${getRoleColor(UserRole.ADMIN).split(' ')[0]}`}
                     />
                     <span>Administrateur</span>
                   </div>

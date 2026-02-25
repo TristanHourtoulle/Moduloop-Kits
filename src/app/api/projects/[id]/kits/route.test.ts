@@ -10,8 +10,7 @@ vi.mock('@/lib/utils/project/access', () => ({
   verifyProjectAccess: vi.fn(),
 }))
 vi.mock('@/lib/services/project-history', async () => {
-  const { createProjectHistoryMock } =
-    await import('@/test/mocks/project-history')
+  const { createProjectHistoryMock } = await import('@/test/mocks/project-history')
   return createProjectHistoryMock()
 })
 
@@ -142,9 +141,7 @@ describe('POST /api/projects/[id]/kits', () => {
       createdById: 'user-123',
     } as never)
     mockKitFindMany.mockResolvedValueOnce([{ id: 'k1', nom: 'Kit 1' }] as never)
-    mockProjectKitFindMany.mockResolvedValueOnce([
-      { id: 'pk1', kitId: 'k1', quantite: 3 },
-    ] as never)
+    mockProjectKitFindMany.mockResolvedValueOnce([{ id: 'pk1', kitId: 'k1', quantite: 3 }] as never)
     mockProjectKitUpdate.mockResolvedValueOnce({
       id: 'pk1',
       quantite: 5,

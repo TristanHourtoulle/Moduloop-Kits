@@ -11,10 +11,7 @@ interface GoogleButtonProps {
   onError?: (error: string) => void
 }
 
-export function GoogleButton({
-  text = 'Continuer avec Google',
-  onError,
-}: GoogleButtonProps) {
+export function GoogleButton({ text = 'Continuer avec Google', onError }: GoogleButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleGoogleSignIn = async () => {
@@ -38,7 +35,7 @@ export function GoogleButton({
     <Button
       onClick={handleGoogleSignIn}
       disabled={isLoading}
-      className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer"
+      className="h-12 w-full cursor-pointer border border-gray-200 bg-white text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md"
       variant="outline"
     >
       {isLoading ? (

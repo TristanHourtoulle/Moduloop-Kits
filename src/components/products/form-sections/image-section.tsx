@@ -5,11 +5,7 @@ import { UseFormSetValue, FieldErrors } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import {
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion'
+import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { ImageIcon, Upload, X } from 'lucide-react'
 import { ProductFormData } from '@/lib/schemas/product'
 
@@ -20,15 +16,8 @@ interface ImageSectionProps {
   onError: (error: string) => void
 }
 
-export function ImageSection({
-  setValue,
-  errors,
-  initialImage,
-  onError,
-}: ImageSectionProps) {
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    initialImage || null,
-  )
+export function ImageSection({ setValue, errors, initialImage, onError }: ImageSectionProps) {
+  const [imagePreview, setImagePreview] = useState<string | null>(initialImage || null)
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -60,17 +49,15 @@ export function ImageSection({
   }
 
   return (
-    <AccordionItem value="image" className="border rounded-lg">
+    <AccordionItem value="image" className="rounded-lg border">
       <AccordionTrigger className="px-6 py-4 hover:no-underline">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-purple-100">
+          <div className="rounded-lg bg-purple-100 p-2">
             <ImageIcon className="h-5 w-5 text-purple-600" />
           </div>
           <div className="text-left">
             <h3 className="font-semibold">Image du produit</h3>
-            <p className="text-sm text-gray-500">
-              Photo ou illustration du produit
-            </p>
+            <p className="text-sm text-gray-500">Photo ou illustration du produit</p>
           </div>
         </div>
       </AccordionTrigger>
@@ -81,29 +68,29 @@ export function ImageSection({
               <img
                 src={imagePreview}
                 alt="Aperçu"
-                className="w-48 h-48 object-cover rounded-lg border shadow-sm"
+                className="h-48 w-48 rounded-lg border object-cover shadow-sm"
               />
               <Button
                 type="button"
                 variant="destructive"
                 size="sm"
-                className="absolute -top-2 -right-2 h-8 w-8 p-0 rounded-full shadow-lg"
+                className="absolute -top-2 -right-2 h-8 w-8 rounded-full p-0 shadow-lg"
                 onClick={removeImage}
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
           ) : (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#30C1BD] transition-colors">
-              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center transition-colors hover:border-[#30C1BD]">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
                 <Upload className="h-8 w-8 text-gray-400" />
               </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="image-upload"
-                  className="cursor-pointer w-full flex flex-col items-center justify-center"
+                  className="flex w-full cursor-pointer flex-col items-center justify-center"
                 >
-                  <span className="text-[#30C1BD] hover:text-[#30C1BD]/80 font-medium">
+                  <span className="font-medium text-[#30C1BD] hover:text-[#30C1BD]/80">
                     Cliquez pour télécharger
                   </span>
                   <span className="text-gray-500"> ou glissez-déposez</span>
@@ -115,15 +102,11 @@ export function ImageSection({
                   onChange={handleImageUpload}
                   className="hidden"
                 />
-                <p className="text-xs text-gray-500">
-                  PNG, JPG, GIF jusqu&apos;à 5MB
-                </p>
+                <p className="text-xs text-gray-500">PNG, JPG, GIF jusqu&apos;à 5MB</p>
               </div>
             </div>
           )}
-          {errors.image && (
-            <p className="text-sm text-red-500">{errors.image.message}</p>
-          )}
+          {errors.image && <p className="text-sm text-red-500">{errors.image.message}</p>}
         </div>
       </AccordionContent>
     </AccordionItem>

@@ -5,19 +5,16 @@ declare module 'framer-motion' {
   export const motion: {
     div: import('framer-motion').ForwardRefComponent<
       HTMLDivElement,
-      import('react').HTMLAttributes<HTMLDivElement> &
-        import('framer-motion').MotionProps
+      import('react').HTMLAttributes<HTMLDivElement> & import('framer-motion').MotionProps
     >
     // Si tu veux étendre aussi les autres tags :
     span: import('framer-motion').ForwardRefComponent<
       HTMLSpanElement,
-      import('react').HTMLAttributes<HTMLSpanElement> &
-        import('framer-motion').MotionProps
+      import('react').HTMLAttributes<HTMLSpanElement> & import('framer-motion').MotionProps
     >
     section: import('framer-motion').ForwardRefComponent<
       HTMLElement,
-      import('react').HTMLAttributes<HTMLElement> &
-        import('framer-motion').MotionProps
+      import('react').HTMLAttributes<HTMLElement> & import('framer-motion').MotionProps
     >
     // Tu peux ajouter p, img, etc.
   }

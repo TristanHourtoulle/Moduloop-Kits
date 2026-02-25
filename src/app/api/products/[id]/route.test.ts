@@ -78,22 +78,14 @@ describe('PUT /api/products/[id]', () => {
 
   it('returns 401 when unauthenticated', async () => {
     mockAuthNone()
-    const req = createMockRequest(
-      'PUT',
-      `/api/products/${VALID_ID}`,
-      updateData,
-    )
+    const req = createMockRequest('PUT', `/api/products/${VALID_ID}`, updateData)
     const res = await PUT(req, makeParams(VALID_ID))
     expect(res.status).toBe(401)
   })
 
   it('returns 403 when role is USER', async () => {
     mockAuthAsUser()
-    const req = createMockRequest(
-      'PUT',
-      `/api/products/${VALID_ID}`,
-      updateData,
-    )
+    const req = createMockRequest('PUT', `/api/products/${VALID_ID}`, updateData)
     const res = await PUT(req, makeParams(VALID_ID))
     expect(res.status).toBe(403)
   })
@@ -102,11 +94,7 @@ describe('PUT /api/products/[id]', () => {
     mockAuthAsDev()
     mockFindUnique.mockResolvedValueOnce(null as never)
 
-    const req = createMockRequest(
-      'PUT',
-      `/api/products/${VALID_ID}`,
-      updateData,
-    )
+    const req = createMockRequest('PUT', `/api/products/${VALID_ID}`, updateData)
     const res = await PUT(req, makeParams(VALID_ID))
     expect(res.status).toBe(404)
   })
@@ -117,11 +105,7 @@ describe('PUT /api/products/[id]', () => {
       .mockResolvedValueOnce({ id: VALID_ID, reference: 'REF-001' } as never)
       .mockResolvedValueOnce({ id: VALID_ID_2, reference: 'REF-002' } as never)
 
-    const req = createMockRequest(
-      'PUT',
-      `/api/products/${VALID_ID}`,
-      updateData,
-    )
+    const req = createMockRequest('PUT', `/api/products/${VALID_ID}`, updateData)
     const res = await PUT(req, makeParams(VALID_ID))
     expect(res.status).toBe(409)
   })

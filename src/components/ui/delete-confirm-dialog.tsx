@@ -66,10 +66,7 @@ export function DeleteConfirmDialog({
             type="button"
             variant={triggerVariant}
             size={triggerSize}
-            className={cn(
-              'text-red-600 hover:text-red-700 hover:bg-red-50',
-              triggerClassName,
-            )}
+            className={cn('text-red-600 hover:bg-red-50 hover:text-red-700', triggerClassName)}
           >
             {showIcon && <Trash2 className="h-4 w-4" />}
           </Button>
@@ -77,8 +74,8 @@ export function DeleteConfirmDialog({
       </AlertDialogTrigger>
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-full bg-red-50">
+          <div className="mb-2 flex items-center gap-3">
+            <div className="rounded-full bg-red-50 p-2">
               <AlertTriangle className="h-5 w-5 text-red-600" />
             </div>
             <AlertDialogTitle className="text-xl">{title}</AlertDialogTitle>
@@ -103,7 +100,7 @@ export function DeleteConfirmDialog({
               </>
             ) : (
               <>
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="mr-2 h-4 w-4" />
                 Supprimer
               </>
             )}

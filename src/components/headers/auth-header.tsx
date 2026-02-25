@@ -16,7 +16,7 @@ export function AuthHeader() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center space-x-2 transition-transform hover:scale-105 cursor-pointer"
+            className="flex cursor-pointer items-center space-x-2 transition-transform hover:scale-105"
           >
             <Image
               src="/moduloop-logo-square.png"
@@ -31,12 +31,12 @@ export function AuthHeader() {
           </Link>
 
           {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden items-center space-x-4 md:flex">
             <Link href="/auth/connexion" className="cursor-pointer">
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-gray-600 hover:text-[#30C1BD] hover:bg-[#30C1BD]/10 transition-all duration-200 cursor-pointer"
+                className="cursor-pointer text-gray-600 transition-all duration-200 hover:bg-[#30C1BD]/10 hover:text-[#30C1BD]"
               >
                 <LogIn className="mr-2 h-4 w-4" />
                 Connexion
@@ -45,7 +45,7 @@ export function AuthHeader() {
             <Link href="/auth/inscription" className="cursor-pointer">
               <Button
                 size="sm"
-                className="bg-[#30C1BD] hover:bg-[#30C1BD]/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 cursor-pointer"
+                className="cursor-pointer bg-[#30C1BD] text-white shadow-lg transition-all duration-200 hover:scale-105 hover:bg-[#30C1BD]/90 hover:shadow-xl"
               >
                 <UserPlus className="mr-2 h-4 w-4" />
                 Inscription
@@ -55,7 +55,7 @@ export function AuthHeader() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+            className="cursor-pointer rounded-lg p-2 transition-colors hover:bg-gray-100 md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? (
@@ -68,18 +68,16 @@ export function AuthHeader() {
 
         {/* Mobile Menu */}
         <div
-          className={`md:hidden transition-all duration-300 ease-in-out ${
-            isMobileMenuOpen
-              ? 'max-h-48 opacity-100 pb-4'
-              : 'max-h-0 opacity-0 pb-0'
+          className={`transition-all duration-300 ease-in-out md:hidden ${
+            isMobileMenuOpen ? 'max-h-48 pb-4 opacity-100' : 'max-h-0 pb-0 opacity-0'
           } overflow-hidden`}
         >
-          <div className="pt-4 space-y-3">
+          <div className="space-y-3 pt-4">
             <Link href="/auth/connexion" className="block cursor-pointer">
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full justify-start text-gray-600 hover:text-[#30C1BD] hover:bg-[#30C1BD]/10 transition-all duration-200 cursor-pointer"
+                className="w-full cursor-pointer justify-start text-gray-600 transition-all duration-200 hover:bg-[#30C1BD]/10 hover:text-[#30C1BD]"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <LogIn className="mr-2 h-4 w-4" />
@@ -89,7 +87,7 @@ export function AuthHeader() {
             <Link href="/auth/inscription" className="block cursor-pointer">
               <Button
                 size="sm"
-                className="w-full bg-[#30C1BD] hover:bg-[#30C1BD]/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer"
+                className="w-full cursor-pointer bg-[#30C1BD] text-white shadow-lg transition-all duration-200 hover:bg-[#30C1BD]/90 hover:shadow-xl"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <UserPlus className="mr-2 h-4 w-4" />

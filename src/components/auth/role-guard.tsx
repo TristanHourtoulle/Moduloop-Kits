@@ -51,8 +51,7 @@ export function RoleGuard({
         <Alert className="border-red-200 bg-red-50">
           <ShieldAlert className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800">
-            Vous n&apos;avez pas les permissions nécessaires pour accéder à
-            cette section.
+            Vous n&apos;avez pas les permissions nécessaires pour accéder à cette section.
           </AlertDescription>
         </Alert>
       )

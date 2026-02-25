@@ -16,18 +16,14 @@ export function ProjectsPageClient() {
   return (
     <>
       {/* User Selector for Admin/Dev */}
-      <UserSelector
-        onUserChange={handleUserChange}
-        selectedUserId={userId || undefined}
-      />
+      <UserSelector onUserChange={handleUserChange} selectedUserId={userId || undefined} />
 
       {/* Title and Action Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
           <h1 className="text-4xl font-bold text-gray-900">Projets</h1>
-          <p className="text-gray-600 max-w-2xl">
-            Gérez vos projets de construction modulaire et suivez leur
-            progression
+          <p className="max-w-2xl text-gray-600">
+            Gérez vos projets de construction modulaire et suivez leur progression
           </p>
         </div>
         <div className="flex-shrink-0">

@@ -10,16 +10,10 @@ import {
   setResourceCacheHeaders,
 } from '@/lib/api/middleware'
 import { groupDuplicateProducts } from '@/lib/utils/kit/group-products'
-import {
-  validateProductsExist,
-  KIT_WITH_PRODUCTS_INCLUDE,
-} from '@/lib/services/kit.service'
+import { validateProductsExist, KIT_WITH_PRODUCTS_INCLUDE } from '@/lib/services/kit.service'
 
 // GET /api/kits/[id] - Récupérer un kit par ID
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth(request)
     if (auth.response) return auth.response
@@ -44,10 +38,7 @@ export async function GET(
 }
 
 // PUT /api/kits/[id] - Mettre à jour un kit
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN])
     if (auth.response) return auth.response
@@ -71,9 +62,7 @@ export async function PUT(
 
     const groupedProducts = groupDuplicateProducts(validatedData.products)
 
-    const validation = await validateProductsExist(
-      groupedProducts.map((p) => p.productId),
-    )
+    const validation = await validateProductsExist(groupedProducts.map((p) => p.productId))
     if (!validation.valid) {
       return NextResponse.json(
         { error: `Produits introuvables: ${validation.missingIds.join(', ')}` },

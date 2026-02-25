@@ -22,10 +22,10 @@ export default function HomePage() {
 
   // Afficher un loader pendant la vérification
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-      <div className="text-center space-y-6">
-        <div className="w-16 h-16 mx-auto">
-          <div className="w-16 h-16 border-4 border-[#30C1BD] border-t-transparent rounded-full animate-spin"></div>
+    <div className="bg-background flex min-h-screen flex-col items-center justify-center">
+      <div className="space-y-6 text-center">
+        <div className="mx-auto h-16 w-16">
+          <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#30C1BD] border-t-transparent"></div>
         </div>
         <h1 className="text-2xl font-semibold text-gray-900">Moduloop Kits</h1>
         <p className="text-gray-600">Chargement...</p>

@@ -131,9 +131,7 @@ export function ProductForm({ initialData, productId }: ProductFormProps) {
         const errorData = await response
           .json()
           .catch(() => ({ error: 'Erreur de communication avec le serveur' }))
-        throw new Error(
-          errorData.error || `Erreur ${response.status} lors de la sauvegarde`,
-        )
+        throw new Error(errorData.error || `Erreur ${response.status} lors de la sauvegarde`)
       }
 
       // Invalidate the router cache to ensure fresh data on next visit
@@ -153,11 +151,7 @@ export function ProductForm({ initialData, productId }: ProductFormProps) {
       // Redirect to products list with timestamp to trigger refetch (like kits)
       router.push('/products?updated=' + Date.now())
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Une erreur inattendue s'est produite",
-      )
+      setError(err instanceof Error ? err.message : "Une erreur inattendue s'est produite")
     } finally {
       setIsLoading(false)
     }
@@ -168,23 +162,17 @@ export function ProductForm({ initialData, productId }: ProductFormProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {error && (
           <Alert className="border-red-200 bg-red-50">
-            <AlertDescription className="text-red-800">
-              {error}
-            </AlertDescription>
+            <AlertDescription className="text-red-800">{error}</AlertDescription>
           </Alert>
         )}
 
         <FormErrorsDebug errors={errors} />
 
-        <Accordion
-          type="multiple"
-          defaultValue={['general']}
-          className="space-y-4"
-        >
+        <Accordion type="multiple" defaultValue={['general']} className="space-y-4">
           <GeneralInfoSection register={register} errors={errors} />
 
           <ImageSection
@@ -202,11 +190,7 @@ export function ProductForm({ initialData, productId }: ProductFormProps) {
           />
         </Accordion>
 
-        <FormActions
-          isLoading={isLoading}
-          productId={productId}
-          onReset={reset}
-        />
+        <FormActions isLoading={isLoading} productId={productId} onReset={reset} />
       </form>
     </div>
   )

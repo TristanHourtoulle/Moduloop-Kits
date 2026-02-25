@@ -10,15 +10,11 @@ interface KitFormActionsProps {
   onReset: () => void
 }
 
-export function KitFormActions({
-  isLoading,
-  kitId,
-  onReset,
-}: KitFormActionsProps) {
+export function KitFormActions({ isLoading, kitId, onReset }: KitFormActionsProps) {
   const router = useRouter()
 
   return (
-    <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t">
+    <div className="flex flex-col justify-end gap-4 border-t pt-6 sm:flex-row">
       <Button
         type="button"
         variant="outline"
@@ -40,7 +36,7 @@ export function KitFormActions({
       <Button
         type="submit"
         disabled={isLoading}
-        className="cursor-pointer bg-[#30C1BD] hover:bg-[#30C1BD]/80 text-white order-1 sm:order-3"
+        className="order-1 cursor-pointer bg-[#30C1BD] text-white hover:bg-[#30C1BD]/80 sm:order-3"
       >
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {kitId ? 'Mettre à jour le kit' : 'Créer le kit'}

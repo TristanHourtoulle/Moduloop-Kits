@@ -21,7 +21,7 @@ export function ProjectEditSkeleton() {
         <Skeleton className="h-6 w-20" />
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Form skeleton */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -68,7 +68,7 @@ export function ProjectEditSkeleton() {
             <CardContent className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="flex items-center space-x-3">
-                  <Skeleton className="w-10 h-10 rounded-full" />
+                  <Skeleton className="h-10 w-10 rounded-full" />
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-20" />
                     <Skeleton className="h-5 w-16" />

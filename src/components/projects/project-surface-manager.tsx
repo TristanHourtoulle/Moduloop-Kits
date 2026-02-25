@@ -25,9 +25,7 @@ export function ProjectSurfaceManager({
 }: ProjectSurfaceManagerProps) {
   const [isManual, setIsManual] = useState(isOverride)
   const [manualValue, setManualValue] = useState(
-    manualSurface !== null && manualSurface !== undefined
-      ? manualSurface
-      : currentSurface,
+    manualSurface !== null && manualSurface !== undefined ? manualSurface : currentSurface,
   )
   const [isLoading, setIsLoading] = useState(false)
   const { showError, showSuccess } = useDialog()
@@ -35,14 +33,8 @@ export function ProjectSurfaceManager({
 
   const handleSave = async () => {
     // Validate input
-    if (
-      isManual &&
-      (manualValue === null || manualValue === undefined || manualValue < 0)
-    ) {
-      await showError(
-        'Erreur de validation',
-        'La surface doit être un nombre positif',
-      )
+    if (isManual && (manualValue === null || manualValue === undefined || manualValue < 0)) {
+      await showError('Erreur de validation', 'La surface doit être un nombre positif')
       return
     }
 
@@ -62,18 +54,13 @@ export function ProjectSurfaceManager({
         throw new Error(errorData.error || 'Failed to update')
       }
 
-      await showSuccess(
-        'Surface mise à jour',
-        'La surface du projet a été modifiée avec succès',
-      )
+      await showSuccess('Surface mise à jour', 'La surface du projet a été modifiée avec succès')
       router.refresh()
       onUpdate?.()
     } catch (error) {
       await showError(
         'Erreur',
-        error instanceof Error
-          ? error.message
-          : 'Impossible de mettre à jour la surface',
+        error instanceof Error ? error.message : 'Impossible de mettre à jour la surface',
       )
     } finally {
       setIsLoading(false)
@@ -84,20 +71,16 @@ export function ProjectSurfaceManager({
     isManual !== isOverride ||
     (isManual &&
       manualValue !==
-        (manualSurface !== null && manualSurface !== undefined
-          ? manualSurface
-          : currentSurface))
+        (manualSurface !== null && manualSurface !== undefined ? manualSurface : currentSurface))
 
   return (
-    <div className="space-y-4 p-6 border rounded-lg bg-card shadow-sm">
+    <div className="bg-card space-y-4 rounded-lg border p-6 shadow-sm">
       <div>
-        <Label className="text-sm font-semibold text-foreground mb-3 block">
+        <Label className="text-foreground mb-3 block text-sm font-semibold">
           Mode de calcul de la surface
         </Label>
-        <p className="text-xs text-muted-foreground mb-4">
-          {isManual
-            ? 'Valeur manuelle définie'
-            : 'Calculée automatiquement depuis les kits'}
+        <p className="text-muted-foreground mb-4 text-xs">
+          {isManual ? 'Valeur manuelle définie' : 'Calculée automatiquement depuis les kits'}
         </p>
         <div className="flex gap-2">
           <Button
@@ -106,7 +89,7 @@ export function ProjectSurfaceManager({
             onClick={() => setIsManual(false)}
             className="flex-1"
           >
-            <Calculator className="h-4 w-4 mr-2" />
+            <Calculator className="mr-2 h-4 w-4" />
             Automatique
           </Button>
           <Button
@@ -115,7 +98,7 @@ export function ProjectSurfaceManager({
             onClick={() => setIsManual(true)}
             className="flex-1"
           >
-            <Edit3 className="h-4 w-4 mr-2" />
+            <Edit3 className="mr-2 h-4 w-4" />
             Manuel
           </Button>
         </div>
@@ -136,18 +119,16 @@ export function ProjectSurfaceManager({
               onChange={(e) => setManualValue(parseFloat(e.target.value))}
               className="max-w-xs"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Surface calculée automatiquement :{' '}
-              <span className="font-medium text-foreground">
-                {currentSurface.toFixed(2)} m²
-              </span>
+              <span className="text-foreground font-medium">{currentSurface.toFixed(2)} m²</span>
             </p>
           </div>
         ) : (
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Surface calculée automatiquement :{' '}
-              <span className="font-semibold text-foreground text-lg">
+              <span className="text-foreground text-lg font-semibold">
                 {currentSurface.toFixed(2)} m²
               </span>
             </p>
@@ -155,12 +136,8 @@ export function ProjectSurfaceManager({
         )}
 
         {hasChanges && (
-          <Button
-            onClick={handleSave}
-            disabled={isLoading}
-            className="w-full mt-4"
-          >
-            <Save className="h-4 w-4 mr-2" />
+          <Button onClick={handleSave} disabled={isLoading} className="mt-4 w-full">
+            <Save className="mr-2 h-4 w-4" />
             {isLoading ? 'Enregistrement...' : 'Enregistrer les modifications'}
           </Button>
         )}

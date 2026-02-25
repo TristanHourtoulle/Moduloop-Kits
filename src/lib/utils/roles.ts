@@ -1,8 +1,4 @@
-import {
-  UserRole,
-  ROLE_PERMISSIONS,
-  type RolePermissions,
-} from '@/lib/types/user'
+import { UserRole, ROLE_PERMISSIONS, type RolePermissions } from '@/lib/types/user'
 
 /**
  * Vérifie si un utilisateur a un rôle spécifique
@@ -27,10 +23,7 @@ export function getRolePermissions(role: UserRole): RolePermissions {
 /**
  * Vérifie si un utilisateur a une permission spécifique
  */
-export function hasPermission(
-  userRole: UserRole,
-  permission: keyof RolePermissions,
-): boolean {
+export function hasPermission(userRole: UserRole, permission: keyof RolePermissions): boolean {
   const permissions = getRolePermissions(userRole)
   return permissions[permission]
 }

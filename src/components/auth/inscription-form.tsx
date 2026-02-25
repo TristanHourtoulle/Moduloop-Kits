@@ -105,14 +105,12 @@ export function InscriptionForm() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">
-                  Nom complet
-                </FormLabel>
+                <FormLabel className="text-sm font-medium text-gray-700">Nom complet</FormLabel>
                 <FormControl>
                   <InputWithIcon
                     icon={User}
                     placeholder="Votre nom complet"
-                    className="border-gray-200 focus:border-[#30C1BD] focus:ring-[#30C1BD] transition-colors"
+                    className="border-gray-200 transition-colors focus:border-[#30C1BD] focus:ring-[#30C1BD]"
                     {...field}
                   />
                 </FormControl>
@@ -126,14 +124,12 @@ export function InscriptionForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">
-                  Adresse e-mail
-                </FormLabel>
+                <FormLabel className="text-sm font-medium text-gray-700">Adresse e-mail</FormLabel>
                 <FormControl>
                   <InputWithIcon
                     icon={Mail}
                     placeholder="votre@email.com"
-                    className="border-gray-200 focus:border-[#30C1BD] focus:ring-[#30C1BD] transition-colors"
+                    className="border-gray-200 transition-colors focus:border-[#30C1BD] focus:ring-[#30C1BD]"
                     {...field}
                   />
                 </FormControl>
@@ -147,14 +143,12 @@ export function InscriptionForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">
-                  Mot de passe
-                </FormLabel>
+                <FormLabel className="text-sm font-medium text-gray-700">Mot de passe</FormLabel>
                 <FormControl>
                   <PasswordInput
                     placeholder="••••••••"
                     showStrength
-                    className="border-gray-200 focus:border-[#30C1BD] focus:ring-[#30C1BD] transition-colors"
+                    className="border-gray-200 transition-colors focus:border-[#30C1BD] focus:ring-[#30C1BD]"
                     {...field}
                   />
                 </FormControl>
@@ -175,13 +169,12 @@ export function InscriptionForm() {
                   <div className="relative">
                     <PasswordInput
                       placeholder="••••••••"
-                      className="border-gray-200 focus:border-[#30C1BD] focus:ring-[#30C1BD] transition-colors pr-16"
+                      className="border-gray-200 pr-16 transition-colors focus:border-[#30C1BD] focus:ring-[#30C1BD]"
                       {...field}
                     />
-                    {watchConfirmPassword &&
-                      watchPassword === watchConfirmPassword && (
-                        <Check className="absolute right-12 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500" />
-                      )}
+                    {watchConfirmPassword && watchPassword === watchConfirmPassword && (
+                      <Check className="absolute top-1/2 right-12 h-4 w-4 -translate-y-1/2 transform text-green-500" />
+                    )}
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -193,27 +186,27 @@ export function InscriptionForm() {
             control={form.control}
             name="acceptTerms"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+              <FormItem className="flex flex-row items-start space-y-0 space-x-3">
                 <FormControl>
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    className="border-gray-300 data-[state=checked]:bg-[#30C1BD] data-[state=checked]:border-[#30C1BD] mt-1"
+                    className="mt-1 border-gray-300 data-[state=checked]:border-[#30C1BD] data-[state=checked]:bg-[#30C1BD]"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="text-sm text-gray-600 cursor-pointer">
+                  <FormLabel className="cursor-pointer text-sm text-gray-600">
                     J&apos;accepte les{' '}
                     <Link
                       href="/conditions"
-                      className="text-[#30C1BD] hover:text-[#30C1BD]/80 cursor-pointer"
+                      className="cursor-pointer text-[#30C1BD] hover:text-[#30C1BD]/80"
                     >
                       conditions d&apos;utilisation
                     </Link>{' '}
                     et la{' '}
                     <Link
                       href="/confidentialite"
-                      className="text-[#30C1BD] hover:text-[#30C1BD]/80 cursor-pointer"
+                      className="cursor-pointer text-[#30C1BD] hover:text-[#30C1BD]/80"
                     >
                       politique de confidentialité
                     </Link>
@@ -227,7 +220,7 @@ export function InscriptionForm() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-12 bg-[#30C1BD] hover:bg-[#30C1BD]/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer"
+            className="h-12 w-full cursor-pointer bg-[#30C1BD] text-white shadow-lg transition-all duration-200 hover:bg-[#30C1BD]/90 hover:shadow-xl"
           >
             {isLoading ? (
               <>
@@ -241,12 +234,12 @@ export function InscriptionForm() {
         </form>
       </Form>
 
-      <div className="text-center pt-4">
+      <div className="pt-4 text-center">
         <p className="text-sm text-gray-600">
           Vous avez déjà un compte ?{' '}
           <Link
             href="/auth/connexion"
-            className="text-[#30C1BD] hover:text-[#30C1BD]/80 font-medium transition-colors cursor-pointer"
+            className="cursor-pointer font-medium text-[#30C1BD] transition-colors hover:text-[#30C1BD]/80"
           >
             Se connecter
           </Link>

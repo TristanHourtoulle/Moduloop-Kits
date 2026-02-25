@@ -30,8 +30,7 @@ export function ProductCardMeta({
   const isRecentlyUpdated = () => {
     const created = new Date(createdAt)
     const updated = new Date(updatedAt)
-    const diffInHours =
-      (updated.getTime() - created.getTime()) / (1000 * 60 * 60)
+    const diffInHours = (updated.getTime() - created.getTime()) / (1000 * 60 * 60)
     return diffInHours > 1 // Considéré comme modifié si plus d'1h de différence
   }
 
@@ -40,18 +39,16 @@ export function ProductCardMeta({
       {/* Creator Info */}
       {createdBy && createdBy.name && (
         <div className="flex items-center gap-3">
-          <SafeAvatar name={createdBy.name} className="w-8 h-8" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
-              {createdBy.name}
-            </p>
-            <p className="text-xs text-muted-foreground">Créateur</p>
+          <SafeAvatar name={createdBy.name} className="h-8 w-8" />
+          <div className="min-w-0 flex-1">
+            <p className="text-foreground truncate text-sm font-medium">{createdBy.name}</p>
+            <p className="text-muted-foreground text-xs">Créateur</p>
           </div>
         </div>
       )}
 
       {/* Dates and Surface */}
-      <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
+      <div className="text-muted-foreground grid grid-cols-2 gap-3 text-xs">
         {/* Creation Date */}
         <div className="flex items-center gap-2">
           <Calendar className="h-3.5 w-3.5" />

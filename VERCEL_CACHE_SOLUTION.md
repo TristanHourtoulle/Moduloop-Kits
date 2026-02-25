@@ -70,10 +70,7 @@ const response = await fetch(`${baseUrl}/api/kits/${kitId}`, {
 ```typescript
 // En production sur Vercel
 if (process.env.NODE_ENV === 'production') {
-  response.headers.set(
-    'Cache-Control',
-    'no-cache, no-store, must-revalidate, max-age=0',
-  )
+  response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
   response.headers.set('Pragma', 'no-cache')
   response.headers.set('Expires', '0')
 }

@@ -72,9 +72,7 @@ export const environmentalTailwind = {
 } as const
 
 // Helper function to get metric color configuration
-export function getMetricColor(
-  metric: 'co2' | 'ressources' | 'acidification' | 'eutrophisation',
-) {
+export function getMetricColor(metric: 'co2' | 'ressources' | 'acidification' | 'eutrophisation') {
   return {
     colors: environmentalColors[metric],
     tailwind: environmentalTailwind[metric],

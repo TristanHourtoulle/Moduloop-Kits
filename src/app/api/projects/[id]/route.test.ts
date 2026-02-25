@@ -9,8 +9,7 @@ vi.mock('@/lib/utils/project/access', () => ({
   verifyProjectAccess: vi.fn(),
 }))
 vi.mock('@/lib/services/project-history', async () => {
-  const { createProjectHistoryMock } =
-    await import('@/test/mocks/project-history')
+  const { createProjectHistoryMock } = await import('@/test/mocks/project-history')
   return createProjectHistoryMock()
 })
 vi.mock('@/lib/services/project.service', () => ({
@@ -22,11 +21,7 @@ import { prisma } from '@/lib/db'
 import { calculateProjectTotals } from '@/lib/services/project.service'
 import { verifyProjectAccess } from '@/lib/utils/project/access'
 import { GET, PATCH, PUT, DELETE } from './route'
-import {
-  createMockRequest,
-  mockAuthNone,
-  mockAuthAsUser,
-} from '@/test/api-helpers'
+import { createMockRequest, mockAuthNone, mockAuthAsUser } from '@/test/api-helpers'
 
 const mockVerifyAccess = vi.mocked(verifyProjectAccess)
 const mockProjectFindUnique = vi.mocked(prisma.project.findUnique)

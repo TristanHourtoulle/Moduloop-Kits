@@ -7,14 +7,10 @@ export const metadata: Metadata = {
   description: 'Votre boîte à outils de développement modulaire',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
-      <body className={` antialiased min-h-screen bg-gray-50`}>
+      <body className={`min-h-screen bg-gray-50 antialiased`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

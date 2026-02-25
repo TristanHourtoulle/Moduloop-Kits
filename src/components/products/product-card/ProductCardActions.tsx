@@ -22,12 +22,7 @@ export function ProductCardActions({
 }: ProductCardActionsProps) {
   return (
     <RoleGuard requiredRole={UserRole.DEV} showAlert={false}>
-      <div
-        className={cn(
-          'flex justify-end gap-2 pt-4 border-t border-border/50',
-          className,
-        )}
-      >
+      <div className={cn('border-border/50 flex justify-end gap-2 border-t pt-4', className)}>
         <Button
           variant="outline"
           size="sm"
@@ -35,10 +30,10 @@ export function ProductCardActions({
             e.stopPropagation()
             onEdit()
           }}
-          className="h-8 px-3 border-primary/30 bg-white/80 hover:bg-primary/10 hover:text-primary hover:border-primary transition-all"
+          className="border-primary/30 hover:bg-primary/10 hover:text-primary hover:border-primary h-8 bg-white/80 px-3 transition-all"
           title="Modifier le produit"
         >
-          <Edit className="h-3.5 w-3.5 mr-1.5" />
+          <Edit className="mr-1.5 h-3.5 w-3.5" />
           Modifier
         </Button>
         <DeleteConfirmDialog
@@ -53,10 +48,10 @@ export function ProductCardActions({
             onClick={(e) => {
               e.stopPropagation()
             }}
-            className="h-8 px-3 border-red-200 bg-white/80 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all"
+            className="h-8 border-red-200 bg-white/80 px-3 transition-all hover:border-red-300 hover:bg-red-50 hover:text-red-600"
             title="Supprimer le produit"
           >
-            <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
             Supprimer
           </Button>
         </DeleteConfirmDialog>

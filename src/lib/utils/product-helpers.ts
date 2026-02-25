@@ -31,22 +31,12 @@ export function getProductPricing(
     // Priorité: nouveaux champs -> deprecated avec périodes -> legacy
     // Utiliser ?? (nullish coalescing) pour accepter 0 comme valeur valide
     const prixAchat =
-      product.prixAchatAchat ??
-      product.prixAchatAchat1An ??
-      product.prixAchat1An ??
-      null
+      product.prixAchatAchat ?? product.prixAchatAchat1An ?? product.prixAchat1An ?? null
     const prixUnitaire =
-      product.prixUnitaireAchat ??
-      product.prixUnitaireAchat1An ??
-      product.prixUnitaire1An ??
-      null
+      product.prixUnitaireAchat ?? product.prixUnitaireAchat1An ?? product.prixUnitaire1An ?? null
     const prixVente =
-      product.prixVenteAchat ??
-      product.prixVenteAchat1An ??
-      product.prixVente1An ??
-      null
-    const margeCoefficient =
-      product.margeCoefficientAchat ?? product.margeCoefficient ?? null
+      product.prixVenteAchat ?? product.prixVenteAchat1An ?? product.prixVente1An ?? null
+    const margeCoefficient = product.margeCoefficientAchat ?? product.margeCoefficient ?? null
 
     return {
       prixAchat,
@@ -57,8 +47,7 @@ export function getProductPricing(
   }
 
   // MODE LOCATION : avec périodes 1an, 2ans, 3ans
-  const suffix =
-    `${period === '1an' ? '1An' : period === '2ans' ? '2Ans' : '3Ans'}` as const
+  const suffix = `${period === '1an' ? '1An' : period === '2ans' ? '2Ans' : '3Ans'}` as const
   const prixAchatKey = `prixAchatLocation${suffix}` as keyof Product
   const prixUnitaireKey = `prixUnitaireLocation${suffix}` as keyof Product
   const prixVenteKey = `prixVenteLocation${suffix}` as keyof Product
@@ -70,8 +59,7 @@ export function getProductPricing(
 
   // Fallback : si pas de prix spécifique pour 2/3 ans, utiliser le prix 1 an
   const fallback =
-    period !== '1an' &&
-    (rawPrixAchat == null || rawPrixUnitaire == null || rawPrixVente == null)
+    period !== '1an' && (rawPrixAchat == null || rawPrixUnitaire == null || rawPrixVente == null)
       ? getProductPricing(product, mode, '1an')
       : null
 
@@ -108,10 +96,7 @@ export function getProductEnvironmentalImpact(
   let eutrophisation = product[eutrophisationKey] as number | null
 
   // Fallback vers les champs legacy pour la compatibilité
-  if (
-    rechauffementClimatique === null ||
-    rechauffementClimatique === undefined
-  ) {
+  if (rechauffementClimatique === null || rechauffementClimatique === undefined) {
     rechauffementClimatique = product.rechauffementClimatique || null
   }
 
@@ -138,10 +123,7 @@ export function getProductEnvironmentalImpact(
 /**
  * Calcule la marge en pourcentage entre le prix d'achat et le prix unitaire
  */
-export function calculateMarginPercentage(
-  prixAchat: number,
-  prixUnitaire: number,
-): number {
+export function calculateMarginPercentage(prixAchat: number, prixUnitaire: number): number {
   if (prixAchat <= 0) return 0
   return ((prixUnitaire - prixAchat) / prixAchat) * 100
 }
@@ -149,25 +131,15 @@ export function calculateMarginPercentage(
 /**
  * Vérifie si un produit a des données de prix pour un mode donné
  */
-export function hasProductPricingData(
-  product: Product,
-  mode: PurchaseRentalMode,
-): boolean {
+export function hasProductPricingData(product: Product, mode: PurchaseRentalMode): boolean {
   const pricing = getProductPricing(product, mode, '1an')
-  return (
-    pricing.prixAchat !== null &&
-    pricing.prixUnitaire !== null &&
-    pricing.prixVente !== null
-  )
+  return pricing.prixAchat !== null && pricing.prixUnitaire !== null && pricing.prixVente !== null
 }
 
 /**
  * Vérifie si un produit a des données d'impact environnemental pour un mode donné
  */
-export function hasProductEnvironmentalData(
-  product: Product,
-  mode: PurchaseRentalMode,
-): boolean {
+export function hasProductEnvironmentalData(product: Product, mode: PurchaseRentalMode): boolean {
   const impact = getProductEnvironmentalImpact(product, mode)
   return (
     impact.rechauffementClimatique !== null &&
