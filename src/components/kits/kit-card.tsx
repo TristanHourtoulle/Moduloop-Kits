@@ -286,8 +286,8 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
             </div>
             {totalProductsSurface > 0 &&
               (() => {
-                const annualPerM2 = ceilPrice(totalPriceLocation3Ans / totalProductsSurface)
-                const monthlyPerM2 = ceilPrice(annualPerM2 / 12)
+                const monthlyPerM2 = ceilPrice(totalPriceLocation3Ans / totalProductsSurface)
+                const annualPerM2 = ceilPrice(monthlyPerM2 * 12)
                 return (
                   <div className="text-muted-foreground border-border/50 mt-2 border-t pt-2 text-xs">
                     <div>

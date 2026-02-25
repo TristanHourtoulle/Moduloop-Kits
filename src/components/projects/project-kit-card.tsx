@@ -13,7 +13,6 @@ import {
   getProductPricing,
   getProductEnvironmentalImpact,
   formatPrice as formatPriceHelper,
-  annualToMonthly,
   ceilPrice,
 } from '@/lib/utils/product-helpers'
 import { QuantityEditor } from './shared/quantity-editor'
@@ -203,7 +202,7 @@ export function ProjectKitCard({
                               <div className="text-right">
                                 <div className="flex items-baseline gap-1">
                                   <span className="text-lg font-bold text-[#30C1BD]">
-                                    {formatPriceHelper(annualToMonthly(price))}
+                                    {formatPriceHelper(price)}
                                   </span>
                                   <Badge
                                     variant="outline"
@@ -213,7 +212,7 @@ export function ProjectKitCard({
                                   </Badge>
                                 </div>
                                 <div className="text-xs text-gray-400">
-                                  {formatPriceHelper(price)} /an
+                                  {formatPriceHelper(price * 12)} /an
                                 </div>
                               </div>
                             </div>
@@ -221,8 +220,8 @@ export function ProjectKitCard({
                           {kit.surfaceM2 &&
                             kit.surfaceM2 > 0 &&
                             (() => {
-                              const annualPerM2 = ceilPrice(price3ans / kit.surfaceM2)
-                              const monthlyPerM2 = ceilPrice(annualPerM2 / 12)
+                              const monthlyPerM2 = ceilPrice(price3ans / kit.surfaceM2)
+                              const annualPerM2 = ceilPrice(monthlyPerM2 * 12)
                               return (
                                 <div className="mt-2 border-t border-gray-200 pt-2 text-xs text-gray-500">
                                   <div>
@@ -422,15 +421,15 @@ export function ProjectKitCard({
                                   {pricing.prixVente && pricing.prixVente > 0 ? (
                                     <>
                                       <div className="font-bold text-emerald-900">
-                                        {formatPriceHelper(
-                                          annualToMonthly(pricing.prixVente * kitProduct.quantite),
-                                        )}
+                                        {formatPriceHelper(pricing.prixVente * kitProduct.quantite)}
                                         <span className="text-[10px] font-normal text-emerald-600">
                                           /mois
                                         </span>
                                       </div>
                                       <div className="text-[10px] text-gray-400">
-                                        {formatPriceHelper(pricing.prixVente * kitProduct.quantite)}{' '}
+                                        {formatPriceHelper(
+                                          pricing.prixVente * kitProduct.quantite * 12,
+                                        )}{' '}
                                         /an
                                       </div>
                                     </>
