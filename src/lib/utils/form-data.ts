@@ -52,12 +52,3 @@ export function cleanProductDataForForm(data: Record<string, unknown>) {
   return cleanedData;
 }
 
-/**
- * Prépare les données pour l'envoi à l'API
- * Convertit undefined en null pour certains champs si nécessaire
- */
-export function prepareProductDataForAPI(data: Record<string, unknown>) {
-  // Pour l'instant, on laisse tel quel
-  // L'API gère déjà la conversion undefined -> null
-  return data;
-}
