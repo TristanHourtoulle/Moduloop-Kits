@@ -46,3 +46,71 @@ jobs:
 
       - name: Test with coverage
         run: pnpm test:coverage
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: moduloop_kits_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd="pg_isready -U test -d moduloop_kits_test"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm db:generate
+
+      - name: Push schema to test DB
+        run: pnpm db:push --skip-generate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5433/moduloop_kits_test
+          DIRECT_URL: postgresql://test:test@localhost:5433/moduloop_kits_test
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
+        env:
+          CI: true
+          DATABASE_URL: postgresql://test:test@localhost:5433/moduloop_kits_test
+          DIRECT_URL: postgresql://test:test@localhost:5433/moduloop_kits_test
+          AUTH_SECRET: e2e-test-secret-not-for-production
+          NEXTAUTH_SECRET: e2e-test-nextauth-secret
+          NEXT_PUBLIC_APP_URL: http://localhost:3001
+          GOOGLE_CLIENT_ID: fake-google-client-id
+          GOOGLE_CLIENT_SECRET: fake-google-client-secret
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 14

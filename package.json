@@ -28,6 +28,12 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report e2e/playwright-report",
+    "test:e2e:db:up": "docker compose -f docker-compose.test.yml up -d --wait",
+    "test:e2e:db:down": "docker compose -f docker-compose.test.yml down -v",
     "prepare": "husky"
   },
   "dependencies": {
@@ -77,7 +83,8 @@
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "playwright": "^1.55.1",
+    "@playwright/test": "^1.58.2",
+    "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
