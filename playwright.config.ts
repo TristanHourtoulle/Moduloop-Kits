@@ -24,7 +24,11 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: process.env.CI
-    ? [['html', { outputFolder: 'e2e/playwright-report' }], ['github']]
+    ? [
+        ['html', { outputFolder: 'e2e/playwright-report' }],
+        ['json', { outputFile: 'e2e/playwright-report/results.json' }],
+        ['github'],
+      ]
     : [['html', { outputFolder: 'e2e/playwright-report' }]],
 
   globalSetup: path.resolve('./e2e/global-setup.ts'),
