@@ -68,7 +68,6 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
           !window.location.hostname.includes("127.0.0.1");
 
         if (isProduction) {
-          console.log("[ProjectEditForm] Waiting for cache invalidation to propagate...");
           await new Promise((resolve) => setTimeout(resolve, 300));
         }
 

@@ -63,7 +63,6 @@ export function InscriptionForm() {
       
       // Vérifier si l'inscription a réussi
       if (result?.error) {
-        console.log("🔴 Sign-up error:", result.error);
         const errorMessage = getSpecificAuthError(result.error, 'signup');
         setError(errorMessage);
         return;
@@ -71,7 +70,6 @@ export function InscriptionForm() {
       
       router.push("/dashboard");
     } catch (err) {
-      console.log("🔴 Caught error:", err);
       const errorMessage = getSpecificAuthError(err, 'signup');
       setError(errorMessage);
     } finally {

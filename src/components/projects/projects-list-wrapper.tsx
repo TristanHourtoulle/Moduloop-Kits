@@ -16,20 +16,9 @@ function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
   const searchParams = useSearchParams();
   const [projects, setProjects] = useState<Project[]>(initialProjects);
 
-  // Update projects when initialProjects prop changes (server-side data refresh)
   useEffect(() => {
-    console.log("[ProjectsListWrapper] Initial projects updated:", initialProjects.length);
     setProjects(initialProjects);
   }, [initialProjects]);
-
-  // Detect when returning from edit page with updated param
-  useEffect(() => {
-    const updatedParam = searchParams.get("updated");
-    if (updatedParam) {
-      console.log("[ProjectsListWrapper] Detected update param, data already fresh from server");
-      // Data is already fresh from server-side fetch, no need to refetch
-    }
-  }, [searchParams]);
 
   const handleDelete = useCallback(
     async (projectId: string) => {

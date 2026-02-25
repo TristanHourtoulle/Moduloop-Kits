@@ -25,20 +25,9 @@ function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Update products when initialProducts prop changes (server-side data refresh)
   useEffect(() => {
-    console.log("[ProductsListWrapper] Initial products updated:", initialProducts.length);
     setProducts(initialProducts);
   }, [initialProducts]);
-
-  // Detect when returning from edit page with updated param
-  useEffect(() => {
-    const updatedParam = searchParams.get("updated");
-    if (updatedParam) {
-      console.log("[ProductsListWrapper] Detected update param, data already fresh from server");
-      // Data is already fresh from server-side fetch, no need to refetch
-    }
-  }, [searchParams]);
 
   const handleDelete = useCallback(
     async (productId: string) => {

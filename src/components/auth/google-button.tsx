@@ -18,12 +18,9 @@ export function GoogleButton({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
-    console.log("🔵 Google sign-in clicked");
     setIsLoading(true);
 
     try {
-      console.log("🔵 Calling signIn.social...");
-      // signIn.social fait une redirection, donc on n'attend pas de résultat
       signIn.social({
         provider: "google",
         callbackURL: "/dashboard",

@@ -24,13 +24,6 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  console.log("[KitForm] Component mounted/updated:", {
-    kitId,
-    hasInitialData: !!initialData,
-    initialDataName: initialData?.nom,
-    productsCount: initialData?.products?.length || 0,
-  });
-
   const {
     handleSubmit,
     formState: { errors },
@@ -42,15 +35,9 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
     },
   });
 
-  // Réinitialiser le formulaire quand les données changent
+  // Reinitialize form when data changes
   useEffect(() => {
     if (initialData) {
-      console.log("[KitForm] Resetting form with initial data:", {
-        nom: initialData.nom,
-        style: initialData.style,
-        productsCount: initialData.products?.length || 0,
-      });
-
       reset({
         nom: initialData.nom || "",
         style: initialData.style || "",
@@ -60,7 +47,7 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kitId]); // Reset when kitId changes
+  }, [kitId]);
 
   const onSubmit = async (data: KitFormData) => {
     if (!session?.user) {
@@ -68,18 +55,10 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
       return;
     }
 
-    console.log("[KitForm] Submitting form:", {
-      kitId,
-      action: kitId ? "UPDATE" : "CREATE",
-      nom: data.nom,
-      productsCount: data.products.length,
-    });
-
     setIsLoading(true);
     setError(null);
 
     try {
-      // Regrouper les produits identiques avant soumission
       const groupedProducts = data.products.reduce(
         (acc, product) => {
           const existingProduct = acc.find(
@@ -94,11 +73,6 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
         },
         [] as typeof data.products,
       );
-
-      console.log("[KitForm] Products grouped:", {
-        original: data.products.length,
-        grouped: groupedProducts.length,
-      });
 
       const url = kitId ? `/api/kits/${kitId}` : "/api/kits";
       const method = kitId ? "PUT" : "POST";
@@ -119,28 +93,17 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
         throw new Error(errorData.error || "Erreur lors de la sauvegarde");
       }
 
-      const savedKit = await response.json();
-      console.log("[KitForm] Kit saved successfully:", {
-        kitId: savedKit.id,
-        nom: savedKit.nom,
-      });
-
       // Add delay to ensure cache invalidation completes on Vercel
-      // Check if we're on Vercel by looking for Vercel-specific environment variable
       const isProduction =
         typeof window !== "undefined" &&
         window.location.hostname !== "localhost" &&
         !window.location.hostname.includes("127.0.0.1");
 
       if (isProduction) {
-        console.log("[KitForm] Waiting for cache invalidation to propagate...");
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
-      // Redirect to kits list with timestamp to trigger refetch
-      const redirectUrl = "/kits?updated=" + Date.now();
-      console.log("[KitForm] Redirecting to:", redirectUrl);
-      router.push(redirectUrl);
+      router.push("/kits?updated=" + Date.now());
     } catch (err) {
       console.error("[KitForm] Error submitting form:", err);
       setError(

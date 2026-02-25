@@ -45,7 +45,6 @@ export async function GET(
       );
       response.headers.set("Pragma", "no-cache");
       response.headers.set("Expires", "0");
-      console.log("[API] Serving product with no-cache headers for Vercel:", id);
     } else {
       // In development, use normal cache headers
       response.headers.set(

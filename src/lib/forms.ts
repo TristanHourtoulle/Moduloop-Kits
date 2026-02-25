@@ -22,14 +22,6 @@ export function useZodForm<T extends z.ZodType<any>>(
     return error?.message;
   };
 
-  // Log des erreurs pour le debug
-  if (process.env.NODE_ENV === "development") {
-    const errors = form.formState.errors;
-    if (Object.keys(errors).length > 0) {
-      console.log("[useZodForm] Form errors:", errors);
-    }
-  }
-
   return {
     ...form,
     getFieldError,

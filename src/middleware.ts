@@ -44,22 +44,18 @@ export default async function middleware(request: NextRequest) {
     if (sessionResponse.ok) {
       const sessionData = await sessionResponse.json();
       isLoggedIn = !!sessionData?.user;
-      console.log(`🔵 Middleware: ${pathname} - User logged in: ${isLoggedIn}`);
     }
 
     // If user is not logged in and trying to access protected route
     if (!isLoggedIn && !isPublicRoute) {
-      console.log(`🔴 Redirecting to login: ${pathname}`);
       return NextResponse.redirect(new URL("/auth/connexion", request.url));
     }
 
     // If user is logged in and trying to access auth pages, redirect to dashboard
     if (isLoggedIn && isPublicRoute && pathname !== "/") {
-      console.log(`🔵 Redirecting to dashboard from: ${pathname}`);
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
-    console.log(`✅ Allowing access to: ${pathname}`);
     return NextResponse.next();
   } catch (error) {
     console.error("Middleware error:", error);

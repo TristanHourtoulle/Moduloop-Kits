@@ -52,14 +52,6 @@ export function DashboardHeader() {
   // Use user from UserProvider if available, otherwise fallback to session
   const displayUser = user || session?.user;
 
-  // Debug: Log user data
-  React.useEffect(() => {
-    if (session?.user) {
-      console.log("🔵 User data:", session.user);
-      console.log("🔵 User image:", session.user.image);
-    }
-  }, [session]);
-
   const handleSignOut = async () => {
     try {
       await signOut();
