@@ -85,12 +85,18 @@ export async function requireRole(request: Request, roles: UserRole[]): Promise<
 /**
  * Centralised error handler for API route catch blocks.
  * Handles ZodError validation failures and generic errors with a consistent
- * JSON shape: `{ error: string, details?: unknown }`.
+ * JSON shape: `{ error: { code: string, message: string, details?: unknown } }`.
  */
 export function handleApiError(error: unknown): NextResponse {
   if (error instanceof ZodError) {
     return NextResponse.json(
-      { error: { code: 'VAL_INVALID_INPUT', message: 'Validation failed', details: error.issues } },
+      {
+        error: {
+          code: 'VAL_INVALID_INPUT',
+          message: 'Validation failed',
+          details: error.issues,
+        },
+      },
       { status: 400 },
     )
   }

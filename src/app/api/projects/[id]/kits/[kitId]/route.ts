@@ -5,6 +5,7 @@ import {
   createKitRemovedHistory,
 } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
+import { updateProjectKitSchema } from '@/lib/schemas/project'
 import { logger } from '@/lib/logger'
 
 // PATCH - Mettre à jour la quantité d'un kit dans un projet
@@ -17,14 +18,8 @@ export async function PATCH(
     if (auth.response) return auth.response
 
     const { id, kitId } = await params
-    const { quantite } = await request.json()
-
-    if (!quantite || quantite < 1) {
-      return NextResponse.json(
-        { error: { code: 'VAL_INVALID_INPUT', message: 'Quantity must be greater than 0' } },
-        { status: 400 },
-      )
-    }
+    const body = await request.json()
+    const { quantite } = updateProjectKitSchema.parse(body)
 
     // Vérifier que le projet appartient à l'utilisateur
     const project = await prisma.project.findFirst({

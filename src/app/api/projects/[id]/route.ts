@@ -10,7 +10,7 @@ import {
   createProjectDeletedHistory,
 } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
-import { updateProjectSchema } from '@/lib/schemas/project'
+import { updateProjectSchema, replaceProjectSchema } from '@/lib/schemas/project'
 import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -149,7 +149,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const { id } = await params
     const body = await request.json()
-    const { nom, description, status } = updateProjectSchema.parse(body)
+    const { nom, description, status } = replaceProjectSchema.parse(body)
 
     // Get existing project for history
     const existingProject = await prisma.project.findFirst({
@@ -224,7 +224,7 @@ export async function DELETE(
       },
     })
 
-    return NextResponse.json({ message: 'Projet supprimé avec succès' })
+    return new NextResponse(null, { status: 204 })
   } catch (error) {
     return handleApiError(error)
   }

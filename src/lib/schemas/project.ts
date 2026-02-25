@@ -5,33 +5,48 @@ const projectStatusEnum = z.enum(['ACTIF', 'TERMINE', 'EN_PAUSE', 'ARCHIVE'])
 export const createProjectSchema = z.object({
   nom: z
     .string()
-    .min(1, 'Le nom du projet est requis')
-    .max(200, 'Le nom ne peut pas dépasser 200 caractères'),
-  description: z.string().max(2000, 'La description est trop longue').optional().nullable(),
+    .min(1, 'Project name is required')
+    .max(200, 'Project name must not exceed 200 characters'),
+  description: z.string().max(2000, 'Description is too long').optional().nullable(),
+  status: projectStatusEnum.optional(),
+})
+
+export const replaceProjectSchema = z.object({
+  nom: z
+    .string()
+    .min(1, 'Project name is required')
+    .max(200, 'Project name must not exceed 200 characters'),
+  description: z.string().max(2000, 'Description is too long').optional().nullable(),
   status: projectStatusEnum.optional(),
 })
 
 export const updateProjectSchema = z.object({
   nom: z
     .string()
-    .min(1, 'Le nom du projet est requis')
-    .max(200, 'Le nom ne peut pas dépasser 200 caractères')
+    .min(1, 'Project name is required')
+    .max(200, 'Project name must not exceed 200 characters')
     .optional(),
-  description: z.string().max(2000, 'La description est trop longue').optional().nullable(),
+  description: z.string().max(2000, 'Description is too long').optional().nullable(),
   status: projectStatusEnum.optional(),
-  surfaceManual: z.number().min(0, 'La surface doit être positive').nullable().optional(),
+  surfaceManual: z.number().min(0, 'Surface must be positive').nullable().optional(),
   surfaceOverride: z.boolean().optional(),
 })
 
+export const updateProjectKitSchema = z.object({
+  quantite: z.coerce.number().int().min(1, 'Quantity must be at least 1'),
+})
+
 const projectKitItemSchema = z.object({
-  kitId: z.string().min(1, "L'identifiant du kit est requis"),
-  quantite: z.coerce.number().int().min(1, 'La quantité doit être au moins 1'),
+  kitId: z.string().min(1, 'Kit identifier is required'),
+  quantite: z.coerce.number().int().min(1, 'Quantity must be at least 1'),
 })
 
 export const projectKitsSchema = z.object({
-  kits: z.array(projectKitItemSchema).min(1, 'Au moins un kit est requis'),
+  kits: z.array(projectKitItemSchema).min(1, 'At least one kit is required'),
 })
 
 export type CreateProjectData = z.infer<typeof createProjectSchema>
+export type ReplaceProjectData = z.infer<typeof replaceProjectSchema>
 export type UpdateProjectData = z.infer<typeof updateProjectSchema>
+export type UpdateProjectKitData = z.infer<typeof updateProjectKitSchema>
 export type ProjectKitsData = z.infer<typeof projectKitsSchema>
