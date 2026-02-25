@@ -6,6 +6,11 @@
     "email": "tristan.hourtoulle@epitech.eu"
   },
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=10.0.0"
+  },
   "packageManager": "pnpm@10.26.0",
   "scripts": {
     "dev": "next dev",
