@@ -31,12 +31,12 @@ test.describe('Project CRUD', () => {
     await expect(page.getByText(projectName)).toBeVisible({ timeout: 10_000 })
   })
 
-  test('should add a kit to a project', async ({ page }) => {
+  test('should display project detail page', async ({ page }) => {
     // Create a project via API
     const projectRes = await page.request.post('/api/projects', {
       data: {
-        nom: `Project for Kit ${Date.now()}`,
-        description: 'Project to test adding kits',
+        nom: `Project Detail ${Date.now()}`,
+        description: 'Project to test detail page',
       },
     })
     expect(projectRes.ok()).toBeTruthy()

@@ -1,12 +1,13 @@
 import { defineConfig, devices } from '@playwright/test'
 import path from 'node:path'
+import { TEST_DATABASE_URL } from './e2e/helpers/db'
 
 // Always use port 3001 for E2E tests to avoid conflict with dev server
 const BASE_URL = 'http://localhost:3001'
 
 const TEST_ENV = {
-  DATABASE_URL: 'postgresql://test:test@localhost:5433/moduloop_kits_test',
-  DIRECT_URL: 'postgresql://test:test@localhost:5433/moduloop_kits_test',
+  DATABASE_URL: TEST_DATABASE_URL,
+  DIRECT_URL: TEST_DATABASE_URL,
   AUTH_SECRET: 'e2e-test-secret-not-for-production',
   NEXTAUTH_SECRET: 'e2e-test-nextauth-secret',
   NEXT_PUBLIC_APP_URL: BASE_URL,

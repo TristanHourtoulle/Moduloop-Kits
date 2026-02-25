@@ -25,6 +25,16 @@ const TEST_USERS: TestUser[] = [
 
 export { TEST_USERS }
 
+/**
+ * Registers a single user via the Better Auth sign-up API.
+ * Returns false silently when the user already exists (idempotent).
+ *
+ * @param request - Playwright API request context bound to the test server.
+ * @param email - User email address.
+ * @param password - User password.
+ * @param name - User display name.
+ * @returns `true` if the user was created, `false` if it already existed.
+ */
 async function signUpUser(
   request: APIRequestContext,
   email: string,
@@ -51,6 +61,12 @@ async function signUpUser(
   throw new Error(`Failed to sign up ${email}: ${status} ${response.statusText()}`)
 }
 
+/**
+ * Seeds all E2E test users (admin + regular) via the sign-up API,
+ * then promotes non-USER roles directly in the database.
+ *
+ * @param request - Playwright API request context bound to the test server.
+ */
 export async function seedTestUsers(request: APIRequestContext): Promise<void> {
   const prisma = createTestPrismaClient()
 
@@ -71,6 +87,10 @@ export async function seedTestUsers(request: APIRequestContext): Promise<void> {
   }
 }
 
+/**
+ * Deletes all entity data (projects, kits, products) from the test database.
+ * Respects foreign-key ordering. Does not delete user accounts.
+ */
 export async function cleanEntityData(): Promise<void> {
   const prisma = createTestPrismaClient()
 
