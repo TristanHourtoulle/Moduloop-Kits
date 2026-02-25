@@ -123,7 +123,9 @@ describe('recordProjectHistory', () => {
       }),
     ).resolves.toBeUndefined()
 
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to record project history:', expect.any(Error))
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to record project history'),
+    )
     consoleSpy.mockRestore()
   })
 })

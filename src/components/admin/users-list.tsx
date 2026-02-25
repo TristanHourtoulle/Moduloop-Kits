@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/dialog'
 import { User, Calendar, Package, FolderOpen, Users, Settings } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { logger } from '@/lib/logger'
 import { UserRole } from '@/lib/types/user'
 
 interface UserStats {
@@ -82,7 +83,7 @@ export function UsersList({ users, onRoleUpdate }: UsersListProps) {
       setIsRoleDialogOpen(false)
       setSelectedUser(null)
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du rôle:', error)
+      logger.error('Error updating user role', { error })
     } finally {
       setIsUpdating(false)
     }

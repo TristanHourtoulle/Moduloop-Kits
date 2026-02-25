@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { signIn } from '@/lib/auth-client'
 import { getSpecificAuthError } from '@/lib/auth/error-messages'
+import { logger } from '@/lib/logger'
 
 interface GoogleButtonProps {
   text?: string
@@ -24,7 +25,7 @@ export function GoogleButton({ text = 'Continuer avec Google', onError }: Google
       })
       // Ne pas mettre setIsLoading(false) ici car la page va être redirigée
     } catch (err) {
-      console.error('🔴 Google sign-in error:', err)
+      logger.error('Google sign-in error', { error: err })
       const errorMessage = getSpecificAuthError(err, 'google')
       onError?.(errorMessage)
       setIsLoading(false)

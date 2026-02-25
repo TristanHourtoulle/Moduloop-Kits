@@ -5,6 +5,7 @@ import { UsersList } from '@/components/admin/users-list'
 import { RoleGuard } from '@/components/auth/role-guard'
 import { UserRole } from '@/lib/types/user'
 import { useDialog } from '@/components/providers/dialog-provider'
+import { logger } from '@/lib/logger'
 import { Card, CardContent } from '@/components/ui/card'
 import { Shield, Loader2 } from 'lucide-react'
 
@@ -45,7 +46,7 @@ export default function AdminPage() {
       const usersData = await response.json()
       setUsers(usersData)
     } catch (error) {
-      console.error('Erreur lors du chargement des utilisateurs:', error)
+      logger.error('Error loading users', { error })
       await showError(
         'Erreur',
         error instanceof Error
@@ -79,7 +80,7 @@ export default function AdminPage() {
 
       await showSuccess('Succès', "Le rôle de l'utilisateur a été mis à jour avec succès")
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du rôle:', error)
+      logger.error('Error updating user role', { error })
       await showError(
         'Erreur',
         error instanceof Error

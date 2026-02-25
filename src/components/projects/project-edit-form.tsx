@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, Save, Trash2, Edit3, Package, Leaf, Euro } from 'lucide-react'
 import Link from 'next/link'
+import { logger } from '@/lib/logger'
 import { type Project } from '@/lib/types/project'
 
 type ProjectEditData = Pick<Project, 'id' | 'nom' | 'status'> &
@@ -71,7 +72,7 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
         throw new Error('Erreur lors de la modification du projet')
       }
     } catch (error) {
-      console.error('Erreur:', error)
+      logger.error('Error updating project', { error })
     } finally {
       setIsLoading(false)
     }

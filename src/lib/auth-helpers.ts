@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
+import { logger } from '@/lib/logger'
 
 /**
  * Get the current user session in a Server Component
@@ -13,7 +14,7 @@ export async function getUserSession() {
     })
     return session
   } catch (error) {
-    console.error('Error getting user session:', error)
+    logger.error('Error getting user session', { error })
     return null
   }
 }

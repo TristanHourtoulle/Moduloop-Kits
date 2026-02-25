@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -55,7 +56,7 @@ export default async function middleware(request: NextRequest) {
 
     return NextResponse.next()
   } catch (error) {
-    console.error('Middleware error:', error)
+    logger.error('Middleware error', { error })
     // If session check fails, allow access to public routes only
     if (!isPublicRoute) {
       return NextResponse.redirect(new URL('/auth/connexion', request.url))

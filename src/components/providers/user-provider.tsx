@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useSession } from '@/lib/auth-client'
+import { logger } from '@/lib/logger'
 
 interface UserData {
   id: string
@@ -52,7 +53,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             })
           }
         } catch (error) {
-          console.error('Error fetching user profile:', error)
+          logger.error('Error fetching user profile', { error })
           // Fallback to session data if error occurs
           setUser({
             id: session.user.id,
@@ -92,7 +93,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch (error) {
-      console.error('Error refreshing user:', error)
+      logger.error('Error refreshing user', { error })
     }
   }
 

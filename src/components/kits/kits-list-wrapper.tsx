@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { KitsGridClient } from '@/components/kits/kits-grid-client'
 import { type Kit } from '@/lib/types/project'
+import { logger } from '@/lib/logger'
 
 interface KitsListWrapperProps {
   initialKits: Kit[]
@@ -30,7 +31,7 @@ export function KitsListWrapper({ initialKits }: KitsListWrapperProps) {
         const updatedKits = kits.filter((k) => k.id !== kitId)
         setKits(updatedKits)
       } catch (err) {
-        console.error('[KitsListWrapper] Error deleting kit:', err)
+        logger.error('[KitsListWrapper] Error deleting kit', { error: err })
       }
     },
     [kits],

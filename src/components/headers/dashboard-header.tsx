@@ -28,6 +28,7 @@ import {
   Shield,
 } from 'lucide-react'
 import { useState } from 'react'
+import { logger } from '@/lib/logger'
 import { useSession, signOut } from '@/lib/auth-client'
 import { usePathname, useRouter } from 'next/navigation'
 import { useUser } from '@/components/providers/user-provider'
@@ -58,7 +59,7 @@ export function DashboardHeader() {
       router.push('/auth/connexion')
       router.refresh()
     } catch (error) {
-      console.error('Sign out error:', error)
+      logger.error('Sign out error', { error })
     }
   }
 

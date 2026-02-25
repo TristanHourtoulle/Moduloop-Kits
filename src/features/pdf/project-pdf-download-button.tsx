@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import { Download, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { logger } from '@/lib/logger'
 import type { Project } from '@/lib/types/project'
 
 interface ProjectPdfDownloadButtonProps {
@@ -29,7 +30,7 @@ export function ProjectPdfDownloadButton({ project }: ProjectPdfDownloadButtonPr
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('PDF generation failed:', error)
+      logger.error('PDF generation failed', { error })
     } finally {
       setIsGenerating(false)
     }

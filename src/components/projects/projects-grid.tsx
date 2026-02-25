@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FolderOpen } from 'lucide-react'
 import { CreateProjectButton } from './create-project-button'
 import { useSearchParams } from 'next/navigation'
+import { logger } from '@/lib/logger'
 
 interface ProjectsGridProps {
   projects?: Project[]
@@ -36,7 +37,7 @@ export function ProjectsGrid({ projects, selectedUserId }: ProjectsGridProps) {
         setLocalProjects(data)
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des projets:', error)
+      logger.error('Error loading projects', { error })
     } finally {
       setIsLoading(false)
     }

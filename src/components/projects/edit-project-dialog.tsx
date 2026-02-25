@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { X, Edit3, Loader2 } from 'lucide-react'
+import { logger } from '@/lib/logger'
 import { Project, ProjectStatus } from '@/lib/types/project'
 
 interface EditProjectDialogProps {
@@ -88,7 +89,7 @@ export function EditProjectDialog({
       onSuccess('Le projet a été mis à jour avec succès')
       onClose()
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du projet:', error)
+      logger.error('Error updating project', { error })
       onError('Une erreur est survenue lors de la mise à jour du projet')
     } finally {
       setIsLoading(false)

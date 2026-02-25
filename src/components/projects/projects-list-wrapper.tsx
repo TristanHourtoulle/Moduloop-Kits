@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { FolderOpen } from 'lucide-react'
 import { type Project } from '@/lib/types/project'
+import { logger } from '@/lib/logger'
 
 interface ProjectsListWrapperProps {
   initialProjects: Project[]
@@ -33,7 +34,7 @@ function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
         const updatedProjects = projects.filter((p) => p.id !== projectId)
         setProjects(updatedProjects)
       } catch (err) {
-        console.error('[ProjectsListWrapper] Error deleting project:', err)
+        logger.error('[ProjectsListWrapper] Error deleting project', { error: err })
       }
     },
     [projects],
