@@ -266,19 +266,19 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
             </div>
             <div className="grid grid-cols-3 gap-2">
               <div className="from-primary/5 to-primary/10 border-primary/20 rounded-lg border bg-gradient-to-br p-3">
-                <div className="text-primary/70 mb-1 text-xs font-medium">1 an</div>
+                <div className="text-primary/70 mb-1 text-xs font-medium">1 an /mois</div>
                 <div className="text-primary text-sm font-bold">
                   {formatPrice(totalPriceLocation1An)}
                 </div>
               </div>
               <div className="from-primary/5 to-primary/10 border-primary/20 rounded-lg border bg-gradient-to-br p-3">
-                <div className="text-primary/70 mb-1 text-xs font-medium">2 ans</div>
+                <div className="text-primary/70 mb-1 text-xs font-medium">2 ans /mois</div>
                 <div className="text-primary text-sm font-bold">
                   {formatPrice(totalPriceLocation2Ans)}
                 </div>
               </div>
               <div className="from-primary/5 to-primary/10 border-primary/20 rounded-lg border bg-gradient-to-br p-3">
-                <div className="text-primary/70 mb-1 text-xs font-medium">3 ans</div>
+                <div className="text-primary/70 mb-1 text-xs font-medium">3 ans /mois</div>
                 <div className="text-primary text-sm font-bold">
                   {formatPrice(totalPriceLocation3Ans)}
                 </div>

@@ -353,7 +353,9 @@ export function KitProductsSection({ control, errors, onError }: KitProductsSect
                                     <div className="border-primary/20 space-y-0.5 border-l-2 pl-4">
                                       <div className="flex items-center gap-1 text-xs">
                                         <Home className="text-primary h-3 w-3" />
-                                        <span className="text-muted-foreground">Loc. 1an:</span>
+                                        <span className="text-muted-foreground">
+                                          Loc. 1an /mois:
+                                        </span>
                                         {pricingLocation1An.prixVente &&
                                         pricingLocation1An.prixVente > 0 ? (
                                           <span className="text-primary font-semibold">
@@ -370,7 +372,9 @@ export function KitProductsSection({ control, errors, onError }: KitProductsSect
 
                                       <div className="flex items-center gap-1 text-xs">
                                         <Home className="text-primary h-3 w-3" />
-                                        <span className="text-muted-foreground">Loc. 2ans:</span>
+                                        <span className="text-muted-foreground">
+                                          Loc. 2ans /mois:
+                                        </span>
                                         {pricingLocation2Ans.prixVente &&
                                         pricingLocation2Ans.prixVente > 0 ? (
                                           <span className="text-primary font-semibold">
@@ -387,7 +391,9 @@ export function KitProductsSection({ control, errors, onError }: KitProductsSect
 
                                       <div className="flex items-center gap-1 text-xs">
                                         <Home className="text-primary h-3 w-3" />
-                                        <span className="text-muted-foreground">Loc. 3ans:</span>
+                                        <span className="text-muted-foreground">
+                                          Loc. 3ans /mois:
+                                        </span>
                                         {pricingLocation3Ans.prixVente &&
                                         pricingLocation3Ans.prixVente > 0 ? (
                                           <span className="text-primary font-semibold">
@@ -515,7 +521,9 @@ export function KitProductsSection({ control, errors, onError }: KitProductsSect
                   <div className="border-primary/10 rounded-lg border bg-white/60 p-4">
                     <div className="grid grid-cols-3 gap-4">
                       <div className="text-center">
-                        <p className="text-muted-foreground mb-1 text-xs font-medium">Prix 1 an</p>
+                        <p className="text-muted-foreground mb-1 text-xs font-medium">
+                          Prix 1 an /mois
+                        </p>
                         <p className="text-primary text-xl font-bold">
                           {formatPrice(totals.totalLocation1An)}
                         </p>
@@ -523,7 +531,7 @@ export function KitProductsSection({ control, errors, onError }: KitProductsSect
                       {totals.totalLocation2Ans > 0 && (
                         <div className="text-center">
                           <p className="text-muted-foreground mb-1 text-xs font-medium">
-                            Prix 2 ans
+                            Prix 2 ans /mois
                           </p>
                           <p className="text-primary text-xl font-bold">
                             {formatPrice(totals.totalLocation2Ans)}
@@ -533,7 +541,7 @@ export function KitProductsSection({ control, errors, onError }: KitProductsSect
                       {totals.totalLocation3Ans > 0 && (
                         <div className="text-center">
                           <p className="text-muted-foreground mb-1 text-xs font-medium">
-                            Prix 3 ans
+                            Prix 3 ans /mois
                           </p>
                           <p className="text-primary text-xl font-bold">
                             {formatPrice(totals.totalLocation3Ans)}

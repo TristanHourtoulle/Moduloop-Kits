@@ -46,13 +46,13 @@ export function ProductCardPricing({ product, className }: ProductCardPricingPro
       <div>
         <div className="mb-3 flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-emerald-500" />
-          <span className="text-foreground text-sm font-medium">Prix de location</span>
+          <span className="text-foreground text-sm font-medium">Prix de location (mensuel)</span>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
           {/* 1 an */}
           <div className="rounded-lg border border-emerald-200/50 bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-3">
-            <div className="mb-1 text-xs font-medium text-emerald-700">1 an</div>
+            <div className="mb-1 text-xs font-medium text-emerald-700">1 an /mois</div>
             <div className="text-sm font-semibold text-emerald-800">
               {rental1Year.prixVente && rental1Year.prixVente > 0 ? (
                 formatPrice(rental1Year.prixVente)
@@ -64,7 +64,7 @@ export function ProductCardPricing({ product, className }: ProductCardPricingPro
 
           {/* 2 ans */}
           <div className="rounded-lg border border-emerald-200/50 bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-3">
-            <div className="mb-1 text-xs font-medium text-emerald-700">2 ans</div>
+            <div className="mb-1 text-xs font-medium text-emerald-700">2 ans /mois</div>
             <div className="text-sm font-semibold text-emerald-800">
               {rental2Years.prixVente && rental2Years.prixVente > 0 ? (
                 formatPrice(rental2Years.prixVente)
@@ -76,7 +76,7 @@ export function ProductCardPricing({ product, className }: ProductCardPricingPro
 
           {/* 3 ans */}
           <div className="rounded-lg border border-emerald-200/50 bg-gradient-to-br from-emerald-50 to-emerald-100/50 p-3">
-            <div className="mb-1 text-xs font-medium text-emerald-700">3 ans</div>
+            <div className="mb-1 text-xs font-medium text-emerald-700">3 ans /mois</div>
             <div className="text-sm font-semibold text-emerald-800">
               {rental3Years.prixVente && rental3Years.prixVente > 0 ? (
                 formatPrice(rental3Years.prixVente)
