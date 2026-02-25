@@ -49,10 +49,11 @@ jobs:
         run: pnpm type-check
 
       - name: Test with coverage
+        id: test
         run: pnpm test:coverage
 
       - name: Coverage report
-        if: always()
+        if: always() && steps.test.outcome != 'skipped'
         uses: davelosert/vitest-coverage-report-action@v2
         with:
           json-summary-path: coverage/coverage-summary.json
@@ -134,5 +135,5 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
           script: |
-            const script = require('./.github/scripts/e2e-report.js')
+            const script = require('./.github/scripts/e2e-report.cjs')
             await script({ github, context })

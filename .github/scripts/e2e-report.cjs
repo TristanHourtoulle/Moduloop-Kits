@@ -57,9 +57,7 @@ module.exports = async ({ github, context }) => {
       })(suite)
     }
 
-    const duration = report.stats?.duration
-      ? `${Math.round(report.stats.duration / 1000)}s`
-      : 'N/A'
+    const duration = report.stats?.duration ? `${Math.round(report.stats.duration / 1000)}s` : 'N/A'
 
     const icon = totalFailed > 0 ? '❌' : '✅'
     const summary =
