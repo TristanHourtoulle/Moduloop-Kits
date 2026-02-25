@@ -27,7 +27,7 @@ import { signUp } from "@/lib/auth-client";
 import {
   inscriptionSchema,
   type InscriptionFormData,
-} from "@/lib/validations/auth";
+} from "@/lib/schemas/auth";
 import { getSpecificAuthError } from "@/lib/auth/error-messages";
 
 export function InscriptionForm() {
