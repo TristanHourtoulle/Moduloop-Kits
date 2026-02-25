@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Button } from '@/components/ui/button'
 import {
   Euro,
   Package,
@@ -16,28 +16,28 @@ import {
   BarChart3,
   ShoppingCart,
   Home,
-} from 'lucide-react';
-import type { Project } from '@/lib/types/project';
-import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product';
-import { LocationPriceDisplay } from './location-price-display';
+} from 'lucide-react'
+import type { Project } from '@/lib/types/project'
+import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product'
+import { LocationPriceDisplay } from './location-price-display'
 import {
   formatPrice as formatPriceHelper,
   annualToMonthly,
-} from '@/lib/utils/product-helpers';
+} from '@/lib/utils/product-helpers'
 import {
   calculateProjectPurchaseCosts,
   calculateProjectRentalCosts,
   getProjectKitBreakdown,
-} from '@/lib/utils/project/calculations';
+} from '@/lib/utils/project/calculations'
 
 const PERIOD_LABELS: Record<ProductPeriod, string> = {
   '1an': '1 an',
   '2ans': '2 ans',
   '3ans': '3 ans',
-};
+}
 
 interface PricingDetailedAnalysisProps {
-  project: Project;
+  project: Project
 }
 
 /**
@@ -47,23 +47,30 @@ interface PricingDetailedAnalysisProps {
  * @param props - The component props containing the project data
  * @returns The rendered detailed analysis view
  */
-export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProps) {
-  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat');
-  const [selectedPeriod, setSelectedPeriod] = useState<ProductPeriod>('1an');
+export function PricingDetailedAnalysis({
+  project,
+}: PricingDetailedAnalysisProps) {
+  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat')
+  const [selectedPeriod, setSelectedPeriod] = useState<ProductPeriod>('1an')
 
-  const currentData = selectedMode === 'achat'
-    ? calculateProjectPurchaseCosts(project)
-    : calculateProjectRentalCosts(project, selectedPeriod);
+  const currentData =
+    selectedMode === 'achat'
+      ? calculateProjectPurchaseCosts(project)
+      : calculateProjectRentalCosts(project, selectedPeriod)
 
-  const marginPercentage = currentData.totalPrice > 0
-    ? (currentData.totalMargin / currentData.totalPrice) * 100
-    : 0;
+  const marginPercentage =
+    currentData.totalPrice > 0
+      ? (currentData.totalMargin / currentData.totalPrice) * 100
+      : 0
 
-  const kitBreakdown = getProjectKitBreakdown(project, selectedMode, selectedPeriod);
+  const kitBreakdown = getProjectKitBreakdown(
+    project,
+    selectedMode,
+    selectedPeriod,
+  )
 
-  const averagePricePerKit = kitBreakdown.length > 0
-    ? currentData.totalPrice / kitBreakdown.length
-    : 0;
+  const averagePricePerKit =
+    kitBreakdown.length > 0 ? currentData.totalPrice / kitBreakdown.length : 0
 
   return (
     <div className="space-y-6">
@@ -73,7 +80,9 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
             <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl">
               <Euro className="w-5 h-5 text-green-600" />
             </div>
-            <span className="text-base font-semibold text-gray-900">Mode de commercialisation</span>
+            <span className="text-base font-semibold text-gray-900">
+              Mode de commercialisation
+            </span>
           </div>
           <div className="flex space-x-3 p-1 bg-gray-100 rounded-2xl">
             <Button
@@ -81,7 +90,9 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
               size="sm"
               onClick={() => setSelectedMode('achat')}
               className={`flex items-center gap-2 ${
-                selectedMode === 'achat' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
+                selectedMode === 'achat'
+                  ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90'
+                  : ''
               }`}
             >
               <ShoppingCart className="w-4 h-4" />
@@ -92,7 +103,9 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
               size="sm"
               onClick={() => setSelectedMode('location')}
               className={`flex items-center gap-2 ${
-                selectedMode === 'location' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
+                selectedMode === 'location'
+                  ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90'
+                  : ''
               }`}
             >
               <Home className="w-4 h-4" />
@@ -108,7 +121,9 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                 <div className="p-2 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-xl">
                   <Calendar className="w-5 h-5 text-purple-600" />
                 </div>
-                <span className="text-base font-semibold text-gray-900">Période de location</span>
+                <span className="text-base font-semibold text-gray-900">
+                  Période de location
+                </span>
               </div>
               <div className="flex space-x-3 p-1 bg-gray-100 rounded-2xl">
                 {(['1an', '2ans', '3ans'] as ProductPeriod[]).map((period) => (
@@ -117,7 +132,11 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                     variant={selectedPeriod === period ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSelectedPeriod(period)}
-                    className={selectedPeriod === period ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''}
+                    className={
+                      selectedPeriod === period
+                        ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90'
+                        : ''
+                    }
                   >
                     {PERIOD_LABELS[period]}
                   </Button>
@@ -193,7 +212,9 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                 <div className="text-4xl font-bold text-blue-900 mb-2">
                   {formatPriceHelper(currentData.totalCost)}
                 </div>
-                <div className="text-base text-blue-700 font-semibold">Coût total</div>
+                <div className="text-base text-blue-700 font-semibold">
+                  Coût total
+                </div>
               </>
             )}
           </div>
@@ -224,7 +245,9 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                 <div className="text-4xl font-bold text-purple-900 mb-2">
                   {formatPriceHelper(currentData.totalMargin)}
                 </div>
-                <div className="text-base text-purple-700 font-semibold">Marge totale</div>
+                <div className="text-base text-purple-700 font-semibold">
+                  Marge totale
+                </div>
               </>
             )}
           </div>
@@ -245,25 +268,35 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                   <Percent className="w-7 h-7 text-amber-600" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-amber-900">Rentabilité du projet</h3>
+                  <h3 className="text-xl font-bold text-amber-900">
+                    Rentabilité du projet
+                  </h3>
                   <p className="text-sm text-amber-700 font-medium">
                     {selectedMode === 'achat'
-                      ? 'Analyse pour l\'achat de produits neufs'
-                      : `Analyse pour la location ${PERIOD_LABELS[selectedPeriod].toLowerCase()}`
-                    }
+                      ? "Analyse pour l'achat de produits neufs"
+                      : `Analyse pour la location ${PERIOD_LABELS[selectedPeriod].toLowerCase()}`}
                   </p>
                 </div>
               </div>
-              <Badge variant="outline" className="text-sm font-semibold px-4 py-2 bg-white border-amber-300 text-amber-800">
-                {selectedMode === 'achat' ? 'Achat unique' : PERIOD_LABELS[selectedPeriod]}
+              <Badge
+                variant="outline"
+                className="text-sm font-semibold px-4 py-2 bg-white border-amber-300 text-amber-800"
+              >
+                {selectedMode === 'achat'
+                  ? 'Achat unique'
+                  : PERIOD_LABELS[selectedPeriod]}
               </Badge>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-amber-200 shadow-sm">
-                  <span className="text-sm font-medium text-amber-800">Marge brute</span>
-                  <span className="text-xl font-bold text-amber-900">{marginPercentage.toFixed(1)}%</span>
+                  <span className="text-sm font-medium text-amber-800">
+                    Marge brute
+                  </span>
+                  <span className="text-xl font-bold text-amber-900">
+                    {marginPercentage.toFixed(1)}%
+                  </span>
                 </div>
 
                 <div className="bg-white rounded-xl p-4 border border-amber-200 shadow-sm">
@@ -278,23 +311,53 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Coût</span>
                       <div className="text-right">
-                        <span className="font-semibold text-amber-900">{formatPriceHelper(selectedMode === 'location' ? annualToMonthly(currentData.totalCost) : currentData.totalCost)}</span>
-                        {selectedMode === 'location' && <span className="text-xs text-amber-600 ml-1">/mois</span>}
+                        <span className="font-semibold text-amber-900">
+                          {formatPriceHelper(
+                            selectedMode === 'location'
+                              ? annualToMonthly(currentData.totalCost)
+                              : currentData.totalCost,
+                          )}
+                        </span>
+                        {selectedMode === 'location' && (
+                          <span className="text-xs text-amber-600 ml-1">
+                            /mois
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Marge</span>
                       <div className="text-right">
-                        <span className="font-semibold text-amber-900">{formatPriceHelper(selectedMode === 'location' ? annualToMonthly(currentData.totalMargin) : currentData.totalMargin)}</span>
-                        {selectedMode === 'location' && <span className="text-xs text-amber-600 ml-1">/mois</span>}
+                        <span className="font-semibold text-amber-900">
+                          {formatPriceHelper(
+                            selectedMode === 'location'
+                              ? annualToMonthly(currentData.totalMargin)
+                              : currentData.totalMargin,
+                          )}
+                        </span>
+                        {selectedMode === 'location' && (
+                          <span className="text-xs text-amber-600 ml-1">
+                            /mois
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="h-px bg-amber-200"></div>
                     <div className="flex justify-between items-center">
                       <span className="font-semibold">Prix de vente</span>
                       <div className="text-right">
-                        <span className="font-bold text-amber-900">{formatPriceHelper(selectedMode === 'location' ? annualToMonthly(currentData.totalPrice) : currentData.totalPrice)}</span>
-                        {selectedMode === 'location' && <span className="text-xs text-amber-600 ml-1">/mois</span>}
+                        <span className="font-bold text-amber-900">
+                          {formatPriceHelper(
+                            selectedMode === 'location'
+                              ? annualToMonthly(currentData.totalPrice)
+                              : currentData.totalPrice,
+                          )}
+                        </span>
+                        {selectedMode === 'location' && (
+                          <span className="text-xs text-amber-600 ml-1">
+                            /mois
+                          </span>
+                        )}
                       </div>
                     </div>
                     {selectedMode === 'location' && (
@@ -324,14 +387,20 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                       <div className="text-3xl font-bold text-amber-900 mb-2">
                         {formatPriceHelper(averagePricePerKit)}
                       </div>
-                      <div className="text-sm text-amber-700 font-medium">Prix moyen par kit</div>
+                      <div className="text-sm text-amber-700 font-medium">
+                        Prix moyen par kit
+                      </div>
                     </>
                   )}
                 </div>
 
                 <div className="text-center p-6 bg-gradient-to-br from-white to-amber-50 border border-amber-200 rounded-2xl shadow-sm">
-                  <div className="text-3xl font-bold text-amber-900 mb-2">{kitBreakdown.length}</div>
-                  <div className="text-sm text-amber-700 font-medium">Nombre de kits</div>
+                  <div className="text-3xl font-bold text-amber-900 mb-2">
+                    {kitBreakdown.length}
+                  </div>
+                  <div className="text-sm text-amber-700 font-medium">
+                    Nombre de kits
+                  </div>
                 </div>
               </div>
             </div>
@@ -357,8 +426,7 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
               <Badge variant="outline" className="text-xs bg-white">
                 {selectedMode === 'achat'
                   ? 'Mode Achat'
-                  : `Location ${PERIOD_LABELS[selectedPeriod]}`
-                }
+                  : `Location ${PERIOD_LABELS[selectedPeriod]}`}
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -379,8 +447,12 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                           <Package className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-900 text-lg">{kit.kitName}</h4>
-                          <p className="text-sm text-gray-500">Quantité: {kit.quantity}</p>
+                          <h4 className="font-semibold text-gray-900 text-lg">
+                            {kit.kitName}
+                          </h4>
+                          <p className="text-sm text-gray-500">
+                            Quantité: {kit.quantity}
+                          </p>
                         </div>
                       </div>
                       <Badge
@@ -389,8 +461,8 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                           kit.marginPercentage > 30
                             ? 'border-green-500 text-green-700 bg-green-50'
                             : kit.marginPercentage > 20
-                            ? 'border-yellow-500 text-yellow-700 bg-yellow-50'
-                            : 'border-red-500 text-red-700 bg-red-50'
+                              ? 'border-yellow-500 text-yellow-700 bg-yellow-50'
+                              : 'border-red-500 text-red-700 bg-red-50'
                         }`}
                       >
                         {kit.marginPercentage.toFixed(1)}% marge
@@ -415,7 +487,9 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                             <div className="text-lg font-bold text-green-900 mb-1">
                               {formatPriceHelper(kit.totalPrice)}
                             </div>
-                            <div className="text-xs text-green-700 font-medium">Prix total</div>
+                            <div className="text-xs text-green-700 font-medium">
+                              Prix total
+                            </div>
                           </>
                         )}
                       </div>
@@ -436,7 +510,9 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                             <div className="text-lg font-bold text-blue-900 mb-1">
                               {formatPriceHelper(kit.totalCost)}
                             </div>
-                            <div className="text-xs text-blue-700 font-medium">Coût total</div>
+                            <div className="text-xs text-blue-700 font-medium">
+                              Coût total
+                            </div>
                           </>
                         )}
                       </div>
@@ -457,7 +533,9 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                             <div className="text-lg font-bold text-purple-900 mb-1">
                               {formatPriceHelper(kit.totalMargin)}
                             </div>
-                            <div className="text-xs text-purple-700 font-medium">Marge</div>
+                            <div className="text-xs text-purple-700 font-medium">
+                              Marge
+                            </div>
                           </>
                         )}
                       </div>
@@ -491,7 +569,9 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                   </div>
                   <span>Comparaison des périodes de location</span>
                 </div>
-                <Badge variant="outline" className="text-xs bg-white">Mode Location</Badge>
+                <Badge variant="outline" className="text-xs bg-white">
+                  Mode Location
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -499,62 +579,100 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-700">Période</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Prix /mois</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Coût /mois</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Marge /mois</th>
-                      <th className="text-right py-3 px-4 font-semibold text-gray-700">Marge %</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                        Période
+                      </th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">
+                        Prix /mois
+                      </th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">
+                        Coût /mois
+                      </th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">
+                        Marge /mois
+                      </th>
+                      <th className="text-right py-3 px-4 font-semibold text-gray-700">
+                        Marge %
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {(['1an', '2ans', '3ans'] as ProductPeriod[]).map((period) => {
-                      const prices = calculateProjectRentalCosts(project, period);
-                      const marginPercent = prices.totalPrice > 0 ? (prices.totalMargin / prices.totalPrice) * 100 : 0;
+                    {(['1an', '2ans', '3ans'] as ProductPeriod[]).map(
+                      (period) => {
+                        const prices = calculateProjectRentalCosts(
+                          project,
+                          period,
+                        )
+                        const marginPercent =
+                          prices.totalPrice > 0
+                            ? (prices.totalMargin / prices.totalPrice) * 100
+                            : 0
 
-                      return (
-                        <tr
-                          key={period}
-                          className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                            selectedPeriod === period ? 'bg-[#30C1BD]/5' : ''
-                          }`}
-                        >
-                          <td className="py-4 px-4">
-                            <div className="flex items-center space-x-2">
-                              {selectedPeriod === period && (
-                                <div className="w-2 h-2 bg-[#30C1BD] rounded-full"></div>
-                              )}
-                              <span className="font-medium">{PERIOD_LABELS[period]}</span>
-                            </div>
-                          </td>
-                          <td className="text-right py-4 px-4">
-                            <div className="font-semibold">{formatPriceHelper(annualToMonthly(prices.totalPrice))}</div>
-                            <div className="text-xs text-gray-400">{formatPriceHelper(prices.totalPrice)} /an</div>
-                          </td>
-                          <td className="text-right py-4 px-4">
-                            <div className="text-gray-600">{formatPriceHelper(annualToMonthly(prices.totalCost))}</div>
-                            <div className="text-xs text-gray-400">{formatPriceHelper(prices.totalCost)} /an</div>
-                          </td>
-                          <td className="text-right py-4 px-4">
-                            <div className="text-green-600 font-medium">{formatPriceHelper(annualToMonthly(prices.totalMargin))}</div>
-                            <div className="text-xs text-gray-400">{formatPriceHelper(prices.totalMargin)} /an</div>
-                          </td>
-                          <td className="text-right py-4 px-4">
-                            <Badge
-                              variant="outline"
-                              className={`font-medium ${
-                                marginPercent > 30
-                                  ? 'border-green-500 text-green-700 bg-green-50'
-                                  : marginPercent > 20
-                                  ? 'border-yellow-500 text-yellow-700 bg-yellow-50'
-                                  : 'border-red-500 text-red-700 bg-red-50'
-                              }`}
-                            >
-                              {marginPercent.toFixed(1)}%
-                            </Badge>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                        return (
+                          <tr
+                            key={period}
+                            className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                              selectedPeriod === period ? 'bg-[#30C1BD]/5' : ''
+                            }`}
+                          >
+                            <td className="py-4 px-4">
+                              <div className="flex items-center space-x-2">
+                                {selectedPeriod === period && (
+                                  <div className="w-2 h-2 bg-[#30C1BD] rounded-full"></div>
+                                )}
+                                <span className="font-medium">
+                                  {PERIOD_LABELS[period]}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="text-right py-4 px-4">
+                              <div className="font-semibold">
+                                {formatPriceHelper(
+                                  annualToMonthly(prices.totalPrice),
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {formatPriceHelper(prices.totalPrice)} /an
+                              </div>
+                            </td>
+                            <td className="text-right py-4 px-4">
+                              <div className="text-gray-600">
+                                {formatPriceHelper(
+                                  annualToMonthly(prices.totalCost),
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {formatPriceHelper(prices.totalCost)} /an
+                              </div>
+                            </td>
+                            <td className="text-right py-4 px-4">
+                              <div className="text-green-600 font-medium">
+                                {formatPriceHelper(
+                                  annualToMonthly(prices.totalMargin),
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {formatPriceHelper(prices.totalMargin)} /an
+                              </div>
+                            </td>
+                            <td className="text-right py-4 px-4">
+                              <Badge
+                                variant="outline"
+                                className={`font-medium ${
+                                  marginPercent > 30
+                                    ? 'border-green-500 text-green-700 bg-green-50'
+                                    : marginPercent > 20
+                                      ? 'border-yellow-500 text-yellow-700 bg-yellow-50'
+                                      : 'border-red-500 text-red-700 bg-red-50'
+                                }`}
+                              >
+                                {marginPercent.toFixed(1)}%
+                              </Badge>
+                            </td>
+                          </tr>
+                        )
+                      },
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -584,21 +702,24 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                     <div className="flex items-center space-x-3 p-3 bg-white/60 rounded-xl border border-white/50">
                       <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
                       <span className="font-medium">
-                        Excellente rentabilité ! Votre marge de {marginPercentage.toFixed(1)}% est très bonne.
+                        Excellente rentabilité ! Votre marge de{' '}
+                        {marginPercentage.toFixed(1)}% est très bonne.
                       </span>
                     </div>
                   ) : marginPercentage > 20 ? (
                     <div className="flex items-center space-x-3 p-3 bg-white/60 rounded-xl border border-white/50">
                       <div className="w-2 h-2 bg-yellow-500 rounded-full flex-shrink-0"></div>
                       <span className="font-medium">
-                        Rentabilité correcte. Considérez optimiser les coûts pour améliorer la marge.
+                        Rentabilité correcte. Considérez optimiser les coûts
+                        pour améliorer la marge.
                       </span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-3 p-3 bg-white/60 rounded-xl border border-white/50">
                       <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
                       <span className="font-medium">
-                        Marge faible. Analysez les coûts et considérez ajuster les prix.
+                        Marge faible. Analysez les coûts et considérez ajuster
+                        les prix.
                       </span>
                     </div>
                   )}
@@ -606,7 +727,8 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                   <div className="flex items-center space-x-3 p-3 bg-white/60 rounded-xl border border-white/50">
                     <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
                     <span className="font-medium">
-                      Prix moyen par kit : {formatPriceHelper(averagePricePerKit)}
+                      Prix moyen par kit :{' '}
+                      {formatPriceHelper(averagePricePerKit)}
                     </span>
                   </div>
 
@@ -615,8 +737,7 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                     <span className="font-medium">
                       {selectedMode === 'achat'
                         ? `Coût total pour l'achat : ${formatPriceHelper(currentData.totalCost)}`
-                        : `Coût total pour la location ${PERIOD_LABELS[selectedPeriod].toLowerCase()} : ${formatPriceHelper(currentData.totalCost)}`
-                      }
+                        : `Coût total pour la location ${PERIOD_LABELS[selectedPeriod].toLowerCase()} : ${formatPriceHelper(currentData.totalCost)}`}
                     </span>
                   </div>
 
@@ -624,11 +745,12 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                     <div className="flex items-center space-x-3 p-3 bg-white/60 rounded-xl border border-white/50">
                       <div className="w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0"></div>
                       <span className="font-medium">
-                        Kit le plus rentable : {
-                          kitBreakdown.reduce((max, kit) =>
-                            kit.marginPercentage > max.marginPercentage ? kit : max
-                          )?.kitName || 'N/A'
-                        }
+                        Kit le plus rentable :{' '}
+                        {kitBreakdown.reduce((max, kit) =>
+                          kit.marginPercentage > max.marginPercentage
+                            ? kit
+                            : max,
+                        )?.kitName || 'N/A'}
                       </span>
                     </div>
                   )}
@@ -638,8 +760,7 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                     <span className="font-medium">
                       {selectedMode === 'achat'
                         ? 'Achat de produits neufs avec impact environnemental complet'
-                        : 'Location d\'équipements existants avec impact environnemental réduit'
-                      }
+                        : "Location d'équipements existants avec impact environnemental réduit"}
                     </span>
                   </div>
                 </div>
@@ -649,5 +770,5 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
         </Card>
       </motion.div>
     </div>
-  );
+  )
 }

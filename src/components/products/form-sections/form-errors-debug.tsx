@@ -1,19 +1,19 @@
-"use client";
+'use client'
 
-import { FieldErrors } from "react-hook-form";
-import { ProductFormData } from "@/lib/schemas/product";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { FieldErrors } from 'react-hook-form'
+import { ProductFormData } from '@/lib/schemas/product'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertTriangle } from 'lucide-react'
 
 interface FormErrorsDebugProps {
-  errors: FieldErrors<ProductFormData>;
+  errors: FieldErrors<ProductFormData>
 }
 
 export function FormErrorsDebug({ errors }: FormErrorsDebugProps) {
-  const errorEntries = Object.entries(errors);
-  
+  const errorEntries = Object.entries(errors)
+
   if (errorEntries.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -25,7 +25,7 @@ export function FormErrorsDebug({ errors }: FormErrorsDebugProps) {
           <ul className="list-disc pl-5 space-y-1">
             {errorEntries.map(([field, error]) => (
               <li key={field} className="text-sm">
-                <strong>{field}</strong>: {error?.message || "Erreur inconnue"}
+                <strong>{field}</strong>: {error?.message || 'Erreur inconnue'}
               </li>
             ))}
           </ul>
@@ -35,5 +35,5 @@ export function FormErrorsDebug({ errors }: FormErrorsDebugProps) {
         </div>
       </AlertDescription>
     </Alert>
-  );
+  )
 }

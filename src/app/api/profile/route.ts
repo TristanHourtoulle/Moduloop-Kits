@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { requireAuth, handleApiError } from "@/lib/api/middleware";
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/db'
+import { requireAuth, handleApiError } from '@/lib/api/middleware'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireAuth(request);
-    if (auth.response) return auth.response;
+    const auth = await requireAuth(request)
+    if (auth.response) return auth.response
 
-    const userId = auth.user.id;
+    const userId = auth.user.id
 
     // Get user details with account information
     const user = await prisma.user.findUnique({
@@ -28,13 +28,13 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-    });
+    })
 
     if (!user) {
       return NextResponse.json(
-        { error: "Utilisateur non trouvé" },
+        { error: 'Utilisateur non trouvé' },
         { status: 404 },
-      );
+      )
     }
 
     // Get statistics
@@ -48,12 +48,12 @@ export async function GET(request: NextRequest) {
       prisma.product.count({
         where: { createdById: userId },
       }),
-    ]);
+    ])
 
     // Check if user has Google account
     const hasGoogleAccount = user.accounts.some(
-      (account) => account.providerId === "google",
-    );
+      (account) => account.providerId === 'google',
+    )
 
     return NextResponse.json({
       user: {
@@ -71,25 +71,22 @@ export async function GET(request: NextRequest) {
         kitsCount,
         productsCount,
       },
-    });
+    })
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error)
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    const auth = await requireAuth(request);
-    if (auth.response) return auth.response;
+    const auth = await requireAuth(request)
+    if (auth.response) return auth.response
 
-    const userId = auth.user.id;
-    const { name } = await request.json();
+    const userId = auth.user.id
+    const { name } = await request.json()
 
     if (!name || name.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Le nom est requis" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'Le nom est requis' }, { status: 400 })
     }
 
     // Update user profile
@@ -107,12 +104,12 @@ export async function PUT(request: NextRequest) {
         emailVerified: true,
         createdAt: true,
       },
-    });
+    })
 
     return NextResponse.json({
       user: updatedUser,
-    });
+    })
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error)
   }
 }

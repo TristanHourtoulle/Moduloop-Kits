@@ -1,11 +1,11 @@
-"use client";
+'use client'
 
-import { ProductCard } from "@/components/products/product-card";
-import { type Product } from "@/lib/types/project";
+import { ProductCard } from '@/components/products/product-card'
+import { type Product } from '@/lib/types/project'
 
 interface ProductsGridProps {
-  products: Product[];
-  onDelete: (productId: string) => Promise<void>;
+  products: Product[]
+  onDelete: (productId: string) => Promise<void>
 }
 
 export function ProductsGrid({ products, onDelete }: ProductsGridProps) {
@@ -15,5 +15,5 @@ export function ProductsGrid({ products, onDelete }: ProductsGridProps) {
         <ProductCard key={product.id} product={product} onDelete={onDelete} />
       ))}
     </div>
-  );
+  )
 }

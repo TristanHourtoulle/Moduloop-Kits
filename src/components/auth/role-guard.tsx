@@ -1,17 +1,17 @@
-"use client";
+'use client'
 
-import { useRole } from "@/hooks/use-role";
-import { UserRole, type RolePermissions } from "@/lib/types/user";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ShieldAlert } from "lucide-react";
+import { useRole } from '@/hooks/use-role'
+import { UserRole, type RolePermissions } from '@/lib/types/user'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ShieldAlert } from 'lucide-react'
 
 interface RoleGuardProps {
-  children: React.ReactNode;
-  requiredRole?: UserRole;
-  requiredPermission?: string;
-  resource?: "admin" | "kits" | "products" | "users";
-  fallback?: React.ReactNode;
-  showAlert?: boolean;
+  children: React.ReactNode
+  requiredRole?: UserRole
+  requiredPermission?: string
+  resource?: 'admin' | 'kits' | 'products' | 'users'
+  fallback?: React.ReactNode
+  showAlert?: boolean
 }
 
 export function RoleGuard({
@@ -22,28 +22,28 @@ export function RoleGuard({
   fallback,
   showAlert = true,
 }: RoleGuardProps) {
-  const { hasRole, hasPermission, canAccessResource } = useRole();
+  const { hasRole, hasPermission, canAccessResource } = useRole()
 
-  let hasAccess = true;
+  let hasAccess = true
 
   // Vérifier le rôle requis
   if (requiredRole) {
-    hasAccess = hasRole(requiredRole);
+    hasAccess = hasRole(requiredRole)
   }
 
   // Vérifier la permission requise
   if (requiredPermission && hasAccess) {
-    hasAccess = hasPermission(requiredPermission as keyof RolePermissions);
+    hasAccess = hasPermission(requiredPermission as keyof RolePermissions)
   }
 
   // Vérifier l'accès à la ressource
   if (resource && hasAccess) {
-    hasAccess = canAccessResource(resource);
+    hasAccess = canAccessResource(resource)
   }
 
   if (!hasAccess) {
     if (fallback) {
-      return <>{fallback}</>;
+      return <>{fallback}</>
     }
 
     if (showAlert) {
@@ -55,11 +55,11 @@ export function RoleGuard({
             cette section.
           </AlertDescription>
         </Alert>
-      );
+      )
     }
 
-    return null;
+    return null
   }
 
-  return <>{children}</>;
+  return <>{children}</>
 }

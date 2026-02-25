@@ -1,29 +1,39 @@
-"use client";
+'use client'
 
-import { Edit, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
-import { RoleGuard } from "@/components/auth/role-guard";
-import { UserRole } from "@/lib/types/user";
-import { cn } from "@/lib/utils";
+import { Edit, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { DeleteConfirmDialog } from '@/components/ui/delete-confirm-dialog'
+import { RoleGuard } from '@/components/auth/role-guard'
+import { UserRole } from '@/lib/types/user'
+import { cn } from '@/lib/utils'
 
 interface ProductCardActionsProps {
-  productName: string;
-  onEdit: () => void;
-  onDelete: () => void | Promise<void>;
-  className?: string;
+  productName: string
+  onEdit: () => void
+  onDelete: () => void | Promise<void>
+  className?: string
 }
 
-export function ProductCardActions({ productName, onEdit, onDelete, className }: ProductCardActionsProps) {
+export function ProductCardActions({
+  productName,
+  onEdit,
+  onDelete,
+  className,
+}: ProductCardActionsProps) {
   return (
     <RoleGuard requiredRole={UserRole.DEV} showAlert={false}>
-      <div className={cn("flex justify-end gap-2 pt-4 border-t border-border/50", className)}>
+      <div
+        className={cn(
+          'flex justify-end gap-2 pt-4 border-t border-border/50',
+          className,
+        )}
+      >
         <Button
           variant="outline"
           size="sm"
           onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
+            e.stopPropagation()
+            onEdit()
           }}
           className="h-8 px-3 border-primary/30 bg-white/80 hover:bg-primary/10 hover:text-primary hover:border-primary transition-all"
           title="Modifier le produit"
@@ -41,7 +51,7 @@ export function ProductCardActions({ productName, onEdit, onDelete, className }:
             variant="outline"
             size="sm"
             onClick={(e) => {
-              e.stopPropagation();
+              e.stopPropagation()
             }}
             className="h-8 px-3 border-red-200 bg-white/80 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all"
             title="Supprimer le produit"
@@ -52,5 +62,5 @@ export function ProductCardActions({ productName, onEdit, onDelete, className }:
         </DeleteConfirmDialog>
       </div>
     </RoleGuard>
-  );
+  )
 }

@@ -1,14 +1,14 @@
-import { Document, Page, View, Text, Image } from '@react-pdf/renderer';
-import { tw } from './tw-config';
-import type { Project } from '@/lib/types/project';
-import { calculateProjectPriceTotals } from '@/lib/utils/project/calculations';
-import { calculateEnvironmentalSavings } from '@/lib/utils/project/calculations';
-import { PdfPricingSection } from './sections/pdf-pricing-section';
-import { PdfEnvironmentalSection } from './sections/pdf-environmental-section';
-import { PdfKitListSection } from './sections/pdf-kit-list-section';
+import { Document, Page, View, Text, Image } from '@react-pdf/renderer'
+import { tw } from './tw-config'
+import type { Project } from '@/lib/types/project'
+import { calculateProjectPriceTotals } from '@/lib/utils/project/calculations'
+import { calculateEnvironmentalSavings } from '@/lib/utils/project/calculations'
+import { PdfPricingSection } from './sections/pdf-pricing-section'
+import { PdfEnvironmentalSection } from './sections/pdf-environmental-section'
+import { PdfKitListSection } from './sections/pdf-kit-list-section'
 
 interface ProjectPdfDocumentProps {
-  project: Project;
+  project: Project
 }
 
 function PdfHeader({ projectName: _projectName }: { projectName: string }) {
@@ -16,7 +16,7 @@ function PdfHeader({ projectName: _projectName }: { projectName: string }) {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
-  });
+  })
 
   return (
     <View style={tw('flex-row justify-between items-center mb-4 pb-3')} fixed>
@@ -26,11 +26,9 @@ function PdfHeader({ projectName: _projectName }: { projectName: string }) {
           style={{ width: 120, height: 30, objectFit: 'contain' as const }}
         />
       </View>
-      <Text style={tw('text-xs text-gray-400')}>
-        Généré le {today}
-      </Text>
+      <Text style={tw('text-xs text-gray-400')}>Généré le {today}</Text>
     </View>
-  );
+  )
 }
 
 function PdfFooter({ projectName }: { projectName: string }) {
@@ -60,13 +58,13 @@ function PdfFooter({ projectName }: { projectName: string }) {
         }
       />
     </View>
-  );
+  )
 }
 
 export function ProjectPdfDocument({ project }: ProjectPdfDocumentProps) {
-  const totalPrices = calculateProjectPriceTotals(project);
-  const environmentalSavings = calculateEnvironmentalSavings(project);
-  const totalSurface = project.totalSurface ?? 0;
+  const totalPrices = calculateProjectPriceTotals(project)
+  const environmentalSavings = calculateEnvironmentalSavings(project)
+  const totalSurface = project.totalSurface ?? 0
 
   return (
     <Document>
@@ -115,5 +113,5 @@ export function ProjectPdfDocument({ project }: ProjectPdfDocumentProps) {
         <PdfFooter projectName={project.nom} />
       </Page>
     </Document>
-  );
+  )
 }

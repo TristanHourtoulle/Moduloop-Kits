@@ -1,20 +1,20 @@
-"use client";
+'use client'
 
-import { UseFormRegister, FieldErrors } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { UseFormRegister, FieldErrors } from 'react-hook-form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Info } from "lucide-react";
-import { ProductFormData } from "@/lib/schemas/product";
+} from '@/components/ui/accordion'
+import { Info } from 'lucide-react'
+import { ProductFormData } from '@/lib/schemas/product'
 
 interface GeneralInfoSectionProps {
-  register: UseFormRegister<ProductFormData>;
-  errors: FieldErrors<ProductFormData>;
+  register: UseFormRegister<ProductFormData>
+  errors: FieldErrors<ProductFormData>
 }
 
 export function GeneralInfoSection({
@@ -45,12 +45,12 @@ export function GeneralInfoSection({
               </Label>
               <Input
                 id="nom"
-                {...register("nom")}
+                {...register('nom')}
                 placeholder="Ex: Panneau solaire 400W"
                 className={`transition-colors ${
                   errors.nom
-                    ? "border-red-500 focus:border-red-500"
-                    : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                    ? 'border-red-500 focus:border-red-500'
+                    : 'focus:border-[#30C1BD] focus:ring-[#30C1BD]'
                 }`}
               />
               {errors.nom && (
@@ -64,12 +64,12 @@ export function GeneralInfoSection({
               </Label>
               <Input
                 id="reference"
-                {...register("reference")}
+                {...register('reference')}
                 placeholder="Ex: PS-400W-001"
                 className={`uppercase transition-colors ${
                   errors.reference
-                    ? "border-red-500 focus:border-red-500"
-                    : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                    ? 'border-red-500 focus:border-red-500'
+                    : 'focus:border-[#30C1BD] focus:ring-[#30C1BD]'
                 }`}
               />
               {errors.reference && (
@@ -86,13 +86,13 @@ export function GeneralInfoSection({
             </Label>
             <Textarea
               id="description"
-              {...register("description")}
+              {...register('description')}
               placeholder="Description détaillée du produit..."
               rows={4}
               className={`transition-colors resize-none ${
                 errors.description
-                  ? "border-red-500 focus:border-red-500"
-                  : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                  ? 'border-red-500 focus:border-red-500'
+                  : 'focus:border-[#30C1BD] focus:ring-[#30C1BD]'
               }`}
             />
             {errors.description && (
@@ -101,9 +101,8 @@ export function GeneralInfoSection({
               </p>
             )}
           </div>
-
         </div>
       </AccordionContent>
     </AccordionItem>
-  );
+  )
 }

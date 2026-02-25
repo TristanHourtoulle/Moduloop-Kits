@@ -1,17 +1,17 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/db';
-import { UserRole } from '@/lib/types/user';
-import { isAdminOrDev } from '@/lib/utils/roles';
+import { NextResponse } from 'next/server'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/db'
+import { UserRole } from '@/lib/types/user'
+import { isAdminOrDev } from '@/lib/utils/roles'
 
 interface ProjectAccessSuccess {
-  userId: string;
-  isAdmin: boolean;
+  userId: string
+  isAdmin: boolean
 }
 
 type ProjectAccessResult =
   | { ok: true; data: ProjectAccessSuccess }
-  | { ok: false; response: NextResponse };
+  | { ok: false; response: NextResponse }
 
 /**
  * Authenticates the user, resolves their role, and verifies they can access
@@ -26,7 +26,7 @@ export async function verifyProjectAccess(
   request: Request,
   projectId: string,
 ): Promise<ProjectAccessResult> {
-  const session = await auth.api.getSession({ headers: request.headers });
+  const session = await auth.api.getSession({ headers: request.headers })
   if (!session?.user?.id) {
     return {
       ok: false,
@@ -34,23 +34,23 @@ export async function verifyProjectAccess(
         { error: { code: 'AUTH_UNAUTHORIZED', message: 'Unauthorized' } },
         { status: 401 },
       ),
-    };
+    }
   }
 
   const currentUser = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { role: true },
-  });
+  })
 
-  const role = (currentUser?.role as UserRole | undefined) ?? UserRole.USER;
-  const isAdmin = isAdminOrDev(role);
+  const role = (currentUser?.role as UserRole | undefined) ?? UserRole.USER
+  const isAdmin = isAdminOrDev(role)
 
   const project = await prisma.project.findFirst({
     where: isAdmin
       ? { id: projectId }
       : { id: projectId, createdById: session.user.id },
     select: { id: true },
-  });
+  })
 
   if (!project) {
     return {
@@ -59,11 +59,11 @@ export async function verifyProjectAccess(
         { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
         { status: 404 },
       ),
-    };
+    }
   }
 
   return {
     ok: true,
     data: { userId: session.user.id, isAdmin },
-  };
+  }
 }

@@ -1,23 +1,23 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { UseFormSetValue, FieldErrors } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react'
+import { UseFormSetValue, FieldErrors } from 'react-hook-form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { ImageIcon, Upload, X } from "lucide-react";
-import { ProductFormData } from "@/lib/schemas/product";
+} from '@/components/ui/accordion'
+import { ImageIcon, Upload, X } from 'lucide-react'
+import { ProductFormData } from '@/lib/schemas/product'
 
 interface ImageSectionProps {
-  setValue: UseFormSetValue<ProductFormData>;
-  errors: FieldErrors<ProductFormData>;
-  initialImage?: string | null;
-  onError: (error: string) => void;
+  setValue: UseFormSetValue<ProductFormData>
+  errors: FieldErrors<ProductFormData>
+  initialImage?: string | null
+  onError: (error: string) => void
 }
 
 export function ImageSection({
@@ -27,37 +27,37 @@ export function ImageSection({
   onError,
 }: ImageSectionProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(
-    initialImage || null
-  );
+    initialImage || null,
+  )
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const file = event.target.files?.[0]
+    if (!file) return
 
-    if (!file.type.startsWith("image/")) {
-      onError("Veuillez sélectionner un fichier image valide");
-      return;
+    if (!file.type.startsWith('image/')) {
+      onError('Veuillez sélectionner un fichier image valide')
+      return
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      onError("L'image ne peut pas dépasser 5MB");
-      return;
+      onError("L'image ne peut pas dépasser 5MB")
+      return
     }
 
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.onload = (e) => {
-      const base64 = e.target?.result as string;
-      setImagePreview(base64);
-      setValue("image", base64);
-      onError("");
-    };
-    reader.readAsDataURL(file);
-  };
+      const base64 = e.target?.result as string
+      setImagePreview(base64)
+      setValue('image', base64)
+      onError('')
+    }
+    reader.readAsDataURL(file)
+  }
 
   const removeImage = () => {
-    setImagePreview(null);
-    setValue("image", undefined);
-  };
+    setImagePreview(null)
+    setValue('image', undefined)
+  }
 
   return (
     <AccordionItem value="image" className="border rounded-lg">
@@ -127,5 +127,5 @@ export function ImageSection({
         </div>
       </AccordionContent>
     </AccordionItem>
-  );
+  )
 }

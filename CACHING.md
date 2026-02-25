@@ -16,8 +16,8 @@ The application implements a comprehensive caching strategy using:
 ### 1. Database Layer (`src/lib/db.ts`)
 
 ```typescript
-import { cache } from "react";
-import "server-only";
+import { cache } from 'react'
+import 'server-only'
 
 // Cached data fetching functions
 export const getKits = cache(async () => {
@@ -25,8 +25,8 @@ export const getKits = cache(async () => {
     include: {
       /* relations */
     },
-  });
-});
+  })
+})
 
 export const getKitById = cache(async (id: string) => {
   return await prisma.kit.findUnique({
@@ -34,16 +34,16 @@ export const getKitById = cache(async (id: string) => {
     include: {
       /* relations */
     },
-  });
-});
+  })
+})
 
 export const getProducts = cache(async () => {
   return await prisma.product.findMany({
     include: {
       /* relations */
     },
-  });
-});
+  })
+})
 
 export const getProductById = cache(async (id: string) => {
   return await prisma.product.findUnique({
@@ -51,8 +51,8 @@ export const getProductById = cache(async (id: string) => {
     include: {
       /* relations */
     },
-  });
-});
+  })
+})
 ```
 
 **Key Benefits:**
@@ -65,10 +65,10 @@ export const getProductById = cache(async (id: string) => {
 
 ```typescript
 export const CACHE_TAGS = {
-  KITS: "kits",
-  PRODUCTS: "products",
-  USERS: "users",
-} as const;
+  KITS: 'kits',
+  PRODUCTS: 'products',
+  USERS: 'users',
+} as const
 
 export const CACHE_CONFIG = {
   KITS: {
@@ -83,7 +83,7 @@ export const CACHE_CONFIG = {
     revalidate: 600, // 10 minutes
     tags: [CACHE_TAGS.USERS],
   },
-} as const;
+} as const
 ```
 
 **Cache Invalidation Functions:**
@@ -100,18 +100,18 @@ export const CACHE_CONFIG = {
 ```typescript
 export async function GET(request: NextRequest) {
   // Use cached function
-  const kits = await getKits();
+  const kits = await getKits()
 
   // Configure cache headers
-  const response = NextResponse.json(kits);
+  const response = NextResponse.json(kits)
   response.headers.set(
-    "Cache-Control",
+    'Cache-Control',
     `public, s-maxage=${CACHE_CONFIG.KITS.revalidate}, stale-while-revalidate=${
       CACHE_CONFIG.KITS.revalidate * 5
-    }`
-  );
+    }`,
+  )
 
-  return response;
+  return response
 }
 ```
 
@@ -122,12 +122,12 @@ export async function POST(request: NextRequest) {
   // Create/update/delete operation
   const kit = await prisma.kit.create({
     /* data */
-  });
+  })
 
   // Invalidate related cache
-  invalidateKits();
+  invalidateKits()
 
-  return NextResponse.json(kit, { status: 201 });
+  return NextResponse.json(kit, { status: 201 })
 }
 ```
 
@@ -210,14 +210,14 @@ export default function KitsLoading() {
 
 ```typescript
 // Add to your logging system
-console.log(`Cache ${cacheHit ? "HIT" : "MISS"} for ${operation}`);
+console.log(`Cache ${cacheHit ? 'HIT' : 'MISS'} for ${operation}`)
 ```
 
 ### Cache Invalidation Logging
 
 ```typescript
 // Log cache invalidations
-console.log(`Invalidating cache for: ${cacheTag}`);
+console.log(`Invalidating cache for: ${cacheTag}`)
 ```
 
 ## Future Enhancements

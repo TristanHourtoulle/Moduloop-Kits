@@ -1,24 +1,24 @@
-import { NextResponse } from "next/server";
-import { ZodError } from "zod";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { UserRole } from "@/lib/types/user";
+import { NextResponse } from 'next/server'
+import { ZodError } from 'zod'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/db'
+import { UserRole } from '@/lib/types/user'
 
 /**
  * Authenticated user returned by requireAuth / requireRole.
  * Contains the session user fields plus the authoritative role from the DB.
  */
 export interface AuthenticatedUser {
-  id: string;
-  name: string;
-  email: string;
-  image?: string | null;
-  role: UserRole;
+  id: string
+  name: string
+  email: string
+  image?: string | null
+  role: UserRole
 }
 
-type AuthSuccess = { user: AuthenticatedUser; response?: never };
-type AuthFailure = { user?: never; response: NextResponse };
-type AuthResult = AuthSuccess | AuthFailure;
+type AuthSuccess = { user: AuthenticatedUser; response?: never }
+type AuthFailure = { user?: never; response: NextResponse }
+type AuthResult = AuthSuccess | AuthFailure
 
 /**
  * Validates the session from the incoming request and resolves the user role
@@ -28,24 +28,21 @@ type AuthResult = AuthSuccess | AuthFailure;
  * convention -- callers must always pass the raw Request object.
  */
 export async function requireAuth(request: Request): Promise<AuthResult> {
-  const session = await auth.api.getSession(request);
+  const session = await auth.api.getSession(request)
 
   if (!session?.user?.id) {
     return {
-      response: NextResponse.json(
-        { error: "Non autorise" },
-        { status: 401 },
-      ),
-    };
+      response: NextResponse.json({ error: 'Non autorise' }, { status: 401 }),
+    }
   }
 
   // Always resolve role from DB to avoid relying on stale session data
   const dbUser = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { role: true },
-  });
+  })
 
-  const role = (dbUser?.role as UserRole | undefined) ?? UserRole.USER;
+  const role = (dbUser?.role as UserRole | undefined) ?? UserRole.USER
 
   return {
     user: {
@@ -55,7 +52,7 @@ export async function requireAuth(request: Request): Promise<AuthResult> {
       image: session.user.image,
       role,
     },
-  };
+  }
 }
 
 /**
@@ -66,22 +63,19 @@ export async function requireRole(
   request: Request,
   roles: UserRole[],
 ): Promise<AuthResult> {
-  const result = await requireAuth(request);
+  const result = await requireAuth(request)
 
   if (result.response) {
-    return result;
+    return result
   }
 
   if (!roles.includes(result.user.role)) {
     return {
-      response: NextResponse.json(
-        { error: "Acces refuse" },
-        { status: 403 },
-      ),
-    };
+      response: NextResponse.json({ error: 'Acces refuse' }, { status: 403 }),
+    }
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -92,33 +86,33 @@ export async function requireRole(
 export function handleApiError(error: unknown): NextResponse {
   if (error instanceof ZodError) {
     return NextResponse.json(
-      { error: "Donnees invalides", details: error.issues },
+      { error: 'Donnees invalides', details: error.issues },
       { status: 400 },
-    );
+    )
   }
 
   // Log unexpected errors server-side for observability
-  console.error("[API Error]", error);
+  console.error('[API Error]', error)
 
   return NextResponse.json(
-    { error: "Erreur interne du serveur" },
+    { error: 'Erreur interne du serveur' },
     { status: 500 },
-  );
+  )
 }
 
 interface CacheHeaderOptions {
   /** Cache strategy: "public" uses s-maxage + stale-while-revalidate, "none" disables cache. */
-  strategy: "public" | "none";
+  strategy: 'public' | 'none'
   /**
    * Revalidation time in seconds (used with "public" strategy).
    * Defaults to 60.
    */
-  revalidate?: number;
+  revalidate?: number
   /**
    * Multiplier for stale-while-revalidate relative to revalidate.
    * Defaults to 2.
    */
-  staleMultiplier?: number;
+  staleMultiplier?: number
 }
 
 /**
@@ -135,28 +129,28 @@ export function setCacheHeaders(
   response: NextResponse,
   options?: CacheHeaderOptions,
 ): NextResponse {
-  const strategy = options?.strategy ?? "none";
-  const revalidate = options?.revalidate ?? 60;
-  const staleMultiplier = options?.staleMultiplier ?? 2;
+  const strategy = options?.strategy ?? 'none'
+  const revalidate = options?.revalidate ?? 60
+  const staleMultiplier = options?.staleMultiplier ?? 2
 
-  if (strategy === "none" || process.env.NODE_ENV === "production") {
-    if (strategy === "none") {
+  if (strategy === 'none' || process.env.NODE_ENV === 'production') {
+    if (strategy === 'none') {
       response.headers.set(
-        "Cache-Control",
-        "no-cache, no-store, must-revalidate, max-age=0",
-      );
-      response.headers.set("Pragma", "no-cache");
-      response.headers.set("Expires", "0");
-      return response;
+        'Cache-Control',
+        'no-cache, no-store, must-revalidate, max-age=0',
+      )
+      response.headers.set('Pragma', 'no-cache')
+      response.headers.set('Expires', '0')
+      return response
     }
   }
 
   response.headers.set(
-    "Cache-Control",
+    'Cache-Control',
     `public, s-maxage=${revalidate}, stale-while-revalidate=${revalidate * staleMultiplier}`,
-  );
+  )
 
-  return response;
+  return response
 }
 
 /**
@@ -168,21 +162,21 @@ export function setResourceCacheHeaders(
   cacheConfig: { revalidate: number },
   staleMultiplier = 2,
 ): NextResponse {
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === 'production') {
     response.headers.set(
-      "Cache-Control",
-      "no-cache, no-store, must-revalidate, max-age=0",
-    );
-    response.headers.set("Pragma", "no-cache");
-    response.headers.set("Expires", "0");
+      'Cache-Control',
+      'no-cache, no-store, must-revalidate, max-age=0',
+    )
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
   } else {
     response.headers.set(
-      "Cache-Control",
+      'Cache-Control',
       `public, s-maxage=${cacheConfig.revalidate}, stale-while-revalidate=${cacheConfig.revalidate * staleMultiplier}`,
-    );
+    )
   }
 
-  return response;
+  return response
 }
 
 /**
@@ -195,8 +189,8 @@ export function setListCacheHeaders(
   staleMultiplier = 2,
 ): NextResponse {
   response.headers.set(
-    "Cache-Control",
+    'Cache-Control',
     `public, s-maxage=${cacheConfig.revalidate}, stale-while-revalidate=${cacheConfig.revalidate * staleMultiplier}`,
-  );
-  return response;
+  )
+  return response
 }

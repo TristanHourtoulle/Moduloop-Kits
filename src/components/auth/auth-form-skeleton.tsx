@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Separator } from '@/components/ui/separator'
 
 export function AuthFormSkeleton() {
   return (
@@ -50,5 +50,5 @@ export function AuthFormSkeleton() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

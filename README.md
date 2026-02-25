@@ -35,14 +35,14 @@ cp .env.example .env
 
 Fill in the following variables:
 
-| Variable              | Description                                      |
-| --------------------- | ------------------------------------------------ |
-| `DATABASE_URL`        | PostgreSQL connection URL (pooling)               |
-| `AUTH_SECRET`         | Secret key for Better Auth                        |
-| `NEXTAUTH_URL`        | Application URL (`http://localhost:3000` for dev) |
-| `NEXTAUTH_SECRET`     | Secret key for session management                 |
-| `GOOGLE_CLIENT_ID`    | Google OAuth client ID                            |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                       |
+| Variable               | Description                                       |
+| ---------------------- | ------------------------------------------------- |
+| `DATABASE_URL`         | PostgreSQL connection URL (pooling)               |
+| `AUTH_SECRET`          | Secret key for Better Auth                        |
+| `NEXTAUTH_URL`         | Application URL (`http://localhost:3000` for dev) |
+| `NEXTAUTH_SECRET`      | Secret key for session management                 |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID                            |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                        |
 
 1. **Push the database schema**
 
@@ -60,17 +60,17 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Commands
 
-| Command              | Description                          |
-| -------------------- | ------------------------------------ |
-| `pnpm dev` | Start dev server (Turbopack) |
-| `pnpm build` | Prisma push + generate + Next.js build |
-| `pnpm lint` | Run ESLint |
-| `pnpm test` | Run tests (Vitest) |
-| `pnpm test:coverage` | Run tests with coverage report |
-| `pnpm type-check` | TypeScript type checking |
-| `pnpm db:push` | Push Prisma schema to database |
-| `pnpm db:generate` | Generate Prisma client |
-| `pnpm db:migrate` | Deploy Prisma migrations |
+| Command              | Description                            |
+| -------------------- | -------------------------------------- |
+| `pnpm dev`           | Start dev server (Turbopack)           |
+| `pnpm build`         | Prisma push + generate + Next.js build |
+| `pnpm lint`          | Run ESLint                             |
+| `pnpm test`          | Run tests (Vitest)                     |
+| `pnpm test:coverage` | Run tests with coverage report         |
+| `pnpm type-check`    | TypeScript type checking               |
+| `pnpm db:push`       | Push Prisma schema to database         |
+| `pnpm db:generate`   | Generate Prisma client                 |
+| `pnpm db:migrate`    | Deploy Prisma migrations               |
 
 ## Architecture
 

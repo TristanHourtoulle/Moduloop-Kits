@@ -1,42 +1,42 @@
-import { RoleGuard } from "@/components/auth/role-guard";
-import { UserRole } from "@/lib/types/user";
-import { ProjectEditWrapper } from "@/components/projects/project-edit-wrapper";
-import { FolderOpen, Sparkles } from "lucide-react";
-import { notFound } from "next/navigation";
-import { getProjectById } from "@/lib/db";
-import { getCurrentUserId } from "@/lib/auth-helpers";
+import { RoleGuard } from '@/components/auth/role-guard'
+import { UserRole } from '@/lib/types/user'
+import { ProjectEditWrapper } from '@/components/projects/project-edit-wrapper'
+import { FolderOpen, Sparkles } from 'lucide-react'
+import { notFound } from 'next/navigation'
+import { getProjectById } from '@/lib/db'
+import { getCurrentUserId } from '@/lib/auth-helpers'
 
 // Disable all caching for this page
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface ProjectData {
-  nom: string;
-  description?: string;
-  status: string;
-  kits: Array<{ kitId: string }>;
+  nom: string
+  description?: string
+  status: string
+  kits: Array<{ kitId: string }>
 }
 
 export default async function EditProjectPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ t?: string }>;
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ t?: string }>
 }) {
-  const { id: projectId } = await params;
+  const { id: projectId } = await params
   // Await searchParams to opt into dynamic rendering (Next.js requirement)
-  await searchParams;
+  await searchParams
 
-  const userId = await getCurrentUserId();
+  const userId = await getCurrentUserId()
   if (!userId) {
-    notFound();
+    notFound()
   }
 
-  const projectData = await getProjectById(projectId, userId);
+  const projectData = await getProjectById(projectId, userId)
 
   if (!projectData) {
-    notFound();
+    notFound()
   }
 
   const transformedProject: ProjectData = {
@@ -44,9 +44,9 @@ export default async function EditProjectPage({
     description: projectData.description || undefined,
     status: projectData.status,
     kits: projectData.projectKits?.map((pk) => ({ kitId: pk.kit.id })) || [],
-  };
+  }
 
-  const projectKey = `${projectId}-${String(projectData.updatedAt ?? 'initial')}`;
+  const projectKey = `${projectId}-${String(projectData.updatedAt ?? 'initial')}`
 
   return (
     <RoleGuard requiredRole={UserRole.USER}>
@@ -75,5 +75,5 @@ export default async function EditProjectPage({
         </div>
       </div>
     </RoleGuard>
-  );
+  )
 }

@@ -1,14 +1,14 @@
-import { ProjectStatus } from '@/lib/types/project';
+import { ProjectStatus } from '@/lib/types/project'
 
 interface StatusConfig {
-  color: string;
-  icon: string;
+  color: string
+  icon: string
 }
 
 const DEFAULT_STATUS_CONFIG: StatusConfig = {
   color: 'bg-gray-100 text-gray-800',
   icon: '⚪',
-};
+}
 
 const STATUS_CONFIG: Record<ProjectStatus, StatusConfig> = {
   [ProjectStatus.ACTIF]: {
@@ -27,7 +27,7 @@ const STATUS_CONFIG: Record<ProjectStatus, StatusConfig> = {
     color: 'bg-gray-100 text-gray-800',
     icon: '⚫',
   },
-};
+}
 
 /**
  * Get the full status configuration for a project status.
@@ -35,7 +35,7 @@ const STATUS_CONFIG: Record<ProjectStatus, StatusConfig> = {
  * @returns Color classes and icon for the status
  */
 export function getStatusConfig(status: string): StatusConfig {
-  return STATUS_CONFIG[status as ProjectStatus] ?? DEFAULT_STATUS_CONFIG;
+  return STATUS_CONFIG[status as ProjectStatus] ?? DEFAULT_STATUS_CONFIG
 }
 
 /**
@@ -44,7 +44,7 @@ export function getStatusConfig(status: string): StatusConfig {
  * @returns Tailwind CSS class string
  */
 export function getStatusColor(status: string): string {
-  return getStatusConfig(status).color;
+  return getStatusConfig(status).color
 }
 
 /**
@@ -53,5 +53,5 @@ export function getStatusColor(status: string): string {
  * @returns Emoji string
  */
 export function getStatusIcon(status: string): string {
-  return getStatusConfig(status).icon;
+  return getStatusConfig(status).icon
 }

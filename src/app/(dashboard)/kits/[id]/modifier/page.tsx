@@ -1,40 +1,40 @@
-import { RoleGuard } from "@/components/auth/role-guard";
-import { UserRole } from "@/lib/types/user";
-import { KitEditWrapper } from "@/components/kits/kit-edit-wrapper";
-import { Package2, Sparkles } from "lucide-react";
-import { notFound } from "next/navigation";
-import { getKitById } from "@/lib/db";
+import { RoleGuard } from '@/components/auth/role-guard'
+import { UserRole } from '@/lib/types/user'
+import { KitEditWrapper } from '@/components/kits/kit-edit-wrapper'
+import { Package2, Sparkles } from 'lucide-react'
+import { notFound } from 'next/navigation'
+import { getKitById } from '@/lib/db'
 
 // Disable all caching for this page
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface KitData {
-  nom: string;
-  style: string;
-  description?: string;
-  surfaceM2?: number;
+  nom: string
+  style: string
+  description?: string
+  surfaceM2?: number
   products: Array<{
-    productId: string;
-    quantite: number;
-  }>;
+    productId: string
+    quantite: number
+  }>
 }
 
 export default async function EditKitPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ t?: string }>;
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ t?: string }>
 }) {
-  const { id: kitId } = await params;
+  const { id: kitId } = await params
   // Await searchParams to opt into dynamic rendering (Next.js requirement)
-  await searchParams;
+  await searchParams
 
-  const kitData = await getKitById(kitId);
+  const kitData = await getKitById(kitId)
 
   if (!kitData) {
-    notFound();
+    notFound()
   }
 
   // Transform data for the form
@@ -43,15 +43,13 @@ export default async function EditKitPage({
     style: kitData.style,
     description: kitData.description || undefined,
     surfaceM2: kitData.surfaceM2 || undefined,
-    products: kitData.kitProducts.map(
-      (kp) => ({
-        productId: kp.product.id,
-        quantite: kp.quantite,
-      }),
-    ),
-  };
+    products: kitData.kitProducts.map((kp) => ({
+      productId: kp.product.id,
+      quantite: kp.quantite,
+    })),
+  }
 
-  const kitKey = `${kitId}-${String(kitData.updatedAt ?? 'initial')}`;
+  const kitKey = `${kitId}-${String(kitData.updatedAt ?? 'initial')}`
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
@@ -80,5 +78,5 @@ export default async function EditKitPage({
         </div>
       </div>
     </RoleGuard>
-  );
+  )
 }

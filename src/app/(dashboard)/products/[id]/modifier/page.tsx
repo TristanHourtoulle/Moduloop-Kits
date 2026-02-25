@@ -1,60 +1,60 @@
-import { RoleGuard } from "@/components/auth/role-guard";
-import { UserRole } from "@/lib/types/user";
-import { ProductEditWrapper } from "@/components/products/product-edit-wrapper";
-import { Package, Sparkles } from "lucide-react";
-import { notFound } from "next/navigation";
-import { getProductById } from "@/lib/db";
+import { RoleGuard } from '@/components/auth/role-guard'
+import { UserRole } from '@/lib/types/user'
+import { ProductEditWrapper } from '@/components/products/product-edit-wrapper'
+import { Package, Sparkles } from 'lucide-react'
+import { notFound } from 'next/navigation'
+import { getProductById } from '@/lib/db'
 
 // Disable all caching for this page
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface ProductData {
-  nom: string;
-  reference: string;
-  description?: string;
-  quantite: number;
-  surfaceM2: number;
-  image?: string;
-  prixAchatAchat?: number;
-  prixUnitaireAchat?: number;
-  prixVenteAchat?: number;
-  margeCoefficientAchat?: number;
-  prixAchatLocation1An?: number;
-  prixUnitaireLocation1An?: number;
-  prixVenteLocation1An?: number;
-  prixAchatLocation2Ans?: number;
-  prixUnitaireLocation2Ans?: number;
-  prixVenteLocation2Ans?: number;
-  prixAchatLocation3Ans?: number;
-  prixUnitaireLocation3Ans?: number;
-  prixVenteLocation3Ans?: number;
-  margeCoefficientLocation?: number;
-  rechauffementClimatiqueAchat?: number;
-  epuisementRessourcesAchat?: number;
-  acidificationAchat?: number;
-  eutrophisationAchat?: number;
-  rechauffementClimatiqueLocation?: number;
-  epuisementRessourcesLocation?: number;
-  acidificationLocation?: number;
-  eutrophisationLocation?: number;
+  nom: string
+  reference: string
+  description?: string
+  quantite: number
+  surfaceM2: number
+  image?: string
+  prixAchatAchat?: number
+  prixUnitaireAchat?: number
+  prixVenteAchat?: number
+  margeCoefficientAchat?: number
+  prixAchatLocation1An?: number
+  prixUnitaireLocation1An?: number
+  prixVenteLocation1An?: number
+  prixAchatLocation2Ans?: number
+  prixUnitaireLocation2Ans?: number
+  prixVenteLocation2Ans?: number
+  prixAchatLocation3Ans?: number
+  prixUnitaireLocation3Ans?: number
+  prixVenteLocation3Ans?: number
+  margeCoefficientLocation?: number
+  rechauffementClimatiqueAchat?: number
+  epuisementRessourcesAchat?: number
+  acidificationAchat?: number
+  eutrophisationAchat?: number
+  rechauffementClimatiqueLocation?: number
+  epuisementRessourcesLocation?: number
+  acidificationLocation?: number
+  eutrophisationLocation?: number
 }
 
 export default async function EditProductPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ t?: string }>;
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ t?: string }>
 }) {
-  const { id: productId } = await params;
+  const { id: productId } = await params
   // Await searchParams to opt into dynamic rendering (Next.js requirement)
-  await searchParams;
+  await searchParams
 
-  const productData = await getProductById(productId);
+  const productData = await getProductById(productId)
 
   if (!productData) {
-    notFound();
+    notFound()
   }
 
   const transformedProduct: ProductData = {
@@ -78,17 +78,21 @@ export default async function EditProductPage({
     prixUnitaireLocation3Ans: productData.prixUnitaireLocation3Ans ?? undefined,
     prixVenteLocation3Ans: productData.prixVenteLocation3Ans ?? undefined,
     margeCoefficientLocation: productData.margeCoefficientLocation ?? undefined,
-    rechauffementClimatiqueAchat: productData.rechauffementClimatiqueAchat ?? undefined,
-    epuisementRessourcesAchat: productData.epuisementRessourcesAchat ?? undefined,
+    rechauffementClimatiqueAchat:
+      productData.rechauffementClimatiqueAchat ?? undefined,
+    epuisementRessourcesAchat:
+      productData.epuisementRessourcesAchat ?? undefined,
     acidificationAchat: productData.acidificationAchat ?? undefined,
     eutrophisationAchat: productData.eutrophisationAchat ?? undefined,
-    rechauffementClimatiqueLocation: productData.rechauffementClimatiqueLocation ?? undefined,
-    epuisementRessourcesLocation: productData.epuisementRessourcesLocation ?? undefined,
+    rechauffementClimatiqueLocation:
+      productData.rechauffementClimatiqueLocation ?? undefined,
+    epuisementRessourcesLocation:
+      productData.epuisementRessourcesLocation ?? undefined,
     acidificationLocation: productData.acidificationLocation ?? undefined,
     eutrophisationLocation: productData.eutrophisationLocation ?? undefined,
-  };
+  }
 
-  const productKey = `${productId}-${String(productData.updatedAt ?? 'initial')}`;
+  const productKey = `${productId}-${String(productData.updatedAt ?? 'initial')}`
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
@@ -117,5 +121,5 @@ export default async function EditProductPage({
         </div>
       </div>
     </RoleGuard>
-  );
+  )
 }

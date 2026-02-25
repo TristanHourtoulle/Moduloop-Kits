@@ -1,30 +1,30 @@
-import type { Project, EnvironmentalImpact } from '@/lib/types/project';
-import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product';
+import type { Project, EnvironmentalImpact } from '@/lib/types/project'
+import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product'
 import {
   getProductPricing,
   getProductEnvironmentalImpact,
-} from '@/lib/utils/product-helpers';
+} from '@/lib/utils/product-helpers'
 
 export interface ProjectPriceTotals {
-  achat: number;
-  location1an: number;
-  location2ans: number;
-  location3ans: number;
+  achat: number
+  location1an: number
+  location2ans: number
+  location3ans: number
 }
 
 export interface ProjectCostBreakdown {
-  totalPrice: number;
-  totalCost: number;
-  totalMargin: number;
+  totalPrice: number
+  totalCost: number
+  totalMargin: number
 }
 
 export interface KitBreakdownItem {
-  kitName: string;
-  quantity: number;
-  totalPrice: number;
-  totalCost: number;
-  totalMargin: number;
-  marginPercentage: number;
+  kitName: string
+  quantity: number
+  totalPrice: number
+  totalCost: number
+  totalMargin: number
+  marginPercentage: number
 }
 
 const EMPTY_PRICE_TOTALS: ProjectPriceTotals = {
@@ -32,20 +32,20 @@ const EMPTY_PRICE_TOTALS: ProjectPriceTotals = {
   location1an: 0,
   location2ans: 0,
   location3ans: 0,
-};
+}
 
 const EMPTY_COST_BREAKDOWN: ProjectCostBreakdown = {
   totalPrice: 0,
   totalCost: 0,
   totalMargin: 0,
-};
+}
 
 const EMPTY_ENVIRONMENTAL_IMPACT: EnvironmentalImpact = {
   rechauffementClimatique: 0,
   epuisementRessources: 0,
   acidification: 0,
   eutrophisation: 0,
-};
+}
 
 /**
  * Calculate total sale prices across all modes and periods for a project.
@@ -53,40 +53,40 @@ const EMPTY_ENVIRONMENTAL_IMPACT: EnvironmentalImpact = {
  * @returns Price totals for purchase and all rental periods
  */
 export function calculateProjectPriceTotals(
-  project: Project
+  project: Project,
 ): ProjectPriceTotals {
-  if (!project.projectKits) return { ...EMPTY_PRICE_TOTALS };
+  if (!project.projectKits) return { ...EMPTY_PRICE_TOTALS }
 
-  let achat = 0;
-  let location1an = 0;
-  let location2ans = 0;
-  let location3ans = 0;
+  let achat = 0
+  let location1an = 0
+  let location2ans = 0
+  let location3ans = 0
 
   project.projectKits.forEach((projectKit) => {
-    const kit = projectKit.kit;
-    if (!kit?.kitProducts) return;
+    const kit = projectKit.kit
+    if (!kit?.kitProducts) return
 
     kit.kitProducts.forEach((kitProduct) => {
-      const product = kitProduct.product;
-      if (!product) return;
+      const product = kitProduct.product
+      if (!product) return
 
-      const quantite = kitProduct.quantite * projectKit.quantite;
+      const quantite = kitProduct.quantite * projectKit.quantite
 
-      const pricingAchat = getProductPricing(product, 'achat', '1an');
-      achat += (pricingAchat.prixVente || 0) * quantite;
+      const pricingAchat = getProductPricing(product, 'achat', '1an')
+      achat += (pricingAchat.prixVente || 0) * quantite
 
-      const pricing1an = getProductPricing(product, 'location', '1an');
-      location1an += (pricing1an.prixVente || 0) * quantite;
+      const pricing1an = getProductPricing(product, 'location', '1an')
+      location1an += (pricing1an.prixVente || 0) * quantite
 
-      const pricing2ans = getProductPricing(product, 'location', '2ans');
-      location2ans += (pricing2ans.prixVente || 0) * quantite;
+      const pricing2ans = getProductPricing(product, 'location', '2ans')
+      location2ans += (pricing2ans.prixVente || 0) * quantite
 
-      const pricing3ans = getProductPricing(product, 'location', '3ans');
-      location3ans += (pricing3ans.prixVente || 0) * quantite;
-    });
-  });
+      const pricing3ans = getProductPricing(product, 'location', '3ans')
+      location3ans += (pricing3ans.prixVente || 0) * quantite
+    })
+  })
 
-  return { achat, location1an, location2ans, location3ans };
+  return { achat, location1an, location2ans, location3ans }
 }
 
 /**
@@ -95,9 +95,9 @@ export function calculateProjectPriceTotals(
  * @returns Total sale price, supplier cost, and margin
  */
 export function calculateProjectPurchaseCosts(
-  project: Project
+  project: Project,
 ): ProjectCostBreakdown {
-  return calculateCostsForMode(project, 'achat', '1an');
+  return calculateCostsForMode(project, 'achat', '1an')
 }
 
 /**
@@ -108,9 +108,9 @@ export function calculateProjectPurchaseCosts(
  */
 export function calculateProjectRentalCosts(
   project: Project,
-  period: ProductPeriod
+  period: ProductPeriod,
 ): ProjectCostBreakdown {
-  return calculateCostsForMode(project, 'location', period);
+  return calculateCostsForMode(project, 'location', period)
 }
 
 /**
@@ -123,30 +123,30 @@ export function calculateProjectRentalCosts(
 export function getProjectKitBreakdown(
   project: Project,
   mode: PurchaseRentalMode,
-  period: ProductPeriod = '1an'
+  period: ProductPeriod = '1an',
 ): KitBreakdownItem[] {
-  if (!project.projectKits) return [];
+  if (!project.projectKits) return []
 
   return project.projectKits
     .map((projectKit) => {
-      const kit = projectKit.kit;
-      if (!kit?.kitProducts) return null;
+      const kit = projectKit.kit
+      if (!kit?.kitProducts) return null
 
-      let kitTotalPrice = 0;
-      let kitTotalCost = 0;
+      let kitTotalPrice = 0
+      let kitTotalCost = 0
 
       kit.kitProducts.forEach((kitProduct) => {
-        const product = kitProduct.product;
-        if (!product) return;
+        const product = kitProduct.product
+        if (!product) return
 
-        const pricing = getProductPricing(product, mode, period);
+        const pricing = getProductPricing(product, mode, period)
         kitTotalPrice +=
-          (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite;
+          (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite
         kitTotalCost +=
-          (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite;
-      });
+          (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite
+      })
 
-      const kitTotalMargin = kitTotalPrice - kitTotalCost;
+      const kitTotalMargin = kitTotalPrice - kitTotalCost
 
       return {
         kitName: kit.nom,
@@ -156,9 +156,9 @@ export function getProjectKitBreakdown(
         totalMargin: kitTotalMargin,
         marginPercentage:
           kitTotalPrice > 0 ? (kitTotalMargin / kitTotalPrice) * 100 : 0,
-      };
+      }
     })
-    .filter((item): item is KitBreakdownItem => item !== null);
+    .filter((item): item is KitBreakdownItem => item !== null)
 }
 
 /**
@@ -167,43 +167,43 @@ export function getProjectKitBreakdown(
  * @returns Aggregated environmental savings
  */
 export function calculateEnvironmentalSavings(
-  project: Project
+  project: Project,
 ): EnvironmentalImpact {
-  if (!project.projectKits) return { ...EMPTY_ENVIRONMENTAL_IMPACT };
+  if (!project.projectKits) return { ...EMPTY_ENVIRONMENTAL_IMPACT }
 
-  let rechauffementClimatique = 0;
-  let epuisementRessources = 0;
-  let acidification = 0;
-  let eutrophisation = 0;
+  let rechauffementClimatique = 0
+  let epuisementRessources = 0
+  let acidification = 0
+  let eutrophisation = 0
 
   project.projectKits.forEach((projectKit) => {
-    const kit = projectKit.kit;
-    if (!kit?.kitProducts) return;
+    const kit = projectKit.kit
+    if (!kit?.kitProducts) return
 
     kit.kitProducts.forEach((kitProduct) => {
-      const product = kitProduct.product;
-      if (!product) return;
+      const product = kitProduct.product
+      if (!product) return
 
-      const locationImpact = getProductEnvironmentalImpact(product, 'location');
-      const totalQuantity = kitProduct.quantite * projectKit.quantite;
+      const locationImpact = getProductEnvironmentalImpact(product, 'location')
+      const totalQuantity = kitProduct.quantite * projectKit.quantite
 
       rechauffementClimatique +=
-        Math.abs(locationImpact.rechauffementClimatique || 0) * totalQuantity;
+        Math.abs(locationImpact.rechauffementClimatique || 0) * totalQuantity
       epuisementRessources +=
-        Math.abs(locationImpact.epuisementRessources || 0) * totalQuantity;
+        Math.abs(locationImpact.epuisementRessources || 0) * totalQuantity
       acidification +=
-        Math.abs(locationImpact.acidification || 0) * totalQuantity;
+        Math.abs(locationImpact.acidification || 0) * totalQuantity
       eutrophisation +=
-        Math.abs(locationImpact.eutrophisation || 0) * totalQuantity;
-    });
-  });
+        Math.abs(locationImpact.eutrophisation || 0) * totalQuantity
+    })
+  })
 
   return {
     rechauffementClimatique,
     epuisementRessources,
     acidification,
     eutrophisation,
-  };
+  }
 }
 
 /**
@@ -212,39 +212,39 @@ export function calculateEnvironmentalSavings(
  * @returns Number of years to break even, or null if rental price is zero
  */
 export function calculateBreakEvenPoint(project: Project): number | null {
-  const purchaseCost = calculateProjectPurchaseCosts(project);
-  const rental1Year = calculateProjectRentalCosts(project, '1an');
+  const purchaseCost = calculateProjectPurchaseCosts(project)
+  const rental1Year = calculateProjectRentalCosts(project, '1an')
 
-  if (rental1Year.totalPrice === 0) return null;
+  if (rental1Year.totalPrice === 0) return null
 
-  return purchaseCost.totalPrice / rental1Year.totalPrice;
+  return purchaseCost.totalPrice / rental1Year.totalPrice
 }
 
 function calculateCostsForMode(
   project: Project,
   mode: PurchaseRentalMode,
-  period: ProductPeriod
+  period: ProductPeriod,
 ): ProjectCostBreakdown {
-  if (!project.projectKits) return { ...EMPTY_COST_BREAKDOWN };
+  if (!project.projectKits) return { ...EMPTY_COST_BREAKDOWN }
 
-  let totalPrice = 0;
-  let totalCost = 0;
+  let totalPrice = 0
+  let totalCost = 0
 
   project.projectKits.forEach((projectKit) => {
-    const kit = projectKit.kit;
-    if (!kit?.kitProducts) return;
+    const kit = projectKit.kit
+    if (!kit?.kitProducts) return
 
     kit.kitProducts.forEach((kitProduct) => {
-      const product = kitProduct.product;
-      if (!product) return;
+      const product = kitProduct.product
+      if (!product) return
 
-      const pricing = getProductPricing(product, mode, period);
+      const pricing = getProductPricing(product, mode, period)
       totalPrice +=
-        (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite;
+        (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite
       totalCost +=
-        (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite;
-    });
-  });
+        (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite
+    })
+  })
 
-  return { totalPrice, totalCost, totalMargin: totalPrice - totalCost };
+  return { totalPrice, totalCost, totalMargin: totalPrice - totalCost }
 }

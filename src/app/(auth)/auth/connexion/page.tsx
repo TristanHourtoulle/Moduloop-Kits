@@ -4,8 +4,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { ConnexionForm } from "@/components/auth/connexion-form";
+} from '@/components/ui/card'
+import { ConnexionForm } from '@/components/auth/connexion-form'
 
 export default function ConnexionPage() {
   return (
@@ -25,5 +25,5 @@ export default function ConnexionPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

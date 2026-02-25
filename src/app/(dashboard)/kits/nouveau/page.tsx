@@ -1,13 +1,13 @@
-import { Metadata } from "next";
-import { RoleGuard } from "@/components/auth/role-guard";
-import { UserRole } from "@/lib/types/user";
-import { KitForm } from "@/components/kits/kit-form";
-import { Package2 } from "lucide-react";
+import { Metadata } from 'next'
+import { RoleGuard } from '@/components/auth/role-guard'
+import { UserRole } from '@/lib/types/user'
+import { KitForm } from '@/components/kits/kit-form'
+import { Package2 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: "Nouveau kit - Moduloop Kits",
-  description: "Créer un nouveau kit de produits dans le catalogue Moduloop",
-};
+  title: 'Nouveau kit - Moduloop Kits',
+  description: 'Créer un nouveau kit de produits dans le catalogue Moduloop',
+}
 
 export default function NewKitPage() {
   return (
@@ -29,7 +29,7 @@ export default function NewKitPage() {
                 </p>
               </div>
             </div>
-            
+
             {/* Navigation breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>Kits</span>
@@ -43,5 +43,5 @@ export default function NewKitPage() {
         </div>
       </div>
     </RoleGuard>
-  );
+  )
 }

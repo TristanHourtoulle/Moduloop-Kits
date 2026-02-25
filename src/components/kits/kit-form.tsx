@@ -1,28 +1,28 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useZodForm } from "@/lib/forms";
-import { kitSchema, type KitFormData } from "@/lib/schemas/kit";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Accordion } from "@/components/ui/accordion";
-import { useSession } from "@/lib/auth-client";
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useZodForm } from '@/lib/forms'
+import { kitSchema, type KitFormData } from '@/lib/schemas/kit'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Accordion } from '@/components/ui/accordion'
+import { useSession } from '@/lib/auth-client'
 
 // Import des sections
-import { KitGeneralInfoSection } from "./form-sections/kit-general-info-section";
-import { KitProductsSection } from "./form-sections/kit-products-section";
-import { KitFormActions } from "./form-sections/kit-form-actions";
+import { KitGeneralInfoSection } from './form-sections/kit-general-info-section'
+import { KitProductsSection } from './form-sections/kit-products-section'
+import { KitFormActions } from './form-sections/kit-form-actions'
 
 interface KitFormProps {
-  readonly initialData?: Partial<KitFormData>;
-  readonly kitId?: string;
+  readonly initialData?: Partial<KitFormData>
+  readonly kitId?: string
 }
 
 export function KitForm({ initialData, kitId }: KitFormProps) {
-  const router = useRouter();
-  const { data: session } = useSession();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
+  const { data: session } = useSession()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const {
     handleSubmit,
@@ -33,92 +33,92 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
     defaultValues: {
       products: [],
     },
-  });
+  })
 
   // Reinitialize form when data changes
   useEffect(() => {
     if (initialData) {
       reset({
-        nom: initialData.nom || "",
-        style: initialData.style || "",
+        nom: initialData.nom || '',
+        style: initialData.style || '',
         description: initialData.description,
         surfaceM2: initialData.surfaceM2,
         products: initialData.products || [],
-      });
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kitId]);
+  }, [kitId])
 
   const onSubmit = async (data: KitFormData) => {
     if (!session?.user) {
-      setError("Vous devez être connecté pour créer un kit");
-      return;
+      setError('Vous devez être connecté pour créer un kit')
+      return
     }
 
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
 
     try {
       const groupedProducts = data.products.reduce(
         (acc, product) => {
           const existingProduct = acc.find(
             (p) => p.productId === product.productId,
-          );
+          )
           if (existingProduct) {
-            existingProduct.quantite += product.quantite;
+            existingProduct.quantite += product.quantite
           } else {
-            acc.push({ ...product });
+            acc.push({ ...product })
           }
-          return acc;
+          return acc
         },
         [] as typeof data.products,
-      );
+      )
 
-      const url = kitId ? `/api/kits/${kitId}` : "/api/kits";
-      const method = kitId ? "PUT" : "POST";
+      const url = kitId ? `/api/kits/${kitId}` : '/api/kits'
+      const method = kitId ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...data,
           products: groupedProducts,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Erreur lors de la sauvegarde");
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erreur lors de la sauvegarde')
       }
 
       // Add delay to ensure cache invalidation completes on Vercel
       const isProduction =
-        typeof window !== "undefined" &&
-        window.location.hostname !== "localhost" &&
-        !window.location.hostname.includes("127.0.0.1");
+        typeof window !== 'undefined' &&
+        window.location.hostname !== 'localhost' &&
+        !window.location.hostname.includes('127.0.0.1')
 
       if (isProduction) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        await new Promise((resolve) => setTimeout(resolve, 300))
       }
 
-      router.push("/kits?updated=" + Date.now());
+      router.push('/kits?updated=' + Date.now())
     } catch (err) {
-      console.error("[KitForm] Error submitting form:", err);
+      console.error('[KitForm] Error submitting form:', err)
       setError(
         err instanceof Error
           ? err.message
           : "Une erreur inattendue s'est produite",
-      );
+      )
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleError = (errorMessage: string) => {
-    setError(errorMessage);
-  };
+    setError(errorMessage)
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -133,7 +133,7 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
 
         <Accordion
           type="multiple"
-          defaultValue={["general", "products"]}
+          defaultValue={['general', 'products']}
           className="space-y-4"
         >
           <KitGeneralInfoSection control={control} errors={errors} />
@@ -148,5 +148,5 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
         <KitFormActions isLoading={isLoading} kitId={kitId} onReset={reset} />
       </form>
     </div>
-  );
+  )
 }

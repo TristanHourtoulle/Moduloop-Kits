@@ -1,17 +1,17 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
 
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
-import { InputWithIcon } from "@/components/ui/input-with-icon";
-import { PasswordInput } from "@/components/ui/password-input";
-import { GoogleButton } from "@/components/auth/google-button";
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Separator } from '@/components/ui/separator'
+import { InputWithIcon } from '@/components/ui/input-with-icon'
+import { PasswordInput } from '@/components/ui/password-input'
+import { GoogleButton } from '@/components/auth/google-button'
 import {
   Form,
   FormControl,
@@ -19,54 +19,56 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form'
 
-import { Mail, AlertCircle, Loader2 } from "lucide-react";
-import {
-  connexionSchema,
-  type ConnexionFormData,
-} from "@/lib/schemas/auth";
-import { getSpecificAuthError } from "@/lib/auth/error-messages";
-import { signInWithErrorHandling } from "@/lib/auth/sign-in-with-error-handling";
+import { Mail, AlertCircle, Loader2 } from 'lucide-react'
+import { connexionSchema, type ConnexionFormData } from '@/lib/schemas/auth'
+import { getSpecificAuthError } from '@/lib/auth/error-messages'
+import { signInWithErrorHandling } from '@/lib/auth/sign-in-with-error-handling'
 
 export function ConnexionForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   const form = useForm<ConnexionFormData>({
     resolver: zodResolver(connexionSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
-  });
+  })
 
   const onSubmit = async (data: ConnexionFormData) => {
-    setIsLoading(true);
-    setError("");
+    setIsLoading(true)
+    setError('')
 
     try {
-      const result = await signInWithErrorHandling(data.email, data.password);
+      const result = await signInWithErrorHandling(data.email, data.password)
 
       if (result.success) {
-        router.push("/dashboard");
+        router.push('/dashboard')
       } else {
-        const errorMessage = getSpecificAuthError(result.error || "Authentication failed", 'signin');
-        setError(errorMessage);
+        const errorMessage = getSpecificAuthError(
+          result.error || 'Authentication failed',
+          'signin',
+        )
+        setError(errorMessage)
       }
-
     } catch (err: unknown) {
-      const errorMessage = getSpecificAuthError(err instanceof Error ? err.message : String(err), 'signin');
-      setError(errorMessage);
+      const errorMessage = getSpecificAuthError(
+        err instanceof Error ? err.message : String(err),
+        'signin',
+      )
+      setError(errorMessage)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleGoogleError = (errorMessage: string) => {
-    setError(errorMessage);
-  };
+    setError(errorMessage)
+  }
 
   return (
     <div className="space-y-6">
@@ -151,7 +153,7 @@ export function ConnexionForm() {
                 Connexion en cours...
               </>
             ) : (
-              "Se connecter"
+              'Se connecter'
             )}
           </Button>
         </form>
@@ -159,7 +161,7 @@ export function ConnexionForm() {
 
       <div className="text-center pt-4">
         <p className="text-sm text-gray-600">
-          Pas encore de compte ?{" "}
+          Pas encore de compte ?{' '}
           <Link
             href="/auth/inscription"
             className="text-[#30C1BD] hover:text-[#30C1BD]/80 font-medium transition-colors cursor-pointer"
@@ -169,5 +171,5 @@ export function ConnexionForm() {
         </p>
       </div>
     </div>
-  );
+  )
 }

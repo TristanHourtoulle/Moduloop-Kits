@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { useState, useMemo } from 'react';
-import { Product } from '@/lib/types/project';
-import { ProductSelectionCard } from './ProductSelectionCard';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Search, Package } from 'lucide-react';
+import { useState, useMemo } from 'react'
+import { Product } from '@/lib/types/project'
+import { ProductSelectionCard } from './ProductSelectionCard'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { Search, Package } from 'lucide-react'
 
 interface ProductSelectionGridProps {
-  products: Product[];
-  productQuantities: Record<string, number>;
-  onQuantityChange: (productId: string, quantity: number) => void;
+  products: Product[]
+  productQuantities: Record<string, number>
+  onQuantityChange: (productId: string, quantity: number) => void
 }
 
 export function ProductSelectionGrid({
@@ -18,22 +18,24 @@ export function ProductSelectionGrid({
   productQuantities,
   onQuantityChange,
 }: ProductSelectionGridProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Filter products based on search
   const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) return products;
+    if (!searchQuery.trim()) return products
 
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.toLowerCase()
     return products.filter(
       (product) =>
         product.nom.toLowerCase().includes(query) ||
-        product.reference.toLowerCase().includes(query)
-    );
-  }, [products, searchQuery]);
+        product.reference.toLowerCase().includes(query),
+    )
+  }, [products, searchQuery])
 
-  const availableCount = filteredProducts.length;
-  const selectedCount = Object.values(productQuantities).filter(q => q > 0).length;
+  const availableCount = filteredProducts.length
+  const selectedCount = Object.values(productQuantities).filter(
+    (q) => q > 0,
+  ).length
 
   return (
     <div className="space-y-4">
@@ -94,5 +96,5 @@ export function ProductSelectionGrid({
         </div>
       )}
     </div>
-  );
+  )
 }

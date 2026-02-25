@@ -1,13 +1,13 @@
-"use client";
+'use client'
 
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
 
 interface FormActionsProps {
-  isLoading: boolean;
-  productId?: string;
-  onReset: () => void;
+  isLoading: boolean
+  productId?: string
+  onReset: () => void
 }
 
 export function FormActions({
@@ -15,7 +15,7 @@ export function FormActions({
   productId,
   onReset,
 }: FormActionsProps) {
-  const router = useRouter();
+  const router = useRouter()
 
   return (
     <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t">
@@ -43,8 +43,8 @@ export function FormActions({
         className="cursor-pointer bg-[#30C1BD] hover:bg-[#30C1BD]/80 text-white order-1 sm:order-3"
       >
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {productId ? "Mettre à jour" : "Créer le produit"}
+        {productId ? 'Mettre à jour' : 'Créer le produit'}
       </Button>
     </div>
-  );
+  )
 }

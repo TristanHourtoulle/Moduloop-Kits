@@ -1,24 +1,24 @@
-import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
-import { productSchema, productFilterSchema } from "@/lib/schemas/product";
-import { UserRole } from "@/lib/types/user";
-import { prisma } from "@/lib/db";
-import { invalidateProducts, CACHE_CONFIG } from "@/lib/cache";
+import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
+import { productSchema, productFilterSchema } from '@/lib/schemas/product'
+import { UserRole } from '@/lib/types/user'
+import { prisma } from '@/lib/db'
+import { invalidateProducts, CACHE_CONFIG } from '@/lib/cache'
 import {
   requireAuth,
   requireRole,
   handleApiError,
   setListCacheHeaders,
-} from "@/lib/api/middleware";
+} from '@/lib/api/middleware'
 
 // GET /api/products - Liste des produits avec filtres
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireAuth(request);
-    if (auth.response) return auth.response;
+    const auth = await requireAuth(request)
+    if (auth.response) return auth.response
 
-    const { searchParams } = new URL(request.url);
-    const filterParams = Object.fromEntries(searchParams);
+    const { searchParams } = new URL(request.url)
+    const filterParams = Object.fromEntries(searchParams)
 
     // Convertir les paramètres de requête en nombres si nécessaire
     const processedParams = {
@@ -33,43 +33,43 @@ export async function GET(request: NextRequest) {
         : undefined,
       page: filterParams.page ? Number(filterParams.page) : undefined,
       limit: filterParams.limit ? Number(filterParams.limit) : undefined,
-    };
+    }
 
-    const filters = productFilterSchema.parse(processedParams);
+    const filters = productFilterSchema.parse(processedParams)
 
     // Construire les conditions de filtrage
-    const where: Prisma.ProductWhereInput = {};
+    const where: Prisma.ProductWhereInput = {}
 
     if (filters.search) {
       where.OR = [
-        { nom: { contains: filters.search, mode: "insensitive" } },
-        { reference: { contains: filters.search, mode: "insensitive" } },
-        { description: { contains: filters.search, mode: "insensitive" } },
-      ];
+        { nom: { contains: filters.search, mode: 'insensitive' } },
+        { reference: { contains: filters.search, mode: 'insensitive' } },
+        { description: { contains: filters.search, mode: 'insensitive' } },
+      ]
     }
 
     if (filters.reference) {
-      where.reference = { contains: filters.reference, mode: "insensitive" };
+      where.reference = { contains: filters.reference, mode: 'insensitive' }
     }
 
     if (filters.minPrix || filters.maxPrix) {
-      where.prixVente1An = {};
-      if (filters.minPrix) where.prixVente1An.gte = filters.minPrix;
-      if (filters.maxPrix) where.prixVente1An.lte = filters.maxPrix;
+      where.prixVente1An = {}
+      if (filters.minPrix) where.prixVente1An.gte = filters.minPrix
+      if (filters.maxPrix) where.prixVente1An.lte = filters.maxPrix
     }
 
     if (filters.minQuantite || filters.maxQuantite) {
-      where.quantite = {};
-      if (filters.minQuantite) where.quantite.gte = filters.minQuantite;
-      if (filters.maxQuantite) where.quantite.lte = filters.maxQuantite;
+      where.quantite = {}
+      if (filters.minQuantite) where.quantite.gte = filters.minQuantite
+      if (filters.maxQuantite) where.quantite.lte = filters.maxQuantite
     }
 
     if (filters.createdBy) {
-      where.createdById = filters.createdBy;
+      where.createdById = filters.createdBy
     }
 
     // Check if we need to return all products (for client-side filtering)
-    const fetchAll = searchParams.get('all') === 'true';
+    const fetchAll = searchParams.get('all') === 'true'
 
     if (fetchAll) {
       // Return all products without pagination
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
         orderBy: {
           createdAt: 'desc',
         },
-      });
+      })
 
       return NextResponse.json({
         products,
@@ -98,11 +98,11 @@ export async function GET(request: NextRequest) {
           hasNext: false,
           hasPrev: false,
         },
-      });
+      })
     }
 
     // Calculer l'offset pour la pagination
-    const offset = (filters.page - 1) * filters.limit;
+    const offset = (filters.page - 1) * filters.limit
 
     // Récupérer les produits avec pagination
     const [products, total] = await Promise.all([
@@ -123,9 +123,9 @@ export async function GET(request: NextRequest) {
         take: filters.limit,
       }),
       prisma.product.count({ where }),
-    ]);
+    ])
 
-    const totalPages = Math.ceil(total / filters.limit);
+    const totalPages = Math.ceil(total / filters.limit)
 
     // Configure cache for this response
     const response = NextResponse.json({
@@ -138,45 +138,50 @@ export async function GET(request: NextRequest) {
         hasNext: filters.page < totalPages,
         hasPrev: filters.page > 1,
       },
-    });
+    })
 
     // Longer cache for products (change less frequently)
-    setListCacheHeaders(response, CACHE_CONFIG.PRODUCTS);
+    setListCacheHeaders(response, CACHE_CONFIG.PRODUCTS)
 
-    return response;
+    return response
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error)
   }
 }
 
 // POST /api/products - Créer un nouveau produit
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN]);
-    if (auth.response) return auth.response;
+    const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN])
+    if (auth.response) return auth.response
 
-    const body = await request.json();
-    const validatedData = productSchema.parse(body);
+    const body = await request.json()
+    const validatedData = productSchema.parse(body)
 
     // Vérifier que la référence n'existe pas déjà
     const existingProduct = await prisma.product.findUnique({
       where: { reference: validatedData.reference },
-    });
+    })
 
     if (existingProduct) {
       return NextResponse.json(
-        { error: "Cette référence existe déjà" },
+        { error: 'Cette référence existe déjà' },
         { status: 409 },
-      );
+      )
     }
 
     // Build create data: spread validated fields, override with defaults for legacy required fields,
     // then remap form field names to DB column names
-    const { prixAchatAchat1An, prixUnitaireAchat1An, prixVenteAchat1An, ...restValidated } = validatedData;
+    const {
+      prixAchatAchat1An,
+      prixUnitaireAchat1An,
+      prixVenteAchat1An,
+      ...restValidated
+    } = validatedData
 
     const createData: Prisma.ProductUncheckedCreateInput = {
       ...restValidated,
-      description: validatedData.description || "",
+      description: validatedData.description || '',
       // Legacy required fields with defaults
       prixAchat1An: validatedData.prixAchat1An ?? 0,
       prixUnitaire1An: validatedData.prixUnitaire1An ?? 0,
@@ -193,7 +198,7 @@ export async function POST(request: NextRequest) {
       // Metadata
       createdById: auth.user.id,
       updatedById: auth.user.id,
-    };
+    }
 
     const product = await prisma.product.create({
       data: createData,
@@ -205,13 +210,13 @@ export async function POST(request: NextRequest) {
           select: { id: true, name: true, email: true },
         },
       },
-    });
+    })
 
     // Invalider le cache des produits après création
-    invalidateProducts();
+    invalidateProducts()
 
-    return NextResponse.json(product, { status: 201 });
+    return NextResponse.json(product, { status: 201 })
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error)
   }
 }

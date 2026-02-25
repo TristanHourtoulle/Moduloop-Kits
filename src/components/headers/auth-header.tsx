@@ -1,13 +1,13 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus, Menu, X } from "lucide-react";
-import { useState } from "react";
+import Link from 'next/link'
+import Image from 'next/image'
+import { Button } from '@/components/ui/button'
+import { LogIn, UserPlus, Menu, X } from 'lucide-react'
+import { useState } from 'react'
 
 export function AuthHeader() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -70,8 +70,8 @@ export function AuthHeader() {
         <div
           className={`md:hidden transition-all duration-300 ease-in-out ${
             isMobileMenuOpen
-              ? "max-h-48 opacity-100 pb-4"
-              : "max-h-0 opacity-0 pb-0"
+              ? 'max-h-48 opacity-100 pb-4'
+              : 'max-h-0 opacity-0 pb-0'
           } overflow-hidden`}
         >
           <div className="pt-4 space-y-3">
@@ -100,5 +100,5 @@ export function AuthHeader() {
         </div>
       </div>
     </header>
-  );
+  )
 }

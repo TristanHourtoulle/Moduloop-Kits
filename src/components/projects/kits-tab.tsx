@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { useState, useEffect } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import {
   Package,
   Plus,
@@ -12,28 +12,28 @@ import {
   BarChart3,
   Euro,
   ShoppingBag,
-} from 'lucide-react';
-import { useDebounce } from '@/hooks/use-debounce';
-import { ProjectKit } from '@/lib/types/project';
-import { type PurchaseRentalMode } from '@/lib/schemas/product';
-import { calculateKitPrice } from '@/lib/utils/kit/calculations';
+} from 'lucide-react'
+import { useDebounce } from '@/hooks/use-debounce'
+import { ProjectKit } from '@/lib/types/project'
+import { type PurchaseRentalMode } from '@/lib/schemas/product'
+import { calculateKitPrice } from '@/lib/utils/kit/calculations'
 import {
   formatPrice as formatPriceHelper,
   annualToMonthly,
-} from '@/lib/utils/product-helpers';
-import { PurchaseRentalModeSelector } from './shared/purchase-rental-mode-selector';
-import { KitsCatalogSection } from './kits-catalog-section';
-import { ProjectKitCard } from './project-kit-card';
-import type { AvailableKit } from './available-kit-card';
+} from '@/lib/utils/product-helpers'
+import { PurchaseRentalModeSelector } from './shared/purchase-rental-mode-selector'
+import { KitsCatalogSection } from './kits-catalog-section'
+import { ProjectKitCard } from './project-kit-card'
+import type { AvailableKit } from './available-kit-card'
 
 interface KitsTabProps {
-  projectKits: ProjectKit[];
-  onAddKits: (kits: { kitId: string; quantite: number }[]) => Promise<void>;
+  projectKits: ProjectKit[]
+  onAddKits: (kits: { kitId: string; quantite: number }[]) => Promise<void>
   onUpdateQuantity?: (
     projectKitId: string,
-    newQuantity: number
-  ) => Promise<void>;
-  onRemoveKit?: (projectKitId: string) => Promise<void>;
+    newQuantity: number,
+  ) => Promise<void>
+  onRemoveKit?: (projectKitId: string) => Promise<void>
 }
 
 /**
@@ -47,118 +47,130 @@ export function KitsTab({
   onUpdateQuantity,
   onRemoveKit,
 }: KitsTabProps) {
-  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat');
-  const [showAddSection, setShowAddSection] = useState(false);
-  const [availableKits, setAvailableKits] = useState<AvailableKit[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStyle, setSelectedStyle] = useState<string>('');
-  const [selectedKits, setSelectedKits] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(false);
-  const [expandedProjectKit, setExpandedProjectKit] = useState<string | null>(null);
-  const [editingQuantity, setEditingQuantity] = useState<string | null>(null);
-  const [tempQuantity, setTempQuantity] = useState<number>(0);
+  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat')
+  const [showAddSection, setShowAddSection] = useState(false)
+  const [availableKits, setAvailableKits] = useState<AvailableKit[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedStyle, setSelectedStyle] = useState<string>('')
+  const [selectedKits, setSelectedKits] = useState<Record<string, number>>({})
+  const [loading, setLoading] = useState(false)
+  const [expandedProjectKit, setExpandedProjectKit] = useState<string | null>(
+    null,
+  )
+  const [editingQuantity, setEditingQuantity] = useState<string | null>(null)
+  const [tempQuantity, setTempQuantity] = useState<number>(0)
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
   useEffect(() => {
     if (showAddSection) {
-      fetchAvailableKits();
+      fetchAvailableKits()
     }
-  }, [showAddSection, debouncedSearchTerm, selectedStyle]);
+  }, [showAddSection, debouncedSearchTerm, selectedStyle])
 
   const fetchAvailableKits = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const params = new URLSearchParams();
-      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
-      if (selectedStyle) params.append('style', selectedStyle);
+      const params = new URLSearchParams()
+      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm)
+      if (selectedStyle) params.append('style', selectedStyle)
 
-      const response = await fetch(`/api/kits?${params.toString()}`);
+      const response = await fetch(`/api/kits?${params.toString()}`)
       if (response.ok) {
-        const data = await response.json();
-        setAvailableKits(data);
+        const data = await response.json()
+        setAvailableKits(data)
       }
     } catch {
       // Silently fail - loading state is reset in finally
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleQuantityChange = (kitId: string, change: number) => {
-    const currentQuantity = selectedKits[kitId] || 0;
-    const newQuantity = Math.max(0, currentQuantity + change);
+    const currentQuantity = selectedKits[kitId] || 0
+    const newQuantity = Math.max(0, currentQuantity + change)
 
     if (newQuantity === 0) {
-      const { [kitId]: _removed, ...rest } = selectedKits;
-      setSelectedKits(rest);
+      const { [kitId]: _removed, ...rest } = selectedKits
+      setSelectedKits(rest)
     } else {
-      setSelectedKits((prev) => ({ ...prev, [kitId]: newQuantity }));
+      setSelectedKits((prev) => ({ ...prev, [kitId]: newQuantity }))
     }
-  };
+  }
 
   const handleAddSelectedKits = async () => {
     const kitsToAdd = Object.entries(selectedKits)
       .filter(([, quantity]) => quantity > 0)
-      .map(([kitId, quantity]) => ({ kitId, quantite: quantity }));
+      .map(([kitId, quantity]) => ({ kitId, quantite: quantity }))
 
     if (kitsToAdd.length > 0) {
-      await onAddKits(kitsToAdd);
-      setSelectedKits({});
-      setShowAddSection(false);
+      await onAddKits(kitsToAdd)
+      setSelectedKits({})
+      setShowAddSection(false)
     }
-  };
+  }
 
-  const startEditingQuantity = (projectKitId: string, currentQuantity: number) => {
-    setEditingQuantity(projectKitId);
-    setTempQuantity(currentQuantity);
-  };
+  const startEditingQuantity = (
+    projectKitId: string,
+    currentQuantity: number,
+  ) => {
+    setEditingQuantity(projectKitId)
+    setTempQuantity(currentQuantity)
+  }
 
   const saveQuantity = async (projectKitId: string) => {
     if (onUpdateQuantity && tempQuantity > 0) {
-      await onUpdateQuantity(projectKitId, tempQuantity);
-      setEditingQuantity(null);
-      setTempQuantity(0);
+      await onUpdateQuantity(projectKitId, tempQuantity)
+      setEditingQuantity(null)
+      setTempQuantity(0)
     }
-  };
+  }
 
   const cancelEditingQuantity = () => {
-    setEditingQuantity(null);
-    setTempQuantity(0);
-  };
+    setEditingQuantity(null)
+    setTempQuantity(0)
+  }
 
-  const totalUnits = projectKits.reduce((sum, pk) => sum + pk.quantite, 0);
+  const totalUnits = projectKits.reduce((sum, pk) => sum + pk.quantite, 0)
   const totalValue = projectKits.reduce((sum, pk) => {
-    if (!pk.kit?.kitProducts) return sum;
-    const period = selectedMode === 'location' ? '3ans' as const : '1an' as const;
-    return sum + calculateKitPrice(pk.kit.kitProducts, selectedMode, period) * pk.quantite;
-  }, 0);
+    if (!pk.kit?.kitProducts) return sum
+    const period =
+      selectedMode === 'location' ? ('3ans' as const) : ('1an' as const)
+    return (
+      sum +
+      calculateKitPrice(pk.kit.kitProducts, selectedMode, period) * pk.quantite
+    )
+  }, 0)
 
   return (
-    <div className='space-y-8'>
-      <div className='bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-6 shadow-sm'>
-        <div className='flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4'>
-          <div className='flex items-center space-x-3'>
-            <div className='p-3 bg-gradient-to-br from-[#30C1BD]/10 to-blue-100 rounded-xl'>
-              <Package className='w-6 h-6 text-[#30C1BD]' />
+    <div className="space-y-8">
+      <div className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex items-center space-x-3">
+            <div className="p-3 bg-gradient-to-br from-[#30C1BD]/10 to-blue-100 rounded-xl">
+              <Package className="w-6 h-6 text-[#30C1BD]" />
             </div>
             <div>
-              <h2 className='text-xl font-bold text-gray-900'>
+              <h2 className="text-xl font-bold text-gray-900">
                 Gestion des Kits
               </h2>
-              <p className='text-gray-600'>
+              <p className="text-gray-600">
                 {projectKits.length} kit{projectKits.length > 1 ? 's' : ''}{' '}
                 configuré{projectKits.length > 1 ? 's' : ''} dans ce projet
               </p>
             </div>
           </div>
 
-          <PurchaseRentalModeSelector mode={selectedMode} onModeChange={setSelectedMode} />
+          <PurchaseRentalModeSelector
+            mode={selectedMode}
+            onModeChange={setSelectedMode}
+          />
         </div>
 
-        <Separator className='my-4' />
+        <Separator className="my-4" />
 
-        <div className='flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center'>
+        <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
           <Button
             onClick={() => setShowAddSection(!showAddSection)}
             className={`flex items-center gap-2 ${
@@ -169,25 +181,25 @@ export function KitsTab({
           >
             {showAddSection ? (
               <>
-                <XCircle className='w-4 h-4' />
+                <XCircle className="w-4 h-4" />
                 Fermer le catalogue
               </>
             ) : (
               <>
-                <Plus className='w-4 h-4' />
+                <Plus className="w-4 h-4" />
                 Parcourir le catalogue
               </>
             )}
           </Button>
 
           {projectKits.length > 0 && (
-            <div className='flex flex-col sm:flex-row items-start sm:items-center gap-3 text-sm text-gray-600'>
-              <div className='flex items-center gap-2'>
-                <BarChart3 className='w-4 h-4' />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
                 <span>Total: {totalUnits} unités</span>
               </div>
-              <div className='flex items-center gap-2'>
-                <Euro className='w-4 h-4' />
+              <div className="flex items-center gap-2">
+                <Euro className="w-4 h-4" />
                 <span>
                   Valeur:{' '}
                   {selectedMode === 'location'
@@ -224,25 +236,25 @@ export function KitsTab({
         )}
       </AnimatePresence>
 
-      <div className='space-y-4'>
+      <div className="space-y-4">
         {projectKits.length === 0 ? (
-          <Card className='pt-6 border-dashed border-2 border-gray-300'>
-            <CardContent className='flex flex-col items-center justify-center py-16'>
-              <div className='w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4'>
-                <Package className='w-10 h-10 text-gray-400' />
+          <Card className="pt-6 border-dashed border-2 border-gray-300">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <Package className="w-10 h-10 text-gray-400" />
               </div>
-              <h3 className='text-xl font-semibold text-gray-900 mb-2'>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 Aucun kit dans ce projet
               </h3>
-              <p className='text-gray-500 text-center mb-6 max-w-md'>
+              <p className="text-gray-500 text-center mb-6 max-w-md">
                 Commencez par parcourir notre catalogue pour ajouter des kits à
                 votre projet et voir leurs métriques détaillées.
               </p>
               <Button
                 onClick={() => setShowAddSection(true)}
-                className='bg-[#30C1BD] hover:bg-[#30C1BD]/90 text-white'
+                className="bg-[#30C1BD] hover:bg-[#30C1BD]/90 text-white"
               >
-                <ShoppingBag className='w-4 h-4 mr-2' />
+                <ShoppingBag className="w-4 h-4 mr-2" />
                 Parcourir le catalogue
               </Button>
             </CardContent>
@@ -269,5 +281,5 @@ export function KitsTab({
         )}
       </div>
     </div>
-  );
+  )
 }

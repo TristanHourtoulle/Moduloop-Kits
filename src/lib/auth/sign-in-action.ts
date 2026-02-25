@@ -1,16 +1,16 @@
-import { signIn } from "@/lib/auth-client";
+import { signIn } from '@/lib/auth-client'
 
 export const signInSocialAction = async ({
   provider,
 }: {
-  provider: "google";
+  provider: 'google'
 }) => {
   try {
     await signIn.social({
       provider,
-      callbackURL: "/dashboard",
-    });
+      callbackURL: '/dashboard',
+    })
   } catch (error) {
-    console.error("Sign in error:", error);
+    console.error('Sign in error:', error)
   }
-};
+}

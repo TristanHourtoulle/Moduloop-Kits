@@ -1,18 +1,18 @@
-import { Badge } from '@/components/ui/badge';
-import { formatPrice, annualToMonthly } from '@/lib/utils/product-helpers';
-import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge'
+import { formatPrice, annualToMonthly } from '@/lib/utils/product-helpers'
+import { cn } from '@/lib/utils'
 
 interface LocationPriceDisplayProps {
-  annualPrice: number;
-  label?: string;
-  variant?: 'card' | 'inline' | 'table-cell';
-  showAnnual?: boolean;
-  priceClassName?: string;
-  secondaryClassName?: string;
-  labelClassName?: string;
-  badgeClassName?: string;
-  secondaryBadgeClassName?: string;
-  className?: string;
+  annualPrice: number
+  label?: string
+  variant?: 'card' | 'inline' | 'table-cell'
+  showAnnual?: boolean
+  priceClassName?: string
+  secondaryClassName?: string
+  labelClassName?: string
+  badgeClassName?: string
+  secondaryBadgeClassName?: string
+  className?: string
 }
 
 /**
@@ -43,17 +43,17 @@ export function LocationPriceDisplay({
   secondaryBadgeClassName,
   className,
 }: LocationPriceDisplayProps) {
-  const monthlyPrice = annualToMonthly(annualPrice);
+  const monthlyPrice = annualToMonthly(annualPrice)
 
   if (variant === 'table-cell') {
     return (
       <div className={cn('text-right', className)}>
-        <div className='flex items-baseline justify-end gap-1.5'>
+        <div className="flex items-baseline justify-end gap-1.5">
           <span className={cn('font-semibold', priceClassName)}>
             {formatPrice(monthlyPrice)}
           </span>
           <Badge
-            variant='outline'
+            variant="outline"
             className={cn('text-[10px] px-1.5 py-0', badgeClassName)}
           >
             /mois
@@ -68,7 +68,7 @@ export function LocationPriceDisplay({
           </div>
         )}
       </div>
-    );
+    )
   }
 
   if (variant === 'inline') {
@@ -78,7 +78,7 @@ export function LocationPriceDisplay({
           {formatPrice(monthlyPrice)}
         </span>
         <Badge
-          variant='outline'
+          variant="outline"
           className={cn('text-[10px] px-1.5 py-0', badgeClassName)}
         >
           /mois
@@ -87,10 +87,10 @@ export function LocationPriceDisplay({
           <span className={cn('text-sm', secondaryClassName)}>
             {formatPrice(annualPrice)}
             <Badge
-              variant='outline'
+              variant="outline"
               className={cn(
                 'text-[10px] px-1.5 py-0 ml-1',
-                secondaryBadgeClassName
+                secondaryBadgeClassName,
               )}
             >
               /an
@@ -98,17 +98,17 @@ export function LocationPriceDisplay({
           </span>
         )}
       </div>
-    );
+    )
   }
 
   return (
     <div className={cn('text-center', className)}>
-      <div className='flex items-center justify-center gap-2 mb-1'>
+      <div className="flex items-center justify-center gap-2 mb-1">
         <span className={cn('text-3xl font-bold', priceClassName)}>
           {formatPrice(monthlyPrice)}
         </span>
         <Badge
-          variant='outline'
+          variant="outline"
           className={cn('text-xs px-2 py-0.5', badgeClassName)}
         >
           /mois
@@ -118,16 +118,13 @@ export function LocationPriceDisplay({
         <div
           className={cn(
             'flex items-center justify-center gap-1.5 text-sm',
-            secondaryClassName
+            secondaryClassName,
           )}
         >
           <span>{formatPrice(annualPrice)}</span>
           <Badge
-            variant='outline'
-            className={cn(
-              'text-[10px] px-1.5 py-0',
-              secondaryBadgeClassName
-            )}
+            variant="outline"
+            className={cn('text-[10px] px-1.5 py-0', secondaryBadgeClassName)}
           >
             /an
           </Badge>
@@ -139,5 +136,5 @@ export function LocationPriceDisplay({
         </p>
       )}
     </div>
-  );
+  )
 }

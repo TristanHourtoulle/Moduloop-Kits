@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Package2, ArrowLeft } from "lucide-react";
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Package2, ArrowLeft } from 'lucide-react'
 
 export default function KitNotFound() {
   return (
@@ -35,5 +35,5 @@ export default function KitNotFound() {
         </div>
       </div>
     </div>
-  );
+  )
 }

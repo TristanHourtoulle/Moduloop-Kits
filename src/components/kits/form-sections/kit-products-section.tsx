@@ -1,28 +1,42 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useMemo } from 'react';
-import { Control, useFieldArray, FieldErrors, useWatch } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect, useMemo } from 'react'
+import { Control, useFieldArray, FieldErrors, useWatch } from 'react-hook-form'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, Trash2, Calculator, Plus, Minus, ShoppingCart, Home, Leaf, Square } from 'lucide-react';
-import { KitFormData } from '@/lib/schemas/kit';
-import { ProductSelectionGrid } from '../product-selection/ProductSelectionGrid';
-import { Product } from '@/lib/types/project';
-import { getProductPricing, getProductEnvironmentalImpact, formatPrice } from '@/lib/utils/product-helpers';
+} from '@/components/ui/accordion'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Package,
+  Trash2,
+  Calculator,
+  Plus,
+  Minus,
+  ShoppingCart,
+  Home,
+  Leaf,
+  Square,
+} from 'lucide-react'
+import { KitFormData } from '@/lib/schemas/kit'
+import { ProductSelectionGrid } from '../product-selection/ProductSelectionGrid'
+import { Product } from '@/lib/types/project'
+import {
+  getProductPricing,
+  getProductEnvironmentalImpact,
+  formatPrice,
+} from '@/lib/utils/product-helpers'
 
 interface KitProductsSectionProps {
-  control: Control<KitFormData>;
-  errors: FieldErrors<KitFormData>;
-  onError: (error: string) => void;
+  control: Control<KitFormData>
+  errors: FieldErrors<KitFormData>
+  onError: (error: string) => void
 }
 
 export function KitProductsSection({
@@ -30,149 +44,178 @@ export function KitProductsSection({
   errors,
   onError,
 }: KitProductsSectionProps) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
-  const [showProductSelection, setShowProductSelection] = useState(false);
+  const [products, setProducts] = useState<Product[]>([])
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true)
+  const [showProductSelection, setShowProductSelection] = useState(false)
 
   const { fields, append, remove, update } = useFieldArray({
     control,
     name: 'products',
-  });
+  })
 
   // Watch product values for real-time calculations
   const watchedProducts = useWatch({
     control,
     name: 'products',
-  });
+  })
 
   // Load all products (no pagination for product selection)
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products?all=true');
+        const response = await fetch('/api/products?all=true')
         if (!response.ok) {
-          throw new Error('Erreur lors du chargement des produits');
+          throw new Error('Erreur lors du chargement des produits')
         }
-        const data = await response.json();
-        const productsArray = data.products || data;
-        setProducts(productsArray);
+        const data = await response.json()
+        const productsArray = data.products || data
+        setProducts(productsArray)
       } catch (error) {
-        console.error('Erreur:', error);
-        onError('Impossible de charger la liste des produits');
+        console.error('Erreur:', error)
+        onError('Impossible de charger la liste des produits')
       } finally {
-        setIsLoadingProducts(false);
+        setIsLoadingProducts(false)
       }
-    };
+    }
 
-    fetchProducts();
-  }, [onError]);
+    fetchProducts()
+  }, [onError])
 
   const handleQuantityChange = (productId: string, quantity: number) => {
     // Find existing product in fields
-    const existingIndex = fields.findIndex((field) => field.productId === productId);
+    const existingIndex = fields.findIndex(
+      (field) => field.productId === productId,
+    )
 
     if (quantity === 0) {
       // Remove product if quantity is 0
       if (existingIndex >= 0) {
-        remove(existingIndex);
+        remove(existingIndex)
       }
     } else {
       // Update or add product
       if (existingIndex >= 0) {
-        update(existingIndex, { productId, quantite: quantity });
+        update(existingIndex, { productId, quantite: quantity })
       } else {
-        append({ productId, quantite: quantity });
+        append({ productId, quantite: quantity })
       }
     }
-  };
+  }
 
   // Build product quantities map for ProductSelectionGrid
-  const productQuantities: Record<string, number> = {};
+  const productQuantities: Record<string, number> = {}
   fields.forEach((field) => {
-    productQuantities[field.productId] = field.quantite;
-  });
+    productQuantities[field.productId] = field.quantite
+  })
 
   const getSelectedProduct = (productId: string) => {
-    return products.find((p) => p.id === productId);
-  };
+    return products.find((p) => p.id === productId)
+  }
 
   const updateQuantity = (index: number, delta: number) => {
-    const field = fields[index];
-    if (!field) return;
-    const newQuantity = Math.max(1, (field.quantite || 1) + delta);
-    update(index, { ...field, quantite: newQuantity });
-  };
+    const field = fields[index]
+    if (!field) return
+    const newQuantity = Math.max(1, (field.quantite || 1) + delta)
+    update(index, { ...field, quantite: newQuantity })
+  }
 
   // Calculate totals with useMemo for performance optimization
   // Updates in real-time when products or quantities change
   const totals = useMemo(() => {
     // Calculs pour le mode ACHAT (un seul prix, pas de périodes)
-    let totalAchat = 0;
+    let totalAchat = 0
 
     // Calculs pour le mode LOCATION (avec périodes 1an, 2ans, 3ans)
-    let totalLocation1An = 0;
-    let totalLocation2Ans = 0;
-    let totalLocation3Ans = 0;
+    let totalLocation1An = 0
+    let totalLocation2Ans = 0
+    let totalLocation3Ans = 0
 
     // Impact environnemental ACHAT (CO₂ émis)
-    let totalCO2 = 0;
-    let totalRessources = 0;
-    let totalAcidification = 0;
-    let totalEutrophisation = 0;
+    let totalCO2 = 0
+    let totalRessources = 0
+    let totalAcidification = 0
+    let totalEutrophisation = 0
 
     // Impact environnemental LOCATION (CO₂ économisé)
-    let totalCO2Location = 0;
-    let totalRessourcesLocation = 0;
-    let totalAcidificationLocation = 0;
-    let totalEutrophisationLocation = 0;
+    let totalCO2Location = 0
+    let totalRessourcesLocation = 0
+    let totalAcidificationLocation = 0
+    let totalEutrophisationLocation = 0
 
     // Surface totale utilisée par les produits
-    let totalSurface = 0;
+    let totalSurface = 0
 
     const productsToCalculate = Array.isArray(watchedProducts)
       ? watchedProducts
-      : [];
+      : []
 
     productsToCalculate.forEach((productData) => {
       if (productData && productData.productId && productData.quantite) {
-        const product = getSelectedProduct(productData.productId);
+        const product = getSelectedProduct(productData.productId)
         if (product) {
-          const quantite = Number(productData.quantite) || 0;
+          const quantite = Number(productData.quantite) || 0
 
           // ACHAT : un seul prix
-          const pricingAchat = getProductPricing(product, 'achat', '1an');
-          totalAchat += (pricingAchat.prixVente || 0) * quantite;
+          const pricingAchat = getProductPricing(product, 'achat', '1an')
+          totalAchat += (pricingAchat.prixVente || 0) * quantite
 
           // LOCATION : 3 périodes
-          const pricingLocation1An = getProductPricing(product, 'location', '1an');
-          const pricingLocation2Ans = getProductPricing(product, 'location', '2ans');
-          const pricingLocation3Ans = getProductPricing(product, 'location', '3ans');
+          const pricingLocation1An = getProductPricing(
+            product,
+            'location',
+            '1an',
+          )
+          const pricingLocation2Ans = getProductPricing(
+            product,
+            'location',
+            '2ans',
+          )
+          const pricingLocation3Ans = getProductPricing(
+            product,
+            'location',
+            '3ans',
+          )
 
-          totalLocation1An += (pricingLocation1An.prixVente || 0) * quantite;
-          totalLocation2Ans += (pricingLocation2Ans.prixVente || 0) * quantite;
-          totalLocation3Ans += (pricingLocation3Ans.prixVente || 0) * quantite;
+          totalLocation1An += (pricingLocation1An.prixVente || 0) * quantite
+          totalLocation2Ans += (pricingLocation2Ans.prixVente || 0) * quantite
+          totalLocation3Ans += (pricingLocation3Ans.prixVente || 0) * quantite
 
           // Impact environnemental ACHAT (CO₂ émis)
-          const environmentalImpactAchat = getProductEnvironmentalImpact(product, 'achat');
-          totalCO2 += (environmentalImpactAchat.rechauffementClimatique || 0) * quantite;
-          totalRessources += (environmentalImpactAchat.epuisementRessources || 0) * quantite;
-          totalAcidification += (environmentalImpactAchat.acidification || 0) * quantite;
-          totalEutrophisation += (environmentalImpactAchat.eutrophisation || 0) * quantite;
+          const environmentalImpactAchat = getProductEnvironmentalImpact(
+            product,
+            'achat',
+          )
+          totalCO2 +=
+            (environmentalImpactAchat.rechauffementClimatique || 0) * quantite
+          totalRessources +=
+            (environmentalImpactAchat.epuisementRessources || 0) * quantite
+          totalAcidification +=
+            (environmentalImpactAchat.acidification || 0) * quantite
+          totalEutrophisation +=
+            (environmentalImpactAchat.eutrophisation || 0) * quantite
 
           // Impact environnemental LOCATION (CO₂ économisé - valeurs négatives dans la DB)
-          const environmentalImpactLocation = getProductEnvironmentalImpact(product, 'location');
-          totalCO2Location += (environmentalImpactLocation.rechauffementClimatique || 0) * quantite;
-          totalRessourcesLocation += (environmentalImpactLocation.epuisementRessources || 0) * quantite;
-          totalAcidificationLocation += (environmentalImpactLocation.acidification || 0) * quantite;
-          totalEutrophisationLocation += (environmentalImpactLocation.eutrophisation || 0) * quantite;
+          const environmentalImpactLocation = getProductEnvironmentalImpact(
+            product,
+            'location',
+          )
+          totalCO2Location +=
+            (environmentalImpactLocation.rechauffementClimatique || 0) *
+            quantite
+          totalRessourcesLocation +=
+            (environmentalImpactLocation.epuisementRessources || 0) * quantite
+          totalAcidificationLocation +=
+            (environmentalImpactLocation.acidification || 0) * quantite
+          totalEutrophisationLocation +=
+            (environmentalImpactLocation.eutrophisation || 0) * quantite
 
           // Surface totale (surfaceM2 du produit × quantité)
           if (product.surfaceM2) {
-            totalSurface += product.surfaceM2 * quantite;
+            totalSurface += product.surfaceM2 * quantite
           }
         }
       }
-    });
+    })
 
     return {
       // Pour compatibilité avec le code legacy
@@ -198,8 +241,8 @@ export function KitProductsSection({
       totalEutrophisationLocation,
       // Surface totale
       totalSurface,
-    };
-  }, [watchedProducts, products]);
+    }
+  }, [watchedProducts, products])
 
   return (
     <AccordionItem value="products" className="border rounded-lg">
@@ -231,8 +274,8 @@ export function KitProductsSection({
               </h4>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {fields.map((field, index) => {
-                  const selectedProduct = getSelectedProduct(field.productId);
-                  if (!selectedProduct) return null;
+                  const selectedProduct = getSelectedProduct(field.productId)
+                  if (!selectedProduct) return null
 
                   return (
                     <Card key={field.id} className="overflow-hidden">
@@ -285,11 +328,11 @@ export function KitProductsSection({
                                   min="1"
                                   value={field.quantite}
                                   onChange={(e) => {
-                                    const value = Number(e.target.value) || 1;
+                                    const value = Number(e.target.value) || 1
                                     update(index, {
                                       ...field,
                                       quantite: Math.max(1, value),
-                                    });
+                                    })
                                   }}
                                   className="h-6 w-12 text-center text-xs p-0"
                                 />
@@ -308,20 +351,42 @@ export function KitProductsSection({
                             {/* Price - Achat & Location */}
                             <div className="space-y-1.5">
                               {(() => {
-                                const pricingAchat = getProductPricing(selectedProduct, 'achat', '1an');
-                                const pricingLocation1An = getProductPricing(selectedProduct, 'location', '1an');
-                                const pricingLocation2Ans = getProductPricing(selectedProduct, 'location', '2ans');
-                                const pricingLocation3Ans = getProductPricing(selectedProduct, 'location', '3ans');
+                                const pricingAchat = getProductPricing(
+                                  selectedProduct,
+                                  'achat',
+                                  '1an',
+                                )
+                                const pricingLocation1An = getProductPricing(
+                                  selectedProduct,
+                                  'location',
+                                  '1an',
+                                )
+                                const pricingLocation2Ans = getProductPricing(
+                                  selectedProduct,
+                                  'location',
+                                  '2ans',
+                                )
+                                const pricingLocation3Ans = getProductPricing(
+                                  selectedProduct,
+                                  'location',
+                                  '3ans',
+                                )
 
                                 return (
                                   <>
                                     {/* Prix d'achat - toujours affiché */}
                                     <div className="flex items-center gap-1 text-xs">
                                       <ShoppingCart className="h-3 w-3 text-primary" />
-                                      <span className="text-muted-foreground">Achat:</span>
-                                      {pricingAchat.prixVente && pricingAchat.prixVente > 0 ? (
+                                      <span className="text-muted-foreground">
+                                        Achat:
+                                      </span>
+                                      {pricingAchat.prixVente &&
+                                      pricingAchat.prixVente > 0 ? (
                                         <span className="font-semibold text-primary">
-                                          {formatPrice(pricingAchat.prixVente * field.quantite)}
+                                          {formatPrice(
+                                            pricingAchat.prixVente *
+                                              field.quantite,
+                                          )}
                                         </span>
                                       ) : (
                                         <span className="text-xs italic text-orange-600">
@@ -334,10 +399,16 @@ export function KitProductsSection({
                                     <div className="space-y-0.5 pl-4 border-l-2 border-primary/20">
                                       <div className="flex items-center gap-1 text-xs">
                                         <Home className="h-3 w-3 text-primary" />
-                                        <span className="text-muted-foreground">Loc. 1an:</span>
-                                        {pricingLocation1An.prixVente && pricingLocation1An.prixVente > 0 ? (
+                                        <span className="text-muted-foreground">
+                                          Loc. 1an:
+                                        </span>
+                                        {pricingLocation1An.prixVente &&
+                                        pricingLocation1An.prixVente > 0 ? (
                                           <span className="font-semibold text-primary">
-                                            {formatPrice(pricingLocation1An.prixVente * field.quantite)}
+                                            {formatPrice(
+                                              pricingLocation1An.prixVente *
+                                                field.quantite,
+                                            )}
                                           </span>
                                         ) : (
                                           <span className="text-xs italic text-orange-600">
@@ -348,10 +419,16 @@ export function KitProductsSection({
 
                                       <div className="flex items-center gap-1 text-xs">
                                         <Home className="h-3 w-3 text-primary" />
-                                        <span className="text-muted-foreground">Loc. 2ans:</span>
-                                        {pricingLocation2Ans.prixVente && pricingLocation2Ans.prixVente > 0 ? (
+                                        <span className="text-muted-foreground">
+                                          Loc. 2ans:
+                                        </span>
+                                        {pricingLocation2Ans.prixVente &&
+                                        pricingLocation2Ans.prixVente > 0 ? (
                                           <span className="font-semibold text-primary">
-                                            {formatPrice(pricingLocation2Ans.prixVente * field.quantite)}
+                                            {formatPrice(
+                                              pricingLocation2Ans.prixVente *
+                                                field.quantite,
+                                            )}
                                           </span>
                                         ) : (
                                           <span className="text-xs italic text-orange-600">
@@ -362,10 +439,16 @@ export function KitProductsSection({
 
                                       <div className="flex items-center gap-1 text-xs">
                                         <Home className="h-3 w-3 text-primary" />
-                                        <span className="text-muted-foreground">Loc. 3ans:</span>
-                                        {pricingLocation3Ans.prixVente && pricingLocation3Ans.prixVente > 0 ? (
+                                        <span className="text-muted-foreground">
+                                          Loc. 3ans:
+                                        </span>
+                                        {pricingLocation3Ans.prixVente &&
+                                        pricingLocation3Ans.prixVente > 0 ? (
                                           <span className="font-semibold text-primary">
-                                            {formatPrice(pricingLocation3Ans.prixVente * field.quantite)}
+                                            {formatPrice(
+                                              pricingLocation3Ans.prixVente *
+                                                field.quantite,
+                                            )}
                                           </span>
                                         ) : (
                                           <span className="text-xs italic text-orange-600">
@@ -375,7 +458,7 @@ export function KitProductsSection({
                                       </div>
                                     </div>
                                   </>
-                                );
+                                )
                               })()}
                             </div>
                           </div>
@@ -393,7 +476,7 @@ export function KitProductsSection({
                         </div>
                       </CardContent>
                     </Card>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -588,5 +671,5 @@ export function KitProductsSection({
         </div>
       </AccordionContent>
     </AccordionItem>
-  );
+  )
 }

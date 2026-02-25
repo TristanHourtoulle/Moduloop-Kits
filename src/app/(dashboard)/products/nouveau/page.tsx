@@ -1,13 +1,13 @@
-import { Metadata } from "next";
-import { RoleGuard } from "@/components/auth/role-guard";
-import { UserRole } from "@/lib/types/user";
-import { ProductForm } from "@/components/products/product-form";
-import { Package } from "lucide-react";
+import { Metadata } from 'next'
+import { RoleGuard } from '@/components/auth/role-guard'
+import { UserRole } from '@/lib/types/user'
+import { ProductForm } from '@/components/products/product-form'
+import { Package } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: "Nouveau produit - Moduloop Kits",
-  description: "Créer un nouveau produit dans le catalogue Moduloop",
-};
+  title: 'Nouveau produit - Moduloop Kits',
+  description: 'Créer un nouveau produit dans le catalogue Moduloop',
+}
 
 export default function NewProductPage() {
   return (
@@ -29,7 +29,7 @@ export default function NewProductPage() {
                 </p>
               </div>
             </div>
-            
+
             {/* Navigation breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>Produits</span>
@@ -43,5 +43,5 @@ export default function NewProductPage() {
         </div>
       </div>
     </RoleGuard>
-  );
+  )
 }

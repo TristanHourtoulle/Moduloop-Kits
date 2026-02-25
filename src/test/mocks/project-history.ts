@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from 'vitest'
 
 /**
  * Creates a mock for `@/lib/services/project-history` module.
@@ -13,5 +13,5 @@ export function createProjectHistoryMock() {
     createKitQuantityUpdatedHistory: vi.fn().mockResolvedValue(undefined),
     getProjectHistory: vi.fn(),
     recordProjectHistory: vi.fn(),
-  };
+  }
 }

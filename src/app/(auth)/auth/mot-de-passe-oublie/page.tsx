@@ -1,51 +1,51 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useState } from 'react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+} from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Mail,
   ArrowLeft,
   CheckCircle,
   AlertCircle,
   Loader2,
-} from "lucide-react";
+} from 'lucide-react'
 
 export default function MotDePasseOubliePage() {
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isEmailSent, setIsEmailSent] = useState(false);
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [isEmailSent, setIsEmailSent] = useState(false)
+  const [error, setError] = useState('')
 
   const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
+    e.preventDefault()
+    setIsLoading(true)
+    setError('')
 
     try {
       // Simuler l'envoi d'email (à remplacer par l'API better-auth)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setIsEmailSent(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+      setIsEmailSent(true)
     } catch (err) {
       if (err instanceof Error) {
-        setError(err.message);
+        setError(err.message)
       } else {
-        setError("Une erreur est survenue lors de l'envoi de l'email");
+        setError("Une erreur est survenue lors de l'envoi de l'email")
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   if (isEmailSent) {
     return (
@@ -80,8 +80,8 @@ export default function MotDePasseOubliePage() {
             <div className="space-y-3">
               <Button
                 onClick={() => {
-                  setIsEmailSent(false);
-                  setEmail("");
+                  setIsEmailSent(false)
+                  setEmail('')
                 }}
                 variant="outline"
                 className="w-full h-12 border-gray-200 hover:bg-gray-50 cursor-pointer"
@@ -102,7 +102,7 @@ export default function MotDePasseOubliePage() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -159,7 +159,7 @@ export default function MotDePasseOubliePage() {
                   Envoi en cours...
                 </>
               ) : (
-                "Envoyer le lien de réinitialisation"
+                'Envoyer le lien de réinitialisation'
               )}
             </Button>
           </form>
@@ -189,5 +189,5 @@ export default function MotDePasseOubliePage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

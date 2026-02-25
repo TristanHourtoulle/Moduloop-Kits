@@ -4,13 +4,13 @@
  */
 
 interface KitKeyData {
-  nom: string;
-  style: string;
-  description?: string;
+  nom: string
+  style: string
+  description?: string
   products: Array<{
-    productId: string;
-    quantite: number;
-  }>;
+    productId: string
+    quantite: number
+  }>
 }
 
 /**
@@ -26,17 +26,17 @@ export function generateKitKey(kitId: string, kitData: KitKeyData): string {
   const dataSignature = [
     kitData.nom,
     kitData.style,
-    kitData.description || "",
+    kitData.description || '',
     kitData.products
       .map((p) => `${p.productId}:${p.quantite}`)
       .sort() // Sort to ensure consistent order
-      .join(","),
-  ].join("|");
+      .join(','),
+  ].join('|')
 
   // Simple hash function for shorter keys
-  const hash = simpleHash(dataSignature);
+  const hash = simpleHash(dataSignature)
 
-  return `kit-${kitId}-${hash}`;
+  return `kit-${kitId}-${hash}`
 }
 
 /**
@@ -44,11 +44,11 @@ export function generateKitKey(kitId: string, kitData: KitKeyData): string {
  * Not cryptographically secure, just for component keying
  */
 function simpleHash(str: string): number {
-  let hash = 0;
+  let hash = 0
   for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32bit integer
+    const char = str.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash = hash & hash // Convert to 32bit integer
   }
-  return Math.abs(hash);
+  return Math.abs(hash)
 }

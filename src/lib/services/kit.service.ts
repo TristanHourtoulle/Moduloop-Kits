@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/db';
+import { prisma } from '@/lib/db'
 
 /**
  * Validates that all given product IDs exist in the database.
@@ -10,16 +10,16 @@ export async function validateProductsExist(
   const existingProducts = await prisma.product.findMany({
     where: { id: { in: productIds } },
     select: { id: true },
-  });
+  })
 
-  const existingIds = new Set(existingProducts.map((p) => p.id));
-  const missingIds = productIds.filter((id) => !existingIds.has(id));
+  const existingIds = new Set(existingProducts.map((p) => p.id))
+  const missingIds = productIds.filter((id) => !existingIds.has(id))
 
   if (missingIds.length > 0) {
-    return { valid: false, missingIds };
+    return { valid: false, missingIds }
   }
 
-  return { valid: true };
+  return { valid: true }
 }
 
 /** Shared Prisma include shape for kit responses with full product details. */
@@ -48,4 +48,4 @@ export const KIT_WITH_PRODUCTS_INCLUDE = {
       },
     },
   },
-} as const;
+} as const

@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import { SafeAvatar } from "@/components/ui/safe-avatar";
+import { SafeAvatar } from '@/components/ui/safe-avatar'
 
 export function AvatarExamples() {
   return (
@@ -73,5 +73,5 @@ export function AvatarExamples() {
         </div>
       </div>
     </div>
-  );
+  )
 }

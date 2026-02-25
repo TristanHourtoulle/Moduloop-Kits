@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from 'framer-motion'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export function ProjectEditSkeleton() {
   return (
@@ -90,5 +90,5 @@ export function ProjectEditSkeleton() {
         </motion.div>
       </div>
     </div>
-  );
+  )
 }

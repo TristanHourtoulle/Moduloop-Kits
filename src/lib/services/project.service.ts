@@ -1,14 +1,14 @@
-import { type Project, type EnvironmentalImpact } from '../types/project';
+import { type Project, type EnvironmentalImpact } from '../types/project'
 import {
   getProductPricing,
   getProductEnvironmentalImpact,
   ceilPrice,
-} from '../utils/product-helpers';
+} from '../utils/product-helpers'
 
 interface ProjectTotals {
-  totalPrix: number;
-  totalImpact: EnvironmentalImpact;
-  totalSurface: number;
+  totalPrix: number
+  totalImpact: EnvironmentalImpact
+  totalSurface: number
 }
 
 /**
@@ -20,56 +20,61 @@ interface ProjectTotals {
  * @returns Aggregated totals for price, environmental impact, and surface
  */
 export function calculateProjectTotals(project: Project): ProjectTotals {
-  let totalPrix = 0;
+  let totalPrix = 0
   const totalImpact: EnvironmentalImpact = {
     rechauffementClimatique: 0,
     epuisementRessources: 0,
     acidification: 0,
     eutrophisation: 0,
-  };
-  let totalSurface = 0;
+  }
+  let totalSurface = 0
 
   if (project.surfaceOverride && project.surfaceManual != null) {
-    totalSurface = project.surfaceManual;
+    totalSurface = project.surfaceManual
   } else {
     for (const projectKit of project.projectKits ?? []) {
-      const kit = projectKit.kit;
+      const kit = projectKit.kit
       if (kit) {
-        totalSurface += (kit.surfaceM2 || 0) * projectKit.quantite;
+        totalSurface += (kit.surfaceM2 || 0) * projectKit.quantite
       }
     }
   }
 
   for (const projectKit of project.projectKits ?? []) {
-    const kit = projectKit.kit;
-    if (!kit?.kitProducts) continue;
+    const kit = projectKit.kit
+    if (!kit?.kitProducts) continue
 
     for (const kitProduct of kit.kitProducts) {
-      const product = kitProduct.product;
-      if (!product) continue;
+      const product = kitProduct.product
+      if (!product) continue
 
-      const pricing = getProductPricing(product, 'achat', '1an');
-      const environmentalImpact = getProductEnvironmentalImpact(product, 'achat');
+      const pricing = getProductPricing(product, 'achat', '1an')
+      const environmentalImpact = getProductEnvironmentalImpact(
+        product,
+        'achat',
+      )
 
       const prixProduit = ceilPrice(
         (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite,
-      );
-      totalPrix += prixProduit;
+      )
+      totalPrix += prixProduit
 
       totalImpact.rechauffementClimatique +=
         (environmentalImpact.rechauffementClimatique || 0) *
         kitProduct.quantite *
-        projectKit.quantite;
+        projectKit.quantite
       totalImpact.epuisementRessources +=
         (environmentalImpact.epuisementRessources || 0) *
         kitProduct.quantite *
-        projectKit.quantite;
+        projectKit.quantite
       totalImpact.acidification +=
-        (environmentalImpact.acidification || 0) * kitProduct.quantite * projectKit.quantite;
+        (environmentalImpact.acidification || 0) *
+        kitProduct.quantite *
+        projectKit.quantite
       totalImpact.eutrophisation +=
         (environmentalImpact.eutrophisation || 0) *
         kitProduct.quantite *
-        projectKit.quantite;
+        projectKit.quantite
     }
   }
 
@@ -77,5 +82,5 @@ export function calculateProjectTotals(project: Project): ProjectTotals {
     totalPrix,
     totalImpact,
     totalSurface,
-  };
+  }
 }

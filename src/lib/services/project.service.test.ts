@@ -1,7 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { calculateProjectTotals } from './project.service';
-import { type Project, type ProjectKit, type KitProduct, ProjectStatus } from '../types/project';
-import { ceilPrice } from '../utils/product-helpers';
+import { describe, it, expect } from 'vitest'
+import { calculateProjectTotals } from './project.service'
+import {
+  type Project,
+  type ProjectKit,
+  type KitProduct,
+  ProjectStatus,
+} from '../types/project'
+import { ceilPrice } from '../utils/product-helpers'
 
 const makeProduct = (overrides: Record<string, unknown> = {}) => ({
   id: 'prod-1',
@@ -17,7 +22,7 @@ const makeProduct = (overrides: Record<string, unknown> = {}) => ({
   acidificationAchat: 5,
   eutrophisationAchat: 3,
   ...overrides,
-});
+})
 
 const makeKitProduct = (overrides: Partial<KitProduct> = {}): KitProduct => ({
   id: 'kp-1',
@@ -26,7 +31,7 @@ const makeKitProduct = (overrides: Partial<KitProduct> = {}): KitProduct => ({
   quantite: 1,
   product: makeProduct() as KitProduct['product'],
   ...overrides,
-});
+})
 
 const makeProjectKit = (overrides: Partial<ProjectKit> = {}): ProjectKit => ({
   id: 'pk-1',
@@ -45,7 +50,7 @@ const makeProjectKit = (overrides: Partial<ProjectKit> = {}): ProjectKit => ({
     kitProducts: [],
   },
   ...overrides,
-});
+})
 
 const makeProject = (overrides: Partial<Project> = {}): Project => ({
   id: 'proj-1',
@@ -56,11 +61,11 @@ const makeProject = (overrides: Partial<Project> = {}): Project => ({
   createdById: 'user-1',
   projectKits: [],
   ...overrides,
-});
+})
 
 describe('calculateProjectTotals', () => {
   it('returns zeros for project with no kits', () => {
-    const result = calculateProjectTotals(makeProject());
+    const result = calculateProjectTotals(makeProject())
 
     expect(result).toEqual({
       totalPrix: 0,
@@ -71,11 +76,13 @@ describe('calculateProjectTotals', () => {
         eutrophisation: 0,
       },
       totalSurface: 0,
-    });
-  });
+    })
+  })
 
   it('returns zeros for project with undefined projectKits', () => {
-    const result = calculateProjectTotals(makeProject({ projectKits: undefined }));
+    const result = calculateProjectTotals(
+      makeProject({ projectKits: undefined }),
+    )
 
     expect(result).toEqual({
       totalPrix: 0,
@@ -86,8 +93,8 @@ describe('calculateProjectTotals', () => {
         eutrophisation: 0,
       },
       totalSurface: 0,
-    });
-  });
+    })
+  })
 
   it('calculates totals from kit products', () => {
     const project = makeProject({
@@ -107,32 +114,32 @@ describe('calculateProjectTotals', () => {
           },
         }),
       ],
-    });
+    })
 
-    const result = calculateProjectTotals(project);
+    const result = calculateProjectTotals(project)
 
     // prixVente=200, kitProduct.quantite=3, projectKit.quantite=2 => ceilPrice(200*3*2)=1200
-    expect(result.totalPrix).toBe(ceilPrice(200 * 3 * 2));
+    expect(result.totalPrix).toBe(ceilPrice(200 * 3 * 2))
     // surfaceM2=15, projectKit.quantite=2 => 15*2=30
-    expect(result.totalSurface).toBe(30);
+    expect(result.totalSurface).toBe(30)
     // rechauffement=10, kitProduct.quantite=3, projectKit.quantite=2 => 10*3*2=60
-    expect(result.totalImpact.rechauffementClimatique).toBe(60);
-    expect(result.totalImpact.epuisementRessources).toBe(120);
-    expect(result.totalImpact.acidification).toBe(30);
-    expect(result.totalImpact.eutrophisation).toBe(18);
-  });
+    expect(result.totalImpact.rechauffementClimatique).toBe(60)
+    expect(result.totalImpact.epuisementRessources).toBe(120)
+    expect(result.totalImpact.acidification).toBe(30)
+    expect(result.totalImpact.eutrophisation).toBe(18)
+  })
 
   it('uses manual surface override when enabled', () => {
     const project = makeProject({
       surfaceOverride: true,
       surfaceManual: 42,
       projectKits: [makeProjectKit()],
-    });
+    })
 
-    const result = calculateProjectTotals(project);
+    const result = calculateProjectTotals(project)
 
-    expect(result.totalSurface).toBe(42);
-  });
+    expect(result.totalSurface).toBe(42)
+  })
 
   it('calculates surface from kits when override is disabled', () => {
     const project = makeProject({
@@ -153,12 +160,12 @@ describe('calculateProjectTotals', () => {
           },
         }),
       ],
-    });
+    })
 
-    const result = calculateProjectTotals(project);
+    const result = calculateProjectTotals(project)
 
-    expect(result.totalSurface).toBe(30);
-  });
+    expect(result.totalSurface).toBe(30)
+  })
 
   it('handles kit with null product gracefully', () => {
     const project = makeProject({
@@ -176,12 +183,12 @@ describe('calculateProjectTotals', () => {
           },
         }),
       ],
-    });
+    })
 
-    const result = calculateProjectTotals(project);
+    const result = calculateProjectTotals(project)
 
-    expect(result.totalPrix).toBe(0);
-  });
+    expect(result.totalPrix).toBe(0)
+  })
 
   it('aggregates totals across multiple kits with different products', () => {
     const productA = makeProduct({
@@ -192,7 +199,7 @@ describe('calculateProjectTotals', () => {
       epuisementRessourcesAchat: 10,
       acidificationAchat: 2,
       eutrophisationAchat: 1,
-    });
+    })
     const productB = makeProduct({
       id: 'prod-b',
       prixVenteAchat: 300,
@@ -201,7 +208,7 @@ describe('calculateProjectTotals', () => {
       epuisementRessourcesAchat: 30,
       acidificationAchat: 8,
       eutrophisationAchat: 4,
-    });
+    })
 
     const project = makeProject({
       projectKits: [
@@ -218,7 +225,12 @@ describe('calculateProjectTotals', () => {
             createdById: 'user-1',
             updatedById: 'user-1',
             kitProducts: [
-              makeKitProduct({ id: 'kp-a', productId: 'prod-a', quantite: 2, product: productA as KitProduct['product'] }),
+              makeKitProduct({
+                id: 'kp-a',
+                productId: 'prod-a',
+                quantite: 2,
+                product: productA as KitProduct['product'],
+              }),
             ],
           },
         }),
@@ -236,26 +248,34 @@ describe('calculateProjectTotals', () => {
             createdById: 'user-1',
             updatedById: 'user-1',
             kitProducts: [
-              makeKitProduct({ id: 'kp-b', kitId: 'kit-2', productId: 'prod-b', quantite: 1, product: productB as KitProduct['product'] }),
+              makeKitProduct({
+                id: 'kp-b',
+                kitId: 'kit-2',
+                productId: 'prod-b',
+                quantite: 1,
+                product: productB as KitProduct['product'],
+              }),
             ],
           },
         }),
       ],
-    });
+    })
 
-    const result = calculateProjectTotals(project);
+    const result = calculateProjectTotals(project)
 
     // Kit A: ceilPrice(100*2*1)=200, Kit B: ceilPrice(300*1*3)=900 => 1100
-    expect(result.totalPrix).toBe(ceilPrice(100 * 2 * 1) + ceilPrice(300 * 1 * 3));
+    expect(result.totalPrix).toBe(
+      ceilPrice(100 * 2 * 1) + ceilPrice(300 * 1 * 3),
+    )
     // Surface: kit-1(10*1) + kit-2(5*3) = 25
-    expect(result.totalSurface).toBe(25);
+    expect(result.totalSurface).toBe(25)
     // Rechauffement: 5*2*1 + 15*1*3 = 10+45 = 55
-    expect(result.totalImpact.rechauffementClimatique).toBe(55);
+    expect(result.totalImpact.rechauffementClimatique).toBe(55)
     // Epuisement: 10*2*1 + 30*1*3 = 20+90 = 110
-    expect(result.totalImpact.epuisementRessources).toBe(110);
+    expect(result.totalImpact.epuisementRessources).toBe(110)
     // Acidification: 2*2*1 + 8*1*3 = 4+24 = 28
-    expect(result.totalImpact.acidification).toBe(28);
+    expect(result.totalImpact.acidification).toBe(28)
     // Eutrophisation: 1*2*1 + 4*1*3 = 2+12 = 14
-    expect(result.totalImpact.eutrophisation).toBe(14);
-  });
-});
+    expect(result.totalImpact.eutrophisation).toBe(14)
+  })
+})

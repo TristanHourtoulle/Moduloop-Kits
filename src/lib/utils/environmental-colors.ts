@@ -32,7 +32,7 @@ export const environmentalColors = {
     style: { color: '#55D789' },
     bgStyle: { backgroundColor: '#55D789' },
   },
-} as const;
+} as const
 
 // Tailwind CSS classes (for use in className)
 // Note: These use arbitrary values which require the full color to be in the safelist or inline styles
@@ -69,12 +69,14 @@ export const environmentalTailwind = {
     border: 'border-[#55D789]',
     borderLight: 'border-[#55D789]/20',
   },
-} as const;
+} as const
 
 // Helper function to get metric color configuration
-export function getMetricColor(metric: 'co2' | 'ressources' | 'acidification' | 'eutrophisation') {
+export function getMetricColor(
+  metric: 'co2' | 'ressources' | 'acidification' | 'eutrophisation',
+) {
   return {
     colors: environmentalColors[metric],
     tailwind: environmentalTailwind[metric],
-  };
+  }
 }

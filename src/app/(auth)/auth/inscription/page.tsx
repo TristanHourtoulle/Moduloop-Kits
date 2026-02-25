@@ -4,8 +4,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { InscriptionForm } from "@/components/auth/inscription-form";
+} from '@/components/ui/card'
+import { InscriptionForm } from '@/components/auth/inscription-form'
 
 export default function InscriptionPage() {
   return (
@@ -25,5 +25,5 @@ export default function InscriptionPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -6,19 +6,19 @@ const FIELD_REMAP: Record<string, string> = {
   prixAchatAchat1An: 'prixAchatAchat',
   prixUnitaireAchat1An: 'prixUnitaireAchat',
   prixVenteAchat1An: 'prixVenteAchat',
-};
+}
 
 export function remapProductFormFields(
   data: Record<string, unknown>,
 ): Record<string, unknown> {
-  const result = { ...data };
+  const result = { ...data }
 
   for (const [formField, dbField] of Object.entries(FIELD_REMAP)) {
     if (formField in result) {
-      result[dbField] = result[formField];
-      delete result[formField];
+      result[dbField] = result[formField]
+      delete result[formField]
     }
   }
 
-  return result;
+  return result
 }

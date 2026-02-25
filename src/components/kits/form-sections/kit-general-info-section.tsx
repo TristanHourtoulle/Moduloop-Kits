@@ -1,20 +1,20 @@
-"use client";
+'use client'
 
-import { Control, FieldErrors, Controller } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Control, FieldErrors, Controller } from 'react-hook-form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Info } from "lucide-react";
-import { KitFormData } from "@/lib/schemas/kit";
+} from '@/components/ui/accordion'
+import { Info } from 'lucide-react'
+import { KitFormData } from '@/lib/schemas/kit'
 
 interface KitGeneralInfoSectionProps {
-  control: Control<KitFormData>;
-  errors: FieldErrors<KitFormData>;
+  control: Control<KitFormData>
+  errors: FieldErrors<KitFormData>
 }
 
 export function KitGeneralInfoSection({
@@ -53,8 +53,8 @@ export function KitGeneralInfoSection({
                     placeholder="Ex: Kit Solaire Résidentiel"
                     className={`transition-colors ${
                       errors.nom
-                        ? "border-red-500 focus:border-red-500"
-                        : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'focus:border-[#30C1BD] focus:ring-[#30C1BD]'
                     }`}
                   />
                 )}
@@ -78,8 +78,8 @@ export function KitGeneralInfoSection({
                     placeholder="Ex: Résidentiel, Commercial, Industriel"
                     className={`transition-colors ${
                       errors.style
-                        ? "border-red-500 focus:border-red-500"
-                        : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'focus:border-[#30C1BD] focus:ring-[#30C1BD]'
                     }`}
                   />
                 )}
@@ -104,21 +104,25 @@ export function KitGeneralInfoSection({
                     step="0.01"
                     min="0"
                     placeholder="Ex: 25.5"
-                    value={field.value ?? ""}
+                    value={field.value ?? ''}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      field.onChange(value === "" ? undefined : parseFloat(value));
+                      const value = e.target.value
+                      field.onChange(
+                        value === '' ? undefined : parseFloat(value),
+                      )
                     }}
                     className={`transition-colors ${
                       errors.surfaceM2
-                        ? "border-red-500 focus:border-red-500"
-                        : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'focus:border-[#30C1BD] focus:ring-[#30C1BD]'
                     }`}
                   />
                 )}
               />
               {errors.surfaceM2 && (
-                <p className="text-sm text-red-500">{errors.surfaceM2.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.surfaceM2.message}
+                </p>
               )}
             </div>
           </div>
@@ -138,8 +142,8 @@ export function KitGeneralInfoSection({
                   rows={4}
                   className={`transition-colors resize-none ${
                     errors.description
-                      ? "border-red-500 focus:border-red-500"
-                      : "focus:border-[#30C1BD] focus:ring-[#30C1BD]"
+                      ? 'border-red-500 focus:border-red-500'
+                      : 'focus:border-[#30C1BD] focus:ring-[#30C1BD]'
                   }`}
                 />
               )}
@@ -153,5 +157,5 @@ export function KitGeneralInfoSection({
         </div>
       </AccordionContent>
     </AccordionItem>
-  );
+  )
 }

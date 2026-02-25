@@ -1,18 +1,18 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
 
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
-import { InputWithIcon } from "@/components/ui/input-with-icon";
-import { PasswordInput } from "@/components/ui/password-input";
-import { GoogleButton } from "@/components/auth/google-button";
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Separator } from '@/components/ui/separator'
+import { Checkbox } from '@/components/ui/checkbox'
+import { InputWithIcon } from '@/components/ui/input-with-icon'
+import { PasswordInput } from '@/components/ui/password-input'
+import { GoogleButton } from '@/components/auth/google-button'
 import {
   Form,
   FormControl,
@@ -20,66 +20,63 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form'
 
-import { Mail, User, AlertCircle, Loader2, Check } from "lucide-react";
-import { signUp } from "@/lib/auth-client";
-import {
-  inscriptionSchema,
-  type InscriptionFormData,
-} from "@/lib/schemas/auth";
-import { getSpecificAuthError } from "@/lib/auth/error-messages";
+import { Mail, User, AlertCircle, Loader2, Check } from 'lucide-react'
+import { signUp } from '@/lib/auth-client'
+import { inscriptionSchema, type InscriptionFormData } from '@/lib/schemas/auth'
+import { getSpecificAuthError } from '@/lib/auth/error-messages'
 
 export function InscriptionForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   const form = useForm<InscriptionFormData>({
     resolver: zodResolver(inscriptionSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
       acceptTerms: false,
     },
-  });
+  })
 
-  const watchPassword = form.watch("password");
-  const watchConfirmPassword = form.watch("confirmPassword");
+  const watchPassword = form.watch('password')
+  const watchConfirmPassword = form.watch('confirmPassword')
 
   const onSubmit = async (data: InscriptionFormData) => {
-    setIsLoading(true);
-    setError("");
+    setIsLoading(true)
+    setError('')
 
     try {
       const result = await signUp.email({
         email: data.email,
         password: data.password,
         name: data.name,
-        callbackURL: "/dashboard",
-      });
-      
+        callbackURL: '/dashboard',
+      })
+
       // Vérifier si l'inscription a réussi
       if (result?.error) {
-        const errorMessage = getSpecificAuthError(result.error, 'signup');
-        setError(errorMessage);
-        return;
+        const errorMessage = getSpecificAuthError(result.error, 'signup')
+        setError(errorMessage)
+        return
       }
-      
-      router.push("/dashboard");
+
+      router.push('/dashboard')
     } catch (err) {
-      const errorMessage = getSpecificAuthError(err, 'signup');
-      setError(errorMessage);
+      const errorMessage = getSpecificAuthError(err, 'signup')
+      setError(errorMessage)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleGoogleError = (errorMessage: string) => {
-    setError(errorMessage);
-  };
+    setError(errorMessage)
+  }
 
   return (
     <div className="space-y-6">
@@ -206,14 +203,14 @@ export function InscriptionForm() {
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel className="text-sm text-gray-600 cursor-pointer">
-                    J&apos;accepte les{" "}
+                    J&apos;accepte les{' '}
                     <Link
                       href="/conditions"
                       className="text-[#30C1BD] hover:text-[#30C1BD]/80 cursor-pointer"
                     >
                       conditions d&apos;utilisation
-                    </Link>{" "}
-                    et la{" "}
+                    </Link>{' '}
+                    et la{' '}
                     <Link
                       href="/confidentialite"
                       className="text-[#30C1BD] hover:text-[#30C1BD]/80 cursor-pointer"
@@ -238,7 +235,7 @@ export function InscriptionForm() {
                 Création en cours...
               </>
             ) : (
-              "Créer mon compte"
+              'Créer mon compte'
             )}
           </Button>
         </form>
@@ -246,7 +243,7 @@ export function InscriptionForm() {
 
       <div className="text-center pt-4">
         <p className="text-sm text-gray-600">
-          Vous avez déjà un compte ?{" "}
+          Vous avez déjà un compte ?{' '}
           <Link
             href="/auth/connexion"
             className="text-[#30C1BD] hover:text-[#30C1BD]/80 font-medium transition-colors cursor-pointer"
@@ -256,5 +253,5 @@ export function InscriptionForm() {
         </p>
       </div>
     </div>
-  );
+  )
 }

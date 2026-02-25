@@ -1,43 +1,43 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useCallback, Suspense } from "react";
-import { ProjectCard } from "@/components/projects/project-card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FolderOpen } from "lucide-react";
-import { type Project } from "@/lib/types/project";
+import { useState, useEffect, useCallback, Suspense } from 'react'
+import { ProjectCard } from '@/components/projects/project-card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { FolderOpen } from 'lucide-react'
+import { type Project } from '@/lib/types/project'
 
 interface ProjectsListWrapperProps {
-  initialProjects: Project[];
+  initialProjects: Project[]
 }
 
 function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [projects, setProjects] = useState<Project[]>(initialProjects)
 
   useEffect(() => {
-    setProjects(initialProjects);
-  }, [initialProjects]);
+    setProjects(initialProjects)
+  }, [initialProjects])
 
   const handleDelete = useCallback(
     async (projectId: string) => {
       try {
         const response = await fetch(`/api/projects/${projectId}`, {
-          method: "DELETE",
-        });
+          method: 'DELETE',
+        })
 
         if (!response.ok) {
-          throw new Error("Erreur lors de la suppression du projet");
+          throw new Error('Erreur lors de la suppression du projet')
         }
 
         // Remove project from local state without refetch
-        const updatedProjects = projects.filter((p) => p.id !== projectId);
-        setProjects(updatedProjects);
+        const updatedProjects = projects.filter((p) => p.id !== projectId)
+        setProjects(updatedProjects)
       } catch (err) {
-        console.error("[ProjectsListWrapper] Error deleting project:", err);
+        console.error('[ProjectsListWrapper] Error deleting project:', err)
       }
     },
     [projects],
-  );
+  )
 
   if (projects.length === 0) {
     return (
@@ -52,7 +52,7 @@ function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
           Commencez par créer votre premier projet
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -65,7 +65,7 @@ function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
         />
       ))}
     </div>
-  );
+  )
 }
 
 // Loading skeleton component
@@ -100,7 +100,7 @@ function ProjectCardSkeleton() {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
 
 // Wrapper component with Suspense boundary
@@ -117,5 +117,5 @@ export function ProjectsListWrapper(props: ProjectsListWrapperProps) {
     >
       <ProjectsListContent {...props} />
     </Suspense>
-  );
+  )
 }

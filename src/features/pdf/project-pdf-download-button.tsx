@@ -1,41 +1,41 @@
-'use client';
+'use client'
 
-import { useState, useCallback } from 'react';
-import { Download, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import type { Project } from '@/lib/types/project';
+import { useState, useCallback } from 'react'
+import { Download, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import type { Project } from '@/lib/types/project'
 
 interface ProjectPdfDownloadButtonProps {
-  project: Project;
+  project: Project
 }
 
-export function ProjectPdfDownloadButton({ project }: ProjectPdfDownloadButtonProps) {
-  const [isGenerating, setIsGenerating] = useState(false);
+export function ProjectPdfDownloadButton({
+  project,
+}: ProjectPdfDownloadButtonProps) {
+  const [isGenerating, setIsGenerating] = useState(false)
 
   const handleDownload = useCallback(async () => {
-    setIsGenerating(true);
+    setIsGenerating(true)
     try {
-      const { pdf } = await import('@react-pdf/renderer');
-      const { ProjectPdfDocument } = await import('./project-pdf-document');
+      const { pdf } = await import('@react-pdf/renderer')
+      const { ProjectPdfDocument } = await import('./project-pdf-document')
 
-      const blob = await pdf(
-        <ProjectPdfDocument project={project} />
-      ).toBlob();
+      const blob = await pdf(<ProjectPdfDocument project={project} />).toBlob()
 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${project.nom}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${project.nom}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('PDF generation failed:', error);
+      console.error('PDF generation failed:', error)
     } finally {
-      setIsGenerating(false);
+      setIsGenerating(false)
     }
-  }, [project]);
+  }, [project])
 
   return (
     <Button
@@ -51,5 +51,5 @@ export function ProjectPdfDownloadButton({ project }: ProjectPdfDownloadButtonPr
         <Download className="w-4 h-4" />
       )}
     </Button>
-  );
+  )
 }

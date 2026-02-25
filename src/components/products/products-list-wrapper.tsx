@@ -1,103 +1,116 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
-import { ProductCard } from "@/components/products/product-card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Package2, Search, X, Image, ImageOff } from "lucide-react";
-import { type Product } from "@/lib/types/project";
-import { useDebounce } from "@/hooks/use-debounce";
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react'
+import { ProductCard } from '@/components/products/product-card'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Package2, Search, X, Image, ImageOff } from 'lucide-react'
+import { type Product } from '@/lib/types/project'
+import { useDebounce } from '@/hooks/use-debounce'
 
 interface ProductsListWrapperProps {
-  initialProducts: Product[];
+  initialProducts: Product[]
 }
 
-type SortOption = "nom-asc" | "nom-desc" | "reference-asc" | "reference-desc" | "date-desc" | "date-asc";
-type ImageFilter = "all" | "with-image" | "without-image";
+type SortOption =
+  | 'nom-asc'
+  | 'nom-desc'
+  | 'reference-asc'
+  | 'reference-desc'
+  | 'date-desc'
+  | 'date-asc'
+type ImageFilter = 'all' | 'with-image' | 'without-image'
 
 function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOption, setSortOption] = useState<SortOption>("date-desc");
-  const [imageFilter, setImageFilter] = useState<ImageFilter>("all");
+  const [products, setProducts] = useState<Product[]>(initialProducts)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortOption, setSortOption] = useState<SortOption>('date-desc')
+  const [imageFilter, setImageFilter] = useState<ImageFilter>('all')
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
   useEffect(() => {
-    setProducts(initialProducts);
-  }, [initialProducts]);
+    setProducts(initialProducts)
+  }, [initialProducts])
 
   const handleDelete = useCallback(
     async (productId: string) => {
       try {
         const response = await fetch(`/api/products/${productId}`, {
-          method: "DELETE",
-        });
+          method: 'DELETE',
+        })
 
         if (!response.ok) {
-          throw new Error("Erreur lors de la suppression du produit");
+          throw new Error('Erreur lors de la suppression du produit')
         }
 
         // Remove product from local state without refetch
-        const updatedProducts = products.filter((p) => p.id !== productId);
-        setProducts(updatedProducts);
+        const updatedProducts = products.filter((p) => p.id !== productId)
+        setProducts(updatedProducts)
       } catch (err) {
-        console.error("[ProductsListWrapper] Error deleting product:", err);
+        console.error('[ProductsListWrapper] Error deleting product:', err)
       }
     },
     [products],
-  );
+  )
 
   // Filtered and sorted products
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    let result = [...products]
 
     // Search filter (nom and reference)
     if (debouncedSearchTerm) {
-      const searchLower = debouncedSearchTerm.toLowerCase();
+      const searchLower = debouncedSearchTerm.toLowerCase()
       result = result.filter(
         (product) =>
           product.nom.toLowerCase().includes(searchLower) ||
-          product.reference?.toLowerCase().includes(searchLower)
-      );
+          product.reference?.toLowerCase().includes(searchLower),
+      )
     }
 
     // Image filter
-    if (imageFilter === "with-image") {
-      result = result.filter((product) => product.image);
-    } else if (imageFilter === "without-image") {
-      result = result.filter((product) => !product.image);
+    if (imageFilter === 'with-image') {
+      result = result.filter((product) => product.image)
+    } else if (imageFilter === 'without-image') {
+      result = result.filter((product) => !product.image)
     }
 
     // Sorting
     result.sort((a, b) => {
       switch (sortOption) {
-        case "nom-asc":
-          return a.nom.localeCompare(b.nom);
-        case "nom-desc":
-          return b.nom.localeCompare(a.nom);
-        case "reference-asc":
-          return (a.reference || "").localeCompare(b.reference || "");
-        case "reference-desc":
-          return (b.reference || "").localeCompare(a.reference || "");
-        case "date-asc":
-          return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
-        case "date-desc":
+        case 'nom-asc':
+          return a.nom.localeCompare(b.nom)
+        case 'nom-desc':
+          return b.nom.localeCompare(a.nom)
+        case 'reference-asc':
+          return (a.reference || '').localeCompare(b.reference || '')
+        case 'reference-desc':
+          return (b.reference || '').localeCompare(a.reference || '')
+        case 'date-asc':
+          return (
+            new Date(a.createdAt || 0).getTime() -
+            new Date(b.createdAt || 0).getTime()
+          )
+        case 'date-desc':
         default:
-          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+          return (
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime()
+          )
       }
-    });
+    })
 
-    return result;
-  }, [products, debouncedSearchTerm, sortOption, imageFilter]);
+    return result
+  }, [products, debouncedSearchTerm, sortOption, imageFilter])
 
   const clearFilters = () => {
-    setSearchTerm("");
-    setSortOption("date-desc");
-    setImageFilter("all");
-  };
+    setSearchTerm('')
+    setSortOption('date-desc')
+    setImageFilter('all')
+  }
 
-  const hasActiveFilters = searchTerm || sortOption !== "date-desc" || imageFilter !== "all";
+  const hasActiveFilters =
+    searchTerm || sortOption !== 'date-desc' || imageFilter !== 'all'
 
   if (products.length === 0) {
     return (
@@ -112,7 +125,7 @@ function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
           Commencez par créer votre premier produit
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -131,7 +144,7 @@ function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
             />
             {searchTerm && (
               <button
-                onClick={() => setSearchTerm("")}
+                onClick={() => setSearchTerm('')}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 <X className="w-4 h-4" />
@@ -158,38 +171,38 @@ function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
             {/* Image Filter */}
             <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
               <Button
-                variant={imageFilter === "all" ? "default" : "ghost"}
+                variant={imageFilter === 'all' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => setImageFilter("all")}
+                onClick={() => setImageFilter('all')}
                 className={`text-xs px-3 ${
-                  imageFilter === "all"
-                    ? "bg-primary hover:bg-primary/90 text-white"
-                    : "hover:bg-white/60"
+                  imageFilter === 'all'
+                    ? 'bg-primary hover:bg-primary/90 text-white'
+                    : 'hover:bg-white/60'
                 }`}
               >
                 Tous
               </Button>
               <Button
-                variant={imageFilter === "with-image" ? "default" : "ghost"}
+                variant={imageFilter === 'with-image' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => setImageFilter("with-image")}
+                onClick={() => setImageFilter('with-image')}
                 className={`text-xs px-3 ${
-                  imageFilter === "with-image"
-                    ? "bg-primary hover:bg-primary/90 text-white"
-                    : "hover:bg-white/60"
+                  imageFilter === 'with-image'
+                    ? 'bg-primary hover:bg-primary/90 text-white'
+                    : 'hover:bg-white/60'
                 }`}
               >
                 <Image className="w-3 h-3 mr-1" />
                 Avec image
               </Button>
               <Button
-                variant={imageFilter === "without-image" ? "default" : "ghost"}
+                variant={imageFilter === 'without-image' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => setImageFilter("without-image")}
+                onClick={() => setImageFilter('without-image')}
                 className={`text-xs px-3 ${
-                  imageFilter === "without-image"
-                    ? "bg-primary hover:bg-primary/90 text-white"
-                    : "hover:bg-white/60"
+                  imageFilter === 'without-image'
+                    ? 'bg-primary hover:bg-primary/90 text-white'
+                    : 'hover:bg-white/60'
                 }`}
               >
                 <ImageOff className="w-3 h-3 mr-1" />
@@ -215,7 +228,9 @@ function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
         {/* Results count */}
         <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-sm text-gray-600">
           <span>
-            {filteredProducts.length} produit{filteredProducts.length > 1 ? "s" : ""} trouvé{filteredProducts.length > 1 ? "s" : ""}
+            {filteredProducts.length} produit
+            {filteredProducts.length > 1 ? 's' : ''} trouvé
+            {filteredProducts.length > 1 ? 's' : ''}
             {debouncedSearchTerm && ` pour "${debouncedSearchTerm}"`}
           </span>
           {filteredProducts.length !== products.length && (
@@ -254,21 +269,26 @@ function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // Wrapper component with Suspense boundary
 export function ProductsListWrapper(props: ProductsListWrapperProps) {
   return (
-    <Suspense fallback={
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {/* Loading skeletons */}
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-[300px] bg-muted/30 rounded-lg animate-pulse" />
-        ))}
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* Loading skeletons */}
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-[300px] bg-muted/30 rounded-lg animate-pulse"
+            />
+          ))}
+        </div>
+      }
+    >
       <ProductsListContent {...props} />
     </Suspense>
-  );
+  )
 }

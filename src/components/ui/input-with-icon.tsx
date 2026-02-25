@@ -1,12 +1,11 @@
-import * as React from "react";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { LucideIcon } from "lucide-react";
+import * as React from 'react'
+import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
+import { LucideIcon } from 'lucide-react'
 
-export interface InputWithIconProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
-  icon?: LucideIcon;
-  rightIcon?: React.ReactNode;
+export interface InputWithIconProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  icon?: LucideIcon
+  rightIcon?: React.ReactNode
 }
 
 const InputWithIcon = React.forwardRef<HTMLInputElement, InputWithIconProps>(
@@ -18,10 +17,10 @@ const InputWithIcon = React.forwardRef<HTMLInputElement, InputWithIconProps>(
         )}
         <Input
           className={cn(
-            Icon && "pl-10",
-            rightIcon && "pr-10",
-            "h-12",
-            className
+            Icon && 'pl-10',
+            rightIcon && 'pr-10',
+            'h-12',
+            className,
           )}
           ref={ref}
           {...props}
@@ -32,9 +31,9 @@ const InputWithIcon = React.forwardRef<HTMLInputElement, InputWithIconProps>(
           </div>
         )}
       </div>
-    );
-  }
-);
-InputWithIcon.displayName = "InputWithIcon";
+    )
+  },
+)
+InputWithIcon.displayName = 'InputWithIcon'
 
-export { InputWithIcon };
+export { InputWithIcon }

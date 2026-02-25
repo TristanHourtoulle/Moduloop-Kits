@@ -1,21 +1,21 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import {
   ArrowLeft,
   Save,
@@ -24,99 +24,102 @@ import {
   Package,
   Leaf,
   Euro,
-} from "lucide-react";
-import Link from "next/link";
-import { type Project } from "@/lib/types/project";
+} from 'lucide-react'
+import Link from 'next/link'
+import { type Project } from '@/lib/types/project'
 
-type ProjectEditData = Pick<Project, 'id' | 'nom' | 'status'> & Partial<Pick<Project, 'description' | 'projectKits' | 'totalImpact' | 'totalPrix'>>;
+type ProjectEditData = Pick<Project, 'id' | 'nom' | 'status'> &
+  Partial<
+    Pick<Project, 'description' | 'projectKits' | 'totalImpact' | 'totalPrix'>
+  >
 
 interface ProjectEditFormProps {
-  project: ProjectEditData;
+  project: ProjectEditData
 }
 
 export function ProjectEditForm({ project }: ProjectEditFormProps) {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     nom: project.nom,
-    description: project.description || "",
+    description: project.description || '',
     status: project.status,
-  });
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+    e.preventDefault()
+    setIsLoading(true)
 
     try {
       const response = await fetch(`/api/projects/${project.id}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
-      });
+      })
 
       if (response.ok) {
         // Invalidate the router cache to ensure fresh data on next visit
-        router.refresh();
+        router.refresh()
 
         // Add delay to ensure cache invalidation completes on Vercel
         // Check if we're on Vercel by looking for Vercel-specific environment variable
         const isProduction =
-          typeof window !== "undefined" &&
-          window.location.hostname !== "localhost" &&
-          !window.location.hostname.includes("127.0.0.1");
+          typeof window !== 'undefined' &&
+          window.location.hostname !== 'localhost' &&
+          !window.location.hostname.includes('127.0.0.1')
 
         if (isProduction) {
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          await new Promise((resolve) => setTimeout(resolve, 300))
         }
 
         // Redirect with timestamp to force server-side refetch
-        const timestamp = Date.now();
-        router.push(`/projects/${project.id}?updated=${timestamp}`);
+        const timestamp = Date.now()
+        router.push(`/projects/${project.id}?updated=${timestamp}`)
       } else {
-        throw new Error("Erreur lors de la modification du projet");
+        throw new Error('Erreur lors de la modification du projet')
       }
     } catch (error) {
-      console.error("Erreur:", error);
+      console.error('Erreur:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "ACTIF":
-        return "bg-green-100 text-green-800";
-      case "TERMINE":
-        return "bg-blue-100 text-blue-800";
-      case "EN_PAUSE":
-        return "bg-yellow-100 text-yellow-800";
-      case "ARCHIVE":
-        return "bg-gray-100 text-gray-800";
+      case 'ACTIF':
+        return 'bg-green-100 text-green-800'
+      case 'TERMINE':
+        return 'bg-blue-100 text-blue-800'
+      case 'EN_PAUSE':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'ARCHIVE':
+        return 'bg-gray-100 text-gray-800'
       default:
-        return "bg-gray-100 text-gray-800";
+        return 'bg-gray-100 text-gray-800'
     }
-  };
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "ACTIF":
-        return "🟢";
-      case "TERMINE":
-        return "🔵";
-      case "EN_PAUSE":
-        return "🟡";
-      case "ARCHIVE":
-        return "⚫";
+      case 'ACTIF':
+        return '🟢'
+      case 'TERMINE':
+        return '🔵'
+      case 'EN_PAUSE':
+        return '🟡'
+      case 'ARCHIVE':
+        return '⚫'
       default:
-        return "⚪";
+        return '⚪'
     }
-  };
+  }
 
   return (
     <div className="space-y-8">
@@ -146,7 +149,7 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
 
         <Badge
           className={`${getStatusColor(
-            project.status
+            project.status,
           )} text-sm font-medium px-3 py-1`}
         >
           {getStatusIcon(project.status)} {project.status}
@@ -180,7 +183,7 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
                   <Input
                     id="nom"
                     value={formData.nom}
-                    onChange={(e) => handleInputChange("nom", e.target.value)}
+                    onChange={(e) => handleInputChange('nom', e.target.value)}
                     placeholder="Ex: Rénovation Bureau 2024"
                     className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                     required
@@ -198,7 +201,7 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
                     id="description"
                     value={formData.description}
                     onChange={(e) =>
-                      handleInputChange("description", e.target.value)
+                      handleInputChange('description', e.target.value)
                     }
                     placeholder="Décrivez votre projet..."
                     className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 min-h-[100px]"
@@ -216,7 +219,7 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
                   <Select
                     value={formData.status}
                     onValueChange={(value) =>
-                      handleInputChange("status", value)
+                      handleInputChange('status', value)
                     }
                   >
                     <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500">
@@ -252,7 +255,7 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
                         transition={{
                           duration: 1,
                           repeat: Infinity,
-                          ease: "linear",
+                          ease: 'linear',
                         }}
                         className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                       />
@@ -303,7 +306,7 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
                   </p>
                   <p className="text-xl font-bold text-green-900">
                     {project.totalImpact?.rechauffementClimatique?.toFixed(1) ||
-                      "0"}{" "}
+                      '0'}{' '}
                     kg
                   </p>
                 </div>
@@ -318,7 +321,7 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
                     Prix total
                   </p>
                   <p className="text-xl font-bold text-purple-900">
-                    {project.totalPrix?.toFixed(0) || "0"} €
+                    {project.totalPrix?.toFixed(0) || '0'} €
                   </p>
                 </div>
               </div>
@@ -353,5 +356,5 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
         </motion.div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import {
   Button,
@@ -6,19 +6,19 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui";
+} from '@/components/ui'
 
-import { useRouter } from "next/navigation";
-import { Frown } from "lucide-react";
+import { useRouter } from 'next/navigation'
+import { Frown } from 'lucide-react'
 
 export default function ErrorPage({
   error,
   reset,
 }: {
-  error: Error;
-  reset: () => void;
+  error: Error
+  reset: () => void
 }) {
-  const router = useRouter();
+  const router = useRouter()
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-200">
@@ -35,19 +35,19 @@ export default function ErrorPage({
           <p className="text-center text-gray-600">
             {error?.message
               ? error.message
-              : "Une erreur inattendue est survenue. Veuillez réessayer."}
+              : 'Une erreur inattendue est survenue. Veuillez réessayer.'}
           </p>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => router.back()}>
               Retour
             </Button>
             <Button onClick={() => reset()}>Réessayer</Button>
-            <Button variant="ghost" onClick={() => router.push("/")}>
+            <Button variant="ghost" onClick={() => router.push('/')}>
               Accueil
             </Button>
           </div>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

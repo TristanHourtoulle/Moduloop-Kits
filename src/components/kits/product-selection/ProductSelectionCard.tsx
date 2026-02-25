@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { Product } from '@/lib/types/project';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Package, Plus, Minus } from 'lucide-react';
-import { formatPrice } from '@/lib/utils/product-helpers';
-import { cn } from '@/lib/utils';
+import { Product } from '@/lib/types/project'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Package, Plus, Minus } from 'lucide-react'
+import { formatPrice } from '@/lib/utils/product-helpers'
+import { cn } from '@/lib/utils'
 
 interface ProductSelectionCardProps {
-  product: Product;
-  currentQuantity: number;
-  onQuantityChange: (productId: string, quantity: number) => void;
+  product: Product
+  currentQuantity: number
+  onQuantityChange: (productId: string, quantity: number) => void
 }
 
 export function ProductSelectionCard({
@@ -20,18 +20,18 @@ export function ProductSelectionCard({
   onQuantityChange,
 }: ProductSelectionCardProps) {
   const incrementQuantity = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onQuantityChange(product.id, currentQuantity + 1);
-  };
+    e.stopPropagation()
+    onQuantityChange(product.id, currentQuantity + 1)
+  }
 
   const decrementQuantity = (e: React.MouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation()
     if (currentQuantity > 0) {
-      onQuantityChange(product.id, currentQuantity - 1);
+      onQuantityChange(product.id, currentQuantity - 1)
     }
-  };
+  }
 
-  const isSelected = currentQuantity > 0;
+  const isSelected = currentQuantity > 0
 
   return (
     <Card
@@ -41,13 +41,16 @@ export function ProductSelectionCard({
         'shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]',
         'hover:shadow-[0_8px_24px_rgba(0,0,0,0.08),0_4px_8px_rgba(0,0,0,0.06)]',
         'hover:border-primary/40 hover:-translate-y-1.5 hover:scale-[1.02]',
-        isSelected && 'border-primary border-2 shadow-[0_8px_24px_rgba(0,0,0,0.1)] bg-primary/5 scale-[1.01]'
+        isSelected &&
+          'border-primary border-2 shadow-[0_8px_24px_rgba(0,0,0,0.1)] bg-primary/5 scale-[1.01]',
       )}
     >
       {/* Selected indicator with quantity */}
       {isSelected && (
         <div className="absolute top-3 right-3 z-10 min-w-7 h-7 px-2 bg-primary rounded-full flex items-center justify-center shadow-lg">
-          <span className="text-sm font-bold text-white">{currentQuantity}</span>
+          <span className="text-sm font-bold text-white">
+            {currentQuantity}
+          </span>
         </div>
       )}
 
@@ -59,15 +62,15 @@ export function ProductSelectionCard({
             alt={product.nom}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              e.currentTarget.style.display = 'none'
+              e.currentTarget.nextElementSibling?.classList.remove('hidden')
             }}
           />
         ) : null}
         <div
           className={cn(
             'absolute inset-0 flex items-center justify-center',
-            product.image && 'hidden'
+            product.image && 'hidden',
           )}
         >
           <Package className="h-14 w-14 text-muted-foreground/40" />
@@ -82,12 +85,17 @@ export function ProductSelectionCard({
           <h3
             className={cn(
               'font-semibold text-base line-clamp-2 leading-tight transition-colors duration-300',
-              isSelected ? 'text-primary' : 'text-foreground group-hover:text-primary'
+              isSelected
+                ? 'text-primary'
+                : 'text-foreground group-hover:text-primary',
             )}
           >
             {product.nom}
           </h3>
-          <Badge variant="secondary" className="text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+          <Badge
+            variant="secondary"
+            className="text-xs font-medium bg-primary/10 text-primary border border-primary/20"
+          >
             {product.reference}
           </Badge>
         </div>
@@ -109,15 +117,17 @@ export function ProductSelectionCard({
             size="sm"
             variant="ghost"
             className={cn(
-              "h-7 w-7 p-0 transition-opacity",
-              currentQuantity === 0 && "opacity-30"
+              'h-7 w-7 p-0 transition-opacity',
+              currentQuantity === 0 && 'opacity-30',
             )}
             onClick={decrementQuantity}
             disabled={currentQuantity === 0}
           >
             <Minus className="h-3 w-3" />
           </Button>
-          <span className="text-sm font-medium min-w-6 text-center">{currentQuantity}</span>
+          <span className="text-sm font-medium min-w-6 text-center">
+            {currentQuantity}
+          </span>
           <Button
             type="button"
             size="sm"
@@ -130,5 +140,5 @@ export function ProductSelectionCard({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

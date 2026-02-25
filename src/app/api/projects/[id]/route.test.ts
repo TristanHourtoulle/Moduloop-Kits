@@ -1,235 +1,269 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import '@/test/register-api-mocks';
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import '@/test/register-api-mocks'
 
 vi.mock('@/lib/cache', async () => {
-  const { createCacheMock } = await import('@/test/mocks/cache');
-  return createCacheMock();
-});
+  const { createCacheMock } = await import('@/test/mocks/cache')
+  return createCacheMock()
+})
 vi.mock('@/lib/utils/project/access', () => ({
   verifyProjectAccess: vi.fn(),
-}));
+}))
 vi.mock('@/lib/services/project-history', async () => {
-  const { createProjectHistoryMock } = await import('@/test/mocks/project-history');
-  return createProjectHistoryMock();
-});
+  const { createProjectHistoryMock } =
+    await import('@/test/mocks/project-history')
+  return createProjectHistoryMock()
+})
 vi.mock('@/lib/services/project.service', () => ({
   calculateProjectTotals: vi.fn(),
-}));
+}))
 
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { calculateProjectTotals } from '@/lib/services/project.service';
-import { verifyProjectAccess } from '@/lib/utils/project/access';
-import { GET, PATCH, PUT, DELETE } from './route';
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/db'
+import { calculateProjectTotals } from '@/lib/services/project.service'
+import { verifyProjectAccess } from '@/lib/utils/project/access'
+import { GET, PATCH, PUT, DELETE } from './route'
 import {
   createMockRequest,
   mockAuthNone,
   mockAuthAsUser,
-} from '@/test/api-helpers';
+} from '@/test/api-helpers'
 
-const mockVerifyAccess = vi.mocked(verifyProjectAccess);
-const mockProjectFindUnique = vi.mocked(prisma.project.findUnique);
-const mockProjectFindFirst = vi.mocked(prisma.project.findFirst);
-const mockProjectUpdate = vi.mocked(prisma.project.update);
-const mockProjectDelete = vi.mocked(prisma.project.delete);
-const mockTransaction = vi.mocked(prisma.$transaction);
-const mockCalculateTotals = vi.mocked(calculateProjectTotals);
+const mockVerifyAccess = vi.mocked(verifyProjectAccess)
+const mockProjectFindUnique = vi.mocked(prisma.project.findUnique)
+const mockProjectFindFirst = vi.mocked(prisma.project.findFirst)
+const mockProjectUpdate = vi.mocked(prisma.project.update)
+const mockProjectDelete = vi.mocked(prisma.project.delete)
+const mockTransaction = vi.mocked(prisma.$transaction)
+const mockCalculateTotals = vi.mocked(calculateProjectTotals)
 
-const makeParams = (id: string) => ({ params: Promise.resolve({ id }) });
+const makeParams = (id: string) => ({ params: Promise.resolve({ id }) })
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.clearAllMocks()
   mockCalculateTotals.mockReturnValue({
     totalPrix: 0,
-    totalImpact: { rechauffementClimatique: 0, epuisementRessources: 0, acidification: 0, eutrophisation: 0 },
+    totalImpact: {
+      rechauffementClimatique: 0,
+      epuisementRessources: 0,
+      acidification: 0,
+      eutrophisation: 0,
+    },
     totalSurface: 0,
-  } as never);
-});
+  } as never)
+})
 
 describe('GET /api/projects/[id]', () => {
   it('returns access denied when verifyProjectAccess fails', async () => {
     mockVerifyAccess.mockResolvedValueOnce({
       ok: false,
       response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }),
-    });
+    })
 
-    const req = createMockRequest('GET', '/api/projects/proj-1');
-    const res = await GET(req, makeParams('proj-1'));
-    expect(res.status).toBe(401);
-  });
+    const req = createMockRequest('GET', '/api/projects/proj-1')
+    const res = await GET(req, makeParams('proj-1'))
+    expect(res.status).toBe(401)
+  })
 
   it('returns 404 when project not found', async () => {
     mockVerifyAccess.mockResolvedValueOnce({
       ok: true,
       data: { userId: 'user-123', isAdmin: false },
-    });
-    mockProjectFindUnique.mockResolvedValueOnce(null as never);
+    })
+    mockProjectFindUnique.mockResolvedValueOnce(null as never)
 
-    const req = createMockRequest('GET', '/api/projects/proj-1');
-    const res = await GET(req, makeParams('proj-1'));
-    expect(res.status).toBe(404);
-  });
+    const req = createMockRequest('GET', '/api/projects/proj-1')
+    const res = await GET(req, makeParams('proj-1'))
+    expect(res.status).toBe(404)
+  })
 
   it('returns 200 with project and totals', async () => {
     mockVerifyAccess.mockResolvedValueOnce({
       ok: true,
       data: { userId: 'user-123', isAdmin: false },
-    });
-    const project = { id: 'proj-1', nom: 'Test Project', projectKits: [] };
-    mockProjectFindUnique.mockResolvedValueOnce(project as never);
+    })
+    const project = { id: 'proj-1', nom: 'Test Project', projectKits: [] }
+    mockProjectFindUnique.mockResolvedValueOnce(project as never)
 
-    const req = createMockRequest('GET', '/api/projects/proj-1');
-    const res = await GET(req, makeParams('proj-1'));
-    const body = await res.json();
+    const req = createMockRequest('GET', '/api/projects/proj-1')
+    const res = await GET(req, makeParams('proj-1'))
+    const body = await res.json()
 
-    expect(res.status).toBe(200);
-    expect(body.nom).toBe('Test Project');
-  });
-});
+    expect(res.status).toBe(200)
+    expect(body.nom).toBe('Test Project')
+  })
+})
 
 describe('PATCH /api/projects/[id]', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockAuthNone();
-    const req = createMockRequest('PATCH', '/api/projects/proj-1', { nom: 'Updated' });
-    const res = await PATCH(req, makeParams('proj-1'));
-    expect(res.status).toBe(401);
-  });
+    mockAuthNone()
+    const req = createMockRequest('PATCH', '/api/projects/proj-1', {
+      nom: 'Updated',
+    })
+    const res = await PATCH(req, makeParams('proj-1'))
+    expect(res.status).toBe(401)
+  })
 
   it('returns 404 when project not owned', async () => {
-    mockAuthAsUser();
-    mockProjectFindFirst.mockResolvedValueOnce(null as never);
+    mockAuthAsUser()
+    mockProjectFindFirst.mockResolvedValueOnce(null as never)
 
-    const req = createMockRequest('PATCH', '/api/projects/proj-1', { nom: 'Updated' });
-    const res = await PATCH(req, makeParams('proj-1'));
-    expect(res.status).toBe(404);
-  });
+    const req = createMockRequest('PATCH', '/api/projects/proj-1', {
+      nom: 'Updated',
+    })
+    const res = await PATCH(req, makeParams('proj-1'))
+    expect(res.status).toBe(404)
+  })
 
   it('returns 400 when surfaceManual is negative', async () => {
-    mockAuthAsUser();
+    mockAuthAsUser()
 
-    const req = createMockRequest('PATCH', '/api/projects/proj-1', { surfaceManual: -5 });
-    const res = await PATCH(req, makeParams('proj-1'));
-    expect(res.status).toBe(400);
-  });
+    const req = createMockRequest('PATCH', '/api/projects/proj-1', {
+      surfaceManual: -5,
+    })
+    const res = await PATCH(req, makeParams('proj-1'))
+    expect(res.status).toBe(400)
+  })
 
   it('returns 200 with updated project', async () => {
-    mockAuthAsUser();
-    mockProjectFindFirst.mockResolvedValueOnce({ id: 'proj-1', nom: 'Old', createdById: 'user-123' } as never);
-    const updatedProject = { id: 'proj-1', nom: 'Updated', projectKits: [] };
+    mockAuthAsUser()
+    mockProjectFindFirst.mockResolvedValueOnce({
+      id: 'proj-1',
+      nom: 'Old',
+      createdById: 'user-123',
+    } as never)
+    const updatedProject = { id: 'proj-1', nom: 'Updated', projectKits: [] }
     mockTransaction.mockImplementationOnce(async (fn) => {
       if (typeof fn === 'function') {
         return fn({
           project: { update: vi.fn().mockResolvedValue(updatedProject) },
-        } as never);
+        } as never)
       }
-      return updatedProject;
-    });
+      return updatedProject
+    })
 
-    const req = createMockRequest('PATCH', '/api/projects/proj-1', { nom: 'Updated' });
-    const res = await PATCH(req, makeParams('proj-1'));
+    const req = createMockRequest('PATCH', '/api/projects/proj-1', {
+      nom: 'Updated',
+    })
+    const res = await PATCH(req, makeParams('proj-1'))
 
-    expect(res.status).toBe(200);
-  });
+    expect(res.status).toBe(200)
+  })
 
   it('returns 500 on error', async () => {
-    mockAuthAsUser();
-    mockProjectFindFirst.mockRejectedValueOnce(new Error('DB error'));
+    mockAuthAsUser()
+    mockProjectFindFirst.mockRejectedValueOnce(new Error('DB error'))
 
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const req = createMockRequest('PATCH', '/api/projects/proj-1', { nom: 'Updated' });
-    const res = await PATCH(req, makeParams('proj-1'));
-    expect(res.status).toBe(500);
-    const body = await res.json();
-    expect(body.error).toBeDefined();
-    consoleSpy.mockRestore();
-  });
-});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const req = createMockRequest('PATCH', '/api/projects/proj-1', {
+      nom: 'Updated',
+    })
+    const res = await PATCH(req, makeParams('proj-1'))
+    expect(res.status).toBe(500)
+    const body = await res.json()
+    expect(body.error).toBeDefined()
+    consoleSpy.mockRestore()
+  })
+})
 
 describe('PUT /api/projects/[id]', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockAuthNone();
-    const req = createMockRequest('PUT', '/api/projects/proj-1', { nom: 'Updated' });
-    const res = await PUT(req, makeParams('proj-1'));
-    expect(res.status).toBe(401);
-  });
+    mockAuthNone()
+    const req = createMockRequest('PUT', '/api/projects/proj-1', {
+      nom: 'Updated',
+    })
+    const res = await PUT(req, makeParams('proj-1'))
+    expect(res.status).toBe(401)
+  })
 
   it('returns 404 when not owned', async () => {
-    mockAuthAsUser();
-    mockProjectFindFirst.mockResolvedValueOnce(null as never);
+    mockAuthAsUser()
+    mockProjectFindFirst.mockResolvedValueOnce(null as never)
 
-    const req = createMockRequest('PUT', '/api/projects/proj-1', { nom: 'Updated' });
-    const res = await PUT(req, makeParams('proj-1'));
-    expect(res.status).toBe(404);
-  });
+    const req = createMockRequest('PUT', '/api/projects/proj-1', {
+      nom: 'Updated',
+    })
+    const res = await PUT(req, makeParams('proj-1'))
+    expect(res.status).toBe(404)
+  })
 
   it('returns 200 with updated project', async () => {
-    mockAuthAsUser();
-    mockProjectFindFirst.mockResolvedValueOnce({ id: 'proj-1', createdById: 'user-123' } as never);
-    const updated = { id: 'proj-1', nom: 'Updated' };
-    mockProjectUpdate.mockResolvedValueOnce(updated as never);
+    mockAuthAsUser()
+    mockProjectFindFirst.mockResolvedValueOnce({
+      id: 'proj-1',
+      createdById: 'user-123',
+    } as never)
+    const updated = { id: 'proj-1', nom: 'Updated' }
+    mockProjectUpdate.mockResolvedValueOnce(updated as never)
 
-    const req = createMockRequest('PUT', '/api/projects/proj-1', { nom: 'Updated' });
-    const res = await PUT(req, makeParams('proj-1'));
+    const req = createMockRequest('PUT', '/api/projects/proj-1', {
+      nom: 'Updated',
+    })
+    const res = await PUT(req, makeParams('proj-1'))
 
-    expect(res.status).toBe(200);
-  });
+    expect(res.status).toBe(200)
+  })
 
   it('returns 500 on error', async () => {
-    mockAuthAsUser();
-    mockProjectFindFirst.mockRejectedValueOnce(new Error('DB error'));
+    mockAuthAsUser()
+    mockProjectFindFirst.mockRejectedValueOnce(new Error('DB error'))
 
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const req = createMockRequest('PUT', '/api/projects/proj-1', { nom: 'Updated' });
-    const res = await PUT(req, makeParams('proj-1'));
-    expect(res.status).toBe(500);
-    const body = await res.json();
-    expect(body.error).toBeDefined();
-    consoleSpy.mockRestore();
-  });
-});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const req = createMockRequest('PUT', '/api/projects/proj-1', {
+      nom: 'Updated',
+    })
+    const res = await PUT(req, makeParams('proj-1'))
+    expect(res.status).toBe(500)
+    const body = await res.json()
+    expect(body.error).toBeDefined()
+    consoleSpy.mockRestore()
+  })
+})
 
 describe('DELETE /api/projects/[id]', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockAuthNone();
-    const req = createMockRequest('DELETE', '/api/projects/proj-1');
-    const res = await DELETE(req, makeParams('proj-1'));
-    expect(res.status).toBe(401);
-  });
+    mockAuthNone()
+    const req = createMockRequest('DELETE', '/api/projects/proj-1')
+    const res = await DELETE(req, makeParams('proj-1'))
+    expect(res.status).toBe(401)
+  })
 
   it('returns 404 when project not owned', async () => {
-    mockAuthAsUser();
-    mockProjectFindFirst.mockResolvedValueOnce(null as never);
+    mockAuthAsUser()
+    mockProjectFindFirst.mockResolvedValueOnce(null as never)
 
-    const req = createMockRequest('DELETE', '/api/projects/proj-1');
-    const res = await DELETE(req, makeParams('proj-1'));
-    expect(res.status).toBe(404);
-  });
+    const req = createMockRequest('DELETE', '/api/projects/proj-1')
+    const res = await DELETE(req, makeParams('proj-1'))
+    expect(res.status).toBe(404)
+  })
 
   it('returns 200 when project deleted', async () => {
-    mockAuthAsUser();
-    const project = { id: 'proj-1', nom: 'To Delete', createdById: 'user-123' };
-    mockProjectFindFirst.mockResolvedValueOnce(project as never);
-    mockProjectDelete.mockResolvedValueOnce({} as never);
+    mockAuthAsUser()
+    const project = { id: 'proj-1', nom: 'To Delete', createdById: 'user-123' }
+    mockProjectFindFirst.mockResolvedValueOnce(project as never)
+    mockProjectDelete.mockResolvedValueOnce({} as never)
 
-    const req = createMockRequest('DELETE', '/api/projects/proj-1');
-    const res = await DELETE(req, makeParams('proj-1'));
+    const req = createMockRequest('DELETE', '/api/projects/proj-1')
+    const res = await DELETE(req, makeParams('proj-1'))
 
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.message).toBeDefined();
-  });
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.message).toBeDefined()
+  })
 
   it('returns 500 on DB error', async () => {
-    mockAuthAsUser();
-    mockProjectFindFirst.mockResolvedValueOnce({ id: 'proj-1', createdById: 'user-123' } as never);
-    mockProjectDelete.mockRejectedValueOnce(new Error('DB error'));
+    mockAuthAsUser()
+    mockProjectFindFirst.mockResolvedValueOnce({
+      id: 'proj-1',
+      createdById: 'user-123',
+    } as never)
+    mockProjectDelete.mockRejectedValueOnce(new Error('DB error'))
 
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const req = createMockRequest('DELETE', '/api/projects/proj-1');
-    const res = await DELETE(req, makeParams('proj-1'));
-    expect(res.status).toBe(500);
-    const body = await res.json();
-    expect(body.error).toBeDefined();
-    consoleSpy.mockRestore();
-  });
-});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const req = createMockRequest('DELETE', '/api/projects/proj-1')
+    const res = await DELETE(req, makeParams('proj-1'))
+    expect(res.status).toBe(500)
+    const body = await res.json()
+    expect(body.error).toBeDefined()
+    consoleSpy.mockRestore()
+  })
+})

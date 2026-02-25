@@ -1,18 +1,18 @@
-import { RoleGuard } from "@/components/auth/role-guard";
-import { UserRole } from "@/lib/types/user";
-import { KitsListWrapper } from "@/components/kits/kits-list-wrapper";
-import { Button } from "@/components/ui/button";
-import { Package2, Plus } from "lucide-react";
-import Link from "next/link";
-import { getKits } from "@/lib/db";
+import { RoleGuard } from '@/components/auth/role-guard'
+import { UserRole } from '@/lib/types/user'
+import { KitsListWrapper } from '@/components/kits/kits-list-wrapper'
+import { Button } from '@/components/ui/button'
+import { Package2, Plus } from 'lucide-react'
+import Link from 'next/link'
+import { getKits } from '@/lib/db'
 
 // Disable all caching for this page
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function KitsPage() {
   // Fetch kits directly from database using Prisma
-  const kits = await getKits();
+  const kits = await getKits()
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
@@ -45,5 +45,5 @@ export default async function KitsPage() {
         </div>
       </div>
     </RoleGuard>
-  );
+  )
 }

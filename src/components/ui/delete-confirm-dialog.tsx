@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,21 +11,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Trash2, AlertTriangle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import { Trash2, AlertTriangle } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface DeleteConfirmDialogProps {
-  title?: string;
-  description?: string;
-  itemName?: string;
-  onConfirm: () => void | Promise<void>;
-  children?: React.ReactNode;
-  triggerClassName?: string;
-  triggerVariant?: 'ghost' | 'outline' | 'destructive' | 'default';
-  triggerSize?: 'default' | 'sm' | 'lg' | 'icon';
-  showIcon?: boolean;
+  title?: string
+  description?: string
+  itemName?: string
+  onConfirm: () => void | Promise<void>
+  children?: React.ReactNode
+  triggerClassName?: string
+  triggerVariant?: 'ghost' | 'outline' | 'destructive' | 'default'
+  triggerSize?: 'default' | 'sm' | 'lg' | 'icon'
+  showIcon?: boolean
 }
 
 export function DeleteConfirmDialog({
@@ -39,24 +39,24 @@ export function DeleteConfirmDialog({
   triggerSize = 'icon',
   showIcon = true,
 }: DeleteConfirmDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [open, setOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleConfirm = async () => {
-    setIsDeleting(true);
+    setIsDeleting(true)
     try {
-      await onConfirm();
-      setOpen(false);
+      await onConfirm()
+      setOpen(false)
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+      console.error('Erreur lors de la suppression:', error)
     } finally {
-      setIsDeleting(false);
+      setIsDeleting(false)
     }
-  };
+  }
 
   const defaultDescription = itemName
     ? `Cette action est irréversible. Êtes-vous sûr de vouloir supprimer "${itemName}" ?`
-    : "Cette action est irréversible. Les données supprimées ne pourront pas être récupérées.";
+    : 'Cette action est irréversible. Les données supprimées ne pourront pas être récupérées.'
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -68,7 +68,7 @@ export function DeleteConfirmDialog({
             size={triggerSize}
             className={cn(
               'text-red-600 hover:text-red-700 hover:bg-red-50',
-              triggerClassName
+              triggerClassName,
             )}
           >
             {showIcon && <Trash2 className="h-4 w-4" />}
@@ -88,10 +88,7 @@ export function DeleteConfirmDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="gap-2 sm:gap-2">
-          <AlertDialogCancel
-            disabled={isDeleting}
-            className="mt-0"
-          >
+          <AlertDialogCancel disabled={isDeleting} className="mt-0">
             Annuler
           </AlertDialogCancel>
           <AlertDialogAction
@@ -114,5 +111,5 @@ export function DeleteConfirmDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }
