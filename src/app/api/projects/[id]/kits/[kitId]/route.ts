@@ -5,8 +5,10 @@ import {
   createKitRemovedHistory,
 } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
+import { updateProjectKitSchema } from '@/lib/schemas/project'
+import { logger } from '@/lib/logger'
 
-// PATCH - Mettre à jour la quantité d'un kit dans un projet
+// PATCH - Update kit quantity in a project
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; kitId: string }> },
@@ -16,11 +18,8 @@ export async function PATCH(
     if (auth.response) return auth.response
 
     const { id, kitId } = await params
-    const { quantite } = await request.json()
-
-    if (!quantite || quantite < 1) {
-      return NextResponse.json({ error: 'La quantité doit être supérieure à 0' }, { status: 400 })
-    }
+    const body = await request.json()
+    const { quantite } = updateProjectKitSchema.parse(body)
 
     // Vérifier que le projet appartient à l'utilisateur
     const project = await prisma.project.findFirst({
@@ -31,7 +30,10 @@ export async function PATCH(
     })
 
     if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     // Récupérer l'état actuel pour l'historique
@@ -46,7 +48,10 @@ export async function PATCH(
     })
 
     if (!existingProjectKit) {
-      return NextResponse.json({ error: 'Kit non trouvé dans le projet' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'KIT_NOT_FOUND', message: 'Kit not found in project' } },
+        { status: 404 },
+      )
     }
 
     const oldQuantity = existingProjectKit.quantite
@@ -70,7 +75,13 @@ export async function PATCH(
         existingProjectKit.kit,
         oldQuantity,
         quantite,
-      ).catch(console.error)
+      ).catch((error) => {
+        logger.warn('Failed to record kit quantity update history', {
+          projectId: id,
+          kitId,
+          error,
+        })
+      })
     }
 
     return NextResponse.json(updatedProjectKit)
@@ -79,7 +90,7 @@ export async function PATCH(
   }
 }
 
-// DELETE - Supprimer un kit d'un projet
+// DELETE - Remove a kit from a project
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; kitId: string }> },
@@ -99,7 +110,10 @@ export async function DELETE(
     })
 
     if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     // Récupérer les détails du kit avant suppression pour l'historique
@@ -114,7 +128,10 @@ export async function DELETE(
     })
 
     if (!projectKitToDelete) {
-      return NextResponse.json({ error: 'Kit non trouvé dans le projet' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'KIT_NOT_FOUND', message: 'Kit not found in project' } },
+        { status: 404 },
+      )
     }
 
     // Supprimer le kit du projet
@@ -131,7 +148,9 @@ export async function DELETE(
       id,
       projectKitToDelete.kit,
       projectKitToDelete.quantite,
-    ).catch(console.error)
+    ).catch((error) => {
+      logger.warn('Failed to record kit removal history', { projectId: id, kitId, error })
+    })
 
     return NextResponse.json({ success: true })
   } catch (error) {

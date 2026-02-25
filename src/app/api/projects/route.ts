@@ -5,6 +5,7 @@ import { calculateProjectTotals } from '@/lib/services/project.service'
 import { UserRole } from '@/lib/types/user'
 import { createProjectCreatedHistory } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
+import { createProjectSchema } from '@/lib/schemas/project'
 
 export async function GET(request: NextRequest) {
   try {
@@ -55,15 +56,11 @@ export async function POST(request: NextRequest) {
     if (auth.response) return auth.response
 
     const body = await request.json()
-    const { nom, description, status } = body
-
-    if (!nom) {
-      return NextResponse.json({ error: 'Le nom du projet est requis' }, { status: 400 })
-    }
+    const { nom, description, status } = createProjectSchema.parse(body)
 
     const project = await createProject({
       nom,
-      description,
+      description: description ?? undefined,
       status,
       userId: auth.user.id,
     })

@@ -10,6 +10,8 @@ import {
   createProjectDeletedHistory,
 } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
+import { updateProjectSchema, replaceProjectSchema } from '@/lib/schemas/project'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -66,12 +68,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const { id } = await params
     const body = await request.json()
-    const { nom, description, status, surfaceManual, surfaceOverride } = body
-
-    // Validate surfaceManual if provided
-    if (surfaceManual !== undefined && surfaceManual !== null && surfaceManual < 0) {
-      return NextResponse.json({ error: 'La surface doit être un nombre positif' }, { status: 400 })
-    }
+    const { nom, description, status, surfaceManual, surfaceOverride } =
+      updateProjectSchema.parse(body)
 
     // Vérifier que le projet appartient à l'utilisateur
     const existingProject = await prisma.project.findFirst({
@@ -82,46 +80,44 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     })
 
     if (!existingProject) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
-    // Use transaction to update project and record history
-    const result = await prisma.$transaction(async (tx) => {
-      // Prepare update data
-      const updateData: Prisma.ProjectUpdateInput = {}
-      if (nom !== undefined) updateData.nom = nom
-      if (description !== undefined) updateData.description = description
-      if (status !== undefined) updateData.status = status
-      if (surfaceManual !== undefined) updateData.surfaceManual = surfaceManual
-      if (surfaceOverride !== undefined) updateData.surfaceOverride = surfaceOverride
+    // Prepare update data
+    const updateData: Prisma.ProjectUpdateInput = {}
+    if (nom !== undefined) updateData.nom = nom
+    if (description !== undefined) updateData.description = description
+    if (status !== undefined) updateData.status = status
+    if (surfaceManual !== undefined) updateData.surfaceManual = surfaceManual
+    if (surfaceOverride !== undefined) updateData.surfaceOverride = surfaceOverride
 
-      // Mettre à jour le projet
-      const updatedProject = await tx.project.update({
-        where: { id },
-        data: updateData,
-        include: {
-          projectKits: {
-            include: {
-              kit: {
-                include: {
-                  kitProducts: {
-                    include: {
-                      product: true,
-                    },
+    // Update the project
+    const result = await prisma.project.update({
+      where: { id },
+      data: updateData,
+      include: {
+        projectKits: {
+          include: {
+            kit: {
+              include: {
+                kitProducts: {
+                  include: {
+                    product: true,
                   },
                 },
               },
             },
           },
         },
-      })
+      },
+    })
 
-      // Record history (async, don't block transaction)
-      createProjectUpdatedHistory(auth.user.id, id, existingProject, updatedProject).catch(
-        console.error,
-      )
-
-      return updatedProject
+    // Record history (async, don't block response)
+    createProjectUpdatedHistory(auth.user.id, id, existingProject, result).catch((error) => {
+      logger.warn('Failed to record project update history', { projectId: id, error })
     })
 
     // Revalidate the project detail page
@@ -146,7 +142,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const { id } = await params
     const body = await request.json()
-    const { nom, description, status } = body
+    const { nom, description, status } = replaceProjectSchema.parse(body)
 
     // Get existing project for history
     const existingProject = await prisma.project.findFirst({
@@ -157,7 +153,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     })
 
     if (!existingProject) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     const project = await prisma.project.update({
@@ -173,7 +172,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     })
 
     // Record history (async)
-    createProjectUpdatedHistory(auth.user.id, id, existingProject, project).catch(console.error)
+    createProjectUpdatedHistory(auth.user.id, id, existingProject, project).catch((error) => {
+      logger.warn('Failed to record project update history', { projectId: id, error })
+    })
 
     return NextResponse.json(project)
   } catch (error) {
@@ -200,7 +201,10 @@ export async function DELETE(
     })
 
     if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     // Record history before deletion
@@ -213,7 +217,7 @@ export async function DELETE(
       },
     })
 
-    return NextResponse.json({ message: 'Projet supprimé avec succès' })
+    return new NextResponse(null, { status: 204 })
   } catch (error) {
     return handleApiError(error)
   }

@@ -231,7 +231,7 @@ describe('DELETE /api/projects/[id]', () => {
     expect(res.status).toBe(404)
   })
 
-  it('returns 200 when project deleted', async () => {
+  it('returns 204 when project deleted', async () => {
     mockAuthAsUser()
     const project = { id: 'proj-1', nom: 'To Delete', createdById: 'user-123' }
     mockProjectFindFirst.mockResolvedValueOnce(project as never)
@@ -240,9 +240,8 @@ describe('DELETE /api/projects/[id]', () => {
     const req = createMockRequest('DELETE', '/api/projects/proj-1')
     const res = await DELETE(req, makeParams('proj-1'))
 
-    expect(res.status).toBe(200)
-    const body = await res.json()
-    expect(body.message).toBeDefined()
+    expect(res.status).toBe(204)
+    expect(res.body).toBeNull()
   })
 
   it('returns 500 on DB error', async () => {

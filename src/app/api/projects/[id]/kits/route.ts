@@ -6,11 +6,8 @@ import {
 } from '@/lib/services/project-history'
 import { verifyProjectAccess } from '@/lib/utils/project/access'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
-
-interface KitRequest {
-  kitId: string
-  quantite: number
-}
+import { projectKitsSchema } from '@/lib/schemas/project'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -19,11 +16,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const { id: projectId } = await params
     const body = await request.json()
-    const { kits } = body
-
-    if (!kits || !Array.isArray(kits) || kits.length === 0) {
-      return NextResponse.json({ error: 'Les kits sont requis' }, { status: 400 })
-    }
+    const { kits } = projectKitsSchema.parse(body)
 
     // Vérifier que le projet existe et appartient à l'utilisateur
     const project = await prisma.project.findFirst({
@@ -34,11 +27,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     })
 
     if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     // Vérifier que tous les kits existent
-    const kitIds = kits.map((k: KitRequest) => k.kitId)
+    const kitIds = kits.map((k) => k.kitId)
     const existingKits = await prisma.kit.findMany({
       where: {
         id: { in: kitIds },
@@ -46,7 +42,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     })
 
     if (existingKits.length !== kitIds.length) {
-      return NextResponse.json({ error: "Certains kits n'existent pas" }, { status: 400 })
+      return NextResponse.json(
+        { error: { code: 'KIT_NOT_FOUND', message: 'Some kits do not exist' } },
+        { status: 400 },
+      )
     }
 
     // Récupérer les kits existants du projet
@@ -56,15 +55,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       },
     })
 
-    // Créer un map des kits existants pour un accès rapide
-    const existingKitsMap = new Map()
+    // Build a lookup map for existing project kits
+    const existingKitsMap = new Map<string, (typeof existingProjectKits)[number]>()
     existingProjectKits.forEach((pk) => {
       existingKitsMap.set(pk.kitId, pk)
     })
 
-    // Traiter chaque kit à ajouter
-    const operations = []
-    const historyOperations = []
+    // Process each kit to add or update
+    const operations: Promise<unknown>[] = []
+    const historyOperations: Promise<void>[] = []
 
     for (const kit of kits) {
       const existingKit = existingKitsMap.get(kit.kitId)
@@ -119,7 +118,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const projectKits = await Promise.all(operations)
 
     // Record history (async, don't block response)
-    Promise.all(historyOperations).catch(console.error)
+    Promise.all(historyOperations).catch((error) => {
+      logger.warn('Failed to record kit history', { projectId, error })
+    })
 
     return NextResponse.json(projectKits, { status: 201 })
   } catch (error) {
