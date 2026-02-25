@@ -12,6 +12,7 @@ const makeProduct = (overrides: Record<string, unknown> = {}) => ({
   prixVente1An: 200,
   prixAchatAchat: 100,
   prixVenteAchat: 200,
+  surfaceM2: 5,
   rechauffementClimatiqueAchat: 10,
   epuisementRessourcesAchat: 20,
   acidificationAchat: 5,
@@ -37,12 +38,11 @@ const makeProjectKit = (overrides: Partial<ProjectKit> = {}): ProjectKit => ({
     id: 'kit-1',
     nom: 'Kit 1',
     style: 'modern',
-    surfaceM2: 15,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
     createdById: 'user-1',
     updatedById: 'user-1',
-    kitProducts: [],
+    kitProducts: [makeKitProduct()],
   },
   ...overrides,
 })
@@ -98,7 +98,6 @@ describe('calculateProjectTotals', () => {
             id: 'kit-1',
             nom: 'Kit 1',
             style: 'modern',
-            surfaceM2: 15,
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
             createdById: 'user-1',
@@ -113,7 +112,7 @@ describe('calculateProjectTotals', () => {
 
     // prixVente=200, kitProduct.quantite=3, projectKit.quantite=2 => ceilPrice(200*3*2)=1200
     expect(result.totalPrix).toBe(ceilPrice(200 * 3 * 2))
-    // surfaceM2=15, projectKit.quantite=2 => 15*2=30
+    // surface = product.surfaceM2(5) * kitProduct.quantite(3) * projectKit.quantite(2) = 30
     expect(result.totalSurface).toBe(30)
     // rechauffement=10, kitProduct.quantite=3, projectKit.quantite=2 => 10*3*2=60
     expect(result.totalImpact.rechauffementClimatique).toBe(60)
@@ -134,7 +133,7 @@ describe('calculateProjectTotals', () => {
     expect(result.totalSurface).toBe(42)
   })
 
-  it('calculates surface from kits when override is disabled', () => {
+  it('calculates surface from kit products when override is disabled', () => {
     const project = makeProject({
       surfaceOverride: false,
       projectKits: [
@@ -144,12 +143,16 @@ describe('calculateProjectTotals', () => {
             id: 'kit-1',
             nom: 'Kit 1',
             style: 'modern',
-            surfaceM2: 10,
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
             createdById: 'user-1',
             updatedById: 'user-1',
-            kitProducts: [],
+            kitProducts: [
+              makeKitProduct({
+                quantite: 2,
+                product: makeProduct({ surfaceM2: 5 }) as KitProduct['product'],
+              }),
+            ],
           },
         }),
       ],
@@ -157,6 +160,7 @@ describe('calculateProjectTotals', () => {
 
     const result = calculateProjectTotals(project)
 
+    // surface = product.surfaceM2(5) * kitProduct.quantite(2) * projectKit.quantite(3) = 30
     expect(result.totalSurface).toBe(30)
   })
 
@@ -212,7 +216,6 @@ describe('calculateProjectTotals', () => {
             id: 'kit-1',
             nom: 'Kit A',
             style: 'modern',
-            surfaceM2: 10,
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
             createdById: 'user-1',
@@ -235,7 +238,6 @@ describe('calculateProjectTotals', () => {
             id: 'kit-2',
             nom: 'Kit B',
             style: 'classic',
-            surfaceM2: 5,
             createdAt: '2026-01-01T00:00:00.000Z',
             updatedAt: '2026-01-01T00:00:00.000Z',
             createdById: 'user-1',
@@ -258,7 +260,7 @@ describe('calculateProjectTotals', () => {
 
     // Kit A: ceilPrice(100*2*1)=200, Kit B: ceilPrice(300*1*3)=900 => 1100
     expect(result.totalPrix).toBe(ceilPrice(100 * 2 * 1) + ceilPrice(300 * 1 * 3))
-    // Surface: kit-1(10*1) + kit-2(5*3) = 25
+    // Surface: productA(5*2*1) + productB(5*1*3) = 10+15 = 25
     expect(result.totalSurface).toBe(25)
     // Rechauffement: 5*2*1 + 15*1*3 = 10+45 = 55
     expect(result.totalImpact.rechauffementClimatique).toBe(55)
