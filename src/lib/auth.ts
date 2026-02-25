@@ -3,7 +3,11 @@ import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { prisma } from '@/lib/db'
 
 function buildTrustedOrigins(): string[] {
-  const origins = new Set<string>(['http://localhost:3000'])
+  const origins = new Set<string>()
+
+  if (process.env.NODE_ENV !== 'production') {
+    origins.add('http://localhost:3000')
+  }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL
   if (appUrl) {
