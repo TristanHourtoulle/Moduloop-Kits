@@ -50,6 +50,5 @@ export function createDbMock(prismaOverrides: Record<string, unknown> = {}) {
     getProducts: vi.fn(),
     getProjects: vi.fn(),
     createProject: vi.fn(),
-    calculateProjectTotals: vi.fn(),
   };
 }

@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client';
 import 'server-only';
 import { unstable_noStore as noStore } from 'next/cache';
 import { type Kit, type Product, type Project, ProjectStatus } from './types/project';
-import { getProductPricing, getProductEnvironmentalImpact } from './utils/product-helpers';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -309,79 +308,6 @@ export const deleteProject = async (id: string, userId: string) => {
       createdById: userId,
     },
   });
-};
-
-// Utility functions for calculations
-export const calculateProjectTotals = (project: Project) => {
-  let totalPrix = 0;
-  const totalImpact = {
-    rechauffementClimatique: 0,
-    epuisementRessources: 0,
-    acidification: 0,
-    eutrophisation: 0,
-  };
-  let totalSurface = 0;
-
-  // Calculate surface: use manual override if enabled, otherwise calculate from kits
-  if (project.surfaceOverride && project.surfaceManual != null) {
-    // Use manual override value
-    totalSurface = project.surfaceManual;
-  } else {
-    // Calculate automatically from kits
-    if (project.projectKits) {
-      project.projectKits.forEach((projectKit) => {
-        const kit = projectKit.kit;
-        if (kit) {
-          // Surface totale du kit (définie au niveau du kit, pas des produits)
-          totalSurface += (kit.surfaceM2 || 0) * projectKit.quantite;
-        }
-      });
-    }
-  }
-
-  // Calculate price and environmental impact for all kits (independent of surface mode)
-  if (project.projectKits) {
-    project.projectKits.forEach((projectKit) => {
-      const kit = projectKit.kit;
-      if (kit && kit.kitProducts) {
-        kit.kitProducts.forEach((kitProduct) => {
-          const product = kitProduct.product;
-          if (product) {
-            // Utiliser les helpers pour les champs mode-specific (mode achat par défaut)
-            const pricing = getProductPricing(product, 'achat', '1an');
-            const environmentalImpact = getProductEnvironmentalImpact(product, 'achat');
-
-            // Prix total pour ce produit dans ce kit * quantité du kit dans le projet
-            const prixProduit =
-              (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite;
-            totalPrix += prixProduit;
-
-            // Impact environnemental
-            totalImpact.rechauffementClimatique +=
-              (environmentalImpact.rechauffementClimatique || 0) *
-              kitProduct.quantite *
-              projectKit.quantite;
-            totalImpact.epuisementRessources +=
-              (environmentalImpact.epuisementRessources || 0) *
-              kitProduct.quantite *
-              projectKit.quantite;
-            totalImpact.acidification +=
-              (environmentalImpact.acidification || 0) * kitProduct.quantite * projectKit.quantite;
-            totalImpact.eutrophisation +=
-              (environmentalImpact.eutrophisation || 0) *
-              kitProduct.quantite *
-              projectKit.quantite;
-          }
-        });
-      }
-    });
-  }
-
-  return {
-    totalPrix,
-    totalImpact,
-    totalSurface,
-  };
 };
 
 // Preload functions for projects

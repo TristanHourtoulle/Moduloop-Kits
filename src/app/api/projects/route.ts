@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
-import { getProjects, createProject, calculateProjectTotals, prisma } from "@/lib/db";
+import { getProjects, createProject, prisma } from "@/lib/db";
+import { calculateProjectTotals } from "@/lib/services/project.service";
 import { UserRole } from "@/lib/types/user";
 import { createProjectCreatedHistory } from '@/lib/services/project-history';
 

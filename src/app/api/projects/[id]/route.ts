@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
-import { prisma, calculateProjectTotals } from '@/lib/db';
+import { prisma } from '@/lib/db';
+import { calculateProjectTotals } from '@/lib/services/project.service';
 import { type Project } from '@/lib/types/project';
 import { verifyProjectAccess } from '@/lib/utils/project/access';
 import {
