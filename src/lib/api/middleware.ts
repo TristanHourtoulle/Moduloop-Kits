@@ -3,6 +3,7 @@ import { ZodError } from 'zod'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { UserRole } from '@/lib/types/user'
+import { logger } from '@/lib/logger'
 
 /**
  * Authenticated user returned by requireAuth / requireRole.
@@ -32,7 +33,10 @@ export async function requireAuth(request: Request): Promise<AuthResult> {
 
   if (!session?.user?.id) {
     return {
-      response: NextResponse.json({ error: 'Non autorise' }, { status: 401 }),
+      response: NextResponse.json(
+        { error: { code: 'AUTH_NOT_AUTHENTICATED', message: 'Not authenticated' } },
+        { status: 401 },
+      ),
     }
   }
 
@@ -68,7 +72,10 @@ export async function requireRole(request: Request, roles: UserRole[]): Promise<
 
   if (!roles.includes(result.user.role)) {
     return {
-      response: NextResponse.json({ error: 'Acces refuse' }, { status: 403 }),
+      response: NextResponse.json(
+        { error: { code: 'AUTH_FORBIDDEN', message: 'Insufficient permissions' } },
+        { status: 403 },
+      ),
     }
   }
 
@@ -82,13 +89,21 @@ export async function requireRole(request: Request, roles: UserRole[]): Promise<
  */
 export function handleApiError(error: unknown): NextResponse {
   if (error instanceof ZodError) {
-    return NextResponse.json({ error: 'Donnees invalides', details: error.issues }, { status: 400 })
+    return NextResponse.json(
+      { error: { code: 'VAL_INVALID_INPUT', message: 'Validation failed', details: error.issues } },
+      { status: 400 },
+    )
   }
 
-  // Log unexpected errors server-side for observability
-  console.error('[API Error]', error)
+  logger.error('Unhandled API error', {
+    error: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+  })
 
-  return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 })
+  return NextResponse.json(
+    { error: { code: 'SYS_INTERNAL_ERROR', message: 'Internal server error' } },
+    { status: 500 },
+  )
 }
 
 interface CacheHeaderOptions {

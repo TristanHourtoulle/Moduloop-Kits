@@ -7,6 +7,7 @@ import {
 import { verifyProjectAccess } from '@/lib/utils/project/access'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
 import { projectKitsSchema } from '@/lib/schemas/project'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -26,7 +27,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     })
 
     if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     // Vérifier que tous les kits existent
@@ -38,7 +42,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     })
 
     if (existingKits.length !== kitIds.length) {
-      return NextResponse.json({ error: "Certains kits n'existent pas" }, { status: 400 })
+      return NextResponse.json(
+        { error: { code: 'KIT_NOT_FOUND', message: 'Some kits do not exist' } },
+        { status: 400 },
+      )
     }
 
     // Récupérer les kits existants du projet
@@ -111,7 +118,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const projectKits = await Promise.all(operations)
 
     // Record history (async, don't block response)
-    Promise.all(historyOperations).catch(console.error)
+    Promise.all(historyOperations).catch((error) => {
+      logger.warn('Failed to record kit history', { projectId, error })
+    })
 
     return NextResponse.json(projectKits, { status: 201 })
   } catch (error) {

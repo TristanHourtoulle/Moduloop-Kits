@@ -11,6 +11,7 @@ import {
 } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
 import { updateProjectSchema } from '@/lib/schemas/project'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -67,7 +68,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const { id } = await params
     const body = await request.json()
-    const { nom, description, status, surfaceManual, surfaceOverride } = updateProjectSchema.parse(body)
+    const { nom, description, status, surfaceManual, surfaceOverride } =
+      updateProjectSchema.parse(body)
 
     // Vérifier que le projet appartient à l'utilisateur
     const existingProject = await prisma.project.findFirst({
@@ -78,7 +80,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     })
 
     if (!existingProject) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     // Use transaction to update project and record history
@@ -114,7 +119,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
       // Record history (async, don't block transaction)
       createProjectUpdatedHistory(auth.user.id, id, existingProject, updatedProject).catch(
-        console.error,
+        (error) => {
+          logger.warn('Failed to record project update history', { projectId: id, error })
+        },
       )
 
       return updatedProject
@@ -153,7 +160,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     })
 
     if (!existingProject) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     const project = await prisma.project.update({
@@ -169,7 +179,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     })
 
     // Record history (async)
-    createProjectUpdatedHistory(auth.user.id, id, existingProject, project).catch(console.error)
+    createProjectUpdatedHistory(auth.user.id, id, existingProject, project).catch((error) => {
+      logger.warn('Failed to record project update history', { projectId: id, error })
+    })
 
     return NextResponse.json(project)
   } catch (error) {
@@ -196,7 +208,10 @@ export async function DELETE(
     })
 
     if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     // Record history before deletion
