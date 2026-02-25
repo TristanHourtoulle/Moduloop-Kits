@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/products/product-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,6 @@ type SortOption = "nom-asc" | "nom-desc" | "reference-asc" | "reference-desc" | 
 type ImageFilter = "all" | "with-image" | "without-image";
 
 function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
-  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");

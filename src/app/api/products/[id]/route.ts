@@ -1,25 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { productUpdateSchema } from "@/lib/schemas/product";
 import { UserRole } from "@/lib/types/user";
 import { getProductById, prisma } from "@/lib/db";
 import { invalidateProduct, invalidateProducts, CACHE_CONFIG } from "@/lib/cache";
-
-interface UserWithRole {
-  role?: UserRole;
-}
+import {
+  requireAuth,
+  requireRole,
+  handleApiError,
+  setResourceCacheHeaders,
+} from "@/lib/api/middleware";
 
 // GET /api/products/[id] - Récupérer un produit par ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+    const auth = await requireAuth(request);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
 
@@ -29,65 +27,28 @@ export async function GET(
     if (!product) {
       return NextResponse.json(
         { error: "Produit non trouvé" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Configure cache headers for this response
     const response = NextResponse.json(product);
-
-    // On Vercel production, disable cache for individual product endpoints
-    // to ensure fresh data on edit pages
-    if (process.env.NODE_ENV === "production") {
-      response.headers.set(
-        "Cache-Control",
-        "no-cache, no-store, must-revalidate, max-age=0"
-      );
-      response.headers.set("Pragma", "no-cache");
-      response.headers.set("Expires", "0");
-    } else {
-      // In development, use normal cache headers
-      response.headers.set(
-        "Cache-Control",
-        `public, s-maxage=${
-          CACHE_CONFIG.PRODUCTS.revalidate
-        }, stale-while-revalidate=${CACHE_CONFIG.PRODUCTS.revalidate * 2}`
-      );
-    }
+    setResourceCacheHeaders(response, CACHE_CONFIG.PRODUCTS);
 
     return response;
   } catch (error) {
-    console.error("Erreur lors de la récupération du produit:", error);
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
 // PUT /api/products/[id] - Mettre à jour un produit
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    // Vérifier que l'utilisateur est DEV ou ADMIN
-    const userRole = (session.user as UserWithRole)?.role || UserRole.USER;
-    if (userRole !== UserRole.DEV && userRole !== UserRole.ADMIN) {
-      return NextResponse.json(
-        {
-          error:
-            "Accès refusé. Seuls les développeurs et administrateurs peuvent modifier des produits.",
-        },
-        { status: 403 }
-      );
-    }
+    const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN]);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
     // Vérifier que le produit existe
@@ -98,7 +59,7 @@ export async function PUT(
     if (!existingProduct) {
       return NextResponse.json(
         { error: "Produit non trouvé" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -121,7 +82,7 @@ export async function PUT(
       if (referenceExists) {
         return NextResponse.json(
           { error: "Cette référence existe déjà" },
-          { status: 409 }
+          { status: 409 },
         );
       }
     }
@@ -130,7 +91,7 @@ export async function PUT(
     const filteredUpdateData = Object.fromEntries(
       Object.entries(updateData).filter(([_key, value]) => {
         return value !== undefined;
-      })
+      }),
     );
 
     // Traiter spécialement la description pour gérer les chaînes vides
@@ -157,7 +118,7 @@ export async function PUT(
       where: { id },
       data: {
         ...filteredUpdateData,
-        updatedById: session.user.id,
+        updatedById: auth.user.id,
       },
       include: {
         createdBy: {
@@ -174,45 +135,18 @@ export async function PUT(
 
     return NextResponse.json(updatedProduct);
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du produit:", error);
-
-    if (error instanceof Error && error.name === "ZodError") {
-      return NextResponse.json(
-        { error: "Données invalides", details: error.message },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
 // DELETE /api/products/[id] - Supprimer un produit
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    // Vérifier que l'utilisateur est DEV ou ADMIN
-    const userRole = (session.user as UserWithRole)?.role || UserRole.USER;
-    if (userRole !== UserRole.DEV && userRole !== UserRole.ADMIN) {
-      return NextResponse.json(
-        {
-          error:
-            "Accès refusé. Seuls les développeurs et administrateurs peuvent supprimer des produits.",
-        },
-        { status: 403 }
-      );
-    }
+    const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN]);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
     // Vérifier que le produit existe
@@ -223,7 +157,7 @@ export async function DELETE(
     if (!existingProduct) {
       return NextResponse.json(
         { error: "Produit non trouvé" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -236,10 +170,6 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Produit supprimé avec succès" });
   } catch (error) {
-    console.error("Erreur lors de la suppression du produit:", error);
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

@@ -6,12 +6,16 @@ vi.mock('@/lib/cache', async () => {
   return createCacheMock();
 });
 
-import { auth } from '@/lib/auth';
 import { prisma, getKits } from '@/lib/db';
 import { GET, POST } from './route';
-import { createMockRequest, mockAdminSession, mockDevSession, mockUserSession } from '@/test/api-helpers';
+import {
+  createMockRequest,
+  mockAuthNone,
+  mockAuthAsUser,
+  mockAuthAsDev,
+  mockAuthAsAdmin,
+} from '@/test/api-helpers';
 
-const mockGetSession = vi.mocked(auth.api.getSession);
 const mockGetKits = vi.mocked(getKits);
 const mockProductFindMany = vi.mocked(prisma.product.findMany);
 const mockKitCreate = vi.mocked(prisma.kit.create);
@@ -22,14 +26,14 @@ beforeEach(() => {
 
 describe('GET /api/kits', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('GET', '/api/kits');
     const res = await GET(req);
     expect(res.status).toBe(401);
   });
 
   it('returns kits list', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const kits = [{ id: 'k1', nom: 'Kit 1' }];
     mockGetKits.mockResolvedValueOnce(kits as never);
 
@@ -42,7 +46,7 @@ describe('GET /api/kits', () => {
   });
 
   it('passes search and style params to getKits', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockGetKits.mockResolvedValueOnce([] as never);
 
     const req = createMockRequest('GET', '/api/kits?search=modern&style=bureau');
@@ -52,7 +56,7 @@ describe('GET /api/kits', () => {
   });
 
   it('returns 500 when getKits throws', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockGetKits.mockRejectedValueOnce(new Error('DB error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -73,21 +77,21 @@ describe('POST /api/kits', () => {
   };
 
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('POST', '/api/kits', validKit);
     const res = await POST(req);
     expect(res.status).toBe(401);
   });
 
   it('returns 403 when role is USER', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const req = createMockRequest('POST', '/api/kits', validKit);
     const res = await POST(req);
     expect(res.status).toBe(403);
   });
 
   it('returns 400 when product ids do not exist', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockProductFindMany.mockResolvedValueOnce([] as never);
 
     const req = createMockRequest('POST', '/api/kits', validKit);
@@ -98,7 +102,7 @@ describe('POST /api/kits', () => {
   });
 
   it('returns 201 when kit created by DEV', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockProductFindMany.mockResolvedValueOnce([{ id: 'p1' }] as never);
     const createdKit = { id: 'k1', nom: 'New Kit' };
     mockKitCreate.mockResolvedValueOnce(createdKit as never);
@@ -112,7 +116,7 @@ describe('POST /api/kits', () => {
   });
 
   it('returns 201 when kit created by ADMIN', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
+    mockAuthAsAdmin();
     mockProductFindMany.mockResolvedValueOnce([{ id: 'p1' }] as never);
     const createdKit = { id: 'k2', nom: 'Admin Kit' };
     mockKitCreate.mockResolvedValueOnce(createdKit as never);
@@ -124,7 +128,7 @@ describe('POST /api/kits', () => {
   });
 
   it('groups duplicate product ids and sums quantities', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockProductFindMany.mockResolvedValueOnce([{ id: 'p1' }] as never);
     mockKitCreate.mockResolvedValueOnce({ id: 'k1' } as never);
 
@@ -151,7 +155,7 @@ describe('POST /api/kits', () => {
   });
 
   it('returns 400 on Zod schema failure', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const req = createMockRequest('POST', '/api/kits', { nom: '', style: '', products: [] });
@@ -161,7 +165,7 @@ describe('POST /api/kits', () => {
   });
 
   it('returns 500 on DB error', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockProductFindMany.mockResolvedValueOnce([{ id: 'p1' }] as never);
     mockKitCreate.mockRejectedValueOnce(new Error('DB error'));
 

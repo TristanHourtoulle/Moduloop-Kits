@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { calculateProjectTotals } from '@/lib/services/project.service';
 import { type Project } from '@/lib/types/project';
@@ -10,6 +9,7 @@ import {
   createProjectUpdatedHistory,
   createProjectDeletedHistory,
 } from '@/lib/services/project-history';
+import { requireAuth, handleApiError } from '@/lib/api/middleware';
 
 export async function GET(
   request: NextRequest,
@@ -58,11 +58,7 @@ export async function GET(
       ...totals,
     });
   } catch (error) {
-    console.error('Erreur lors de la récupération du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }
 
@@ -71,10 +67,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
+    const auth = await requireAuth(request);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
     const body = await request.json();
@@ -96,7 +90,7 @@ export async function PATCH(
     const existingProject = await prisma.project.findFirst({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
     });
 
@@ -138,7 +132,7 @@ export async function PATCH(
 
       // Record history (async, don't block transaction)
       createProjectUpdatedHistory(
-        session.user.id,
+        auth.user.id,
         id,
         existingProject,
         updatedProject,
@@ -158,11 +152,7 @@ export async function PATCH(
       ...totals,
     });
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }
 
@@ -171,10 +161,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
+    const auth = await requireAuth(request);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
     const body = await request.json();
@@ -184,7 +172,7 @@ export async function PUT(
     const existingProject = await prisma.project.findFirst({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
     });
 
@@ -195,7 +183,7 @@ export async function PUT(
     const project = await prisma.project.update({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
       data: {
         nom,
@@ -206,7 +194,7 @@ export async function PUT(
 
     // Record history (async)
     createProjectUpdatedHistory(
-      session.user.id,
+      auth.user.id,
       id,
       existingProject,
       project,
@@ -214,11 +202,7 @@ export async function PUT(
 
     return NextResponse.json(project);
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }
 
@@ -227,10 +211,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 500 });
-    }
+    const auth = await requireAuth(request);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
 
@@ -238,7 +220,7 @@ export async function DELETE(
     const project = await prisma.project.findFirst({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
     });
 
@@ -247,21 +229,17 @@ export async function DELETE(
     }
 
     // Record history before deletion
-    await createProjectDeletedHistory(session.user.id, project);
+    await createProjectDeletedHistory(auth.user.id, project);
 
     await prisma.project.delete({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
     });
 
     return NextResponse.json({ message: 'Projet supprimé avec succès' });
   } catch (error) {
-    console.error('Erreur lors de la suppression du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }

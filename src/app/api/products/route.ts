@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import { auth } from "@/lib/auth";
 import { productSchema, productFilterSchema } from "@/lib/schemas/product";
 import { UserRole } from "@/lib/types/user";
 import { prisma } from "@/lib/db";
 import { invalidateProducts, CACHE_CONFIG } from "@/lib/cache";
-
-interface UserWithRole {
-  role?: UserRole;
-}
+import {
+  requireAuth,
+  requireRole,
+  handleApiError,
+  setListCacheHeaders,
+} from "@/lib/api/middleware";
 
 // GET /api/products - Liste des produits avec filtres
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+    const auth = await requireAuth(request);
+    if (auth.response) return auth.response;
 
     const { searchParams } = new URL(request.url);
     const filterParams = Object.fromEntries(searchParams);
@@ -143,43 +141,19 @@ export async function GET(request: NextRequest) {
     });
 
     // Longer cache for products (change less frequently)
-    response.headers.set(
-      "Cache-Control",
-      `public, s-maxage=${
-        CACHE_CONFIG.PRODUCTS.revalidate
-      }, stale-while-revalidate=${CACHE_CONFIG.PRODUCTS.revalidate * 2}`
-    );
+    setListCacheHeaders(response, CACHE_CONFIG.PRODUCTS);
 
     return response;
   } catch (error) {
-    console.error("Erreur lors de la récupération des produits:", error);
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
 // POST /api/products - Créer un nouveau produit
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    // Vérifier que l'utilisateur est DEV ou ADMIN
-    const userRole = (session.user as UserWithRole)?.role || UserRole.USER;
-    if (userRole !== UserRole.DEV && userRole !== UserRole.ADMIN) {
-      return NextResponse.json(
-        {
-          error:
-            "Accès refusé. Seuls les développeurs et administrateurs peuvent créer des produits.",
-        },
-        { status: 403 }
-      );
-    }
+    const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN]);
+    if (auth.response) return auth.response;
 
     const body = await request.json();
     const validatedData = productSchema.parse(body);
@@ -192,7 +166,7 @@ export async function POST(request: NextRequest) {
     if (existingProduct) {
       return NextResponse.json(
         { error: "Cette référence existe déjà" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -217,8 +191,8 @@ export async function POST(request: NextRequest) {
       prixUnitaireAchat: prixUnitaireAchat1An,
       prixVenteAchat: prixVenteAchat1An,
       // Metadata
-      createdById: session.user.id,
-      updatedById: session.user.id,
+      createdById: auth.user.id,
+      updatedById: auth.user.id,
     };
 
     const product = await prisma.product.create({
@@ -238,18 +212,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
-    console.error("Erreur lors de la création du produit:", error);
-
-    if (error instanceof Error && error.name === "ZodError") {
-      return NextResponse.json(
-        { error: "Données invalides", details: error.message },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

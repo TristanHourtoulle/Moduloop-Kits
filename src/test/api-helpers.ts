@@ -1,5 +1,8 @@
 import { NextRequest } from 'next/server';
+import { vi } from 'vitest';
 import { UserRole } from '@/lib/types/user';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/db';
 
 /**
  * Builds a NextRequest suitable for route handler integration tests.
@@ -65,4 +68,38 @@ export function mockDevSession() {
 
 export function mockUserSession() {
   return makeMockSession({ id: 'user-123', role: UserRole.USER });
+}
+
+/**
+ * Mocks both auth.api.getSession and prisma.user.findUnique (role lookup)
+ * to simulate the full requireAuth / requireRole middleware flow.
+ *
+ * Pass `null` to simulate an unauthenticated request.
+ */
+export function mockAuthSession(session: ReturnType<typeof makeMockSession> | null) {
+  const mockGetSession = vi.mocked(auth.api.getSession);
+  if (!session) {
+    mockGetSession.mockResolvedValueOnce(null as never);
+    return;
+  }
+  mockGetSession.mockResolvedValueOnce(session as never);
+  vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(
+    { role: session.user.role } as never,
+  );
+}
+
+export function mockAuthAsAdmin() {
+  mockAuthSession(mockAdminSession());
+}
+
+export function mockAuthAsDev() {
+  mockAuthSession(mockDevSession());
+}
+
+export function mockAuthAsUser() {
+  mockAuthSession(mockUserSession());
+}
+
+export function mockAuthNone() {
+  mockAuthSession(null);
 }

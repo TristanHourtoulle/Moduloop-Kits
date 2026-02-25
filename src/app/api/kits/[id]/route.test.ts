@@ -6,12 +6,16 @@ vi.mock('@/lib/cache', async () => {
   return createCacheMock();
 });
 
-import { auth } from '@/lib/auth';
 import { prisma, getKitById } from '@/lib/db';
 import { GET, PUT, DELETE } from './route';
-import { createMockRequest, mockAdminSession, mockDevSession, mockUserSession } from '@/test/api-helpers';
+import {
+  createMockRequest,
+  mockAuthNone,
+  mockAuthAsUser,
+  mockAuthAsDev,
+  mockAuthAsAdmin,
+} from '@/test/api-helpers';
 
-const mockGetSession = vi.mocked(auth.api.getSession);
 const mockGetKitById = vi.mocked(getKitById);
 const mockKitFindUnique = vi.mocked(prisma.kit.findUnique);
 const mockKitDelete = vi.mocked(prisma.kit.delete);
@@ -26,14 +30,14 @@ beforeEach(() => {
 
 describe('GET /api/kits/[id]', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('GET', '/api/kits/k1');
     const res = await GET(req, makeParams('k1'));
     expect(res.status).toBe(401);
   });
 
   it('returns 404 when kit not found', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockGetKitById.mockResolvedValueOnce(null as never);
 
     const req = createMockRequest('GET', '/api/kits/nonexistent');
@@ -42,7 +46,7 @@ describe('GET /api/kits/[id]', () => {
   });
 
   it('returns 200 with kit', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const kit = { id: 'k1', nom: 'Kit 1' };
     mockGetKitById.mockResolvedValueOnce(kit as never);
 
@@ -55,7 +59,7 @@ describe('GET /api/kits/[id]', () => {
   });
 
   it('returns 500 when getKitById throws', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockGetKitById.mockRejectedValueOnce(new Error('DB error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -77,21 +81,21 @@ describe('PUT /api/kits/[id]', () => {
   };
 
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('PUT', '/api/kits/k1', updateData);
     const res = await PUT(req, makeParams('k1'));
     expect(res.status).toBe(401);
   });
 
   it('returns 403 when role is USER', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const req = createMockRequest('PUT', '/api/kits/k1', updateData);
     const res = await PUT(req, makeParams('k1'));
     expect(res.status).toBe(403);
   });
 
   it('returns 404 when kit not found', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockKitFindUnique.mockResolvedValueOnce(null as never);
 
     const req = createMockRequest('PUT', '/api/kits/k1', updateData);
@@ -100,7 +104,7 @@ describe('PUT /api/kits/[id]', () => {
   });
 
   it('returns 400 when product validation fails', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockKitFindUnique.mockResolvedValueOnce({ id: 'k1', kitProducts: [] } as never);
     mockProductFindMany.mockResolvedValueOnce([] as never);
 
@@ -110,7 +114,7 @@ describe('PUT /api/kits/[id]', () => {
   });
 
   it('returns 200 with updated kit via transaction', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockKitFindUnique.mockResolvedValueOnce({ id: 'k1', kitProducts: [] } as never);
     mockProductFindMany.mockResolvedValueOnce([{ id: 'p1' }] as never);
     const updatedKit = { id: 'k1', nom: 'Updated Kit' };
@@ -131,7 +135,7 @@ describe('PUT /api/kits/[id]', () => {
   });
 
   it('returns 200 when ADMIN updates a kit', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
+    mockAuthAsAdmin();
     mockKitFindUnique.mockResolvedValueOnce({ id: 'k1', kitProducts: [] } as never);
     mockProductFindMany.mockResolvedValueOnce([{ id: 'p1' }] as never);
     const updatedKit = { id: 'k1', nom: 'Admin Updated Kit' };
@@ -152,7 +156,7 @@ describe('PUT /api/kits/[id]', () => {
   });
 
   it('returns 400 on Zod failure', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockKitFindUnique.mockResolvedValueOnce({ id: 'k1', kitProducts: [] } as never);
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -165,21 +169,21 @@ describe('PUT /api/kits/[id]', () => {
 
 describe('DELETE /api/kits/[id]', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('DELETE', '/api/kits/k1');
     const res = await DELETE(req, makeParams('k1'));
     expect(res.status).toBe(401);
   });
 
   it('returns 403 when role is USER', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const req = createMockRequest('DELETE', '/api/kits/k1');
     const res = await DELETE(req, makeParams('k1'));
     expect(res.status).toBe(403);
   });
 
   it('returns 404 when kit not found', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockKitFindUnique.mockResolvedValueOnce(null as never);
 
     const req = createMockRequest('DELETE', '/api/kits/k1');
@@ -188,7 +192,7 @@ describe('DELETE /api/kits/[id]', () => {
   });
 
   it('returns 200 with success message', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockKitFindUnique.mockResolvedValueOnce({ id: 'k1' } as never);
     mockKitDelete.mockResolvedValueOnce({} as never);
 
@@ -201,7 +205,7 @@ describe('DELETE /api/kits/[id]', () => {
   });
 
   it('returns 200 when ADMIN deletes a kit', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
+    mockAuthAsAdmin();
     mockKitFindUnique.mockResolvedValueOnce({ id: 'k1' } as never);
     mockKitDelete.mockResolvedValueOnce({} as never);
 
@@ -212,7 +216,7 @@ describe('DELETE /api/kits/[id]', () => {
   });
 
   it('returns 500 on DB error', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockKitFindUnique.mockResolvedValueOnce({ id: 'k1' } as never);
     mockKitDelete.mockRejectedValueOnce(new Error('DB error'));
 

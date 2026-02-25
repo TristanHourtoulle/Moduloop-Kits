@@ -6,12 +6,16 @@ vi.mock('@/lib/cache', async () => {
   return createCacheMock();
 });
 
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { GET, POST } from './route';
-import { createMockRequest, mockAdminSession, mockDevSession, mockUserSession } from '@/test/api-helpers';
+import {
+  createMockRequest,
+  mockAuthNone,
+  mockAuthAsUser,
+  mockAuthAsDev,
+  mockAuthAsAdmin,
+} from '@/test/api-helpers';
 
-const mockGetSession = vi.mocked(auth.api.getSession);
 const mockFindMany = vi.mocked(prisma.product.findMany);
 const mockFindUnique = vi.mocked(prisma.product.findUnique);
 const mockCreate = vi.mocked(prisma.product.create);
@@ -23,14 +27,14 @@ beforeEach(() => {
 
 describe('GET /api/products', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('GET', '/api/products');
     const res = await GET(req);
     expect(res.status).toBe(401);
   });
 
   it('returns paginated products for authenticated user', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const products = [{ id: 'p1', nom: 'Product 1' }];
     mockFindMany.mockResolvedValueOnce(products as never);
     mockCount.mockResolvedValueOnce(1);
@@ -46,7 +50,7 @@ describe('GET /api/products', () => {
   });
 
   it('returns all products when ?all=true', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockFindMany.mockResolvedValueOnce([] as never);
 
     const req = createMockRequest('GET', '/api/products?all=true');
@@ -59,7 +63,7 @@ describe('GET /api/products', () => {
   });
 
   it('filters by search param', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockFindMany.mockResolvedValueOnce([] as never);
     mockCount.mockResolvedValueOnce(0);
 
@@ -78,7 +82,7 @@ describe('GET /api/products', () => {
   });
 
   it('applies pagination params', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockFindMany.mockResolvedValueOnce([] as never);
     mockCount.mockResolvedValueOnce(20);
 
@@ -98,7 +102,7 @@ describe('GET /api/products', () => {
   });
 
   it('returns 500 when prisma throws', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockFindMany.mockRejectedValueOnce(new Error('DB error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -120,21 +124,21 @@ describe('POST /api/products', () => {
   };
 
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('POST', '/api/products', validProduct);
     const res = await POST(req);
     expect(res.status).toBe(401);
   });
 
   it('returns 403 when user role is USER', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const req = createMockRequest('POST', '/api/products', validProduct);
     const res = await POST(req);
     expect(res.status).toBe(403);
   });
 
   it('returns 201 when DEV creates a product', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique.mockResolvedValueOnce(null as never);
     const createdProduct = { id: 'p1', ...validProduct };
     mockCreate.mockResolvedValueOnce(createdProduct as never);
@@ -148,7 +152,7 @@ describe('POST /api/products', () => {
   });
 
   it('returns 201 when ADMIN creates a product', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
+    mockAuthAsAdmin();
     mockFindUnique.mockResolvedValueOnce(null as never);
     const createdProduct = { id: 'p2', ...validProduct };
     mockCreate.mockResolvedValueOnce(createdProduct as never);
@@ -160,7 +164,7 @@ describe('POST /api/products', () => {
   });
 
   it('returns 409 when reference already exists', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique.mockResolvedValueOnce({ id: 'existing', reference: 'REF-001' } as never);
 
     const req = createMockRequest('POST', '/api/products', validProduct);
@@ -170,7 +174,7 @@ describe('POST /api/products', () => {
   });
 
   it('returns 400 on Zod validation failure', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const req = createMockRequest('POST', '/api/products', { nom: '', reference: '' });
@@ -181,7 +185,7 @@ describe('POST /api/products', () => {
   });
 
   it('returns 500 when prisma.create throws', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique.mockResolvedValueOnce(null as never);
     mockCreate.mockRejectedValueOnce(new Error('DB error'));
 

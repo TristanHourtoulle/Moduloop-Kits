@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { kitSchema } from "@/lib/schemas/kit";
 import { UserRole } from "@/lib/types/user";
 import { getKitById, prisma } from "@/lib/db";
 import { invalidateKit, invalidateKits, CACHE_CONFIG } from "@/lib/cache";
-
-interface UserWithRole {
-  role?: UserRole;
-}
+import {
+  requireAuth,
+  requireRole,
+  handleApiError,
+  setResourceCacheHeaders,
+} from "@/lib/api/middleware";
 
 // GET /api/kits/[id] - Récupérer un kit par ID
 export async function GET(
@@ -15,11 +16,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+    const auth = await requireAuth(request);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
 
@@ -32,33 +30,11 @@ export async function GET(
 
     // Configure cache headers for this response
     const response = NextResponse.json(kit);
-
-    // On Vercel production, disable cache for individual kit endpoints
-    // to ensure fresh data on edit pages
-    if (process.env.NODE_ENV === "production") {
-      response.headers.set(
-        "Cache-Control",
-        "no-cache, no-store, must-revalidate, max-age=0",
-      );
-      response.headers.set("Pragma", "no-cache");
-      response.headers.set("Expires", "0");
-    } else {
-      // In development, use normal cache headers
-      response.headers.set(
-        "Cache-Control",
-        `public, s-maxage=${
-          CACHE_CONFIG.KITS.revalidate
-        }, stale-while-revalidate=${CACHE_CONFIG.KITS.revalidate * 5}`,
-      );
-    }
+    setResourceCacheHeaders(response, CACHE_CONFIG.KITS, 5);
 
     return response;
   } catch (error) {
-    console.error("Erreur lors de la récupération du kit:", error);
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }
 
@@ -68,23 +44,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    // Vérifier que l'utilisateur est DEV ou ADMIN
-    const userRole = (session.user as UserWithRole)?.role || UserRole.USER;
-    if (userRole !== UserRole.DEV && userRole !== UserRole.ADMIN) {
-      return NextResponse.json(
-        {
-          error:
-            "Accès refusé. Seuls les développeurs et administrateurs peuvent modifier des kits.",
-        },
-        { status: 403 },
-      );
-    }
+    const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN]);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
 
@@ -155,7 +116,7 @@ export async function PUT(
           style: validatedData.style,
           description: validatedData.description,
           surfaceM2: validatedData.surfaceM2,
-          updatedById: session.user.id,
+          updatedById: auth.user.id,
           kitProducts: {
             create: groupedProducts.map((p) => ({
               productId: p.productId,
@@ -197,19 +158,7 @@ export async function PUT(
 
     return NextResponse.json(updatedKit);
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du kit:", error);
-
-    if (error instanceof Error && error.name === "ZodError") {
-      return NextResponse.json(
-        { error: "Données invalides", details: error.message },
-        { status: 400 },
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }
 
@@ -219,23 +168,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    // Vérifier que l'utilisateur est DEV ou ADMIN
-    const userRole = (session.user as UserWithRole)?.role || UserRole.USER;
-    if (userRole !== UserRole.DEV && userRole !== UserRole.ADMIN) {
-      return NextResponse.json(
-        {
-          error:
-            "Accès refusé. Seuls les développeurs et administrateurs peuvent supprimer des kits.",
-        },
-        { status: 403 },
-      );
-    }
+    const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN]);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
     // Vérifier que le kit existe
@@ -257,10 +191,6 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Kit supprimé avec succès" });
   } catch (error) {
-    console.error("Erreur lors de la suppression du kit:", error);
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }

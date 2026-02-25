@@ -1,14 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@/test/register-api-mocks';
 
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { GET } from './route';
-import { createMockRequest, mockAdminSession, mockDevSession, mockUserSession } from '@/test/api-helpers';
-import { UserRole } from '@/lib/types/user';
+import {
+  createMockRequest,
+  mockAuthNone,
+  mockAuthAsUser,
+  mockAuthAsAdmin,
+  mockAuthAsDev,
+} from '@/test/api-helpers';
 
-const mockGetSession = vi.mocked(auth.api.getSession);
-const mockUserFindUnique = vi.mocked(prisma.user.findUnique);
 const mockUserFindMany = vi.mocked(prisma.user.findMany);
 
 beforeEach(() => {
@@ -17,15 +19,14 @@ beforeEach(() => {
 
 describe('GET /api/users', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('GET', '/api/users');
     const res = await GET(req);
     expect(res.status).toBe(401);
   });
 
   it('returns 403 when role is USER', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
-    mockUserFindUnique.mockResolvedValueOnce({ role: UserRole.USER } as never);
+    mockAuthAsUser();
 
     const req = createMockRequest('GET', '/api/users');
     const res = await GET(req);
@@ -33,8 +34,7 @@ describe('GET /api/users', () => {
   });
 
   it('returns 200 with simplified users list for ADMIN', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
-    mockUserFindUnique.mockResolvedValueOnce({ role: UserRole.ADMIN } as never);
+    mockAuthAsAdmin();
     const users = [
       { id: 'u1', name: 'User One', email: 'u1@test.com', firstName: null, lastName: null },
     ];
@@ -50,8 +50,7 @@ describe('GET /api/users', () => {
   });
 
   it('returns 200 with users list for DEV', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
-    mockUserFindUnique.mockResolvedValueOnce({ role: UserRole.DEV } as never);
+    mockAuthAsDev();
     mockUserFindMany.mockResolvedValueOnce([] as never);
 
     const req = createMockRequest('GET', '/api/users');
@@ -60,8 +59,8 @@ describe('GET /api/users', () => {
   });
 
   it('returns 500 on DB error', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
-    mockUserFindUnique.mockRejectedValueOnce(new Error('DB error'));
+    mockAuthAsAdmin();
+    mockUserFindMany.mockRejectedValueOnce(new Error('DB error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const req = createMockRequest('GET', '/api/users');

@@ -153,5 +153,5 @@ export enum ProjectStatus {
   ARCHIVE = 'ARCHIVE',
 }
 
-// UserRole is defined in @/lib/types/user — import from there
 export { UserRole } from './user';
+import type { UserRole } from './user';

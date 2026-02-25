@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import { ProjectCard } from "@/components/projects/project-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -13,7 +12,6 @@ interface ProjectsListWrapperProps {
 }
 
 function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
-  const searchParams = useSearchParams();
   const [projects, setProjects] = useState<Project[]>(initialProjects);
 
   useEffect(() => {
