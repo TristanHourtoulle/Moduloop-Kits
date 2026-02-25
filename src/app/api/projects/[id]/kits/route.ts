@@ -61,9 +61,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       existingKitsMap.set(pk.kitId, pk)
     })
 
-    // Traiter chaque kit à ajouter
-    const operations = []
-    const historyOperations = []
+    // Process each kit to add or update
+    const operations: Promise<unknown>[] = []
+    const historyOperations: Promise<void>[] = []
 
     for (const kit of kits) {
       const existingKit = existingKitsMap.get(kit.kitId)

@@ -14,14 +14,7 @@ export const createProjectSchema = z.object({
 
 export const replaceProjectSchema = createProjectSchema
 
-export const updateProjectSchema = z.object({
-  nom: z
-    .string()
-    .min(1, 'Project name is required')
-    .max(200, 'Project name must not exceed 200 characters')
-    .optional(),
-  description: z.string().max(2000, 'Description is too long').optional().nullable(),
-  status: projectStatusEnum.optional(),
+export const updateProjectSchema = createProjectSchema.partial().extend({
   surfaceManual: z.number().min(0, 'Surface must be positive').nullable().optional(),
   surfaceOverride: z.boolean().optional(),
 })
