@@ -1,28 +1,25 @@
-import { View, Text, Image } from '@react-pdf/renderer';
-import { tw, formatPricePdf } from '../tw-config';
-import type { ProjectKit } from '@/lib/types/project';
-import type { ProductPeriod } from '@/lib/schemas/product';
-import {
-  getProductPricing,
-  annualToMonthly,
-} from '@/lib/utils/product-helpers';
-import { calculateKitPrice } from '@/lib/utils/kit/calculations';
+import { View, Text, Image } from '@react-pdf/renderer'
+import { tw, formatPricePdf } from '../tw-config'
+import type { ProjectKit } from '@/lib/types/project'
+import type { ProductPeriod } from '@/lib/schemas/product'
+import { getProductPricing, annualToMonthly } from '@/lib/utils/product-helpers'
+import { calculateKitPrice } from '@/lib/utils/kit/calculations'
 
 interface PdfKitListSectionProps {
-  projectKits: ProjectKit[];
+  projectKits: ProjectKit[]
 }
 
 const LOCATION_PERIODS: { key: ProductPeriod; label: string }[] = [
   { key: '1an', label: '1 an' },
   { key: '2ans', label: '2 ans' },
   { key: '3ans', label: '3 ans' },
-];
+]
 
 function PdfKitCard({ projectKit, index }: { projectKit: ProjectKit; index: number }) {
-  const kit = projectKit.kit;
-  if (!kit) return null;
+  const kit = projectKit.kit
+  if (!kit) return null
 
-  const kitProducts = kit.kitProducts ?? [];
+  const kitProducts = kit.kitProducts ?? []
 
   return (
     <View
@@ -76,11 +73,7 @@ function PdfKitCard({ projectKit, index }: { projectKit: ProjectKit; index: numb
           </View>
         </View>
 
-        {kit.description && (
-          <Text style={tw('text-xs text-gray-500 mt-1')}>
-            {kit.description}
-          </Text>
-        )}
+        {kit.description && <Text style={tw('text-xs text-gray-500 mt-1')}>{kit.description}</Text>}
 
         {kit.surfaceM2 != null && kit.surfaceM2 > 0 && (
           <Text style={tw('text-xs text-gray-500 mt-1')}>
@@ -100,15 +93,13 @@ function PdfKitCard({ projectKit, index }: { projectKit: ProjectKit; index: numb
         wrap={false}
       >
         {LOCATION_PERIODS.map((period) => {
-          const kitTotal = calculateKitPrice(kitProducts, 'location', period.key);
-          const totalForQuantity = kitTotal * projectKit.quantite;
-          const monthly = annualToMonthly(totalForQuantity);
+          const kitTotal = calculateKitPrice(kitProducts, 'location', period.key)
+          const totalForQuantity = kitTotal * projectKit.quantite
+          const monthly = annualToMonthly(totalForQuantity)
 
           return (
             <View key={period.key} style={{ ...tw('items-center'), flex: 1 }}>
-              <Text style={{ fontSize: 8, color: '#6b7280', marginBottom: 2 }}>
-                {period.label}
-              </Text>
+              <Text style={{ fontSize: 8, color: '#6b7280', marginBottom: 2 }}>{period.label}</Text>
               <Text style={tw('text-xs font-bold text-gray-800')}>
                 {formatPricePdf(monthly)}/mois
               </Text>
@@ -116,14 +107,21 @@ function PdfKitCard({ projectKit, index }: { projectKit: ProjectKit; index: numb
                 {formatPricePdf(totalForQuantity)}/an
               </Text>
             </View>
-          );
+          )
         })}
       </View>
 
       {/* Products list */}
       {kitProducts.length > 0 && (
         <View style={tw('py-3 px-4')}>
-          <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#374151', marginBottom: 8 }}>
+          <Text
+            style={{
+              fontSize: 9,
+              fontWeight: 'bold',
+              color: '#374151',
+              marginBottom: 8,
+            }}
+          >
             Produits ({kitProducts.length})
           </Text>
 
@@ -137,37 +135,76 @@ function PdfKitCard({ projectKit, index }: { projectKit: ProjectKit; index: numb
             wrap={false}
             minPresenceAhead={40}
           >
-            <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#6b7280', width: '35%' }}>
+            <Text
+              style={{
+                fontSize: 8,
+                fontWeight: 'bold',
+                color: '#6b7280',
+                width: '35%',
+              }}
+            >
               Produit
             </Text>
-            <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#6b7280', width: '10%', textAlign: 'center' }}>
+            <Text
+              style={{
+                fontSize: 8,
+                fontWeight: 'bold',
+                color: '#6b7280',
+                width: '10%',
+                textAlign: 'center',
+              }}
+            >
               Qté
             </Text>
-            <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#6b7280', width: '18.33%', textAlign: 'right' }}>
+            <Text
+              style={{
+                fontSize: 8,
+                fontWeight: 'bold',
+                color: '#6b7280',
+                width: '18.33%',
+                textAlign: 'right',
+              }}
+            >
               1 an
             </Text>
-            <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#6b7280', width: '18.33%', textAlign: 'right' }}>
+            <Text
+              style={{
+                fontSize: 8,
+                fontWeight: 'bold',
+                color: '#6b7280',
+                width: '18.33%',
+                textAlign: 'right',
+              }}
+            >
               2 ans
             </Text>
-            <Text style={{ fontSize: 8, fontWeight: 'bold', color: '#6b7280', width: '18.33%', textAlign: 'right' }}>
+            <Text
+              style={{
+                fontSize: 8,
+                fontWeight: 'bold',
+                color: '#6b7280',
+                width: '18.33%',
+                textAlign: 'right',
+              }}
+            >
               3 ans
             </Text>
           </View>
 
           {/* Product rows */}
           {kitProducts.map((kitProduct, productIndex) => {
-            const product = kitProduct.product;
-            if (!product) return null;
+            const product = kitProduct.product
+            if (!product) return null
 
-            const pricing1an = getProductPricing(product, 'location', '1an');
-            const pricing2ans = getProductPricing(product, 'location', '2ans');
-            const pricing3ans = getProductPricing(product, 'location', '3ans');
+            const pricing1an = getProductPricing(product, 'location', '1an')
+            const pricing2ans = getProductPricing(product, 'location', '2ans')
+            const pricing3ans = getProductPricing(product, 'location', '3ans')
 
-            const price1an = (pricing1an.prixVente ?? 0) * kitProduct.quantite;
-            const price2ans = (pricing2ans.prixVente ?? 0) * kitProduct.quantite;
-            const price3ans = (pricing3ans.prixVente ?? 0) * kitProduct.quantite;
+            const price1an = (pricing1an.prixVente ?? 0) * kitProduct.quantite
+            const price2ans = (pricing2ans.prixVente ?? 0) * kitProduct.quantite
+            const price3ans = (pricing3ans.prixVente ?? 0) * kitProduct.quantite
 
-            const isLast = productIndex === kitProducts.length - 1;
+            const isLast = productIndex === kitProducts.length - 1
 
             return (
               <View
@@ -180,7 +217,13 @@ function PdfKitCard({ projectKit, index }: { projectKit: ProjectKit; index: numb
                 wrap={false}
               >
                 {/* Product name + image */}
-                <View style={{ width: '35%', flexDirection: 'row', alignItems: 'center' }}>
+                <View
+                  style={{
+                    width: '35%',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}
+                >
                   {product.image && (
                     <Image
                       src={product.image}
@@ -194,9 +237,7 @@ function PdfKitCard({ projectKit, index }: { projectKit: ProjectKit; index: numb
                     />
                   )}
                   <View style={{ flex: 1 }}>
-                    <Text style={tw('text-xs text-gray-800')}>
-                      {product.nom}
-                    </Text>
+                    <Text style={tw('text-xs text-gray-800')}>{product.nom}</Text>
                     {product.reference && (
                       <Text style={{ fontSize: 7, color: '#9ca3af', marginTop: 3 }}>
                         Réf: {product.reference}
@@ -205,38 +246,65 @@ function PdfKitCard({ projectKit, index }: { projectKit: ProjectKit; index: numb
                   </View>
                 </View>
 
-                <Text style={{ fontSize: 9, color: '#374151', width: '10%', textAlign: 'center', fontWeight: 'bold' }}>
+                <Text
+                  style={{
+                    fontSize: 9,
+                    color: '#374151',
+                    width: '10%',
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                  }}
+                >
                   {kitProduct.quantite}
                 </Text>
 
-                <Text style={{ fontSize: 9, color: '#374151', width: '18.33%', textAlign: 'right' }}>
+                <Text
+                  style={{
+                    fontSize: 9,
+                    color: '#374151',
+                    width: '18.33%',
+                    textAlign: 'right',
+                  }}
+                >
                   {formatPricePdf(price1an)}
                 </Text>
-                <Text style={{ fontSize: 9, color: '#374151', width: '18.33%', textAlign: 'right' }}>
+                <Text
+                  style={{
+                    fontSize: 9,
+                    color: '#374151',
+                    width: '18.33%',
+                    textAlign: 'right',
+                  }}
+                >
                   {formatPricePdf(price2ans)}
                 </Text>
-                <Text style={{ fontSize: 9, color: '#374151', width: '18.33%', textAlign: 'right' }}>
+                <Text
+                  style={{
+                    fontSize: 9,
+                    color: '#374151',
+                    width: '18.33%',
+                    textAlign: 'right',
+                  }}
+                >
                   {formatPricePdf(price3ans)}
                 </Text>
               </View>
-            );
+            )
           })}
         </View>
       )}
     </View>
-  );
+  )
 }
 
 export function PdfKitListSection({ projectKits }: PdfKitListSectionProps) {
   if (!projectKits || projectKits.length === 0) {
     return (
       <View style={tw('mb-8')}>
-        <Text style={tw('text-base font-bold text-gray-800 mb-4')}>
-          Kits du projet
-        </Text>
+        <Text style={tw('text-base font-bold text-gray-800 mb-4')}>Kits du projet</Text>
         <Text style={tw('text-sm text-gray-400')}>Aucun kit dans ce projet.</Text>
       </View>
-    );
+    )
   }
 
   return (
@@ -248,5 +316,5 @@ export function PdfKitListSection({ projectKits }: PdfKitListSectionProps) {
         <PdfKitCard key={projectKit.id} projectKit={projectKit} index={index} />
       ))}
     </View>
-  );
+  )
 }

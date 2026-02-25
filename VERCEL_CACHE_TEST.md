@@ -3,6 +3,7 @@
 ## Comment tester la correction sur Vercel
 
 ### 1. Déployer sur Vercel
+
 ```bash
 git add .
 git commit -m "fix: resolve Vercel cache issue for kit edit pages"
@@ -12,6 +13,7 @@ git push
 ### 2. Étapes de test sur l'environnement Vercel
 
 #### Test 1 : Modification d'un kit existant
+
 1. Aller sur `https://votre-app.vercel.app/kits`
 2. Cliquer sur "Modifier" pour un kit existant
 3. Noter l'URL : devrait être `/kits/[id]/modifier?t=[timestamp]`
@@ -22,6 +24,7 @@ git push
 8. **✅ Le nouveau nom devrait apparaître dans le formulaire**
 
 #### Test 2 : Navigation directe
+
 1. Copier l'URL d'édition d'un kit : `/kits/[id]/modifier`
 2. Modifier le kit et sauvegarder
 3. Ouvrir un nouvel onglet
@@ -29,6 +32,7 @@ git push
 5. **✅ Les données à jour devraient s'afficher**
 
 #### Test 3 : Navigation avant/arrière
+
 1. Aller sur la page d'édition d'un kit
 2. Modifier et sauvegarder
 3. Utiliser le bouton "Retour" du navigateur
@@ -52,33 +56,40 @@ Dans le dashboard Vercel > Functions > Logs, vous devriez voir :
 Dans les DevTools du navigateur (onglet Network) :
 
 #### Pour `/api/kits/[id]` :
+
 - `Cache-Control: no-cache, no-store, must-revalidate, max-age=0`
 - `Pragma: no-cache`
 - `Expires: 0`
 
 #### Pour `/api/kits` (liste) :
+
 - `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`
 
 ## Résumé des changements appliqués
 
 ### 1. Page d'édition convertie en Server Component
+
 - **Avant** : Client Component avec `useEffect` pour fetch
 - **Après** : Server Component avec fetch server-side, formulaire en Client Component wrapper
 
 ### 2. Timestamps dans les URLs
+
 - Navigation vers édition : `/kits/[id]/modifier?t=[timestamp]`
 - Le timestamp force Vercel à traiter chaque requête comme unique
 
 ### 3. Headers de cache stricts pour l'API
+
 - En production : `no-cache, no-store, must-revalidate` pour `/api/kits/[id]`
 - Désactive complètement le cache Vercel pour les pages d'édition
 
 ### 4. Invalidation de cache renforcée
+
 - Appel de `revalidatePath` pour tous les types (page, layout)
 - Délai de 100ms en production pour propagation
 - Invalidation du chemin exact + template
 
 ### 5. Clé dynamique basée sur timestamp
+
 - Le composant wrapper utilise le timestamp de l'URL
 - Force le remontage complet du formulaire à chaque navigation
 

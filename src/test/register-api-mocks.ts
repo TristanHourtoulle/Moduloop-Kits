@@ -8,15 +8,15 @@
  * @/lib/utils/project/access, next/headers) must still be declared
  * directly in each test file.
  */
-import { vi } from 'vitest';
+import { vi } from 'vitest'
 
-vi.mock('server-only', () => ({}));
-vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }));
+vi.mock('server-only', () => ({}))
+vi.mock('@/lib/auth', () => ({ auth: { api: { getSession: vi.fn() } } }))
 vi.mock('@/lib/db', async () => {
-  const { createDbMock } = await import('@/test/mocks/db');
-  return createDbMock();
-});
+  const { createDbMock } = await import('@/test/mocks/db')
+  return createDbMock()
+})
 vi.mock('next/cache', async () => {
-  const { createNextCacheMock } = await import('@/test/mocks/cache');
-  return createNextCacheMock();
-});
+  const { createNextCacheMock } = await import('@/test/mocks/cache')
+  return createNextCacheMock()
+})

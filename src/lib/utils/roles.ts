@@ -1,8 +1,4 @@
-import {
-  UserRole,
-  ROLE_PERMISSIONS,
-  type RolePermissions,
-} from "@/lib/types/user";
+import { UserRole, ROLE_PERMISSIONS, type RolePermissions } from '@/lib/types/user'
 
 /**
  * Vérifie si un utilisateur a un rôle spécifique
@@ -12,27 +8,24 @@ export function hasRole(userRole: UserRole, requiredRole: UserRole): boolean {
     [UserRole.USER]: 0,
     [UserRole.DEV]: 1,
     [UserRole.ADMIN]: 2,
-  };
+  }
 
-  return roleHierarchy[userRole] >= roleHierarchy[requiredRole];
+  return roleHierarchy[userRole] >= roleHierarchy[requiredRole]
 }
 
 /**
  * Obtient les permissions pour un rôle donné
  */
 export function getRolePermissions(role: UserRole): RolePermissions {
-  return ROLE_PERMISSIONS[role];
+  return ROLE_PERMISSIONS[role]
 }
 
 /**
  * Vérifie si un utilisateur a une permission spécifique
  */
-export function hasPermission(
-  userRole: UserRole,
-  permission: keyof RolePermissions
-): boolean {
-  const permissions = getRolePermissions(userRole);
-  return permissions[permission];
+export function hasPermission(userRole: UserRole, permission: keyof RolePermissions): boolean {
+  const permissions = getRolePermissions(userRole)
+  return permissions[permission]
 }
 
 /**
@@ -40,19 +33,19 @@ export function hasPermission(
  */
 export function canAccessResource(
   userRole: UserRole,
-  resource: "admin" | "kits" | "products" | "users"
+  resource: 'admin' | 'kits' | 'products' | 'users',
 ): boolean {
   switch (resource) {
-    case "admin":
-      return hasPermission(userRole, "canAccessAdminPanel");
-    case "kits":
-      return hasPermission(userRole, "canManageKits");
-    case "products":
-      return hasPermission(userRole, "canManageProducts");
-    case "users":
-      return hasPermission(userRole, "canManageUsers");
+    case 'admin':
+      return hasPermission(userRole, 'canAccessAdminPanel')
+    case 'kits':
+      return hasPermission(userRole, 'canManageKits')
+    case 'products':
+      return hasPermission(userRole, 'canManageProducts')
+    case 'users':
+      return hasPermission(userRole, 'canManageUsers')
     default:
-      return false;
+      return false
   }
 }
 
@@ -60,7 +53,7 @@ export function canAccessResource(
  * Checks if the user has an elevated role (DEV or ADMIN).
  */
 export function isAdminOrDev(role: UserRole): boolean {
-  return hasRole(role, UserRole.DEV);
+  return hasRole(role, UserRole.DEV)
 }
 
 /**
@@ -68,12 +61,12 @@ export function isAdminOrDev(role: UserRole): boolean {
  */
 export function getRoleLabel(role: UserRole): string {
   const labels = {
-    [UserRole.USER]: "Utilisateur",
-    [UserRole.DEV]: "Développeur",
-    [UserRole.ADMIN]: "Administrateur",
-  };
+    [UserRole.USER]: 'Utilisateur',
+    [UserRole.DEV]: 'Développeur',
+    [UserRole.ADMIN]: 'Administrateur',
+  }
 
-  return labels[role];
+  return labels[role]
 }
 
 /**
@@ -81,10 +74,10 @@ export function getRoleLabel(role: UserRole): string {
  */
 export function getRoleBadgeColor(role: UserRole): string {
   const colors = {
-    [UserRole.USER]: "bg-gray-100 text-gray-600",
-    [UserRole.DEV]: "bg-blue-100 text-blue-600",
-    [UserRole.ADMIN]: "bg-red-100 text-red-600",
-  };
+    [UserRole.USER]: 'bg-gray-100 text-gray-600',
+    [UserRole.DEV]: 'bg-blue-100 text-blue-600',
+    [UserRole.ADMIN]: 'bg-red-100 text-red-600',
+  }
 
-  return colors[role];
+  return colors[role]
 }

@@ -1,40 +1,38 @@
-import { RoleGuard } from "@/components/auth/role-guard";
-import { UserRole } from "@/lib/types/user";
-import { ProductsListWrapper } from "@/components/products/products-list-wrapper";
-import { Button } from "@/components/ui/button";
-import { Package2, Plus } from "lucide-react";
-import Link from "next/link";
-import { getProducts } from "@/lib/db";
+import { RoleGuard } from '@/components/auth/role-guard'
+import { UserRole } from '@/lib/types/user'
+import { ProductsListWrapper } from '@/components/products/products-list-wrapper'
+import { Button } from '@/components/ui/button'
+import { Package2, Plus } from 'lucide-react'
+import Link from 'next/link'
+import { getProducts } from '@/lib/db'
 
 // Disable all caching for this page
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function ProductsPage() {
   // Fetch products directly from database using Prisma
-  const products = await getProducts();
+  const products = await getProducts()
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
-      <div className="min-h-screen bg-background w-full">
-        <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      <div className="bg-background min-h-screen w-full">
+        <div className="mx-auto max-w-7xl space-y-8 px-6 py-8">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
-                <Package2 className="h-6 w-6 text-primary" />
+              <div className="bg-primary/10 border-primary/20 flex h-12 w-12 items-center justify-center rounded-xl border">
+                <Package2 className="text-primary h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">Produits</h1>
-                <p className="text-muted-foreground">
-                  Gérez votre catalogue de produits
-                </p>
+                <h1 className="text-foreground text-3xl font-bold">Produits</h1>
+                <p className="text-muted-foreground">Gérez votre catalogue de produits</p>
               </div>
             </div>
 
             <Button asChild>
               <Link href="/products/nouveau">
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 Nouveau produit
               </Link>
             </Button>
@@ -45,5 +43,5 @@ export default async function ProductsPage() {
         </div>
       </div>
     </RoleGuard>
-  );
+  )
 }

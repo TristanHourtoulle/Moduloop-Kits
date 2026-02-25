@@ -1,5 +1,5 @@
-import { createTw } from 'react-pdf-tailwind';
-import { ceilPrice } from '@/lib/utils/product-helpers';
+import { createTw } from 'react-pdf-tailwind'
+import { ceilPrice } from '@/lib/utils/product-helpers'
 
 export const tw = createTw({
   colors: {
@@ -23,7 +23,7 @@ export const tw = createTw({
   fontFamily: {
     sans: ['Helvetica'],
   },
-});
+})
 
 /**
  * PDF-safe price formatter.
@@ -32,12 +32,12 @@ export const tw = createTw({
  * This replaces all non-ASCII whitespace with a regular space.
  */
 export function formatPricePdf(price: number | null): string {
-  if (price === null) return 'N/A';
+  if (price === null) return 'N/A'
   const formatted = new Intl.NumberFormat('fr-FR', {
     style: 'currency',
     currency: 'EUR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(ceilPrice(price));
-  return formatted.replace(/[\u00A0\u202F]/g, ' ');
+  }).format(ceilPrice(price))
+  return formatted.replace(/[\u00A0\u202F]/g, ' ')
 }

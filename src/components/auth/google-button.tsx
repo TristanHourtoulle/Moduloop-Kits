@@ -1,44 +1,41 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { signIn } from "@/lib/auth-client";
-import { getSpecificAuthError } from "@/lib/auth/error-messages";
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
+import { signIn } from '@/lib/auth-client'
+import { getSpecificAuthError } from '@/lib/auth/error-messages'
 
 interface GoogleButtonProps {
-  text?: string;
-  onError?: (error: string) => void;
+  text?: string
+  onError?: (error: string) => void
 }
 
-export function GoogleButton({
-  text = "Continuer avec Google",
-  onError,
-}: GoogleButtonProps) {
-  const [isLoading, setIsLoading] = useState(false);
+export function GoogleButton({ text = 'Continuer avec Google', onError }: GoogleButtonProps) {
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleGoogleSignIn = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
 
     try {
       signIn.social({
-        provider: "google",
-        callbackURL: "/dashboard",
-      });
+        provider: 'google',
+        callbackURL: '/dashboard',
+      })
       // Ne pas mettre setIsLoading(false) ici car la page va être redirigée
     } catch (err) {
-      console.error("🔴 Google sign-in error:", err);
-      const errorMessage = getSpecificAuthError(err, 'google');
-      onError?.(errorMessage);
-      setIsLoading(false);
+      console.error('🔴 Google sign-in error:', err)
+      const errorMessage = getSpecificAuthError(err, 'google')
+      onError?.(errorMessage)
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <Button
       onClick={handleGoogleSignIn}
       disabled={isLoading}
-      className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 shadow-sm transition-all duration-200 hover:shadow-md cursor-pointer"
+      className="h-12 w-full cursor-pointer border border-gray-200 bg-white text-gray-700 shadow-sm transition-all duration-200 hover:bg-gray-50 hover:shadow-md"
       variant="outline"
     >
       {isLoading ? (
@@ -65,5 +62,5 @@ export function GoogleButton({
       )}
       {text}
     </Button>
-  );
+  )
 }

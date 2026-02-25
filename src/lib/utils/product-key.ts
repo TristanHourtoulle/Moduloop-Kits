@@ -15,38 +15,38 @@
  */
 
 interface ProductKeyData {
-  nom?: string;
-  reference?: string;
-  description?: string;
-  quantite?: number;
-  surfaceM2?: number;
-  prixAchatAchat?: number;
-  prixUnitaireAchat?: number;
-  prixVenteAchat?: number;
-  margeCoefficientAchat?: number;
-  prixAchatLocation1An?: number;
-  prixUnitaireLocation1An?: number;
-  prixVenteLocation1An?: number;
-  prixAchatLocation2Ans?: number;
-  prixUnitaireLocation2Ans?: number;
-  prixVenteLocation2Ans?: number;
-  prixAchatLocation3Ans?: number;
-  prixUnitaireLocation3Ans?: number;
-  prixVenteLocation3Ans?: number;
-  margeCoefficientLocation?: number;
-  rechauffementClimatiqueAchat?: number;
-  epuisementRessourcesAchat?: number;
-  acidificationAchat?: number;
-  eutrophisationAchat?: number;
-  rechauffementClimatiqueLocation?: number;
-  epuisementRessourcesLocation?: number;
-  acidificationLocation?: number;
-  eutrophisationLocation?: number;
+  nom?: string
+  reference?: string
+  description?: string
+  quantite?: number
+  surfaceM2?: number
+  prixAchatAchat?: number
+  prixUnitaireAchat?: number
+  prixVenteAchat?: number
+  margeCoefficientAchat?: number
+  prixAchatLocation1An?: number
+  prixUnitaireLocation1An?: number
+  prixVenteLocation1An?: number
+  prixAchatLocation2Ans?: number
+  prixUnitaireLocation2Ans?: number
+  prixVenteLocation2Ans?: number
+  prixAchatLocation3Ans?: number
+  prixUnitaireLocation3Ans?: number
+  prixVenteLocation3Ans?: number
+  margeCoefficientLocation?: number
+  rechauffementClimatiqueAchat?: number
+  epuisementRessourcesAchat?: number
+  acidificationAchat?: number
+  eutrophisationAchat?: number
+  rechauffementClimatiqueLocation?: number
+  epuisementRessourcesLocation?: number
+  acidificationLocation?: number
+  eutrophisationLocation?: number
 }
 
 export function generateProductKey(productId: string, productData: ProductKeyData): string {
   if (!productData) {
-    return `product-${productId}-empty`;
+    return `product-${productId}-empty`
   }
 
   // Create a deterministic string from product data
@@ -81,15 +81,15 @@ export function generateProductKey(productId: string, productData: ProductKeyDat
     productData.epuisementRessourcesLocation || 0,
     productData.acidificationLocation || 0,
     productData.eutrophisationLocation || 0,
-  ].join('-');
+  ].join('-')
 
   // Simple hash function to create a shorter key
-  let hash = 0;
+  let hash = 0
   for (let i = 0; i < dataPoints.length; i++) {
-    const char = dataPoints.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    const char = dataPoints.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash = hash & hash // Convert to 32-bit integer
   }
 
-  return `product-${productId}-${Math.abs(hash)}`;
+  return `product-${productId}-${Math.abs(hash)}`
 }

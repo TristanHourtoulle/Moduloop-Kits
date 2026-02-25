@@ -1,6 +1,7 @@
 # Solution Complète du Problème de Cache Vercel
 
 ## Problème Initial
+
 - **Symptôme** : Les pages affichaient des données obsolètes après modification sur Vercel (mais pas en local)
 - **Pages affectées** :
   - `/kits/[id]/modifier` - Page d'édition d'un kit
@@ -12,6 +13,7 @@
 ### 1. Conversion des Pages en Server Components
 
 #### Page d'édition (`/kits/[id]/modifier/page.tsx`)
+
 - **Avant** : Client Component avec `useEffect`
 - **Après** : Server Component avec fetch server-side
 - **Avantages** :
@@ -20,6 +22,7 @@
   - Données toujours fraîches
 
 #### Page de liste (`/kits/page.tsx`)
+
 - **Avant** : Client Component avec state local
 - **Après** : Server Component avec fetch server-side
 - **Avantages** :
@@ -30,11 +33,13 @@
 ### 2. Wrappers Client pour l'Interactivité
 
 #### `KitEditWrapper` (`/components/kits/kit-edit-wrapper.tsx`)
+
 - Gère le formulaire côté client
 - Utilise une clé dynamique basée sur les données ET le timestamp
 - Force le remontage du formulaire à chaque navigation
 
 #### `KitsListWrapper` (`/components/kits/kits-list-wrapper.tsx`)
+
 - Gère la liste interactive côté client
 - Détecte les mises à jour via query params
 - Permet la suppression sans rechargement complet
@@ -43,15 +48,15 @@
 
 ```typescript
 // Get cookies for authentication
-const cookieStore = cookies();
-const cookieHeader = cookieStore.toString();
+const cookieStore = cookies()
+const cookieHeader = cookieStore.toString()
 
 const response = await fetch(`${baseUrl}/api/kits/${kitId}`, {
-  cache: "no-store",
+  cache: 'no-store',
   headers: {
     Cookie: cookieHeader, // Pass cookies for authentication
   },
-});
+})
 ```
 
 ### 4. Timestamps dans les URLs
@@ -65,12 +70,9 @@ const response = await fetch(`${baseUrl}/api/kits/${kitId}`, {
 ```typescript
 // En production sur Vercel
 if (process.env.NODE_ENV === 'production') {
-  response.headers.set(
-    'Cache-Control',
-    'no-cache, no-store, must-revalidate, max-age=0'
-  );
-  response.headers.set('Pragma', 'no-cache');
-  response.headers.set('Expires', '0');
+  response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+  response.headers.set('Pragma', 'no-cache')
+  response.headers.set('Expires', '0')
 }
 ```
 
@@ -78,15 +80,15 @@ if (process.env.NODE_ENV === 'production') {
 
 ```typescript
 export async function invalidateKit(kitId: string) {
-  revalidateTag(CACHE_TAGS.KITS);
-  revalidatePath("/kits", "page");
-  revalidatePath("/kits", "layout");
-  revalidatePath(`/kits/${kitId}/modifier`, "page");
-  revalidatePath(`/kits/${kitId}/modifier`, "layout");
+  revalidateTag(CACHE_TAGS.KITS)
+  revalidatePath('/kits', 'page')
+  revalidatePath('/kits', 'layout')
+  revalidatePath(`/kits/${kitId}/modifier`, 'page')
+  revalidatePath(`/kits/${kitId}/modifier`, 'layout')
 
   if (process.env.NODE_ENV === 'production') {
-    revalidatePath(`/kits/${kitId}/modifier`);
-    await new Promise(resolve => setTimeout(resolve, 100));
+    revalidatePath(`/kits/${kitId}/modifier`)
+    await new Promise((resolve) => setTimeout(resolve, 100))
   }
 }
 ```

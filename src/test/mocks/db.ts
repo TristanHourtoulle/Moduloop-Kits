@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from 'vitest'
 
 /**
  * Creates a mock for `@/lib/db` module with all exported functions and prisma client.
@@ -50,5 +50,5 @@ export function createDbMock(prismaOverrides: Record<string, unknown> = {}) {
     getProducts: vi.fn(),
     getProjects: vi.fn(),
     createProject: vi.fn(),
-  };
+  }
 }

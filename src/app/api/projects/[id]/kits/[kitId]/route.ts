@@ -1,7 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
-import { createKitQuantityUpdatedHistory, createKitRemovedHistory } from '@/lib/services/project-history';
-import { requireAuth, handleApiError } from '@/lib/api/middleware';
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/db'
+import {
+  createKitQuantityUpdatedHistory,
+  createKitRemovedHistory,
+} from '@/lib/services/project-history'
+import { requireAuth, handleApiError } from '@/lib/api/middleware'
 
 // PATCH - Mettre à jour la quantité d'un kit dans un projet
 export async function PATCH(
@@ -9,17 +12,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string; kitId: string }> },
 ) {
   try {
-    const auth = await requireAuth(request);
-    if (auth.response) return auth.response;
+    const auth = await requireAuth(request)
+    if (auth.response) return auth.response
 
-    const { id, kitId } = await params;
-    const { quantite } = await request.json();
+    const { id, kitId } = await params
+    const { quantite } = await request.json()
 
     if (!quantite || quantite < 1) {
-      return NextResponse.json(
-        { error: 'La quantité doit être supérieure à 0' },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: 'La quantité doit être supérieure à 0' }, { status: 400 })
     }
 
     // Vérifier que le projet appartient à l'utilisateur
@@ -28,10 +28,10 @@ export async function PATCH(
         id,
         createdById: auth.user.id,
       },
-    });
+    })
 
     if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
     }
 
     // Récupérer l'état actuel pour l'historique
@@ -43,13 +43,13 @@ export async function PATCH(
       include: {
         kit: true,
       },
-    });
+    })
 
     if (!existingProjectKit) {
-      return NextResponse.json({ error: 'Kit non trouvé dans le projet' }, { status: 404 });
+      return NextResponse.json({ error: 'Kit non trouvé dans le projet' }, { status: 404 })
     }
 
-    const oldQuantity = existingProjectKit.quantite;
+    const oldQuantity = existingProjectKit.quantite
 
     // Mettre à jour la quantité du kit dans le projet
     const updatedProjectKit = await prisma.projectKit.update({
@@ -60,7 +60,7 @@ export async function PATCH(
       data: {
         quantite: quantite,
       },
-    });
+    })
 
     // Record history if quantity changed
     if (oldQuantity !== quantite) {
@@ -70,12 +70,12 @@ export async function PATCH(
         existingProjectKit.kit,
         oldQuantity,
         quantite,
-      ).catch(console.error);
+      ).catch(console.error)
     }
 
-    return NextResponse.json(updatedProjectKit);
+    return NextResponse.json(updatedProjectKit)
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error)
   }
 }
 
@@ -85,10 +85,10 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; kitId: string }> },
 ) {
   try {
-    const auth = await requireAuth(request);
-    if (auth.response) return auth.response;
+    const auth = await requireAuth(request)
+    if (auth.response) return auth.response
 
-    const { id, kitId } = await params;
+    const { id, kitId } = await params
 
     // Vérifier que le projet appartient à l'utilisateur
     const project = await prisma.project.findFirst({
@@ -96,10 +96,10 @@ export async function DELETE(
         id,
         createdById: auth.user.id,
       },
-    });
+    })
 
     if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
+      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 })
     }
 
     // Récupérer les détails du kit avant suppression pour l'historique
@@ -111,10 +111,10 @@ export async function DELETE(
       include: {
         kit: true,
       },
-    });
+    })
 
     if (!projectKitToDelete) {
-      return NextResponse.json({ error: 'Kit non trouvé dans le projet' }, { status: 404 });
+      return NextResponse.json({ error: 'Kit non trouvé dans le projet' }, { status: 404 })
     }
 
     // Supprimer le kit du projet
@@ -123,7 +123,7 @@ export async function DELETE(
         id: kitId,
         projectId: id,
       },
-    });
+    })
 
     // Record removal history
     createKitRemovedHistory(
@@ -131,10 +131,10 @@ export async function DELETE(
       id,
       projectKitToDelete.kit,
       projectKitToDelete.quantite,
-    ).catch(console.error);
+    ).catch(console.error)
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   } catch (error) {
-    return handleApiError(error);
+    return handleApiError(error)
   }
 }

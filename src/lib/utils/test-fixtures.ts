@@ -1,10 +1,10 @@
-import type { Product, KitProduct, Kit, ProjectKit, Project } from '@/lib/types/project';
-import { ProjectStatus } from '@/lib/types/project';
+import type { Product, KitProduct, Kit, ProjectKit, Project } from '@/lib/types/project'
+import { ProjectStatus } from '@/lib/types/project'
 
-let idCounter = 0;
+let idCounter = 0
 
 export function resetIdCounter(): void {
-  idCounter = 0;
+  idCounter = 0
 }
 
 export function makeProduct(overrides: Partial<Product> = {}): Product {
@@ -20,27 +20,24 @@ export function makeProduct(overrides: Partial<Product> = {}): Product {
     createdById: 'user-1',
     updatedById: 'user-1',
     ...overrides,
-  };
+  }
 }
 
 export function makeKitProduct(
   quantite: number,
-  productOverrides: Partial<Product> = {}
+  productOverrides: Partial<Product> = {},
 ): KitProduct {
-  const product = makeProduct(productOverrides);
+  const product = makeProduct(productOverrides)
   return {
     id: `kp-${++idCounter}`,
     kitId: 'kit-1',
     productId: product.id,
     quantite,
     product,
-  };
+  }
 }
 
-export function makeKit(
-  kitProducts: KitProduct[],
-  overrides: Partial<Kit> = {}
-): Kit {
+export function makeKit(kitProducts: KitProduct[], overrides: Partial<Kit> = {}): Kit {
   return {
     id: `kit-${++idCounter}`,
     nom: 'Test Kit',
@@ -51,13 +48,13 @@ export function makeKit(
     updatedById: 'user-1',
     kitProducts,
     ...overrides,
-  };
+  }
 }
 
 export function makeProjectKit(
   quantite: number,
   kit: Kit,
-  overrides: Partial<ProjectKit> = {}
+  overrides: Partial<ProjectKit> = {},
 ): ProjectKit {
   return {
     id: `pk-${++idCounter}`,
@@ -66,7 +63,7 @@ export function makeProjectKit(
     quantite,
     kit,
     ...overrides,
-  };
+  }
 }
 
 export function makeProject(projectKits: ProjectKit[] = []): Project {
@@ -78,5 +75,5 @@ export function makeProject(projectKits: ProjectKit[] = []): Project {
     updatedAt: '2024-01-01T00:00:00Z',
     createdById: 'user-1',
     projectKits,
-  };
+  }
 }

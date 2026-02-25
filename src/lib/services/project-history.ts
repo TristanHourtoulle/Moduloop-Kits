@@ -1,15 +1,15 @@
-import { prisma } from '@/lib/db';
-import { ProjectChangeType, Project, Kit } from '@prisma/client';
+import { prisma } from '@/lib/db'
+import { ProjectChangeType, Project, Kit } from '@prisma/client'
 
 export interface ProjectHistoryContext {
-  userId: string;
-  projectId: string;
-  changeType: ProjectChangeType;
-  description: string;
-  changedFields?: string[];
-  oldValues?: Record<string, unknown>;
-  newValues?: Record<string, unknown>;
-  metadata?: Record<string, unknown>;
+  userId: string
+  projectId: string
+  changeType: ProjectChangeType
+  description: string
+  changedFields?: string[]
+  oldValues?: Record<string, unknown>
+  newValues?: Record<string, unknown>
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -28,9 +28,9 @@ export async function recordProjectHistory(context: ProjectHistoryContext) {
         metadata: context.metadata ? JSON.stringify(context.metadata) : undefined,
         changedById: context.userId,
       },
-    });
+    })
   } catch (error) {
-    console.error('Failed to record project history:', error);
+    console.error('Failed to record project history:', error)
     // Don't throw - history recording should not break main operations
   }
 }
@@ -48,7 +48,7 @@ export function createProjectCreatedHistory(userId: string, project: Project) {
       projectName: project.nom,
       projectStatus: project.status,
     },
-  });
+  })
 }
 
 /**
@@ -58,47 +58,47 @@ export function createProjectUpdatedHistory(
   userId: string,
   projectId: string,
   oldProject: Partial<Project>,
-  newProject: Partial<Project>
+  newProject: Partial<Project>,
 ) {
-  const changedFields: string[] = [];
-  const oldValues: Record<string, unknown> = {};
-  const newValues: Record<string, unknown> = {};
+  const changedFields: string[] = []
+  const oldValues: Record<string, unknown> = {}
+  const newValues: Record<string, unknown> = {}
 
   // Check each field for changes
   if (oldProject.nom !== newProject.nom) {
-    changedFields.push('nom');
-    oldValues.nom = oldProject.nom;
-    newValues.nom = newProject.nom;
+    changedFields.push('nom')
+    oldValues.nom = oldProject.nom
+    newValues.nom = newProject.nom
   }
 
   if (oldProject.description !== newProject.description) {
-    changedFields.push('description');
-    oldValues.description = oldProject.description;
-    newValues.description = newProject.description;
+    changedFields.push('description')
+    oldValues.description = oldProject.description
+    newValues.description = newProject.description
   }
 
   if (oldProject.status !== newProject.status) {
-    changedFields.push('status');
-    oldValues.status = oldProject.status;
-    newValues.status = newProject.status;
+    changedFields.push('status')
+    oldValues.status = oldProject.status
+    newValues.status = newProject.status
   }
 
   // Generate appropriate description
-  let description = 'Le projet a été modifié';
+  let description = 'Le projet a été modifié'
   if (changedFields.length === 1) {
     switch (changedFields[0]) {
       case 'nom':
-        description = `Le nom du projet a été changé de "${oldValues.nom}" à "${newValues.nom}"`;
-        break;
+        description = `Le nom du projet a été changé de "${oldValues.nom}" à "${newValues.nom}"`
+        break
       case 'status':
-        description = `Le statut du projet a été changé de "${oldValues.status}" à "${newValues.status}"`;
-        break;
+        description = `Le statut du projet a été changé de "${oldValues.status}" à "${newValues.status}"`
+        break
       case 'description':
-        description = 'La description du projet a été modifiée';
-        break;
+        description = 'La description du projet a été modifiée'
+        break
     }
   } else if (changedFields.length > 1) {
-    description = `Le projet a été modifié (${changedFields.join(', ')})`;
+    description = `Le projet a été modifié (${changedFields.join(', ')})`
   }
 
   if (changedFields.length > 0) {
@@ -110,10 +110,10 @@ export function createProjectUpdatedHistory(
       changedFields,
       oldValues,
       newValues,
-    });
+    })
   }
 
-  return Promise.resolve();
+  return Promise.resolve()
 }
 
 /**
@@ -129,7 +129,7 @@ export function createProjectDeletedHistory(userId: string, project: Project) {
       projectName: project.nom,
       projectStatus: project.status,
     },
-  });
+  })
 }
 
 /**
@@ -139,7 +139,7 @@ export function createKitAddedHistory(
   userId: string,
   projectId: string,
   kit: Kit,
-  quantity: number
+  quantity: number,
 ) {
   return recordProjectHistory({
     userId,
@@ -152,7 +152,7 @@ export function createKitAddedHistory(
       kitStyle: kit.style,
       quantity,
     },
-  });
+  })
 }
 
 /**
@@ -162,7 +162,7 @@ export function createKitRemovedHistory(
   userId: string,
   projectId: string,
   kit: Kit,
-  quantity: number
+  quantity: number,
 ) {
   return recordProjectHistory({
     userId,
@@ -175,7 +175,7 @@ export function createKitRemovedHistory(
       kitStyle: kit.style,
       quantity,
     },
-  });
+  })
 }
 
 /**
@@ -186,7 +186,7 @@ export function createKitQuantityUpdatedHistory(
   projectId: string,
   kit: Kit,
   oldQuantity: number,
-  newQuantity: number
+  newQuantity: number,
 ) {
   return recordProjectHistory({
     userId,
@@ -200,7 +200,7 @@ export function createKitQuantityUpdatedHistory(
       oldQuantity,
       newQuantity,
     },
-  });
+  })
 }
 
 /**
@@ -225,5 +225,5 @@ export async function getProjectHistory(projectId: string) {
     orderBy: {
       createdAt: 'desc',
     },
-  });
+  })
 }

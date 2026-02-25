@@ -1,10 +1,6 @@
-import { Project } from '@/lib/types/project';
-import { getProductPricing, getProductEnvironmentalImpact } from './product-helpers';
-import {
-  ProjectCardMetrics,
-  ProjectCardPricingMode,
-  SurfaceMode
-} from '@/lib/types/project-card';
+import { Project } from '@/lib/types/project'
+import { getProductPricing, getProductEnvironmentalImpact } from './product-helpers'
+import { ProjectCardMetrics, ProjectCardPricingMode, SurfaceMode } from '@/lib/types/project-card'
 
 /**
  * Calculate total price for a project based on mode
@@ -14,31 +10,28 @@ import {
  * @param mode - 'achat' or 'location'
  * @returns Total price in euros
  */
-export function calculateProjectPrice(
-  project: Project,
-  mode: ProjectCardPricingMode
-): number {
-  if (!project.projectKits) return 0;
+export function calculateProjectPrice(project: Project, mode: ProjectCardPricingMode): number {
+  if (!project.projectKits) return 0
 
-  let total = 0;
-  const period = mode === 'location' ? '3ans' : '1an';
+  let total = 0
+  const period = mode === 'location' ? '3ans' : '1an'
 
   for (const projectKit of project.projectKits) {
-    const kit = projectKit.kit;
-    if (!kit?.kitProducts) continue;
+    const kit = projectKit.kit
+    if (!kit?.kitProducts) continue
 
     for (const kitProduct of kit.kitProducts) {
-      const product = kitProduct.product;
-      if (!product) continue;
+      const product = kitProduct.product
+      if (!product) continue
 
-      const pricing = getProductPricing(product, mode, period);
-      const quantity = kitProduct.quantite * projectKit.quantite;
+      const pricing = getProductPricing(product, mode, period)
+      const quantity = kitProduct.quantite * projectKit.quantite
 
-      total += (pricing.prixVente || 0) * quantity;
+      total += (pricing.prixVente || 0) * quantity
     }
   }
 
-  return total;
+  return total
 }
 
 /**
@@ -49,30 +42,27 @@ export function calculateProjectPrice(
  * @param mode - 'achat' or 'location'
  * @returns CO2 impact in kg (positive = savings for location)
  */
-export function calculateProjectCO2(
-  project: Project,
-  mode: ProjectCardPricingMode
-): number {
-  if (!project.projectKits) return 0;
+export function calculateProjectCO2(project: Project, mode: ProjectCardPricingMode): number {
+  if (!project.projectKits) return 0
 
-  let total = 0;
+  let total = 0
 
   for (const projectKit of project.projectKits) {
-    const kit = projectKit.kit;
-    if (!kit?.kitProducts) continue;
+    const kit = projectKit.kit
+    if (!kit?.kitProducts) continue
 
     for (const kitProduct of kit.kitProducts) {
-      const product = kitProduct.product;
-      if (!product) continue;
+      const product = kitProduct.product
+      if (!product) continue
 
-      const impact = getProductEnvironmentalImpact(product, mode);
-      const quantity = kitProduct.quantite * projectKit.quantite;
+      const impact = getProductEnvironmentalImpact(product, mode)
+      const quantity = kitProduct.quantite * projectKit.quantite
 
-      total += (impact.rechauffementClimatique || 0) * quantity;
+      total += (impact.rechauffementClimatique || 0) * quantity
     }
   }
 
-  return total;
+  return total
 }
 
 /**
@@ -85,13 +75,13 @@ export function calculateProjectCO2(
  */
 export function calculatePricePerM2(
   totalSurface: number | undefined,
-  totalPrice: number
+  totalPrice: number,
 ): number | null {
   if (!totalSurface || totalSurface === 0 || !totalPrice) {
-    return null;
+    return null
   }
 
-  return Math.round(totalPrice / totalSurface);
+  return Math.round(totalPrice / totalSurface)
 }
 
 /**
@@ -101,22 +91,22 @@ export function calculatePricePerM2(
  * @returns Count of unique products
  */
 export function calculateProductCount(project: Project): number {
-  if (!project.projectKits) return 0;
+  if (!project.projectKits) return 0
 
-  const uniqueProducts = new Set<string>();
+  const uniqueProducts = new Set<string>()
 
   for (const projectKit of project.projectKits) {
-    const kit = projectKit.kit;
-    if (!kit?.kitProducts) continue;
+    const kit = projectKit.kit
+    if (!kit?.kitProducts) continue
 
     for (const kitProduct of kit.kitProducts) {
       if (kitProduct.productId) {
-        uniqueProducts.add(kitProduct.productId);
+        uniqueProducts.add(kitProduct.productId)
       }
     }
   }
 
-  return uniqueProducts.size;
+  return uniqueProducts.size
 }
 
 /**
@@ -126,9 +116,9 @@ export function calculateProductCount(project: Project): number {
  * @returns Sum of all kit quantities
  */
 export function calculateTotalUnits(project: Project): number {
-  if (!project.projectKits) return 0;
+  if (!project.projectKits) return 0
 
-  return project.projectKits.reduce((sum, pk) => sum + pk.quantite, 0);
+  return project.projectKits.reduce((sum, pk) => sum + pk.quantite, 0)
 }
 
 /**
@@ -139,10 +129,10 @@ export function calculateTotalUnits(project: Project): number {
  */
 export function getSurfaceMode(project: Project): SurfaceMode {
   if (!project.totalSurface || project.totalSurface === 0) {
-    return null;
+    return null
   }
 
-  return project.surfaceOverride ? 'manual' : 'auto';
+  return project.surfaceOverride ? 'manual' : 'auto'
 }
 
 /**
@@ -155,14 +145,14 @@ export function getSurfaceMode(project: Project): SurfaceMode {
  */
 export function calculateProjectCardMetrics(
   project: Project,
-  mode: ProjectCardPricingMode
+  mode: ProjectCardPricingMode,
 ): ProjectCardMetrics {
-  const totalPrice = calculateProjectPrice(project, mode);
-  const totalCO2 = calculateProjectCO2(project, mode);
-  const pricePerM2 = calculatePricePerM2(project.totalSurface, totalPrice);
-  const kitCount = project.projectKits?.length || 0;
-  const totalUnits = calculateTotalUnits(project);
-  const productCount = calculateProductCount(project);
+  const totalPrice = calculateProjectPrice(project, mode)
+  const totalCO2 = calculateProjectCO2(project, mode)
+  const pricePerM2 = calculatePricePerM2(project.totalSurface, totalPrice)
+  const kitCount = project.projectKits?.length || 0
+  const totalUnits = calculateTotalUnits(project)
+  const productCount = calculateProductCount(project)
 
   return {
     totalPrice,
@@ -171,5 +161,5 @@ export function calculateProjectCardMetrics(
     kitCount,
     totalUnits,
     productCount,
-  };
+  }
 }

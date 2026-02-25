@@ -1,17 +1,17 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
 
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
-import { InputWithIcon } from "@/components/ui/input-with-icon";
-import { PasswordInput } from "@/components/ui/password-input";
-import { GoogleButton } from "@/components/auth/google-button";
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Separator } from '@/components/ui/separator'
+import { InputWithIcon } from '@/components/ui/input-with-icon'
+import { PasswordInput } from '@/components/ui/password-input'
+import { GoogleButton } from '@/components/auth/google-button'
 import {
   Form,
   FormControl,
@@ -19,54 +19,53 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form'
 
-import { Mail, AlertCircle, Loader2 } from "lucide-react";
-import {
-  connexionSchema,
-  type ConnexionFormData,
-} from "@/lib/schemas/auth";
-import { getSpecificAuthError } from "@/lib/auth/error-messages";
-import { signInWithErrorHandling } from "@/lib/auth/sign-in-with-error-handling";
+import { Mail, AlertCircle, Loader2 } from 'lucide-react'
+import { connexionSchema, type ConnexionFormData } from '@/lib/schemas/auth'
+import { getSpecificAuthError } from '@/lib/auth/error-messages'
+import { signInWithErrorHandling } from '@/lib/auth/sign-in-with-error-handling'
 
 export function ConnexionForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   const form = useForm<ConnexionFormData>({
     resolver: zodResolver(connexionSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
-  });
+  })
 
   const onSubmit = async (data: ConnexionFormData) => {
-    setIsLoading(true);
-    setError("");
+    setIsLoading(true)
+    setError('')
 
     try {
-      const result = await signInWithErrorHandling(data.email, data.password);
+      const result = await signInWithErrorHandling(data.email, data.password)
 
       if (result.success) {
-        router.push("/dashboard");
+        router.push('/dashboard')
       } else {
-        const errorMessage = getSpecificAuthError(result.error || "Authentication failed", 'signin');
-        setError(errorMessage);
+        const errorMessage = getSpecificAuthError(result.error || 'Authentication failed', 'signin')
+        setError(errorMessage)
       }
-
     } catch (err: unknown) {
-      const errorMessage = getSpecificAuthError(err instanceof Error ? err.message : String(err), 'signin');
-      setError(errorMessage);
+      const errorMessage = getSpecificAuthError(
+        err instanceof Error ? err.message : String(err),
+        'signin',
+      )
+      setError(errorMessage)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleGoogleError = (errorMessage: string) => {
-    setError(errorMessage);
-  };
+    setError(errorMessage)
+  }
 
   return (
     <div className="space-y-6">
@@ -95,14 +94,12 @@ export function ConnexionForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">
-                  Adresse e-mail
-                </FormLabel>
+                <FormLabel className="text-sm font-medium text-gray-700">Adresse e-mail</FormLabel>
                 <FormControl>
                   <InputWithIcon
                     icon={Mail}
                     placeholder="votre@email.com"
-                    className="border-gray-200 focus:border-[#30C1BD] focus:ring-[#30C1BD] transition-colors"
+                    className="border-gray-200 transition-colors focus:border-[#30C1BD] focus:ring-[#30C1BD]"
                     {...field}
                   />
                 </FormControl>
@@ -116,13 +113,11 @@ export function ConnexionForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">
-                  Mot de passe
-                </FormLabel>
+                <FormLabel className="text-sm font-medium text-gray-700">Mot de passe</FormLabel>
                 <FormControl>
                   <PasswordInput
                     placeholder="••••••••"
-                    className="border-gray-200 focus:border-[#30C1BD] focus:ring-[#30C1BD] transition-colors"
+                    className="border-gray-200 transition-colors focus:border-[#30C1BD] focus:ring-[#30C1BD]"
                     {...field}
                   />
                 </FormControl>
@@ -134,7 +129,7 @@ export function ConnexionForm() {
           <div className="flex items-center justify-between">
             <Link
               href="/auth/mot-de-passe-oublie"
-              className="text-sm text-[#30C1BD] hover:text-[#30C1BD]/80 transition-colors cursor-pointer"
+              className="cursor-pointer text-sm text-[#30C1BD] transition-colors hover:text-[#30C1BD]/80"
             >
               Mot de passe oublié ?
             </Link>
@@ -143,7 +138,7 @@ export function ConnexionForm() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-12 bg-[#30C1BD] hover:bg-[#30C1BD]/90 text-white shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer"
+            className="h-12 w-full cursor-pointer bg-[#30C1BD] text-white shadow-lg transition-all duration-200 hover:bg-[#30C1BD]/90 hover:shadow-xl"
           >
             {isLoading ? (
               <>
@@ -151,23 +146,23 @@ export function ConnexionForm() {
                 Connexion en cours...
               </>
             ) : (
-              "Se connecter"
+              'Se connecter'
             )}
           </Button>
         </form>
       </Form>
 
-      <div className="text-center pt-4">
+      <div className="pt-4 text-center">
         <p className="text-sm text-gray-600">
-          Pas encore de compte ?{" "}
+          Pas encore de compte ?{' '}
           <Link
             href="/auth/inscription"
-            className="text-[#30C1BD] hover:text-[#30C1BD]/80 font-medium transition-colors cursor-pointer"
+            className="cursor-pointer font-medium text-[#30C1BD] transition-colors hover:text-[#30C1BD]/80"
           >
             Créer un compte
           </Link>
         </p>
       </div>
     </div>
-  );
+  )
 }
