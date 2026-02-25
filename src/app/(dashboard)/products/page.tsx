@@ -30,7 +30,7 @@ export default async function ProductsPage() {
               </div>
             </div>
 
-            <Button asChild>
+            <Button asChild data-testid="products-create-btn">
               <Link href="/products/nouveau">
                 <Plus className="mr-2 h-4 w-4" />
                 Nouveau produit

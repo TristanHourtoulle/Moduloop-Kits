@@ -30,7 +30,7 @@ export default async function KitsPage() {
               </div>
             </div>
 
-            <Button asChild>
+            <Button asChild data-testid="kits-create-btn">
               <Link href="/kits/nouveau">
                 <Plus className="mr-2 h-4 w-4" />
                 Nouveau kit

@@ -70,7 +70,7 @@ export function ConnexionForm() {
   return (
     <div className="space-y-6">
       {error && (
-        <Alert variant="destructive" className="border-red-200 bg-red-50">
+        <Alert variant="destructive" className="border-red-200 bg-red-50" data-testid="login-error">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -138,6 +138,7 @@ export function ConnexionForm() {
           <Button
             type="submit"
             disabled={isLoading}
+            data-testid="login-submit"
             className="h-12 w-full cursor-pointer bg-[#30C1BD] text-white shadow-lg transition-all duration-200 hover:bg-[#30C1BD]/90 hover:shadow-xl"
           >
             {isLoading ? (

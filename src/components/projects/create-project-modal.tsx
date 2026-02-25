@@ -101,6 +101,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
             <Label htmlFor="nom">Nom du projet *</Label>
             <Input
               id="nom"
+              data-testid="project-nom"
               value={formData.nom}
               onChange={(e) => handleInputChange('nom', e.target.value)}
               placeholder="Ex: Rénovation Bureau 2024"
@@ -112,6 +113,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
+              data-testid="project-description"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               placeholder="Décrivez votre projet..."
@@ -147,7 +149,12 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
             >
               Annuler
             </Button>
-            <Button type="submit" disabled={isLoading || !formData.nom.trim()} className="flex-1">
+            <Button
+              type="submit"
+              disabled={isLoading || !formData.nom.trim()}
+              data-testid="project-submit"
+              className="flex-1"
+            >
               {isLoading ? (
                 <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               ) : (
