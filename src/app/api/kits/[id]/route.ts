@@ -9,6 +9,8 @@ import {
   handleApiError,
   setResourceCacheHeaders,
 } from "@/lib/api/middleware";
+import { groupDuplicateProducts } from "@/lib/utils/kit/group-products";
+import { validateProductsExist, KIT_WITH_PRODUCTS_INCLUDE } from "@/lib/services/kit.service";
 
 // GET /api/kits/[id] - Récupérer un kit par ID
 export async function GET(
@@ -64,39 +66,14 @@ export async function PUT(
     const body = await request.json();
     const validatedData = kitSchema.parse(body);
 
-    // Regrouper les produits identiques côté serveur aussi
-    const groupedProducts = validatedData.products.reduce(
-      (acc, product) => {
-        const existingProduct = acc.find(
-          (p) => p.productId === product.productId,
-        );
-        if (existingProduct) {
-          existingProduct.quantite += product.quantite;
-        } else {
-          acc.push({ ...product });
-        }
-        return acc;
-      },
-      [] as typeof validatedData.products,
-    );
+    const groupedProducts = groupDuplicateProducts(validatedData.products);
 
-    // Vérifier que tous les produits existent
-    const productIds = groupedProducts.map((p) => p.productId);
-    const existingProducts = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-      select: { id: true },
-    });
-
-    const existingProductIds = existingProducts.map(
-      (p: { id: string }) => p.id,
+    const validation = await validateProductsExist(
+      groupedProducts.map((p) => p.productId),
     );
-    const missingProducts = productIds.filter(
-      (id) => !existingProductIds.includes(id),
-    );
-
-    if (missingProducts.length > 0) {
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: `Produits introuvables: ${missingProducts.join(", ")}` },
+        { error: `Produits introuvables: ${validation.missingIds.join(", ")}` },
         { status: 400 },
       );
     }
@@ -124,32 +101,7 @@ export async function PUT(
             })),
           },
         },
-        include: {
-          createdBy: {
-            select: { id: true, name: true, email: true },
-          },
-          updatedBy: {
-            select: { id: true, name: true, email: true },
-          },
-          kitProducts: {
-            include: {
-              product: {
-                select: {
-                  id: true,
-                  nom: true,
-                  reference: true,
-                  prixVente1An: true,
-                  prixVente2Ans: true,
-                  prixVente3Ans: true,
-                  rechauffementClimatique: true,
-                  epuisementRessources: true,
-                  acidification: true,
-                  eutrophisation: true,
-                },
-              },
-            },
-          },
-        },
+        include: KIT_WITH_PRODUCTS_INCLUDE,
       });
     });
 

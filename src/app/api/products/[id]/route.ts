@@ -9,6 +9,7 @@ import {
   handleApiError,
   setResourceCacheHeaders,
 } from "@/lib/api/middleware";
+import { remapProductFormFields } from "@/lib/utils/product/map-form-fields";
 
 // GET /api/products/[id] - Récupérer un produit par ID
 export async function GET(
@@ -87,37 +88,25 @@ export async function PUT(
       }
     }
 
-    // Filtrer les valeurs undefined pour éviter les erreurs Prisma
+    // Filter undefined values to avoid Prisma errors
     const filteredUpdateData = Object.fromEntries(
       Object.entries(updateData).filter(([_key, value]) => {
         return value !== undefined;
       }),
     );
 
-    // Traiter spécialement la description pour gérer les chaînes vides
+    // Handle empty description strings
     if ('description' in updateData) {
       filteredUpdateData.description = updateData.description || "";
     }
 
-    // Map form fields to database fields for achat prices
-    // Form uses prixAchatAchat1An but DB uses prixAchatAchat (no period)
-    if ('prixAchatAchat1An' in filteredUpdateData) {
-      filteredUpdateData.prixAchatAchat = filteredUpdateData.prixAchatAchat1An;
-      delete filteredUpdateData.prixAchatAchat1An;
-    }
-    if ('prixUnitaireAchat1An' in filteredUpdateData) {
-      filteredUpdateData.prixUnitaireAchat = filteredUpdateData.prixUnitaireAchat1An;
-      delete filteredUpdateData.prixUnitaireAchat1An;
-    }
-    if ('prixVenteAchat1An' in filteredUpdateData) {
-      filteredUpdateData.prixVenteAchat = filteredUpdateData.prixVenteAchat1An;
-      delete filteredUpdateData.prixVenteAchat1An;
-    }
+    // Remap form field names to DB column names (mid-migration schema)
+    const remappedData = remapProductFormFields(filteredUpdateData);
 
     const updatedProduct = await prisma.product.update({
       where: { id },
       data: {
-        ...filteredUpdateData,
+        ...remappedData,
         updatedById: auth.user.id,
       },
       include: {
