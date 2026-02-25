@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 export default defineConfig({
   test: {
     environment: 'node',
+    exclude: ['e2e/**', 'node_modules/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov', 'json-summary'],
