@@ -11,7 +11,6 @@ import {
   getDefaultProductMode,
   formatPrice,
   formatEnvironmentalImpact,
-  migrateLegacyProductData,
 } from './product-helpers';
 
 describe('ceilPrice', () => {
@@ -435,9 +434,3 @@ describe('formatEnvironmentalImpact', () => {
   });
 });
 
-describe('migrateLegacyProductData', () => {
-  it('returns empty object (function is disabled)', () => {
-    const product = makeProduct({ prixAchat1An: 100 });
-    expect(migrateLegacyProductData(product)).toEqual({});
-  });
-});

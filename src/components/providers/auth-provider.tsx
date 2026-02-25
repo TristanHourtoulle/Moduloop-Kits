@@ -1,11 +1,7 @@
 "use client";
 
 import React, { createContext, useContext } from "react";
-import { createAuthClient } from "better-auth/react";
-
-const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-});
+import { authClient } from "@/lib/auth-client";
 
 const AuthContext = createContext(authClient);
 
@@ -22,5 +18,3 @@ export function useAuthClient() {
   }
   return context;
 }
-
-export { authClient };

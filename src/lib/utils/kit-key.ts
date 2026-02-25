@@ -36,16 +36,7 @@ export function generateKitKey(kitId: string, kitData: KitKeyData): string {
   // Simple hash function for shorter keys
   const hash = simpleHash(dataSignature);
 
-  const key = `kit-${kitId}-${hash}`;
-
-  console.log("[KitKey] Generated key:", {
-    kitId,
-    kitName: kitData.nom,
-    productsCount: kitData.products.length,
-    key,
-  });
-
-  return key;
+  return `kit-${kitId}-${hash}`;
 }
 
 /**

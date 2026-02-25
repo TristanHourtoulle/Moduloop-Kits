@@ -6,12 +6,16 @@ vi.mock('@/lib/cache', async () => {
   return createCacheMock();
 });
 
-import { auth } from '@/lib/auth';
 import { prisma, getProductById } from '@/lib/db';
 import { GET, PUT, DELETE } from './route';
-import { createMockRequest, mockAdminSession, mockDevSession, mockUserSession } from '@/test/api-helpers';
+import {
+  createMockRequest,
+  mockAuthNone,
+  mockAuthAsUser,
+  mockAuthAsDev,
+  mockAuthAsAdmin,
+} from '@/test/api-helpers';
 
-const mockGetSession = vi.mocked(auth.api.getSession);
 const mockGetProductById = vi.mocked(getProductById);
 const mockFindUnique = vi.mocked(prisma.product.findUnique);
 const mockUpdate = vi.mocked(prisma.product.update);
@@ -29,14 +33,14 @@ beforeEach(() => {
 
 describe('GET /api/products/[id]', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('GET', `/api/products/${VALID_ID}`);
     const res = await GET(req, makeParams(VALID_ID));
     expect(res.status).toBe(401);
   });
 
   it('returns product when found', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const product = { id: VALID_ID, nom: 'Product 1' };
     mockGetProductById.mockResolvedValueOnce(product as never);
 
@@ -49,7 +53,7 @@ describe('GET /api/products/[id]', () => {
   });
 
   it('returns 404 when product not found', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockGetProductById.mockResolvedValueOnce(null as never);
 
     const req = createMockRequest('GET', `/api/products/${VALID_ID}`);
@@ -58,7 +62,7 @@ describe('GET /api/products/[id]', () => {
   });
 
   it('returns 500 when db throws', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockGetProductById.mockRejectedValueOnce(new Error('DB error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -73,21 +77,21 @@ describe('PUT /api/products/[id]', () => {
   const updateData = { nom: 'Updated Product', reference: 'REF-002' };
 
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('PUT', `/api/products/${VALID_ID}`, updateData);
     const res = await PUT(req, makeParams(VALID_ID));
     expect(res.status).toBe(401);
   });
 
   it('returns 403 when role is USER', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const req = createMockRequest('PUT', `/api/products/${VALID_ID}`, updateData);
     const res = await PUT(req, makeParams(VALID_ID));
     expect(res.status).toBe(403);
   });
 
   it('returns 404 when product does not exist', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique.mockResolvedValueOnce(null as never);
 
     const req = createMockRequest('PUT', `/api/products/${VALID_ID}`, updateData);
@@ -96,7 +100,7 @@ describe('PUT /api/products/[id]', () => {
   });
 
   it('returns 409 when reference already taken by another product', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique
       .mockResolvedValueOnce({ id: VALID_ID, reference: 'REF-001' } as never)
       .mockResolvedValueOnce({ id: VALID_ID_2, reference: 'REF-002' } as never);
@@ -107,7 +111,7 @@ describe('PUT /api/products/[id]', () => {
   });
 
   it('returns 200 with updated product', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique.mockResolvedValueOnce({ id: VALID_ID, reference: 'REF-001' } as never);
     const updatedProduct = { id: VALID_ID, nom: 'Updated Product' };
     mockUpdate.mockResolvedValueOnce(updatedProduct as never);
@@ -119,7 +123,7 @@ describe('PUT /api/products/[id]', () => {
   });
 
   it('returns 400 on Zod validation failure', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique.mockResolvedValueOnce({ id: VALID_ID, reference: 'REF-001' } as never);
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -130,7 +134,7 @@ describe('PUT /api/products/[id]', () => {
   });
 
   it('returns 200 when ADMIN updates a product', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
+    mockAuthAsAdmin();
     mockFindUnique.mockResolvedValueOnce({ id: VALID_ID, reference: 'REF-001' } as never);
     const updatedProduct = { id: VALID_ID, nom: 'Admin Updated' };
     mockUpdate.mockResolvedValueOnce(updatedProduct as never);
@@ -142,7 +146,7 @@ describe('PUT /api/products/[id]', () => {
   });
 
   it('returns 500 on DB error', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique.mockResolvedValueOnce({ id: VALID_ID, reference: 'REF-001' } as never);
     mockUpdate.mockRejectedValueOnce(new Error('DB error'));
 
@@ -159,21 +163,21 @@ describe('PUT /api/products/[id]', () => {
 
 describe('DELETE /api/products/[id]', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('DELETE', `/api/products/${VALID_ID}`);
     const res = await DELETE(req, makeParams(VALID_ID));
     expect(res.status).toBe(401);
   });
 
   it('returns 403 when role is USER', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const req = createMockRequest('DELETE', `/api/products/${VALID_ID}`);
     const res = await DELETE(req, makeParams(VALID_ID));
     expect(res.status).toBe(403);
   });
 
   it('returns 404 when product not found', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique.mockResolvedValueOnce(null as never);
 
     const req = createMockRequest('DELETE', `/api/products/${VALID_ID}`);
@@ -182,7 +186,7 @@ describe('DELETE /api/products/[id]', () => {
   });
 
   it('returns 200 with success message', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique.mockResolvedValueOnce({ id: VALID_ID } as never);
     mockDelete.mockResolvedValueOnce({} as never);
 
@@ -195,7 +199,7 @@ describe('DELETE /api/products/[id]', () => {
   });
 
   it('returns 200 when ADMIN deletes a product', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
+    mockAuthAsAdmin();
     mockFindUnique.mockResolvedValueOnce({ id: VALID_ID } as never);
     mockDelete.mockResolvedValueOnce({} as never);
 
@@ -206,7 +210,7 @@ describe('DELETE /api/products/[id]', () => {
   });
 
   it('returns 500 on DB error', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
+    mockAuthAsDev();
     mockFindUnique.mockResolvedValueOnce({ id: VALID_ID } as never);
     mockDelete.mockRejectedValueOnce(new Error('DB error'));
 

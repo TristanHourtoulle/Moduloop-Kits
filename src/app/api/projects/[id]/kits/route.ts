@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import {
   createKitAddedHistory,
   createKitQuantityUpdatedHistory,
 } from '@/lib/services/project-history';
 import { verifyProjectAccess } from '@/lib/utils/project/access';
+import { requireAuth, handleApiError } from '@/lib/api/middleware';
 
 interface KitRequest {
   kitId: string;
@@ -17,10 +17,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
+    const auth = await requireAuth(request);
+    if (auth.response) return auth.response;
 
     const { id: projectId } = await params;
     const body = await request.json();
@@ -29,7 +27,7 @@ export async function POST(
     if (!kits || !Array.isArray(kits) || kits.length === 0) {
       return NextResponse.json(
         { error: 'Les kits sont requis' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -37,7 +35,7 @@ export async function POST(
     const project = await prisma.project.findFirst({
       where: {
         id: projectId,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
     });
 
@@ -56,7 +54,7 @@ export async function POST(
     if (existingKits.length !== kitIds.length) {
       return NextResponse.json(
         { error: "Certains kits n'existent pas" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -85,24 +83,24 @@ export async function POST(
         // Kit existe déjà : additionner les quantités
         const oldQuantity = existingKit.quantite;
         const newQuantity = existingKit.quantite + kit.quantite;
-        
+
         operations.push(
           prisma.projectKit.update({
             where: { id: existingKit.id },
             data: { quantite: newQuantity },
-          })
+          }),
         );
 
         // Record quantity update history
         if (kitDetails) {
           historyOperations.push(
             createKitQuantityUpdatedHistory(
-              session.user.id,
+              auth.user.id,
               projectId,
               kitDetails,
               oldQuantity,
-              newQuantity
-            )
+              newQuantity,
+            ),
           );
         }
       } else {
@@ -114,18 +112,18 @@ export async function POST(
               kitId: kit.kitId,
               quantite: kit.quantite,
             },
-          })
+          }),
         );
 
         // Record kit added history
         if (kitDetails) {
           historyOperations.push(
             createKitAddedHistory(
-              session.user.id,
+              auth.user.id,
               projectId,
               kitDetails,
-              kit.quantite
-            )
+              kit.quantite,
+            ),
           );
         }
       }
@@ -139,11 +137,7 @@ export async function POST(
 
     return NextResponse.json(projectKits, { status: 201 });
   } catch (error) {
-    console.error("Erreur lors de l'ajout des kits au projet:", error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -176,10 +170,6 @@ export async function GET(
 
     return NextResponse.json(projectKits);
   } catch (error) {
-    console.error('Erreur lors de la récupération des kits du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

@@ -15,15 +15,6 @@ export function useRole() {
   const userRole =
     (session?.user as { role?: UserRole })?.role || UserRole.USER;
 
-  // Debug logs
-  console.log("🔵 useRole - Session:", session);
-  console.log("🔵 useRole - User:", session?.user);
-  console.log(
-    "🔵 useRole - Raw role:",
-    (session?.user as { role?: UserRole })?.role
-  );
-  console.log("🔵 useRole - Computed role:", userRole);
-
   return {
     role: userRole,
     permissions: getRolePermissions(userRole),

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -51,14 +50,6 @@ export function DashboardHeader() {
   
   // Use user from UserProvider if available, otherwise fallback to session
   const displayUser = user || session?.user;
-
-  // Debug: Log user data
-  React.useEffect(() => {
-    if (session?.user) {
-      console.log("🔵 User data:", session.user);
-      console.log("🔵 User image:", session.user.image);
-    }
-  }, [session]);
 
   const handleSignOut = async () => {
     try {

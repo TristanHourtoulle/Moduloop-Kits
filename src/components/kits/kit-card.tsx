@@ -361,7 +361,6 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('Modifier clicked for kit:', kit.id);
                 // Add timestamp to URL to bypass Vercel cache
                 router.push(`/kits/${kit.id}/modifier?t=${Date.now()}`);
               }}

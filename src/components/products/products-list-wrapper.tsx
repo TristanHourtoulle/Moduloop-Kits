@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/products/product-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,6 @@ type SortOption = "nom-asc" | "nom-desc" | "reference-asc" | "reference-desc" | 
 type ImageFilter = "all" | "with-image" | "without-image";
 
 function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
-  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
@@ -25,20 +23,9 @@ function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Update products when initialProducts prop changes (server-side data refresh)
   useEffect(() => {
-    console.log("[ProductsListWrapper] Initial products updated:", initialProducts.length);
     setProducts(initialProducts);
   }, [initialProducts]);
-
-  // Detect when returning from edit page with updated param
-  useEffect(() => {
-    const updatedParam = searchParams.get("updated");
-    if (updatedParam) {
-      console.log("[ProductsListWrapper] Detected update param, data already fresh from server");
-      // Data is already fresh from server-side fetch, no need to refetch
-    }
-  }, [searchParams]);
 
   const handleDelete = useCallback(
     async (productId: string) => {

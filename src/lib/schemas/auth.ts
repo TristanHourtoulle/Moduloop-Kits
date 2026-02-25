@@ -46,6 +46,15 @@ export const motDePasseOublieSchema = z.object({
     .email("Adresse e-mail invalide"),
 });
 
+/** Server-side schema for sign-up action (maps to Better Auth fields) */
+export const registerActionSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1),
+  firstName: z.string().min(1),
+  password: z.string().min(8),
+});
+
 export type ConnexionFormData = z.infer<typeof connexionSchema>;
 export type InscriptionFormData = z.infer<typeof inscriptionSchema>;
 export type MotDePasseOublieFormData = z.infer<typeof motDePasseOublieSchema>;
+export type RegisterActionData = z.infer<typeof registerActionSchema>;

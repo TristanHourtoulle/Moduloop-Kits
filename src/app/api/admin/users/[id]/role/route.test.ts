@@ -1,13 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@/test/register-api-mocks';
 
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { PATCH } from './route';
-import { createMockRequest, mockAdminSession, mockDevSession, mockUserSession } from '@/test/api-helpers';
+import {
+  createMockRequest,
+  mockAuthNone,
+  mockAuthAsUser,
+  mockAuthAsAdmin,
+  mockAuthAsDev,
+  mockAdminSession,
+} from '@/test/api-helpers';
 import { UserRole } from '@/lib/types/user';
 
-const mockGetSession = vi.mocked(auth.api.getSession);
 const mockUserFindUnique = vi.mocked(prisma.user.findUnique);
 const mockUserUpdate = vi.mocked(prisma.user.update);
 
@@ -19,15 +24,14 @@ beforeEach(() => {
 
 describe('PATCH /api/admin/users/[id]/role', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('PATCH', '/api/admin/users/u1/role', { role: 'DEV' });
     const res = await PATCH(req, makeParams('u1'));
     expect(res.status).toBe(401);
   });
 
   it('returns 403 when caller role is USER', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
-    mockUserFindUnique.mockResolvedValueOnce({ role: UserRole.USER } as never);
+    mockAuthAsUser();
 
     const req = createMockRequest('PATCH', '/api/admin/users/u1/role', { role: 'DEV' });
     const res = await PATCH(req, makeParams('u1'));
@@ -35,10 +39,9 @@ describe('PATCH /api/admin/users/[id]/role', () => {
   });
 
   it('returns 404 when target user not found', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
-    mockUserFindUnique
-      .mockResolvedValueOnce({ role: UserRole.ADMIN } as never)
-      .mockResolvedValueOnce(null as never);
+    mockAuthAsAdmin();
+    // Route's own findUnique for target user
+    mockUserFindUnique.mockResolvedValueOnce(null as never);
 
     const req = createMockRequest('PATCH', '/api/admin/users/nonexistent/role', { role: 'DEV' });
     const res = await PATCH(req, makeParams('nonexistent'));
@@ -47,10 +50,9 @@ describe('PATCH /api/admin/users/[id]/role', () => {
 
   it('returns 403 when trying to change own role', async () => {
     const session = mockAdminSession();
-    mockGetSession.mockResolvedValueOnce(session as never);
-    mockUserFindUnique
-      .mockResolvedValueOnce({ role: UserRole.ADMIN } as never)
-      .mockResolvedValueOnce({ id: session.user.id, email: 'admin@test.com', role: UserRole.ADMIN } as never);
+    mockAuthAsAdmin();
+    // Route's own findUnique for target user (self)
+    mockUserFindUnique.mockResolvedValueOnce({ id: session.user.id, email: 'admin@test.com', role: UserRole.ADMIN } as never);
 
     const req = createMockRequest('PATCH', `/api/admin/users/${session.user.id}/role`, { role: 'USER' });
     const res = await PATCH(req, makeParams(session.user.id));
@@ -58,10 +60,9 @@ describe('PATCH /api/admin/users/[id]/role', () => {
   });
 
   it('returns 200 when ADMIN changes another user role', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
-    mockUserFindUnique
-      .mockResolvedValueOnce({ role: UserRole.ADMIN } as never)
-      .mockResolvedValueOnce({ id: 'u2', email: 'u2@test.com', role: UserRole.USER } as never);
+    mockAuthAsAdmin();
+    // Route's own findUnique for target user
+    mockUserFindUnique.mockResolvedValueOnce({ id: 'u2', email: 'u2@test.com', role: UserRole.USER } as never);
     mockUserUpdate.mockResolvedValueOnce({ id: 'u2', role: UserRole.DEV } as never);
 
     const req = createMockRequest('PATCH', '/api/admin/users/u2/role', { role: 'DEV' });
@@ -73,10 +74,9 @@ describe('PATCH /api/admin/users/[id]/role', () => {
   });
 
   it('returns 200 when DEV changes another user role', async () => {
-    mockGetSession.mockResolvedValueOnce(mockDevSession() as never);
-    mockUserFindUnique
-      .mockResolvedValueOnce({ role: UserRole.DEV } as never)
-      .mockResolvedValueOnce({ id: 'u2', email: 'u2@test.com', role: UserRole.USER } as never);
+    mockAuthAsDev();
+    // Route's own findUnique for target user
+    mockUserFindUnique.mockResolvedValueOnce({ id: 'u2', email: 'u2@test.com', role: UserRole.USER } as never);
     mockUserUpdate.mockResolvedValueOnce({ id: 'u2', role: UserRole.DEV } as never);
 
     const req = createMockRequest('PATCH', '/api/admin/users/u2/role', { role: 'DEV' });
@@ -86,8 +86,7 @@ describe('PATCH /api/admin/users/[id]/role', () => {
   });
 
   it('returns 400 on invalid role value', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
-    mockUserFindUnique.mockResolvedValueOnce({ role: UserRole.ADMIN } as never);
+    mockAuthAsAdmin();
 
     const req = createMockRequest('PATCH', '/api/admin/users/u2/role', { role: 'SUPERUSER' });
     const res = await PATCH(req, makeParams('u2'));
@@ -95,7 +94,8 @@ describe('PATCH /api/admin/users/[id]/role', () => {
   });
 
   it('returns 500 on DB error', async () => {
-    mockGetSession.mockResolvedValueOnce(mockAdminSession() as never);
+    mockAuthAsAdmin();
+    // Route's own findUnique throws
     mockUserFindUnique.mockRejectedValueOnce(new Error('DB error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

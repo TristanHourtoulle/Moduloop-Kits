@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { kitSchema } from "@/lib/schemas/kit";
 import { UserRole } from "@/lib/types/user";
 import { getKitById, prisma } from "@/lib/db";
 import { invalidateKit, invalidateKits, CACHE_CONFIG } from "@/lib/cache";
-
-interface UserWithRole {
-  role?: UserRole;
-}
+import {
+  requireAuth,
+  requireRole,
+  handleApiError,
+  setResourceCacheHeaders,
+} from "@/lib/api/middleware";
+import { groupDuplicateProducts } from "@/lib/utils/kit/group-products";
+import { validateProductsExist, KIT_WITH_PRODUCTS_INCLUDE } from "@/lib/services/kit.service";
 
 // GET /api/kits/[id] - Récupérer un kit par ID
 export async function GET(
@@ -15,11 +18,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
+    const auth = await requireAuth(request);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
 
@@ -32,34 +32,11 @@ export async function GET(
 
     // Configure cache headers for this response
     const response = NextResponse.json(kit);
-
-    // On Vercel production, disable cache for individual kit endpoints
-    // to ensure fresh data on edit pages
-    if (process.env.NODE_ENV === "production") {
-      response.headers.set(
-        "Cache-Control",
-        "no-cache, no-store, must-revalidate, max-age=0",
-      );
-      response.headers.set("Pragma", "no-cache");
-      response.headers.set("Expires", "0");
-      console.log("[API] Serving kit with no-cache headers for Vercel:", id);
-    } else {
-      // In development, use normal cache headers
-      response.headers.set(
-        "Cache-Control",
-        `public, s-maxage=${
-          CACHE_CONFIG.KITS.revalidate
-        }, stale-while-revalidate=${CACHE_CONFIG.KITS.revalidate * 5}`,
-      );
-    }
+    setResourceCacheHeaders(response, CACHE_CONFIG.KITS, 5);
 
     return response;
   } catch (error) {
-    console.error("Erreur lors de la récupération du kit:", error);
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }
 
@@ -69,23 +46,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    // Vérifier que l'utilisateur est DEV ou ADMIN
-    const userRole = (session.user as UserWithRole)?.role || UserRole.USER;
-    if (userRole !== UserRole.DEV && userRole !== UserRole.ADMIN) {
-      return NextResponse.json(
-        {
-          error:
-            "Accès refusé. Seuls les développeurs et administrateurs peuvent modifier des kits.",
-        },
-        { status: 403 },
-      );
-    }
+    const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN]);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
 
@@ -104,39 +66,14 @@ export async function PUT(
     const body = await request.json();
     const validatedData = kitSchema.parse(body);
 
-    // Regrouper les produits identiques côté serveur aussi
-    const groupedProducts = validatedData.products.reduce(
-      (acc, product) => {
-        const existingProduct = acc.find(
-          (p) => p.productId === product.productId,
-        );
-        if (existingProduct) {
-          existingProduct.quantite += product.quantite;
-        } else {
-          acc.push({ ...product });
-        }
-        return acc;
-      },
-      [] as typeof validatedData.products,
-    );
+    const groupedProducts = groupDuplicateProducts(validatedData.products);
 
-    // Vérifier que tous les produits existent
-    const productIds = groupedProducts.map((p) => p.productId);
-    const existingProducts = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-      select: { id: true },
-    });
-
-    const existingProductIds = existingProducts.map(
-      (p: { id: string }) => p.id,
+    const validation = await validateProductsExist(
+      groupedProducts.map((p) => p.productId),
     );
-    const missingProducts = productIds.filter(
-      (id) => !existingProductIds.includes(id),
-    );
-
-    if (missingProducts.length > 0) {
+    if (!validation.valid) {
       return NextResponse.json(
-        { error: `Produits introuvables: ${missingProducts.join(", ")}` },
+        { error: `Produits introuvables: ${validation.missingIds.join(", ")}` },
         { status: 400 },
       );
     }
@@ -156,7 +93,7 @@ export async function PUT(
           style: validatedData.style,
           description: validatedData.description,
           surfaceM2: validatedData.surfaceM2,
-          updatedById: session.user.id,
+          updatedById: auth.user.id,
           kitProducts: {
             create: groupedProducts.map((p) => ({
               productId: p.productId,
@@ -164,32 +101,7 @@ export async function PUT(
             })),
           },
         },
-        include: {
-          createdBy: {
-            select: { id: true, name: true, email: true },
-          },
-          updatedBy: {
-            select: { id: true, name: true, email: true },
-          },
-          kitProducts: {
-            include: {
-              product: {
-                select: {
-                  id: true,
-                  nom: true,
-                  reference: true,
-                  prixVente1An: true,
-                  prixVente2Ans: true,
-                  prixVente3Ans: true,
-                  rechauffementClimatique: true,
-                  epuisementRessources: true,
-                  acidification: true,
-                  eutrophisation: true,
-                },
-              },
-            },
-          },
-        },
+        include: KIT_WITH_PRODUCTS_INCLUDE,
       });
     });
 
@@ -198,19 +110,7 @@ export async function PUT(
 
     return NextResponse.json(updatedKit);
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du kit:", error);
-
-    if (error instanceof Error && error.name === "ZodError") {
-      return NextResponse.json(
-        { error: "Données invalides", details: error.message },
-        { status: 400 },
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }
 
@@ -220,23 +120,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    // Vérifier que l'utilisateur est DEV ou ADMIN
-    const userRole = (session.user as UserWithRole)?.role || UserRole.USER;
-    if (userRole !== UserRole.DEV && userRole !== UserRole.ADMIN) {
-      return NextResponse.json(
-        {
-          error:
-            "Accès refusé. Seuls les développeurs et administrateurs peuvent supprimer des kits.",
-        },
-        { status: 403 },
-      );
-    }
+    const auth = await requireRole(request, [UserRole.DEV, UserRole.ADMIN]);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
     // Vérifier que le kit existe
@@ -258,10 +143,6 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Kit supprimé avec succès" });
   } catch (error) {
-    console.error("Erreur lors de la suppression du kit:", error);
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 },
-    );
+    return handleApiError(error);
   }
 }

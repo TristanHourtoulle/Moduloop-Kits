@@ -153,8 +153,5 @@ export enum ProjectStatus {
   ARCHIVE = 'ARCHIVE',
 }
 
-export enum UserRole {
-  USER = 'USER',
-  DEV = 'DEV',
-  ADMIN = 'ADMIN',
-}
+export { UserRole } from './user';
+import type { UserRole } from './user';

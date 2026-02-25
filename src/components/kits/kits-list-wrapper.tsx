@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
 import { KitsGridClient } from "@/components/kits/kits-grid-client";
 import { type Kit } from "@/lib/types/project";
 
@@ -10,25 +9,11 @@ interface KitsListWrapperProps {
 }
 
 export function KitsListWrapper({ initialKits }: KitsListWrapperProps) {
-  const searchParams = useSearchParams();
   const [kits, setKits] = useState<Kit[]>(initialKits);
 
-  // Update kits when initialKits prop changes (server-side data refresh)
   useEffect(() => {
-    console.log("[KitsListWrapper] Initial kits updated:", initialKits.length);
     setKits(initialKits);
   }, [initialKits]);
-
-  // Detect when returning from edit page with updated param
-  useEffect(() => {
-    const updatedParam = searchParams.get("updated");
-    if (updatedParam) {
-      console.log(
-        "[KitsListWrapper] Detected update param, data already fresh from server",
-      );
-      // Data is already fresh from server-side fetch, no need to refetch
-    }
-  }, [searchParams]);
 
   const handleDelete = useCallback(
     async (kitId: string) => {

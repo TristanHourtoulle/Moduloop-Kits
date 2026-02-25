@@ -25,7 +25,7 @@ import { Mail, AlertCircle, Loader2 } from "lucide-react";
 import {
   connexionSchema,
   type ConnexionFormData,
-} from "@/lib/validations/auth";
+} from "@/lib/schemas/auth";
 import { getSpecificAuthError } from "@/lib/auth/error-messages";
 import { signInWithErrorHandling } from "@/lib/auth/sign-in-with-error-handling";
 

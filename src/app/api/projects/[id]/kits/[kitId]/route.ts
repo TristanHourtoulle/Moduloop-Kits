@@ -1,22 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
 import { prisma } from '@/lib/db';
 import { createKitQuantityUpdatedHistory, createKitRemovedHistory } from '@/lib/services/project-history';
+import { requireAuth, handleApiError } from '@/lib/api/middleware';
 
 // PATCH - Mettre à jour la quantité d'un kit dans un projet
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; kitId: string }> }
+  { params }: { params: Promise<{ id: string; kitId: string }> },
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
+    const auth = await requireAuth(request);
+    if (auth.response) return auth.response;
 
     const { id, kitId } = await params;
     const { quantite } = await request.json();
@@ -24,7 +18,7 @@ export async function PATCH(
     if (!quantite || quantite < 1) {
       return NextResponse.json(
         { error: 'La quantité doit être supérieure à 0' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -32,7 +26,7 @@ export async function PATCH(
     const project = await prisma.project.findFirst({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
     });
 
@@ -71,37 +65,28 @@ export async function PATCH(
     // Record history if quantity changed
     if (oldQuantity !== quantite) {
       createKitQuantityUpdatedHistory(
-        session.user.id,
+        auth.user.id,
         id,
         existingProjectKit.kit,
         oldQuantity,
-        quantite
+        quantite,
       ).catch(console.error);
     }
 
     return NextResponse.json(updatedProjectKit);
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du kit:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
 // DELETE - Supprimer un kit d'un projet
 export async function DELETE(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string; kitId: string }> }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; kitId: string }> },
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
+    const auth = await requireAuth(request);
+    if (auth.response) return auth.response;
 
     const { id, kitId } = await params;
 
@@ -109,7 +94,7 @@ export async function DELETE(
     const project = await prisma.project.findFirst({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
     });
 
@@ -142,18 +127,14 @@ export async function DELETE(
 
     // Record removal history
     createKitRemovedHistory(
-      session.user.id,
+      auth.user.id,
       id,
       projectKitToDelete.kit,
-      projectKitToDelete.quantite
+      projectKitToDelete.quantite,
     ).catch(console.error);
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Erreur lors de la suppression du kit:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

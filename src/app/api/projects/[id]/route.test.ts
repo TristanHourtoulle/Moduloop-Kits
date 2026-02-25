@@ -17,14 +17,16 @@ vi.mock('@/lib/services/project.service', () => ({
 }));
 
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { calculateProjectTotals } from '@/lib/services/project.service';
 import { verifyProjectAccess } from '@/lib/utils/project/access';
 import { GET, PATCH, PUT, DELETE } from './route';
-import { createMockRequest, mockUserSession } from '@/test/api-helpers';
+import {
+  createMockRequest,
+  mockAuthNone,
+  mockAuthAsUser,
+} from '@/test/api-helpers';
 
-const mockGetSession = vi.mocked(auth.api.getSession);
 const mockVerifyAccess = vi.mocked(verifyProjectAccess);
 const mockProjectFindUnique = vi.mocked(prisma.project.findUnique);
 const mockProjectFindFirst = vi.mocked(prisma.project.findFirst);
@@ -87,14 +89,14 @@ describe('GET /api/projects/[id]', () => {
 
 describe('PATCH /api/projects/[id]', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('PATCH', '/api/projects/proj-1', { nom: 'Updated' });
     const res = await PATCH(req, makeParams('proj-1'));
     expect(res.status).toBe(401);
   });
 
   it('returns 404 when project not owned', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockProjectFindFirst.mockResolvedValueOnce(null as never);
 
     const req = createMockRequest('PATCH', '/api/projects/proj-1', { nom: 'Updated' });
@@ -103,7 +105,7 @@ describe('PATCH /api/projects/[id]', () => {
   });
 
   it('returns 400 when surfaceManual is negative', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
 
     const req = createMockRequest('PATCH', '/api/projects/proj-1', { surfaceManual: -5 });
     const res = await PATCH(req, makeParams('proj-1'));
@@ -111,7 +113,7 @@ describe('PATCH /api/projects/[id]', () => {
   });
 
   it('returns 200 with updated project', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockProjectFindFirst.mockResolvedValueOnce({ id: 'proj-1', nom: 'Old', createdById: 'user-123' } as never);
     const updatedProject = { id: 'proj-1', nom: 'Updated', projectKits: [] };
     mockTransaction.mockImplementationOnce(async (fn) => {
@@ -130,7 +132,7 @@ describe('PATCH /api/projects/[id]', () => {
   });
 
   it('returns 500 on error', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockProjectFindFirst.mockRejectedValueOnce(new Error('DB error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -145,14 +147,14 @@ describe('PATCH /api/projects/[id]', () => {
 
 describe('PUT /api/projects/[id]', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+    mockAuthNone();
     const req = createMockRequest('PUT', '/api/projects/proj-1', { nom: 'Updated' });
     const res = await PUT(req, makeParams('proj-1'));
     expect(res.status).toBe(401);
   });
 
   it('returns 404 when not owned', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockProjectFindFirst.mockResolvedValueOnce(null as never);
 
     const req = createMockRequest('PUT', '/api/projects/proj-1', { nom: 'Updated' });
@@ -161,7 +163,7 @@ describe('PUT /api/projects/[id]', () => {
   });
 
   it('returns 200 with updated project', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockProjectFindFirst.mockResolvedValueOnce({ id: 'proj-1', createdById: 'user-123' } as never);
     const updated = { id: 'proj-1', nom: 'Updated' };
     mockProjectUpdate.mockResolvedValueOnce(updated as never);
@@ -173,7 +175,7 @@ describe('PUT /api/projects/[id]', () => {
   });
 
   it('returns 500 on error', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockProjectFindFirst.mockRejectedValueOnce(new Error('DB error'));
 
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -187,16 +189,15 @@ describe('PUT /api/projects/[id]', () => {
 });
 
 describe('DELETE /api/projects/[id]', () => {
-  // BUG TRI-54: unauthenticated DELETE returns 500, should be 401
-  it('returns 500 when unauthenticated (known bug: should be 401)', async () => {
-    mockGetSession.mockResolvedValueOnce(null as never);
+  it('returns 401 when unauthenticated', async () => {
+    mockAuthNone();
     const req = createMockRequest('DELETE', '/api/projects/proj-1');
     const res = await DELETE(req, makeParams('proj-1'));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(401);
   });
 
   it('returns 404 when project not owned', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockProjectFindFirst.mockResolvedValueOnce(null as never);
 
     const req = createMockRequest('DELETE', '/api/projects/proj-1');
@@ -205,7 +206,7 @@ describe('DELETE /api/projects/[id]', () => {
   });
 
   it('returns 200 when project deleted', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     const project = { id: 'proj-1', nom: 'To Delete', createdById: 'user-123' };
     mockProjectFindFirst.mockResolvedValueOnce(project as never);
     mockProjectDelete.mockResolvedValueOnce({} as never);
@@ -219,7 +220,7 @@ describe('DELETE /api/projects/[id]', () => {
   });
 
   it('returns 500 on DB error', async () => {
-    mockGetSession.mockResolvedValueOnce(mockUserSession() as never);
+    mockAuthAsUser();
     mockProjectFindFirst.mockResolvedValueOnce({ id: 'proj-1', createdById: 'user-123' } as never);
     mockProjectDelete.mockRejectedValueOnce(new Error('DB error'));
 
