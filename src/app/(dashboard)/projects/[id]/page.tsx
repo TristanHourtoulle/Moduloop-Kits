@@ -5,6 +5,7 @@ import { ProjectDetail } from '@/components/projects/project-detail'
 import { ProjectDetailSkeleton } from '@/components/projects/project-detail-skeleton'
 import { notFound, useParams } from 'next/navigation'
 import { Project } from '@/lib/types/project'
+import { logger } from '@/lib/logger'
 
 function ProjectContent() {
   const params = useParams()
@@ -29,7 +30,7 @@ function ProjectContent() {
       setProject(data)
       setError(false)
     } catch (error) {
-      console.error('Erreur lors du chargement du projet:', error)
+      logger.error('Error loading project', { error })
       setError(true)
     } finally {
       setLoading(false)

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Package2, Search, X, Image, ImageOff } from 'lucide-react'
 import { type Product } from '@/lib/types/project'
 import { useDebounce } from '@/hooks/use-debounce'
+import { logger } from '@/lib/logger'
 
 interface ProductsListWrapperProps {
   initialProducts: Product[]
@@ -48,7 +49,7 @@ function ProductsListContent({ initialProducts }: ProductsListWrapperProps) {
         const updatedProducts = products.filter((p) => p.id !== productId)
         setProducts(updatedProducts)
       } catch (err) {
-        console.error('[ProductsListWrapper] Error deleting product:', err)
+        logger.error('[ProductsListWrapper] Error deleting product', { error: err })
       }
     },
     [products],

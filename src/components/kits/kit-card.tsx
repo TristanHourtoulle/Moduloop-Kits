@@ -36,6 +36,7 @@ import {
 } from '@/lib/utils/product-helpers'
 
 // Utiliser le type Kit complet du system
+import { logger } from '@/lib/logger'
 import { type Kit } from '@/lib/types/project'
 
 interface KitCardProps {
@@ -132,7 +133,7 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
     try {
       await onDelete(kit.id)
     } catch (err) {
-      console.error('Erreur:', err)
+      logger.error('Error deleting kit', { error: err })
     }
   }
 

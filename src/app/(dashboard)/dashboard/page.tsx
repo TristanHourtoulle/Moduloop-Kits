@@ -2,6 +2,7 @@
 
 import { useSession, signOut } from '@/lib/auth-client'
 import { useRouter } from 'next/navigation'
+import { logger } from '@/lib/logger'
 import { useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -102,7 +103,7 @@ export default function DashboardPage() {
                       router.push('/auth/connexion')
                       router.refresh()
                     } catch (error) {
-                      console.error('Sign out error:', error)
+                      logger.error('Sign out error', { error })
                     }
                   }}
                   variant="outline"

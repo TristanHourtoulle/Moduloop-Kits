@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { ProjectChangeType, Project, Kit } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 export interface ProjectHistoryContext {
   userId: string
@@ -30,7 +31,7 @@ export async function recordProjectHistory(context: ProjectHistoryContext) {
       },
     })
   } catch (error) {
-    console.error('Failed to record project history:', error)
+    logger.error('Failed to record project history', { error })
     // Don't throw - history recording should not break main operations
   }
 }

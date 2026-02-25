@@ -22,6 +22,7 @@ import {
 import { Target, Save } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useDialog } from '@/components/providers/dialog-provider'
+import { logger } from '@/lib/logger'
 
 interface CreateProjectModalProps {
   isOpen: boolean
@@ -64,7 +65,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
         throw new Error(errorData.error || 'Erreur lors de la création du projet')
       }
     } catch (error) {
-      console.error('Erreur:', error)
+      logger.error('Error creating project', { error })
       await showError(
         'Erreur de création',
         error instanceof Error ? error.message : "Une erreur inattendue s'est produite",

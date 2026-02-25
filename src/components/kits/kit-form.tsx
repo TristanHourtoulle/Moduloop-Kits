@@ -7,6 +7,7 @@ import { kitSchema, type KitFormData } from '@/lib/schemas/kit'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Accordion } from '@/components/ui/accordion'
 import { useSession } from '@/lib/auth-client'
+import { logger } from '@/lib/logger'
 
 // Import des sections
 import { KitGeneralInfoSection } from './form-sections/kit-general-info-section'
@@ -103,7 +104,7 @@ export function KitForm({ initialData, kitId }: KitFormProps) {
 
       router.push('/kits?updated=' + Date.now())
     } catch (err) {
-      console.error('[KitForm] Error submitting form:', err)
+      logger.error('[KitForm] Error submitting form', { error: err })
       setError(err instanceof Error ? err.message : "Une erreur inattendue s'est produite")
     } finally {
       setIsLoading(false)

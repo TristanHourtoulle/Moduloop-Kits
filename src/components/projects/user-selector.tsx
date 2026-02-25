@@ -13,6 +13,7 @@ import { UserRole } from '@/lib/types/user'
 import { User } from 'lucide-react'
 import { useSession } from '@/lib/auth-client'
 import { useRouter } from 'next/navigation'
+import { logger } from '@/lib/logger'
 
 interface SimpleUser {
   id: string
@@ -46,7 +47,7 @@ export function UserSelector({ onUserChange, selectedUserId }: UserSelectorProps
         setUsers(data)
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des utilisateurs:', error)
+      logger.error('Error loading users', { error })
     } finally {
       setLoading(false)
     }

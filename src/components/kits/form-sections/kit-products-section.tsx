@@ -20,6 +20,7 @@ import {
   Leaf,
   Square,
 } from 'lucide-react'
+import { logger } from '@/lib/logger'
 import { KitFormData } from '@/lib/schemas/kit'
 import { ProductSelectionGrid } from '../product-selection/ProductSelectionGrid'
 import { Product } from '@/lib/types/project'
@@ -63,7 +64,7 @@ export function KitProductsSection({ control, errors, onError }: KitProductsSect
         const productsArray = data.products || data
         setProducts(productsArray)
       } catch (error) {
-        console.error('Erreur:', error)
+        logger.error('Error loading products', { error })
         onError('Impossible de charger la liste des produits')
       } finally {
         setIsLoadingProducts(false)
