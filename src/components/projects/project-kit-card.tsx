@@ -77,7 +77,7 @@ export function ProjectKitCard({
     epuisementRessources: kitImpact.epuisementRessources * projectKit.quantite,
     acidification: kitImpact.acidification * projectKit.quantite,
     eutrophisation: kitImpact.eutrophisation * projectKit.quantite,
-    surface: (kit.surfaceM2 || 0) * projectKit.quantite,
+    surface: kitImpact.surface * projectKit.quantite,
   }
 
   return (
@@ -152,15 +152,15 @@ export function ProjectKitCard({
                     {formatPriceHelper(totalPrice)}
                   </div>
                   <div className="text-sm text-gray-600">{formatPriceHelper(kitPrice)} par kit</div>
-                  {kit.surfaceM2 && kit.surfaceM2 > 0 && (
+                  {kitImpact.surface > 0 && (
                     <div className="mt-1 text-xs text-gray-500">
-                      {ceilPrice(kitPrice / kit.surfaceM2).toLocaleString('fr-FR', {
+                      {ceilPrice(kitPrice / kitImpact.surface).toLocaleString('fr-FR', {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 2,
                       })}
                       €/m²
                       <span className="ml-1 text-gray-400">
-                        ({(kit.surfaceM2 * projectKit.quantite).toFixed(1)} m² total)
+                        ({(kitImpact.surface * projectKit.quantite).toFixed(1)} m² total)
                       </span>
                     </div>
                   )}
@@ -217,10 +217,9 @@ export function ProjectKitCard({
                               </div>
                             </div>
                           ))}
-                          {kit.surfaceM2 &&
-                            kit.surfaceM2 > 0 &&
+                          {kitImpact.surface > 0 &&
                             (() => {
-                              const monthlyPerM2 = ceilPrice(price3ans / kit.surfaceM2)
+                              const monthlyPerM2 = ceilPrice(price3ans / kitImpact.surface)
                               const annualPerM2 = ceilPrice(monthlyPerM2 * 12)
                               return (
                                 <div className="mt-2 border-t border-gray-200 pt-2 text-xs text-gray-500">
@@ -241,7 +240,7 @@ export function ProjectKitCard({
                                     €/an
                                   </div>
                                   <div className="mt-1 text-gray-400">
-                                    {(kit.surfaceM2 * projectKit.quantite).toFixed(1)} m² total
+                                    {(kitImpact.surface * projectKit.quantite).toFixed(1)} m² total
                                   </div>
                                 </div>
                               )
