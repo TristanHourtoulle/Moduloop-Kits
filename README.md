@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Moduloop Kits
 
-## Getting Started
+B2B product and kit management platform for sustainable products. Manages products with dual pricing modes (purchase/rental), environmental impact tracking, and project lifecycle with full audit history.
 
-First, run the development server:
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Language**: TypeScript (strict mode)
+- **UI**: React 19, Radix UI, Tailwind CSS 4
+- **Database**: PostgreSQL + Prisma 6
+- **Auth**: Better Auth (email/password + Google OAuth)
+- **Deployment**: Vercel
+
+## Prerequisites
+
+- Node.js 20+
+- pnpm 10+
+- PostgreSQL database (or Supabase project)
+
+## Setup
+
+1. **Clone and install dependencies**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd Moduloop-Kits
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Configure environment variables**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Fill in the following variables:
 
-## Learn More
+| Variable              | Description                                      |
+| --------------------- | ------------------------------------------------ |
+| `DATABASE_URL`        | PostgreSQL connection URL (pooling)               |
+| `AUTH_SECRET`         | Secret key for Better Auth                        |
+| `NEXTAUTH_URL`        | Application URL (`http://localhost:3000` for dev) |
+| `NEXTAUTH_SECRET`     | Secret key for session management                 |
+| `GOOGLE_CLIENT_ID`    | Google OAuth client ID                            |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                       |
 
-To learn more about Next.js, take a look at the following resources:
+1. **Push the database schema**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm db:push
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Start the development server**
 
-## Deploy on Vercel
+```bash
+pnpm dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Commands
+
+| Command              | Description                          |
+| -------------------- | ------------------------------------ |
+| `pnpm dev` | Start dev server (Turbopack) |
+| `pnpm build` | Prisma push + generate + Next.js build |
+| `pnpm lint` | Run ESLint |
+| `pnpm test` | Run tests (Vitest) |
+| `pnpm test:coverage` | Run tests with coverage report |
+| `pnpm type-check` | TypeScript type checking |
+| `pnpm db:push` | Push Prisma schema to database |
+| `pnpm db:generate` | Generate Prisma client |
+| `pnpm db:migrate` | Deploy Prisma migrations |
+
+## Architecture
+
+```text
+src/
+├── app/
+│   ├── (auth)/          # Public auth pages
+│   ├── (dashboard)/     # Protected pages (products, kits, projects)
+│   └── api/             # REST API routes
+├── components/
+│   ├── ui/              # Radix UI primitives (shadcn/ui)
+│   ├── products/        # Product-specific components
+│   ├── projects/        # Project-specific components
+│   └── providers/       # Context providers
+├── lib/
+│   ├── schemas/         # Zod validation schemas
+│   ├── services/        # Business logic
+│   └── utils/           # Helpers organized by domain
+└── hooks/               # Shared React hooks
+```
+
+For detailed architecture documentation, see [CLAUDE.md](./CLAUDE.md).
