@@ -37,7 +37,7 @@ export function calculateProjectTotals(project: Project): ProjectTotals {
       if (!kit?.kitProducts) continue
 
       const kitSurface = kit.kitProducts.reduce((acc, kp) => {
-        return acc + (kp.product?.surfaceM2 || 0) * kp.quantite
+        return acc + (kp.product?.surfaceM2 ?? 0) * kp.quantite
       }, 0)
       totalSurface += kitSurface * projectKit.quantite
     }
