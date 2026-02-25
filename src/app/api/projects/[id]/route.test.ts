@@ -12,10 +12,14 @@ vi.mock('@/lib/services/project-history', async () => {
   const { createProjectHistoryMock } = await import('@/test/mocks/project-history');
   return createProjectHistoryMock();
 });
+vi.mock('@/lib/services/project.service', () => ({
+  calculateProjectTotals: vi.fn(),
+}));
 
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma, calculateProjectTotals } from '@/lib/db';
+import { prisma } from '@/lib/db';
+import { calculateProjectTotals } from '@/lib/services/project.service';
 import { verifyProjectAccess } from '@/lib/utils/project/access';
 import { GET, PATCH, PUT, DELETE } from './route';
 import { createMockRequest, mockUserSession } from '@/test/api-helpers';

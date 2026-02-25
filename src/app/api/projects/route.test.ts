@@ -9,9 +9,13 @@ vi.mock('@/lib/services/project-history', async () => {
   const { createProjectHistoryMock } = await import('@/test/mocks/project-history');
   return createProjectHistoryMock();
 });
+vi.mock('@/lib/services/project.service', () => ({
+  calculateProjectTotals: vi.fn(),
+}));
 
 import { auth } from '@/lib/auth';
-import { prisma, getProjects, createProject, calculateProjectTotals } from '@/lib/db';
+import { prisma, getProjects, createProject } from '@/lib/db';
+import { calculateProjectTotals } from '@/lib/services/project.service';
 import { GET, POST } from './route';
 import { createMockRequest, mockAdminSession, mockUserSession } from '@/test/api-helpers';
 import { UserRole } from '@/lib/types/user';
