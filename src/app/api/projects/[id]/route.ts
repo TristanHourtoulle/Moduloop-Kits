@@ -10,6 +10,7 @@ import {
   createProjectDeletedHistory,
 } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
+import { updateProjectSchema } from '@/lib/schemas/project'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -66,12 +67,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const { id } = await params
     const body = await request.json()
-    const { nom, description, status, surfaceManual, surfaceOverride } = body
-
-    // Validate surfaceManual if provided
-    if (surfaceManual !== undefined && surfaceManual !== null && surfaceManual < 0) {
-      return NextResponse.json({ error: 'La surface doit être un nombre positif' }, { status: 400 })
-    }
+    const { nom, description, status, surfaceManual, surfaceOverride } = updateProjectSchema.parse(body)
 
     // Vérifier que le projet appartient à l'utilisateur
     const existingProject = await prisma.project.findFirst({
@@ -146,7 +142,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const { id } = await params
     const body = await request.json()
-    const { nom, description, status } = body
+    const { nom, description, status } = updateProjectSchema.parse(body)
 
     // Get existing project for history
     const existingProject = await prisma.project.findFirst({

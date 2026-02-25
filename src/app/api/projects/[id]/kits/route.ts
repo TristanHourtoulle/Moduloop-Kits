@@ -6,11 +6,7 @@ import {
 } from '@/lib/services/project-history'
 import { verifyProjectAccess } from '@/lib/utils/project/access'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
-
-interface KitRequest {
-  kitId: string
-  quantite: number
-}
+import { projectKitsSchema } from '@/lib/schemas/project'
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -19,11 +15,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const { id: projectId } = await params
     const body = await request.json()
-    const { kits } = body
-
-    if (!kits || !Array.isArray(kits) || kits.length === 0) {
-      return NextResponse.json({ error: 'Les kits sont requis' }, { status: 400 })
-    }
+    const { kits } = projectKitsSchema.parse(body)
 
     // Vérifier que le projet existe et appartient à l'utilisateur
     const project = await prisma.project.findFirst({
@@ -38,7 +30,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Vérifier que tous les kits existent
-    const kitIds = kits.map((k: KitRequest) => k.kitId)
+    const kitIds = kits.map((k) => k.kitId)
     const existingKits = await prisma.kit.findMany({
       where: {
         id: { in: kitIds },
