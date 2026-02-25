@@ -2,23 +2,23 @@
 
 <!-- 1-3 bullet points describing the change -->
 
+## Related Issue
+
+<!-- Link to Linear ticket or GitHub issue (e.g., Closes #XX, TRI-XX) -->
+
 ## Changes
 
 <!-- List of changes made -->
 
 ## Test Plan
 
+- [ ] Lint passes
+- [ ] Type-check passes
 - [ ] Unit tests pass
 - [ ] Manual testing done
 
 ## Screenshots (if UI changes)
 
 <!--
-If this PR includes visual changes, capture before/after screenshots
-using the Chrome DevTools MCP tool (mcp__chrome-devtools__take_screenshot).
-
-1. Start the dev server (pnpm dev)
-2. Navigate to the affected page(s)
-3. Take screenshots via mcp__chrome-devtools__take_screenshot
-4. Attach before/after screenshots below
+If this PR includes visual changes, attach before/after screenshots below.
 -->
