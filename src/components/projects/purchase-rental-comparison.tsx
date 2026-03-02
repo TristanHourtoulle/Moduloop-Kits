@@ -49,7 +49,8 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
   const rental2Years = calculateProjectRentalCosts(project, '2ans')
   const rental3Years = calculateProjectRentalCosts(project, '3ans')
 
-  const breakEvenPoint = calculateBreakEvenPoint(project)
+  const breakEvenResult = calculateBreakEvenPoint(project)
+  const breakEvenYears = breakEvenResult?.breakEvenYears ?? null
 
   const getRentalDataForHorizon = (years: number) => {
     if (years <= 1) return rental1Year
@@ -176,7 +177,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   </div>
                   <CardTitle className="text-xl text-green-900">Achat</CardTitle>
                 </div>
-                {!isRentalBetter && breakEvenPoint && selectedTimeHorizon > breakEvenPoint && (
+                {!isRentalBetter && breakEvenYears && selectedTimeHorizon > breakEvenYears && (
                   <Badge className="bg-green-500 text-white">Recommandé</Badge>
                 )}
               </div>
@@ -262,7 +263,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   </div>
                   <CardTitle className="text-xl text-blue-900">Location</CardTitle>
                 </div>
-                {isRentalBetter && breakEvenPoint && selectedTimeHorizon < breakEvenPoint && (
+                {isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears && (
                   <Badge className="bg-blue-500 text-white">Recommandé</Badge>
                 )}
               </div>
@@ -354,7 +355,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
       </div>
 
       {/* Break-Even Analysis */}
-      {breakEvenPoint && (
+      {breakEvenYears && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -372,7 +373,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
             <CardContent className="space-y-6">
               <div className="space-y-2 text-center">
                 <div className="text-3xl font-bold text-amber-900">
-                  {breakEvenPoint.toFixed(1)} ans
+                  {breakEvenYears.toFixed(1)} ans
                 </div>
                 <div className="text-sm text-amber-700">
                   Point d&apos;équilibre entre achat et location
@@ -441,7 +442,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
           <CardContent className="space-y-4">
             <div
               className={`rounded-xl border-2 p-6 ${
-                isRentalBetter && breakEvenPoint && selectedTimeHorizon < breakEvenPoint
+                isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
                   ? 'border-blue-300 bg-blue-50'
                   : 'border-green-300 bg-green-50'
               }`}
@@ -449,12 +450,12 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
               <div className="flex items-start gap-4">
                 <div
                   className={`rounded-xl p-2 ${
-                    isRentalBetter && breakEvenPoint && selectedTimeHorizon < breakEvenPoint
+                    isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
                       ? 'bg-blue-100'
                       : 'bg-green-100'
                   }`}
                 >
-                  {isRentalBetter && breakEvenPoint && selectedTimeHorizon < breakEvenPoint ? (
+                  {isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears ? (
                     <Home className="h-6 w-6 text-blue-600" />
                   ) : (
                     <ShoppingCart className="h-6 w-6 text-green-600" />
@@ -463,35 +464,35 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                 <div className="flex-1">
                   <h3
                     className={`mb-2 text-lg font-bold ${
-                      isRentalBetter && breakEvenPoint && selectedTimeHorizon < breakEvenPoint
+                      isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
                         ? 'text-blue-900'
                         : 'text-green-900'
                     }`}
                   >
-                    {isRentalBetter && breakEvenPoint && selectedTimeHorizon < breakEvenPoint
+                    {isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
                       ? 'Location recommandée'
                       : 'Achat recommandé'}
                   </h3>
                   <p
                     className={`mb-4 text-sm ${
-                      isRentalBetter && breakEvenPoint && selectedTimeHorizon < breakEvenPoint
+                      isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
                         ? 'text-blue-800'
                         : 'text-green-800'
                     }`}
                   >
-                    {isRentalBetter && breakEvenPoint && selectedTimeHorizon < breakEvenPoint
+                    {isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
                       ? `Pour un projet de ${selectedTimeHorizon} ans, la location vous permet d'économiser ${formatPriceHelper(Math.abs(projectedCosts.savings))} tout en conservant votre flexibilité financière.`
                       : `Sur ${selectedTimeHorizon} ans, l'achat vous permet d'économiser ${formatPriceHelper(Math.abs(projectedCosts.savings))} et vous offre la propriété complète de l'équipement.`}
                   </p>
                   <div className="flex gap-3">
                     <Button
                       className={
-                        isRentalBetter && breakEvenPoint && selectedTimeHorizon < breakEvenPoint
+                        isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
                           ? 'bg-blue-500 hover:bg-blue-600'
                           : 'bg-green-500 hover:bg-green-600'
                       }
                     >
-                      {isRentalBetter && breakEvenPoint && selectedTimeHorizon < breakEvenPoint
+                      {isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
                         ? 'Opter pour la location'
                         : "Procéder à l'achat"}
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -513,8 +514,8 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   </li>
                   <li>
                     •{' '}
-                    {breakEvenPoint
-                      ? `Point d'équilibre : ${breakEvenPoint.toFixed(1)} ans`
+                    {breakEvenYears
+                      ? `Point d'équilibre : ${breakEvenYears.toFixed(1)} ans`
                       : 'Pas de données de location disponibles'}
                   </li>
                 </ul>
