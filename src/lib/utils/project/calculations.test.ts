@@ -336,10 +336,26 @@ describe('calculateExtendedRentalCost', () => {
     expect(result).toBe(349.08)
   })
 
-  it('calculates cost for 5 years (3yr full + 2yr at 20%)', () => {
-    const result = calculateExtendedRentalCost(9.09, 5)
-    const resultFor4 = calculateExtendedRentalCost(9.09, 4)
-    expect(result).toBeGreaterThan(resultFor4)
+  it('calculates cost for 5 years (3yr full + 2yr at 20%) — spec example', () => {
+    // Base 3yr: ceilPrice(9.09 * 12 * 3) = 327.24
+    // Post-3yr monthly: ceilPrice(9.09 * 0.20) = 1.82
+    // Post-3yr 2yr: ceilPrice(1.82 * 12 * 2) = 43.68
+    // Total: ceilPrice(327.24 + 43.68) = 370.92
+    expect(calculateExtendedRentalCost(9.09, 5)).toBe(370.92)
+  })
+
+  it('handles fractional years within 3yr range', () => {
+    // 9.09 * 12 * 2.5 = 272.7
+    expect(calculateExtendedRentalCost(9.09, 2.5)).toBe(272.7)
+  })
+
+  it('handles very small monthly base (ceilPrice rounding)', () => {
+    // 0.01 * 12 * 3 = 0.36 for 3yr
+    expect(calculateExtendedRentalCost(0.01, 3)).toBe(0.36)
+    // Post-3yr monthly: ceilPrice(0.01 * 0.2) = ceilPrice(0.002) = 0.01
+    // Post-3yr 1yr: ceilPrice(0.01 * 12 * 1) = 0.12
+    // Total: ceilPrice(0.36 + 0.12) = 0.48
+    expect(calculateExtendedRentalCost(0.01, 4)).toBe(0.48)
   })
 })
 
@@ -453,6 +469,66 @@ describe('calculateBreakEvenPoint', () => {
     expect(result!.breakEvenMonths).toBeLessThan(36)
   })
 
+  it('computes exact break-even values for spec example (Purchase=8420.89, monthly 3ans=9.09)', () => {
+    // Purchase = 8420.89, Location 3ans annual = 109.08 -> monthly = 9.09
+    // 3yr total = 9.09 * 12 * 3 = 327.24
+    // Remaining = 8420.89 - 327.24 = 8093.65
+    // Post-3yr monthly = ceilPrice(9.09 * 0.2) = 1.82
+    // Extra years = 8093.65 / (1.82 * 12) = 370.5883...
+    // Total years = 373.5883..., total months = 4483.06...
+    const kitProduct = makeKitProduct(1, {
+      prixVenteAchat: 8420.89,
+      prixVenteLocation1An: 109.08,
+      prixVenteLocation2Ans: 109.08,
+      prixVenteLocation3Ans: 109.08,
+    })
+    const kit = makeKit([kitProduct])
+    const project = makeProject([makeProjectKit(1, kit)])
+
+    const result = calculateBreakEvenPoint(project)!
+    expect(result.phase).toBe('3ans+')
+    expect(result.breakEvenYears).toBeCloseTo(373.5884, 2)
+    expect(result.breakEvenMonths).toBeCloseTo(4483.0604, 2)
+  })
+
+  it('handles boundary: purchase equals exactly 1yr rental total', () => {
+    // Purchase = 1200, Location 1an annual = 1200 -> monthly = 100
+    // 1200 - 100*12 = 0 -> not < 0, falls to case 2.2
+    // 2yr total = 100*12*2 = 2400 -> 1200 - 2400 < 0 -> phase 1-2ans
+    const kitProduct = makeKitProduct(1, {
+      prixVenteAchat: 1200,
+      prixVenteLocation1An: 1200,
+      prixVenteLocation2Ans: 1200,
+      prixVenteLocation3Ans: 1200,
+    })
+    const kit = makeKit([kitProduct])
+    const project = makeProject([makeProjectKit(1, kit)])
+
+    const result = calculateBreakEvenPoint(project)!
+    expect(result.phase).toBe('1-2ans')
+    expect(result.breakEvenMonths).toBe(12)
+  })
+
+  it('uses location1an as fallback when 2ans and 3ans are missing', () => {
+    // Only location1an set: monthly = annualToMonthly(120) = 10
+    // effectiveMonthly3ans = monthly1an = 10
+    // 3yr total = 10 * 12 * 3 = 360
+    // Purchase = 5000 -> 5000 - 360 > 0 -> phase 3ans+
+    const kitProduct = makeKitProduct(1, {
+      prixVenteAchat: 5000,
+      prixVenteLocation1An: 120,
+    })
+    const kit = makeKit([kitProduct])
+    const project = makeProject([makeProjectKit(1, kit)])
+
+    const result = calculateBreakEvenPoint(project)!
+    expect(result.phase).toBe('3ans+')
+    // Post-3yr monthly = ceilPrice(10 * 0.2) = 2
+    // Extra years = (5000 - 360) / (2 * 12) = 4640 / 24 = 193.33...
+    // Total = 193.33 + 3 = 196.33...
+    expect(result.breakEvenYears).toBeCloseTo(196.3333, 2)
+  })
+
   it('handles same price across all rental periods (fallback)', () => {
     const kitProduct = makeKitProduct(1, {
       prixVenteAchat: 5000,
@@ -482,6 +558,11 @@ describe('calculatePostThreeYearMonthly', () => {
   it('handles exact multiples', () => {
     // 10 * 0.2 = 2.00 -> 2.00
     expect(calculatePostThreeYearMonthly(10)).toBe(2)
+  })
+
+  it('ceils very small fractional result', () => {
+    // 0.01 * 0.2 = 0.002 -> ceilPrice = 0.01
+    expect(calculatePostThreeYearMonthly(0.01)).toBe(0.01)
   })
 })
 
