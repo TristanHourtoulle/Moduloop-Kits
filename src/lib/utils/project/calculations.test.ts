@@ -17,6 +17,7 @@ import {
   getProjectKitBreakdown,
   calculateEnvironmentalSavings,
   calculateBreakEvenPoint,
+  calculateExtendedRentalCost,
 } from './calculations'
 
 describe('calculateProjectPriceTotals', () => {
@@ -309,11 +310,42 @@ describe('calculateEnvironmentalSavings', () => {
   })
 })
 
+describe('calculateExtendedRentalCost', () => {
+  it('returns 0 for zero or negative inputs', () => {
+    expect(calculateExtendedRentalCost(0, 3)).toBe(0)
+    expect(calculateExtendedRentalCost(10, 0)).toBe(0)
+    expect(calculateExtendedRentalCost(-5, 3)).toBe(0)
+    expect(calculateExtendedRentalCost(10, -1)).toBe(0)
+  })
+
+  it('calculates cost for 3 years or less (full rate)', () => {
+    // 9.09 * 12 * 3 = 327.24
+    expect(calculateExtendedRentalCost(9.09, 3)).toBe(327.24)
+    // 9.09 * 12 * 1 = 109.08
+    expect(calculateExtendedRentalCost(9.09, 1)).toBe(109.08)
+  })
+
+  it('calculates cost for 4 years (3yr full + 1yr at 20%)', () => {
+    // Base 3yr: ceilPrice(9.09 * 12 * 3) = 327.24
+    // Post-3yr monthly: ceilPrice(9.09 * 0.20) = ceilPrice(1.818) = 1.82
+    // Post-3yr 1yr: ceilPrice(1.82 * 12 * 1) = ceilPrice(21.84) = 21.84
+    // Total: ceilPrice(327.24 + 21.84) = 349.08
+    const result = calculateExtendedRentalCost(9.09, 4)
+    expect(result).toBeGreaterThan(327.24)
+    expect(result).toBeLessThan(360)
+  })
+
+  it('calculates cost for 5 years (3yr full + 2yr at 20%)', () => {
+    const result = calculateExtendedRentalCost(9.09, 5)
+    const resultFor4 = calculateExtendedRentalCost(9.09, 4)
+    expect(result).toBeGreaterThan(resultFor4)
+  })
+})
+
 describe('calculateBreakEvenPoint', () => {
-  it('returns null when rental price is 0', () => {
+  it('returns null when all rental prices are 0', () => {
     const kitProduct = makeKitProduct(1, {
       prixVenteAchat: 1000,
-      // no location price = falls back to 0
     })
     const kit = makeKit([kitProduct])
     const project = makeProject([makeProjectKit(1, kit)])
@@ -321,34 +353,117 @@ describe('calculateBreakEvenPoint', () => {
     expect(calculateBreakEvenPoint(project)).toBeNull()
   })
 
-  it('calculates break-even as purchase / rental', () => {
+  it('returns null when purchase price is 0', () => {
     const kitProduct = makeKitProduct(1, {
-      prixVenteAchat: 1200,
+      prixVenteAchat: 0,
       prixVenteLocation1An: 100,
     })
     const kit = makeKit([kitProduct])
     const project = makeProject([makeProjectKit(1, kit)])
 
-    const breakEven = calculateBreakEvenPoint(project)
-    // 1200 / 100 = 12
-    expect(breakEven).toBe(12)
-  })
-
-  it('returns fractional break-even values', () => {
-    const kitProduct = makeKitProduct(1, {
-      prixVenteAchat: 1000,
-      prixVenteLocation1An: 300,
-    })
-    const kit = makeKit([kitProduct])
-    const project = makeProject([makeProjectKit(1, kit)])
-
-    const breakEven = calculateBreakEvenPoint(project)
-    expect(breakEven).toBeCloseTo(3.333, 2)
+    expect(calculateBreakEvenPoint(project)).toBeNull()
   })
 
   it('returns null for project without kits', () => {
     const project = makeProject()
-    // Both purchase and rental are 0, so rental = 0 -> null
     expect(calculateBreakEvenPoint(project)).toBeNull()
+  })
+
+  it('returns structured BreakEvenResult with phase 3ans+ when purchase >> rental', () => {
+    // Purchase = 8420.89, Location 3ans annual = 109.08 (9.09/month * 12)
+    // We use prixVente as annual prices in the schema
+    const kitProduct = makeKitProduct(1, {
+      prixVenteAchat: 8420.89,
+      prixVenteLocation1An: 109.08,
+      prixVenteLocation2Ans: 109.08,
+      prixVenteLocation3Ans: 109.08,
+    })
+    const kit = makeKit([kitProduct])
+    const project = makeProject([makeProjectKit(1, kit)])
+
+    const result = calculateBreakEvenPoint(project)
+    expect(result).not.toBeNull()
+    expect(result!.phase).toBe('3ans+')
+    expect(result!.breakEvenYears).toBeGreaterThan(3)
+    expect(result!.breakEvenMonths).toBe(result!.breakEvenYears * 12)
+  })
+
+  it('returns phase 0-1an when purchase < 1 year rental', () => {
+    // Purchase = 50, Location 1an annual = 1200 -> monthly = 100
+    // 50 - 100*12 = 50 - 1200 < 0 -> phase 0-1an
+    // months = 50 / 100 = 0.5 months
+    const kitProduct = makeKitProduct(1, {
+      prixVenteAchat: 50,
+      prixVenteLocation1An: 1200,
+      prixVenteLocation2Ans: 600,
+      prixVenteLocation3Ans: 400,
+    })
+    const kit = makeKit([kitProduct])
+    const project = makeProject([makeProjectKit(1, kit)])
+
+    const result = calculateBreakEvenPoint(project)
+    expect(result).not.toBeNull()
+    expect(result!.phase).toBe('0-1an')
+    expect(result!.breakEvenMonths).toBeLessThan(12)
+    expect(result!.breakEvenYears).toBeLessThan(1)
+  })
+
+  it('returns phase 1-2ans when break-even is between 1 and 2 years', () => {
+    // Purchase = 1500
+    // Location 1an annual = 1200 -> monthly = 100 -> 1500 - 1200 = 300 > 0
+    // Location 2ans annual = 900 -> monthly = 75 -> 1500 - 75*12*2 = 1500 - 1800 = -300 < 0
+    // months = 1500 / 75 = 20 months (between 12 and 24)
+    const kitProduct = makeKitProduct(1, {
+      prixVenteAchat: 1500,
+      prixVenteLocation1An: 1200,
+      prixVenteLocation2Ans: 900,
+      prixVenteLocation3Ans: 600,
+    })
+    const kit = makeKit([kitProduct])
+    const project = makeProject([makeProjectKit(1, kit)])
+
+    const result = calculateBreakEvenPoint(project)
+    expect(result).not.toBeNull()
+    expect(result!.phase).toBe('1-2ans')
+    expect(result!.breakEvenMonths).toBeGreaterThanOrEqual(12)
+    expect(result!.breakEvenMonths).toBeLessThan(24)
+  })
+
+  it('returns phase 2-3ans when break-even is between 2 and 3 years', () => {
+    // Purchase = 2000
+    // Location 1an annual = 1200 -> monthly = 100 -> 2000 - 1200 = 800 > 0
+    // Location 2ans annual = 900 -> monthly = 75 -> 2000 - 75*12*2 = 2000 - 1800 = 200 > 0
+    // Location 3ans annual = 720 -> monthly = 60 -> 2000 - 60*12*3 = 2000 - 2160 = -160 < 0
+    // Not reached by case 2.2.2 since remaining after 3yr < 0
+    // months = 2000 / 60 = 33.33 (between 24 and 36)
+    const kitProduct = makeKitProduct(1, {
+      prixVenteAchat: 2000,
+      prixVenteLocation1An: 1200,
+      prixVenteLocation2Ans: 900,
+      prixVenteLocation3Ans: 720,
+    })
+    const kit = makeKit([kitProduct])
+    const project = makeProject([makeProjectKit(1, kit)])
+
+    const result = calculateBreakEvenPoint(project)
+    expect(result).not.toBeNull()
+    expect(result!.phase).toBe('2-3ans')
+    expect(result!.breakEvenMonths).toBeGreaterThanOrEqual(24)
+    expect(result!.breakEvenMonths).toBeLessThan(36)
+  })
+
+  it('handles same price across all rental periods (fallback)', () => {
+    const kitProduct = makeKitProduct(1, {
+      prixVenteAchat: 5000,
+      prixVenteLocation1An: 120,
+    })
+    const kit = makeKit([kitProduct])
+    const project = makeProject([makeProjectKit(1, kit)])
+
+    const result = calculateBreakEvenPoint(project)
+    expect(result).not.toBeNull()
+    // With same rate, 3yr total = 10*12*3 = 360, purchase 5000 - 360 > 0 -> phase 3ans+
+    expect(result!.phase).toBe('3ans+')
+    expect(result!.breakEvenYears).toBeGreaterThan(3)
   })
 })

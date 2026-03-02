@@ -1,6 +1,11 @@
 import type { Project, EnvironmentalImpact } from '@/lib/types/project'
 import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product'
-import { getProductPricing, getProductEnvironmentalImpact } from '@/lib/utils/product-helpers'
+import {
+  getProductPricing,
+  getProductEnvironmentalImpact,
+  ceilPrice,
+  annualToMonthly,
+} from '@/lib/utils/product-helpers'
 
 export interface ProjectPriceTotals {
   achat: number
@@ -22,6 +27,14 @@ export interface KitBreakdownItem {
   totalCost: number
   totalMargin: number
   marginPercentage: number
+}
+
+export type BreakEvenPhase = '0-1an' | '1-2ans' | '2-3ans' | '3ans+'
+
+export interface BreakEvenResult {
+  breakEvenMonths: number
+  breakEvenYears: number
+  phase: BreakEvenPhase
 }
 
 const EMPTY_PRICE_TOTALS: ProjectPriceTotals = {
@@ -192,17 +205,115 @@ export function calculateEnvironmentalSavings(project: Project): EnvironmentalIm
 }
 
 /**
- * Calculate the break-even point in years between purchase and rental.
- * @param project - The project with its kits and products
- * @returns Number of years to break even, or null if rental price is zero
+ * Calculate the total rental cost for an extended duration using the tiered model:
+ * - First 3 years: full monthly rate (base 3 ans)
+ * - Beyond 3 years: 20% of the monthly rate (base 3 ans)
+ *
+ * @param monthlyBase3ans - Monthly rental price on a 3-year basis
+ * @param years - Total rental duration in years
+ * @returns Total rental cost for the given duration
  */
-export function calculateBreakEvenPoint(project: Project): number | null {
-  const purchaseCost = calculateProjectPurchaseCosts(project)
-  const rental1Year = calculateProjectRentalCosts(project, '1an')
+export function calculateExtendedRentalCost(monthlyBase3ans: number, years: number): number {
+  if (years <= 0 || monthlyBase3ans <= 0) return 0
 
-  if (rental1Year.totalPrice === 0) return null
+  if (years <= 3) {
+    return ceilPrice(monthlyBase3ans * 12 * years)
+  }
 
-  return purchaseCost.totalPrice / rental1Year.totalPrice
+  const baseThreeYearCost = ceilPrice(monthlyBase3ans * 12 * 3)
+  const postThreeYearMonthly = ceilPrice(monthlyBase3ans * 0.2)
+  const extraYears = years - 3
+  const postThreeYearCost = ceilPrice(postThreeYearMonthly * 12 * extraYears)
+
+  return ceilPrice(baseThreeYearCost + postThreeYearCost)
+}
+
+/**
+ * Calculate the break-even point between purchase and rental using a cascade algorithm.
+ *
+ * The algorithm checks progressively:
+ * 1. If break-even is beyond 3 years (using post-3yr reduced rate of 20%)
+ * 2. If break-even is between 0-1 year
+ * 3. If break-even is between 1-2 years
+ * 4. If break-even is between 2-3 years
+ *
+ * @param project - The project with its kits and products
+ * @returns Break-even result with months, years, and phase, or null if calculation is impossible
+ */
+export function calculateBreakEvenPoint(project: Project): BreakEvenResult | null {
+  const priceTotals = calculateProjectPriceTotals(project)
+  const purchasePrice = priceTotals.achat
+
+  if (purchasePrice <= 0) return null
+
+  const monthly1an = annualToMonthly(priceTotals.location1an)
+  const monthly2ans = annualToMonthly(priceTotals.location2ans)
+  const monthly3ans = annualToMonthly(priceTotals.location3ans)
+
+  if (monthly1an <= 0 && monthly2ans <= 0 && monthly3ans <= 0) return null
+
+  const effectiveMonthly3ans = monthly3ans > 0 ? monthly3ans : monthly1an
+  const effectiveMonthly2ans = monthly2ans > 0 ? monthly2ans : monthly1an
+
+  const threeYearRentalTotal = effectiveMonthly3ans * 12 * 3
+  const remainingAfter3Years = purchasePrice - threeYearRentalTotal
+
+  // Case 1: Break-even beyond 3 years
+  if (remainingAfter3Years > 0) {
+    const postMonthly = ceilPrice(effectiveMonthly3ans * 0.2)
+    if (postMonthly <= 0) return null
+
+    const extraYears = remainingAfter3Years / (postMonthly * 12)
+    const totalYears = extraYears + 3
+    const totalMonths = totalYears * 12
+
+    return {
+      breakEvenMonths: totalMonths,
+      breakEvenYears: totalYears,
+      phase: '3ans+',
+    }
+  }
+
+  // Case 2: Break-even within 0-3 years
+  const oneYearRentalTotal = monthly1an * 12
+
+  // Case 2.1: Break-even between 0 and 1 year
+  if (monthly1an > 0 && purchasePrice - oneYearRentalTotal < 0) {
+    const months = purchasePrice / monthly1an
+
+    return {
+      breakEvenMonths: months,
+      breakEvenYears: months / 12,
+      phase: '0-1an',
+    }
+  }
+
+  // Case 2.2: Break-even beyond 1 year
+  if (monthly1an > 0 && purchasePrice - oneYearRentalTotal >= 0) {
+    const twoYearRentalTotal = effectiveMonthly2ans * 12 * 2
+
+    // Case 2.2.1: Break-even between 1 and 2 years
+    if (purchasePrice - twoYearRentalTotal < 0) {
+      const months = purchasePrice / effectiveMonthly2ans
+
+      return {
+        breakEvenMonths: months,
+        breakEvenYears: months / 12,
+        phase: '1-2ans',
+      }
+    }
+
+    // Case 2.2.2: Break-even between 2 and 3 years
+    const months = purchasePrice / effectiveMonthly3ans
+
+    return {
+      breakEvenMonths: months,
+      breakEvenYears: months / 12,
+      phase: '2-3ans',
+    }
+  }
+
+  return null
 }
 
 function calculateCostsForMode(
