@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -20,6 +20,7 @@ import {
 import type { Project } from '@/lib/types/project'
 import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product'
 import { LocationPriceDisplay } from './location-price-display'
+import { ExtendedRentalHorizon } from './pricing-detailed-analysis/extended-rental-horizon'
 import { formatPrice as formatPriceHelper, annualToMonthly } from '@/lib/utils/product-helpers'
 import {
   calculateProjectPurchaseCosts,
@@ -47,6 +48,11 @@ interface PricingDetailedAnalysisProps {
 export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProps) {
   const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat')
   const [selectedPeriod, setSelectedPeriod] = useState<ProductPeriod>('1an')
+  const [selectedHorizon, setSelectedHorizon] = useState(5)
+
+  const handleHorizonChange = useCallback((years: number) => {
+    setSelectedHorizon(years)
+  }, [])
 
   const currentData =
     selectedMode === 'achat'
@@ -604,6 +610,14 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
             </CardContent>
           </Card>
         </motion.div>
+      )}
+
+      {selectedMode === 'location' && (
+        <ExtendedRentalHorizon
+          project={project}
+          selectedHorizon={selectedHorizon}
+          onHorizonChange={handleHorizonChange}
+        />
       )}
 
       <motion.div
