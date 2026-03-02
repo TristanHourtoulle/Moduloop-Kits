@@ -21,7 +21,7 @@ export function RentalCostBreakdown({
   monthly3ans,
   postThreeYearMonthly,
   annualRentalPrice,
-}: RentalCostBreakdownProps) {
+}: Readonly<RentalCostBreakdownProps>) {
   if (selectedTimeHorizon <= 3) {
     return (
       <>

@@ -12,11 +12,12 @@ import {
   Calendar,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import type { BreakEvenPhase } from '@/lib/utils/project/calculations'
 
 export const DEFAULT_MAX_HORIZON = 9
 export const ABSOLUTE_MAX_HORIZON = 20
 
-export const PHASE_LABELS: Record<string, string> = {
+export const PHASE_LABELS: Record<BreakEvenPhase, string> = {
   '0-1an': '0 - 1 an',
   '1-2ans': '1 - 2 ans',
   '2-3ans': '2 - 3 ans',
@@ -26,11 +27,11 @@ export const PHASE_LABELS: Record<string, string> = {
 export const PHASE_ORDER = ['0-1an', '1-2ans', '2-3ans', '3ans+'] as const
 
 interface AdvantageItem {
-  icon: LucideIcon
-  text: string
+  readonly icon: LucideIcon
+  readonly text: string
 }
 
-export const PURCHASE_ADVANTAGES: AdvantageItem[] = [
+export const PURCHASE_ADVANTAGES: readonly AdvantageItem[] = [
   { icon: DollarSign, text: "Propriété complète de l'équipement" },
   { icon: TrendingUp, text: "Pas de coûts récurrents après l'achat" },
   { icon: Shield, text: "Contrôle total sur l'équipement" },
@@ -38,14 +39,14 @@ export const PURCHASE_ADVANTAGES: AdvantageItem[] = [
   { icon: Zap, text: 'Potentiel de revente en fin de vie' },
 ]
 
-export const PURCHASE_DISADVANTAGES: AdvantageItem[] = [
+export const PURCHASE_DISADVANTAGES: readonly AdvantageItem[] = [
   { icon: AlertCircle, text: 'Investissement initial important' },
   { icon: XCircle, text: 'Responsabilité maintenance et réparations' },
   { icon: Clock, text: 'Obsolescence technologique à votre charge' },
   { icon: Euro, text: 'Immobilisation de capital importante' },
 ]
 
-export const RENTAL_ADVANTAGES: AdvantageItem[] = [
+export const RENTAL_ADVANTAGES: readonly AdvantageItem[] = [
   { icon: Euro, text: 'Coût initial faible, étalement des paiements' },
   { icon: Shield, text: 'Maintenance incluse dans le service' },
   { icon: Zap, text: 'Flexibilité et mise à niveau possible' },
@@ -53,7 +54,7 @@ export const RENTAL_ADVANTAGES: AdvantageItem[] = [
   { icon: Calculator, text: 'Coûts prévisibles et budgétables' },
 ]
 
-export const RENTAL_DISADVANTAGES: AdvantageItem[] = [
+export const RENTAL_DISADVANTAGES: readonly AdvantageItem[] = [
   { icon: TrendingUp, text: 'Coût total plus élevé sur le long terme' },
   { icon: XCircle, text: "Pas de propriété de l'équipement" },
   { icon: Calendar, text: 'Contraintes contractuelles de durée' },

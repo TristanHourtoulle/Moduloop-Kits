@@ -8,12 +8,7 @@ import { cn } from '@/lib/utils'
 import { formatPrice as formatPriceHelper } from '@/lib/utils/product-helpers'
 import { formatBreakEvenDuration, type BreakEvenPhase } from '@/lib/utils/project/calculations'
 import { PHASE_LABELS, PHASE_ORDER } from './constants'
-
-interface ProjectedCosts {
-  purchase: number
-  rental: number
-  savings: number
-}
+import type { ProjectedCosts } from './types'
 
 interface BreakEvenAnalysisCardProps {
   breakEvenYears: number
@@ -42,7 +37,7 @@ export function BreakEvenAnalysisCard({
   postThreeYearMonthly,
   annualRentalPrice,
   dynamicMax,
-}: BreakEvenAnalysisCardProps) {
+}: Readonly<BreakEvenAnalysisCardProps>) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -146,13 +141,15 @@ export function BreakEvenAnalysisCard({
   )
 }
 
+interface TieredMonthlyCostProps {
+  monthly3ans: number
+  postThreeYearMonthly: number
+}
+
 function TieredMonthlyCost({
   monthly3ans,
   postThreeYearMonthly,
-}: {
-  monthly3ans: number
-  postThreeYearMonthly: number
-}) {
+}: Readonly<TieredMonthlyCostProps>) {
   return (
     <>
       <div className="mb-1 flex items-center justify-center gap-1.5">
@@ -182,13 +179,12 @@ function TieredMonthlyCost({
   )
 }
 
-function SingleMonthlyCost({
-  monthly3ans,
-  annualRentalPrice,
-}: {
+interface SingleMonthlyCostProps {
   monthly3ans: number
   annualRentalPrice: number
-}) {
+}
+
+function SingleMonthlyCost({ monthly3ans, annualRentalPrice }: Readonly<SingleMonthlyCostProps>) {
   return (
     <>
       <div className="mb-1 flex items-center justify-center gap-1.5">

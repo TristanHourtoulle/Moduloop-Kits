@@ -7,12 +7,7 @@ import { Lightbulb, Home, ShoppingCart, ArrowRight } from 'lucide-react'
 import { formatPrice as formatPriceHelper } from '@/lib/utils/product-helpers'
 import { formatBreakEvenDuration } from '@/lib/utils/project/calculations'
 import type { BreakEvenPhase } from '@/lib/utils/project/calculations'
-
-interface ProjectedCosts {
-  purchase: number
-  rental: number
-  savings: number
-}
+import type { ProjectedCosts } from './types'
 
 interface RecommendationSectionProps {
   recommendsRental: boolean
@@ -39,7 +34,7 @@ export function RecommendationSection({
   breakEvenYears,
   breakEvenMonths,
   projectKitCount,
-}: RecommendationSectionProps) {
+}: Readonly<RecommendationSectionProps>) {
   const recommendationText = buildRecommendationText({
     recommendsRental,
     selectedTimeHorizon,
@@ -96,6 +91,8 @@ export function RecommendationSection({
                 </p>
                 <div className="flex gap-3">
                   <Button
+                    disabled
+                    title="Bientot disponible"
                     className={
                       recommendsRental
                         ? 'bg-blue-500 hover:bg-blue-600'
@@ -105,7 +102,9 @@ export function RecommendationSection({
                     {recommendsRental ? 'Opter pour la location' : "Procéder à l'achat"}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                  <Button variant="outline">Obtenir un devis détaillé</Button>
+                  <Button disabled title="Bientot disponible" variant="outline">
+                    Obtenir un devis détaillé
+                  </Button>
                 </div>
               </div>
             </div>

@@ -30,6 +30,7 @@ import { TimeHorizonSelector } from './purchase-rental-comparison/time-horizon-s
 import { RentalCostBreakdown } from './purchase-rental-comparison/rental-cost-breakdown'
 import { BreakEvenAnalysisCard } from './purchase-rental-comparison/break-even-analysis-card'
 import { RecommendationSection } from './purchase-rental-comparison/recommendation-section'
+import { AdvantageList } from './purchase-rental-comparison/advantage-list'
 
 interface PurchaseRentalComparisonProps {
   project: Project
@@ -42,7 +43,7 @@ interface PurchaseRentalComparisonProps {
  * @param props - Project data for cost calculations
  * @returns Interactive comparison view with time horizon selector and recommendation
  */
-export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonProps) {
+export function PurchaseRentalComparison({ project }: Readonly<PurchaseRentalComparisonProps>) {
   const [selectedTimeHorizon, setSelectedTimeHorizon] = useState(3)
 
   const purchaseData = calculateProjectPurchaseCosts(project)
@@ -279,60 +280,6 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
         breakEvenMonths={breakEvenMonths}
         projectKitCount={project.projectKits?.length || 0}
       />
-    </div>
-  )
-}
-
-const COLOR_CLASSES = {
-  green: {
-    heading: 'text-green-900',
-    text: 'text-green-800',
-    textMuted: 'text-green-700',
-    icon: 'text-green-600',
-    iconMuted: 'text-green-500',
-  },
-  blue: {
-    heading: 'text-blue-900',
-    text: 'text-blue-800',
-    textMuted: 'text-blue-700',
-    icon: 'text-blue-600',
-    iconMuted: 'text-blue-500',
-  },
-} as const
-
-interface AdvantageListProps {
-  title: string
-  items: ReadonlyArray<{ icon: React.ComponentType<{ className?: string }>; text: string }>
-  colorScheme: 'green' | 'blue'
-  variant?: 'default' | 'muted'
-  icon: React.ReactNode
-}
-
-function AdvantageList({
-  title,
-  items,
-  colorScheme,
-  variant = 'default',
-  icon,
-}: AdvantageListProps) {
-  const colors = COLOR_CLASSES[colorScheme]
-  const textColor = variant === 'muted' ? colors.textMuted : colors.text
-  const iconColor = variant === 'muted' ? colors.iconMuted : colors.icon
-
-  return (
-    <div>
-      <h4 className={`mb-3 flex items-center gap-2 font-semibold ${colors.heading}`}>
-        {icon}
-        {title}
-      </h4>
-      <div className="space-y-2">
-        {items.map((item, index) => (
-          <div key={index} className={`flex items-center gap-3 text-sm ${textColor}`}>
-            <item.icon className={`h-4 w-4 flex-shrink-0 ${iconColor}`} />
-            <span>{item.text}</span>
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
