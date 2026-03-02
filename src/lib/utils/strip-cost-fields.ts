@@ -28,11 +28,19 @@ export function stripCostFieldsFromProduct<T extends Record<string, unknown>>(pr
 
 /**
  * Recursively strips cost/margin fields from any data structure containing products.
- * Handles all nesting patterns:
+ * Handles known nesting patterns and falls back to stripping cost fields from any
+ * object that directly contains them — ensuring new Prisma includes don't silently
+ * leak cost data.
+ *
+ * Known nesting patterns:
  * - Direct product objects (with prixAchat* fields)
  * - kitProducts[].product
  * - projectKits[].kit.kitProducts[].product
  * - products[] arrays
+ *
+ * NOTE: When adding new Prisma includes that nest product data under a new key,
+ * the fallback will catch cost fields, but adding the key explicitly here improves
+ * clarity and performance.
  */
 export function stripCostFieldsDeep<T>(data: T): T {
   if (data === null || data === undefined || typeof data !== 'object') {
@@ -44,21 +52,19 @@ export function stripCostFieldsDeep<T>(data: T): T {
   }
 
   const obj = data as Record<string, unknown>
+  const hasCostFields = Object.keys(obj).some(isCostField)
+
+  if (hasCostFields) {
+    return stripCostFieldsFromProduct(obj) as T
+  }
+
   const result: Record<string, unknown> = {}
 
   for (const [key, value] of Object.entries(obj)) {
-    if (key === 'product' && value !== null && typeof value === 'object') {
-      result[key] = stripCostFieldsFromProduct(value as Record<string, unknown>)
-    } else if (key === 'products' && Array.isArray(value)) {
-      result[key] = value.map((p) =>
-        p !== null && typeof p === 'object'
-          ? stripCostFieldsFromProduct(p as Record<string, unknown>)
-          : p,
-      )
-    } else if ((key === 'kitProducts' || key === 'projectKits') && Array.isArray(value)) {
-      result[key] = value.map((item) => stripCostFieldsDeep(item))
-    } else if (key === 'kit' && value !== null && typeof value === 'object') {
-      result[key] = stripCostFieldsDeep(value)
+    if (value !== null && typeof value === 'object') {
+      result[key] = Array.isArray(value)
+        ? value.map((item) => stripCostFieldsDeep(item))
+        : stripCostFieldsDeep(value)
     } else {
       result[key] = value
     }
