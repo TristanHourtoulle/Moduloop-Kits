@@ -11,6 +11,8 @@ import {
 } from '@/lib/api/middleware'
 import { groupDuplicateProducts } from '@/lib/utils/kit/group-products'
 import { validateProductsExist, KIT_WITH_PRODUCTS_INCLUDE } from '@/lib/services/kit.service'
+import { isAdminOrDev } from '@/lib/utils/roles'
+import { stripCostFieldsDeep } from '@/lib/utils/strip-cost-fields'
 
 // GET /api/kits - Liste des kits
 export async function GET(request: NextRequest) {
@@ -26,8 +28,10 @@ export async function GET(request: NextRequest) {
     // Use cached function for better performance with optional filters
     const kits = await getKits({ search, style })
 
+    const visibleKits = isAdminOrDev(auth.user.role) ? kits : kits.map(stripCostFieldsDeep)
+
     // Configure cache headers for this response
-    const response = NextResponse.json(kits)
+    const response = NextResponse.json(visibleKits)
     setResourceCacheHeaders(response, CACHE_CONFIG.KITS, 5)
 
     return response

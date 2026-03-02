@@ -2,17 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { getProjects, createProject, prisma } from '@/lib/db'
 import { calculateProjectTotals } from '@/lib/services/project.service'
-import { UserRole } from '@/lib/types/user'
 import { createProjectCreatedHistory } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
 import { createProjectSchema } from '@/lib/schemas/project'
+import { isAdminOrDev } from '@/lib/utils/roles'
+import { stripCostFieldsDeep } from '@/lib/utils/strip-cost-fields'
 
 export async function GET(request: NextRequest) {
   try {
     const auth = await requireAuth(request)
     if (auth.response) return auth.response
 
-    const isAdmin = auth.user.role === UserRole.ADMIN || auth.user.role === UserRole.DEV
+    const isAdmin = isAdminOrDev(auth.user.role)
 
     // Récupérer le paramètre userId depuis l'URL
     const url = new URL(request.url)
@@ -44,7 +45,11 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(projectsWithTotals)
+    const visibleProjects = isAdmin
+      ? projectsWithTotals
+      : projectsWithTotals.map(stripCostFieldsDeep)
+
+    return NextResponse.json(visibleProjects)
   } catch (error) {
     return handleApiError(error)
   }

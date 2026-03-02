@@ -11,6 +11,8 @@ import {
 } from '@/lib/api/middleware'
 import { groupDuplicateProducts } from '@/lib/utils/kit/group-products'
 import { validateProductsExist, KIT_WITH_PRODUCTS_INCLUDE } from '@/lib/services/kit.service'
+import { isAdminOrDev } from '@/lib/utils/roles'
+import { stripCostFieldsDeep } from '@/lib/utils/strip-cost-fields'
 
 // GET /api/kits/[id] - Récupérer un kit par ID
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -27,8 +29,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Kit non trouvé' }, { status: 404 })
     }
 
+    const visibleKit = isAdminOrDev(auth.user.role) ? kit : stripCostFieldsDeep(kit)
+
     // Configure cache headers for this response
-    const response = NextResponse.json(kit)
+    const response = NextResponse.json(visibleKit)
     setResourceCacheHeaders(response, CACHE_CONFIG.KITS, 5)
 
     return response

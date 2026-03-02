@@ -10,6 +10,8 @@ import {
   setResourceCacheHeaders,
 } from '@/lib/api/middleware'
 import { remapProductFormFields } from '@/lib/utils/product/map-form-fields'
+import { isAdminOrDev } from '@/lib/utils/roles'
+import { stripCostFieldsFromProduct } from '@/lib/utils/strip-cost-fields'
 
 // GET /api/products/[id] - Récupérer un produit par ID
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -26,8 +28,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Produit non trouvé' }, { status: 404 })
     }
 
+    const visibleProduct = isAdminOrDev(auth.user.role)
+      ? product
+      : stripCostFieldsFromProduct(product)
+
     // Configure cache headers for this response
-    const response = NextResponse.json(product)
+    const response = NextResponse.json(visibleProduct)
     setResourceCacheHeaders(response, CACHE_CONFIG.PRODUCTS)
 
     return response
@@ -56,7 +62,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const validatedData = productUpdateSchema.parse({ ...body, id })
 
     // Retirer l'ID des données à mettre à jour
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const { id: _id, ...updateData } = validatedData
 
     // Vérifier que la référence n'existe pas déjà (si elle est modifiée)

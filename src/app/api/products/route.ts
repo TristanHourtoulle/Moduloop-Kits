@@ -5,6 +5,8 @@ import { UserRole } from '@/lib/types/user'
 import { prisma } from '@/lib/db'
 import { invalidateProducts, CACHE_CONFIG } from '@/lib/cache'
 import { requireAuth, requireRole, handleApiError, setListCacheHeaders } from '@/lib/api/middleware'
+import { isAdminOrDev } from '@/lib/utils/roles'
+import { stripCostFieldsFromProduct } from '@/lib/utils/strip-cost-fields'
 
 // GET /api/products - Liste des produits avec filtres
 export async function GET(request: NextRequest) {
@@ -79,8 +81,12 @@ export async function GET(request: NextRequest) {
         },
       })
 
+      const visibleProducts = isAdminOrDev(auth.user.role)
+        ? products
+        : products.map(stripCostFieldsFromProduct)
+
       return NextResponse.json({
-        products,
+        products: visibleProducts,
         pagination: {
           page: 1,
           limit: products.length,
@@ -118,9 +124,13 @@ export async function GET(request: NextRequest) {
 
     const totalPages = Math.ceil(total / filters.limit)
 
+    const visibleProducts = isAdminOrDev(auth.user.role)
+      ? products
+      : products.map(stripCostFieldsFromProduct)
+
     // Configure cache for this response
     const response = NextResponse.json({
-      products,
+      products: visibleProducts,
       pagination: {
         page: filters.page,
         limit: filters.limit,
