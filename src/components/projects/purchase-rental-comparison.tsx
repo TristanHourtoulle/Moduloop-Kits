@@ -44,7 +44,7 @@ const PHASE_LABELS: Record<string, string> = {
   '0-1an': '0 - 1 an',
   '1-2ans': '1 - 2 ans',
   '2-3ans': '2 - 3 ans',
-  '3ans+': 'au-dela de 3 ans',
+  '3ans+': 'au-delà de 3 ans',
 }
 
 const PHASE_ORDER = ['0-1an', '1-2ans', '2-3ans', '3ans+'] as const
@@ -102,33 +102,33 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
   const isRentalBetter = projectedCosts.savings > 0
 
   const purchaseAdvantages = [
-    { icon: DollarSign, text: "Propriete complete de l'equipement" },
-    { icon: TrendingUp, text: "Pas de couts recurrents apres l'achat" },
-    { icon: Shield, text: "Controle total sur l'equipement" },
-    { icon: Calendar, text: 'Utilisation illimitee dans le temps' },
+    { icon: DollarSign, text: "Propriété complète de l'équipement" },
+    { icon: TrendingUp, text: "Pas de coûts récurrents après l'achat" },
+    { icon: Shield, text: "Contrôle total sur l'équipement" },
+    { icon: Calendar, text: 'Utilisation illimitée dans le temps' },
     { icon: Zap, text: 'Potentiel de revente en fin de vie' },
   ]
 
   const purchaseDisadvantages = [
     { icon: AlertCircle, text: 'Investissement initial important' },
-    { icon: XCircle, text: 'Responsabilite maintenance et reparations' },
-    { icon: Clock, text: 'Obsolescence technologique a votre charge' },
+    { icon: XCircle, text: 'Responsabilité maintenance et réparations' },
+    { icon: Clock, text: 'Obsolescence technologique à votre charge' },
     { icon: Euro, text: 'Immobilisation de capital importante' },
   ]
 
   const rentalAdvantages = [
-    { icon: Euro, text: 'Cout initial faible, etalement des paiements' },
+    { icon: Euro, text: 'Coût initial faible, étalement des paiements' },
     { icon: Shield, text: 'Maintenance incluse dans le service' },
-    { icon: Zap, text: 'Flexibilite et mise a niveau possible' },
-    { icon: Recycle, text: 'Impact environnemental reduit' },
-    { icon: Calculator, text: 'Couts previsibles et budgetables' },
+    { icon: Zap, text: 'Flexibilité et mise à niveau possible' },
+    { icon: Recycle, text: 'Impact environnemental réduit' },
+    { icon: Calculator, text: 'Coûts prévisibles et budgétables' },
   ]
 
   const rentalDisadvantages = [
-    { icon: TrendingUp, text: 'Cout total plus eleve sur le long terme' },
-    { icon: XCircle, text: "Pas de propriete de l'equipement" },
-    { icon: Calendar, text: 'Contraintes contractuelles de duree' },
-    { icon: AlertCircle, text: 'Dependance au fournisseur' },
+    { icon: TrendingUp, text: 'Coût total plus élevé sur le long terme' },
+    { icon: XCircle, text: "Pas de propriété de l'équipement" },
+    { icon: Calendar, text: 'Contraintes contractuelles de durée' },
+    { icon: AlertCircle, text: 'Dépendance au fournisseur' },
   ]
 
   const recommendsRental =
@@ -136,15 +136,15 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
 
   const getRecommendationText = (): string => {
     if (recommendsRental) {
-      const base = `Pour un projet de ${selectedTimeHorizon} an${selectedTimeHorizon > 1 ? 's' : ''}, la location vous permet d'economiser ${formatPriceHelper(Math.abs(projectedCosts.savings))} tout en conservant votre flexibilite financiere.`
+      const base = `Pour un projet de ${selectedTimeHorizon} an${selectedTimeHorizon > 1 ? 's' : ''}, la location vous permet d'économiser ${formatPriceHelper(Math.abs(projectedCosts.savings))} tout en conservant votre flexibilité financière.`
       if (breakEvenPhase === '3ans+' && selectedTimeHorizon > 3) {
-        return `${base} Apres 3 ans, le tarif de location passe a ${formatPriceHelper(postThreeYearMonthly)}/mois (20% du tarif initial).`
+        return `${base} Après 3 ans, le tarif de location passe à ${formatPriceHelper(postThreeYearMonthly)}/mois (20% du tarif initial).`
       }
       return base
     }
-    const base = `Sur ${selectedTimeHorizon} an${selectedTimeHorizon > 1 ? 's' : ''}, l'achat vous permet d'economiser ${formatPriceHelper(Math.abs(projectedCosts.savings))} et vous offre la propriete complete de l'equipement.`
+    const base = `Sur ${selectedTimeHorizon} an${selectedTimeHorizon > 1 ? 's' : ''}, l'achat vous permet d'économiser ${formatPriceHelper(Math.abs(projectedCosts.savings))} et vous offre la propriété complète de l'équipement.`
     if (breakEvenPhase === '3ans+' && selectedTimeHorizon > 3) {
-      return `${base} Meme avec le tarif reduit de ${formatPriceHelper(postThreeYearMonthly)}/mois apres 3 ans, l'achat reste plus avantageux.`
+      return `${base} Même avec le tarif réduit de ${formatPriceHelper(postThreeYearMonthly)}/mois après 3 ans, l'achat reste plus avantageux.`
     }
     return base
   }
@@ -161,7 +161,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
         </div>
         <p className="mx-auto max-w-2xl text-gray-600">
           Analysez les deux options pour faire le meilleur choix selon vos besoins et votre
-          situation financiere
+          situation financière
         </p>
       </div>
 
@@ -199,7 +199,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
               <div className="flex items-center justify-center gap-2 text-sm text-amber-700">
                 <AlertCircle className="h-4 w-4" />
                 <span>
-                  Le point d&apos;equilibre depasse {ABSOLUTE_MAX_HORIZON} ans
+                  Le point d&apos;équilibre dépasse {ABSOLUTE_MAX_HORIZON} ans
                   {breakEvenYears !== null && ` (${formatBreakEvenDuration(breakEvenYears * 12)})`}
                 </span>
               </div>
@@ -226,7 +226,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   <CardTitle className="text-xl text-green-900">Achat</CardTitle>
                 </div>
                 {!isRentalBetter && breakEvenYears && selectedTimeHorizon > breakEvenYears && (
-                  <Badge className="bg-green-500 text-white">Recommande</Badge>
+                  <Badge className="bg-green-500 text-white">Recommandé</Badge>
                 )}
               </div>
             </CardHeader>
@@ -236,7 +236,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   {formatPriceHelper(projectedCosts.purchase)}
                 </div>
                 <div className="text-sm font-medium text-green-700">
-                  Cout total sur {selectedTimeHorizon} an
+                  Coût total sur {selectedTimeHorizon} an
                   {selectedTimeHorizon > 1 ? 's' : ''}
                 </div>
               </div>
@@ -245,7 +245,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                 <div className="rounded-xl border border-white/50 bg-white/60 p-4">
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-sm font-medium text-green-800">
-                      Cout d&apos;acquisition (unique)
+                      Coût d&apos;acquisition (unique)
                     </span>
                     <span className="font-bold text-green-900">
                       {formatPriceHelper(purchaseData.totalPrice)}
@@ -253,7 +253,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-green-800">
-                      Cout sur {selectedTimeHorizon} an
+                      Coût sur {selectedTimeHorizon} an
                       {selectedTimeHorizon > 1 ? 's' : ''}
                     </span>
                     <span className="font-bold text-green-900">
@@ -280,7 +280,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                 <div>
                   <h4 className="mb-3 flex items-center gap-2 font-semibold text-green-900">
                     <XCircle className="h-4 w-4" />
-                    Inconvenients
+                    Inconvénients
                   </h4>
                   <div className="space-y-2">
                     {purchaseDisadvantages.map((disadvantage, index) => (
@@ -311,7 +311,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   </div>
                   <CardTitle className="text-xl text-blue-900">Location</CardTitle>
                 </div>
-                {recommendsRental && <Badge className="bg-blue-500 text-white">Recommande</Badge>}
+                {recommendsRental && <Badge className="bg-blue-500 text-white">Recommandé</Badge>}
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -340,7 +340,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   {selectedTimeHorizon <= 3 ? (
                     <>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-blue-800">Cout mensuel</span>
+                        <span className="text-sm font-medium text-blue-800">Coût mensuel</span>
                         <div className="flex items-center gap-1.5">
                           <span className="font-bold text-blue-900">
                             {formatPriceHelper(monthly3ans)}
@@ -354,7 +354,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                         </div>
                       </div>
                       <div className="flex items-center justify-between text-xs text-blue-600">
-                        <span>Cout annuel</span>
+                        <span>Coût annuel</span>
                         <span>{formatPriceHelper(rental3Years.totalPrice)} /an</span>
                       </div>
                     </>
@@ -362,7 +362,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                     <>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-blue-800">
-                          Tarif 3 premieres annees
+                          Tarif 3 premières années
                         </span>
                         <div className="flex items-center gap-1.5">
                           <span className="font-bold text-blue-900">
@@ -379,7 +379,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                       <div className="h-px bg-blue-200/50"></div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-blue-800">
-                          Tarif au-dela de 3 ans
+                          Tarif au-delà de 3 ans
                         </span>
                         <div className="flex items-center gap-1.5">
                           <span className="font-bold text-blue-900">
@@ -394,14 +394,14 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                         </div>
                       </div>
                       <div className="text-center text-xs text-blue-500">
-                        20% du tarif initial apres 3 ans
+                        20% du tarif initial après 3 ans
                       </div>
                     </>
                   )}
                   <div className="h-px bg-blue-200/50"></div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-blue-800">
-                      Cout sur {selectedTimeHorizon} an
+                      Coût sur {selectedTimeHorizon} an
                       {selectedTimeHorizon > 1 ? 's' : ''}
                     </span>
                     <span className="font-bold text-blue-900">
@@ -428,7 +428,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                 <div>
                   <h4 className="mb-3 flex items-center gap-2 font-semibold text-blue-900">
                     <XCircle className="h-4 w-4" />
-                    Inconvenients
+                    Inconvénients
                   </h4>
                   <div className="space-y-2">
                     {rentalDisadvantages.map((disadvantage, index) => (
@@ -458,7 +458,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                 <div className="rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 p-2">
                   <TrendingUp className="h-5 w-5 text-amber-600" />
                 </div>
-                Analyse de rentabilite
+                Analyse de rentabilité
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -467,7 +467,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   {formatBreakEvenDuration(breakEvenMonths)}
                 </div>
                 <div className="text-sm text-amber-700">
-                  Point d&apos;equilibre entre achat et location
+                  Point d&apos;équilibre entre achat et location
                 </div>
                 <div className="text-xs text-amber-600">
                   Phase : {PHASE_LABELS[breakEvenPhase] ?? breakEvenPhase}
@@ -511,7 +511,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                     {formatPriceHelper(Math.abs(projectedCosts.savings))}
                   </div>
                   <div className="text-sm text-amber-700">
-                    {projectedCosts.savings >= 0 ? 'Economies' : 'Surcout'} sur{' '}
+                    {projectedCosts.savings >= 0 ? 'Économies' : 'Surcoût'} sur{' '}
                     {selectedTimeHorizon} an{selectedTimeHorizon > 1 ? 's' : ''}
                   </div>
                 </div>
@@ -526,7 +526,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                     %
                   </div>
                   <div className="text-sm text-amber-700">
-                    {projectedCosts.savings >= 0 ? 'Economie' : 'Surcout'} relatif
+                    {projectedCosts.savings >= 0 ? 'Économie' : 'Surcoût'} relatif
                   </div>
                 </div>
                 <div className="rounded-xl border border-white/50 bg-white/60 p-4 text-center">
@@ -543,7 +543,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                           /mois
                         </Badge>
                       </div>
-                      <div className="text-xs text-amber-700">3 premieres annees</div>
+                      <div className="text-xs text-amber-700">3 premières années</div>
                       <div className="my-1 h-px bg-amber-200/50" />
                       <div className="flex items-center justify-center gap-1.5">
                         <span className="text-lg font-bold text-amber-900">
@@ -556,7 +556,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                           /mois
                         </Badge>
                       </div>
-                      <div className="text-xs text-amber-600">au-dela de 3 ans (20%)</div>
+                      <div className="text-xs text-amber-600">au-delà de 3 ans (20%)</div>
                     </>
                   ) : (
                     <>
@@ -571,7 +571,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                           /mois
                         </Badge>
                       </div>
-                      <div className="text-sm text-amber-700">Cout mensuel location</div>
+                      <div className="text-sm text-amber-700">Coût mensuel location</div>
                       <div className="mt-0.5 text-xs text-amber-500">
                         {formatPriceHelper(rental3Years.totalPrice)} /an
                       </div>
@@ -621,7 +621,7 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                       recommendsRental ? 'text-blue-900' : 'text-green-900'
                     }`}
                   >
-                    {recommendsRental ? 'Location recommandee' : 'Achat recommande'}
+                    {recommendsRental ? 'Location recommandée' : 'Achat recommandé'}
                   </h3>
                   <p
                     className={`mb-4 text-sm ${
@@ -638,10 +638,10 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                           : 'bg-green-500 hover:bg-green-600'
                       }
                     >
-                      {recommendsRental ? 'Opter pour la location' : "Proceder a l'achat"}
+                      {recommendsRental ? 'Opter pour la location' : "Procéder à l'achat"}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                    <Button variant="outline">Obtenir un devis detaille</Button>
+                    <Button variant="outline">Obtenir un devis détaillé</Button>
                   </div>
                 </div>
               </div>
@@ -651,26 +651,26 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
               <div className="rounded-xl border border-white/50 bg-white/60 p-4">
                 <h4 className="mb-2 font-semibold text-indigo-900">Contexte de projet</h4>
                 <ul className="space-y-1 text-indigo-800">
-                  <li>• {project.projectKits?.length || 0} types de kits configures</li>
+                  <li>• {project.projectKits?.length || 0} types de kits configurés</li>
                   <li>
-                    • Duree d&apos;analyse : {selectedTimeHorizon} an
+                    • Durée d&apos;analyse : {selectedTimeHorizon} an
                     {selectedTimeHorizon > 1 ? 's' : ''}
                   </li>
                   <li>
                     •{' '}
                     {breakEvenYears
-                      ? `Point d'equilibre : ${formatBreakEvenDuration(breakEvenMonths ?? breakEvenYears * 12)}`
-                      : 'Pas de donnees de location disponibles'}
+                      ? `Point d'équilibre : ${formatBreakEvenDuration(breakEvenMonths ?? breakEvenYears * 12)}`
+                      : 'Pas de données de location disponibles'}
                   </li>
                 </ul>
               </div>
               <div className="rounded-xl border border-white/50 bg-white/60 p-4">
-                <h4 className="mb-2 font-semibold text-indigo-900">Facteurs a considerer</h4>
+                <h4 className="mb-2 font-semibold text-indigo-900">Facteurs à considérer</h4>
                 <ul className="space-y-1 text-indigo-800">
-                  <li>• Capacite d&apos;investissement initial</li>
-                  <li>• Duree prevue d&apos;utilisation</li>
-                  <li>• Besoins de flexibilite</li>
-                  <li>• Evolution technologique prevue</li>
+                  <li>• Capacité d&apos;investissement initial</li>
+                  <li>• Durée prévue d&apos;utilisation</li>
+                  <li>• Besoins de flexibilité</li>
+                  <li>• Évolution technologique prévue</li>
                 </ul>
               </div>
             </div>
