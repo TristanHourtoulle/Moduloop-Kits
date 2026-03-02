@@ -210,6 +210,20 @@ export function formatPrice(price: number | null): string {
 }
 
 /**
+ * Returns the monthly rental rate for periods beyond 3 years (20% of the 3-year monthly rate).
+ *
+ * @param product - The product to extract the rate from
+ * @returns The post-3-year monthly rate ceiled to 2 decimals, or null if no rental pricing exists
+ */
+export function getPostThreeYearMonthlyRate(product: Product): number | null {
+  const pricing3ans = getProductPricing(product, 'location', '3ans')
+  if (pricing3ans.prixVente === null) return null
+  const monthly3ans = annualToMonthly(pricing3ans.prixVente)
+  if (monthly3ans <= 0) return null
+  return ceilPrice(monthly3ans * 0.2)
+}
+
+/**
  * Formats l'impact environnemental pour l'affichage
  */
 export function formatEnvironmentalImpact(
