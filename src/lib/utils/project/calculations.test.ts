@@ -331,8 +331,7 @@ describe('calculateExtendedRentalCost', () => {
     // Post-3yr 1yr: ceilPrice(1.82 * 12 * 1) = ceilPrice(21.84) = 21.84
     // Total: ceilPrice(327.24 + 21.84) = 349.08
     const result = calculateExtendedRentalCost(9.09, 4)
-    expect(result).toBeGreaterThan(327.24)
-    expect(result).toBeLessThan(360)
+    expect(result).toBe(349.08)
   })
 
   it('calculates cost for 5 years (3yr full + 2yr at 20%)', () => {
