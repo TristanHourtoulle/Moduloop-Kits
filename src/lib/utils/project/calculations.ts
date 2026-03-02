@@ -1,30 +1,43 @@
-import type { Project, EnvironmentalImpact } from '@/lib/types/project';
-import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product';
+import type { Project, EnvironmentalImpact } from '@/lib/types/project'
+import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product'
 import {
   getProductPricing,
   getProductEnvironmentalImpact,
-} from '@/lib/utils/product-helpers';
+  ceilPrice,
+  annualToMonthly,
+} from '@/lib/utils/product-helpers'
 
 export interface ProjectPriceTotals {
-  achat: number;
-  location1an: number;
-  location2ans: number;
-  location3ans: number;
+  achat: number
+  location1an: number
+  location2ans: number
+  location3ans: number
 }
 
 export interface ProjectCostBreakdown {
-  totalPrice: number;
-  totalCost: number;
-  totalMargin: number;
+  totalPrice: number
+  totalCost: number
+  totalMargin: number
 }
 
 export interface KitBreakdownItem {
-  kitName: string;
-  quantity: number;
-  totalPrice: number;
-  totalCost: number;
-  totalMargin: number;
-  marginPercentage: number;
+  kitName: string
+  quantity: number
+  totalPrice: number
+  totalCost: number
+  totalMargin: number
+  marginPercentage: number
+}
+
+export type BreakEvenPhase = '0-1an' | '1-2ans' | '2-3ans' | '3ans+'
+
+/** Rate applied after the initial 3-year rental period (20% of the base rate). */
+export const POST_THREE_YEAR_RATE = 0.2
+
+export interface BreakEvenResult {
+  breakEvenMonths: number
+  breakEvenYears: number
+  phase: BreakEvenPhase
 }
 
 const EMPTY_PRICE_TOTALS: ProjectPriceTotals = {
@@ -32,61 +45,59 @@ const EMPTY_PRICE_TOTALS: ProjectPriceTotals = {
   location1an: 0,
   location2ans: 0,
   location3ans: 0,
-};
+}
 
 const EMPTY_COST_BREAKDOWN: ProjectCostBreakdown = {
   totalPrice: 0,
   totalCost: 0,
   totalMargin: 0,
-};
+}
 
 const EMPTY_ENVIRONMENTAL_IMPACT: EnvironmentalImpact = {
   rechauffementClimatique: 0,
   epuisementRessources: 0,
   acidification: 0,
   eutrophisation: 0,
-};
+}
 
 /**
  * Calculate total sale prices across all modes and periods for a project.
  * @param project - The project with its kits and products
  * @returns Price totals for purchase and all rental periods
  */
-export function calculateProjectPriceTotals(
-  project: Project
-): ProjectPriceTotals {
-  if (!project.projectKits) return { ...EMPTY_PRICE_TOTALS };
+export function calculateProjectPriceTotals(project: Project): ProjectPriceTotals {
+  if (!project.projectKits) return { ...EMPTY_PRICE_TOTALS }
 
-  let achat = 0;
-  let location1an = 0;
-  let location2ans = 0;
-  let location3ans = 0;
+  let achat = 0
+  let location1an = 0
+  let location2ans = 0
+  let location3ans = 0
 
   project.projectKits.forEach((projectKit) => {
-    const kit = projectKit.kit;
-    if (!kit?.kitProducts) return;
+    const kit = projectKit.kit
+    if (!kit?.kitProducts) return
 
     kit.kitProducts.forEach((kitProduct) => {
-      const product = kitProduct.product;
-      if (!product) return;
+      const product = kitProduct.product
+      if (!product) return
 
-      const quantite = kitProduct.quantite * projectKit.quantite;
+      const quantite = kitProduct.quantite * projectKit.quantite
 
-      const pricingAchat = getProductPricing(product, 'achat', '1an');
-      achat += (pricingAchat.prixVente || 0) * quantite;
+      const pricingAchat = getProductPricing(product, 'achat', '1an')
+      achat += (pricingAchat.prixVente || 0) * quantite
 
-      const pricing1an = getProductPricing(product, 'location', '1an');
-      location1an += (pricing1an.prixVente || 0) * quantite;
+      const pricing1an = getProductPricing(product, 'location', '1an')
+      location1an += (pricing1an.prixVente || 0) * quantite
 
-      const pricing2ans = getProductPricing(product, 'location', '2ans');
-      location2ans += (pricing2ans.prixVente || 0) * quantite;
+      const pricing2ans = getProductPricing(product, 'location', '2ans')
+      location2ans += (pricing2ans.prixVente || 0) * quantite
 
-      const pricing3ans = getProductPricing(product, 'location', '3ans');
-      location3ans += (pricing3ans.prixVente || 0) * quantite;
-    });
-  });
+      const pricing3ans = getProductPricing(product, 'location', '3ans')
+      location3ans += (pricing3ans.prixVente || 0) * quantite
+    })
+  })
 
-  return { achat, location1an, location2ans, location3ans };
+  return { achat, location1an, location2ans, location3ans }
 }
 
 /**
@@ -94,10 +105,8 @@ export function calculateProjectPriceTotals(
  * @param project - The project with its kits and products
  * @returns Total sale price, supplier cost, and margin
  */
-export function calculateProjectPurchaseCosts(
-  project: Project
-): ProjectCostBreakdown {
-  return calculateCostsForMode(project, 'achat', '1an');
+export function calculateProjectPurchaseCosts(project: Project): ProjectCostBreakdown {
+  return calculateCostsForMode(project, 'achat', '1an')
 }
 
 /**
@@ -108,9 +117,9 @@ export function calculateProjectPurchaseCosts(
  */
 export function calculateProjectRentalCosts(
   project: Project,
-  period: ProductPeriod
+  period: ProductPeriod,
 ): ProjectCostBreakdown {
-  return calculateCostsForMode(project, 'location', period);
+  return calculateCostsForMode(project, 'location', period)
 }
 
 /**
@@ -123,30 +132,28 @@ export function calculateProjectRentalCosts(
 export function getProjectKitBreakdown(
   project: Project,
   mode: PurchaseRentalMode,
-  period: ProductPeriod = '1an'
+  period: ProductPeriod = '1an',
 ): KitBreakdownItem[] {
-  if (!project.projectKits) return [];
+  if (!project.projectKits) return []
 
   return project.projectKits
     .map((projectKit) => {
-      const kit = projectKit.kit;
-      if (!kit?.kitProducts) return null;
+      const kit = projectKit.kit
+      if (!kit?.kitProducts) return null
 
-      let kitTotalPrice = 0;
-      let kitTotalCost = 0;
+      let kitTotalPrice = 0
+      let kitTotalCost = 0
 
       kit.kitProducts.forEach((kitProduct) => {
-        const product = kitProduct.product;
-        if (!product) return;
+        const product = kitProduct.product
+        if (!product) return
 
-        const pricing = getProductPricing(product, mode, period);
-        kitTotalPrice +=
-          (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite;
-        kitTotalCost +=
-          (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite;
-      });
+        const pricing = getProductPricing(product, mode, period)
+        kitTotalPrice += (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite
+        kitTotalCost += (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite
+      })
 
-      const kitTotalMargin = kitTotalPrice - kitTotalCost;
+      const kitTotalMargin = kitTotalPrice - kitTotalCost
 
       return {
         kitName: kit.nom,
@@ -154,11 +161,10 @@ export function getProjectKitBreakdown(
         totalPrice: kitTotalPrice,
         totalCost: kitTotalCost,
         totalMargin: kitTotalMargin,
-        marginPercentage:
-          kitTotalPrice > 0 ? (kitTotalMargin / kitTotalPrice) * 100 : 0,
-      };
+        marginPercentage: kitTotalPrice > 0 ? (kitTotalMargin / kitTotalPrice) * 100 : 0,
+      }
     })
-    .filter((item): item is KitBreakdownItem => item !== null);
+    .filter((item): item is KitBreakdownItem => item !== null)
 }
 
 /**
@@ -166,85 +172,203 @@ export function getProjectKitBreakdown(
  * @param project - The project with its kits and products
  * @returns Aggregated environmental savings
  */
-export function calculateEnvironmentalSavings(
-  project: Project
-): EnvironmentalImpact {
-  if (!project.projectKits) return { ...EMPTY_ENVIRONMENTAL_IMPACT };
+export function calculateEnvironmentalSavings(project: Project): EnvironmentalImpact {
+  if (!project.projectKits) return { ...EMPTY_ENVIRONMENTAL_IMPACT }
 
-  let rechauffementClimatique = 0;
-  let epuisementRessources = 0;
-  let acidification = 0;
-  let eutrophisation = 0;
+  let rechauffementClimatique = 0
+  let epuisementRessources = 0
+  let acidification = 0
+  let eutrophisation = 0
 
   project.projectKits.forEach((projectKit) => {
-    const kit = projectKit.kit;
-    if (!kit?.kitProducts) return;
+    const kit = projectKit.kit
+    if (!kit?.kitProducts) return
 
     kit.kitProducts.forEach((kitProduct) => {
-      const product = kitProduct.product;
-      if (!product) return;
+      const product = kitProduct.product
+      if (!product) return
 
-      const locationImpact = getProductEnvironmentalImpact(product, 'location');
-      const totalQuantity = kitProduct.quantite * projectKit.quantite;
+      const locationImpact = getProductEnvironmentalImpact(product, 'location')
+      const totalQuantity = kitProduct.quantite * projectKit.quantite
 
       rechauffementClimatique +=
-        Math.abs(locationImpact.rechauffementClimatique || 0) * totalQuantity;
-      epuisementRessources +=
-        Math.abs(locationImpact.epuisementRessources || 0) * totalQuantity;
-      acidification +=
-        Math.abs(locationImpact.acidification || 0) * totalQuantity;
-      eutrophisation +=
-        Math.abs(locationImpact.eutrophisation || 0) * totalQuantity;
-    });
-  });
+        Math.abs(locationImpact.rechauffementClimatique || 0) * totalQuantity
+      epuisementRessources += Math.abs(locationImpact.epuisementRessources || 0) * totalQuantity
+      acidification += Math.abs(locationImpact.acidification || 0) * totalQuantity
+      eutrophisation += Math.abs(locationImpact.eutrophisation || 0) * totalQuantity
+    })
+  })
 
   return {
     rechauffementClimatique,
     epuisementRessources,
     acidification,
     eutrophisation,
-  };
+  }
 }
 
 /**
- * Calculate the break-even point in years between purchase and rental.
- * @param project - The project with its kits and products
- * @returns Number of years to break even, or null if rental price is zero
+ * Calculate the monthly rental rate applied after the initial 3-year period.
+ * @param monthlyBase3ans - Monthly rental price on a 3-year basis
+ * @returns Post-3-year monthly rate (20% of the base rate), ceiled to the cent
  */
-export function calculateBreakEvenPoint(project: Project): number | null {
-  const purchaseCost = calculateProjectPurchaseCosts(project);
-  const rental1Year = calculateProjectRentalCosts(project, '1an');
+export function calculatePostThreeYearMonthly(monthlyBase3ans: number): number {
+  return ceilPrice(monthlyBase3ans * POST_THREE_YEAR_RATE)
+}
 
-  if (rental1Year.totalPrice === 0) return null;
+/**
+ * Calculate the total rental cost for an extended duration using the tiered model:
+ * - First 3 years: full monthly rate (base 3 ans)
+ * - Beyond 3 years: 20% of the monthly rate (base 3 ans)
+ *
+ * @param monthlyBase3ans - Monthly rental price on a 3-year basis
+ * @param years - Total rental duration in years
+ * @returns Total rental cost for the given duration
+ */
+export function calculateExtendedRentalCost(monthlyBase3ans: number, years: number): number {
+  if (years <= 0 || monthlyBase3ans <= 0) return 0
 
-  return purchaseCost.totalPrice / rental1Year.totalPrice;
+  if (years <= 3) {
+    return ceilPrice(monthlyBase3ans * 12 * years)
+  }
+
+  const baseThreeYearCost = ceilPrice(monthlyBase3ans * 12 * 3)
+  const postThreeYearMonthly = calculatePostThreeYearMonthly(monthlyBase3ans)
+  const extraYears = years - 3
+  const postThreeYearCost = ceilPrice(postThreeYearMonthly * 12 * extraYears)
+
+  return ceilPrice(baseThreeYearCost + postThreeYearCost)
+}
+
+/**
+ * Calculate the break-even point between purchase and rental using a cascade algorithm.
+ *
+ * The algorithm checks progressively:
+ * 1. If break-even is beyond 3 years (using post-3yr reduced rate of 20%)
+ * 2. If break-even is between 0-1 year
+ * 3. If break-even is between 1-2 years
+ * 4. If break-even is between 2-3 years
+ *
+ * @param project - The project with its kits and products
+ * @returns Break-even result with months, years, and phase, or null if calculation is impossible
+ */
+export function calculateBreakEvenPoint(project: Project): BreakEvenResult | null {
+  const priceTotals = calculateProjectPriceTotals(project)
+  const purchasePrice = priceTotals.achat
+
+  if (purchasePrice <= 0) return null
+
+  const monthly1an = annualToMonthly(priceTotals.location1an)
+  const monthly2ans = annualToMonthly(priceTotals.location2ans)
+  const monthly3ans = annualToMonthly(priceTotals.location3ans)
+
+  if (monthly1an <= 0 && monthly2ans <= 0 && monthly3ans <= 0) return null
+
+  const effectiveMonthly3ans = monthly3ans > 0 ? monthly3ans : monthly1an
+  const effectiveMonthly2ans = monthly2ans > 0 ? monthly2ans : monthly1an
+
+  const threeYearRentalTotal = effectiveMonthly3ans * 12 * 3
+  const remainingAfter3Years = purchasePrice - threeYearRentalTotal
+
+  // Case 1: Break-even beyond 3 years
+  if (remainingAfter3Years > 0) {
+    const postMonthly = calculatePostThreeYearMonthly(effectiveMonthly3ans)
+    if (postMonthly <= 0) return null
+
+    const extraYears = remainingAfter3Years / (postMonthly * 12)
+    const totalYears = extraYears + 3
+    const totalMonths = totalYears * 12
+
+    return {
+      breakEvenMonths: totalMonths,
+      breakEvenYears: totalYears,
+      phase: '3ans+',
+    }
+  }
+
+  // Case 2: Break-even within 0-3 years
+  const oneYearRentalTotal = monthly1an * 12
+
+  // Case 2.1: Break-even between 0 and 1 year
+  if (monthly1an > 0 && purchasePrice - oneYearRentalTotal < 0) {
+    const months = purchasePrice / monthly1an
+
+    return {
+      breakEvenMonths: months,
+      breakEvenYears: months / 12,
+      phase: '0-1an',
+    }
+  }
+
+  // Case 2.2: Break-even beyond 1 year
+  if (monthly1an > 0 && purchasePrice - oneYearRentalTotal >= 0) {
+    const twoYearRentalTotal = effectiveMonthly2ans * 12 * 2
+
+    // Case 2.2.1: Break-even between 1 and 2 years
+    if (purchasePrice - twoYearRentalTotal < 0) {
+      const months = purchasePrice / effectiveMonthly2ans
+
+      return {
+        breakEvenMonths: months,
+        breakEvenYears: months / 12,
+        phase: '1-2ans',
+      }
+    }
+
+    // Case 2.2.2: Break-even between 2 and 3 years
+    const months = purchasePrice / effectiveMonthly3ans
+
+    return {
+      breakEvenMonths: months,
+      breakEvenYears: months / 12,
+      phase: '2-3ans',
+    }
+  }
+
+  return null
+}
+
+/**
+ * Format a duration in months into a human-readable French string.
+ * @param months - Total duration in months
+ * @returns Formatted string (e.g., "3 ans et 6 mois", "1 an", "8 mois")
+ */
+export function formatBreakEvenDuration(months: number): string {
+  const years = Math.floor(months / 12)
+  const remainingMonths = Math.round(months % 12)
+
+  if (years === 0) {
+    return `${remainingMonths} mois`
+  }
+  if (remainingMonths === 0) {
+    return `${years} an${years > 1 ? 's' : ''}`
+  }
+  return `${years} an${years > 1 ? 's' : ''} et ${remainingMonths} mois`
 }
 
 function calculateCostsForMode(
   project: Project,
   mode: PurchaseRentalMode,
-  period: ProductPeriod
+  period: ProductPeriod,
 ): ProjectCostBreakdown {
-  if (!project.projectKits) return { ...EMPTY_COST_BREAKDOWN };
+  if (!project.projectKits) return { ...EMPTY_COST_BREAKDOWN }
 
-  let totalPrice = 0;
-  let totalCost = 0;
+  let totalPrice = 0
+  let totalCost = 0
 
   project.projectKits.forEach((projectKit) => {
-    const kit = projectKit.kit;
-    if (!kit?.kitProducts) return;
+    const kit = projectKit.kit
+    if (!kit?.kitProducts) return
 
     kit.kitProducts.forEach((kitProduct) => {
-      const product = kitProduct.product;
-      if (!product) return;
+      const product = kitProduct.product
+      if (!product) return
 
-      const pricing = getProductPricing(product, mode, period);
-      totalPrice +=
-        (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite;
-      totalCost +=
-        (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite;
-    });
-  });
+      const pricing = getProductPricing(product, mode, period)
+      totalPrice += (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite
+      totalCost += (pricing.prixAchat || 0) * kitProduct.quantite * projectKit.quantite
+    })
+  })
 
-  return { totalPrice, totalCost, totalMargin: totalPrice - totalCost };
+  return { totalPrice, totalCost, totalMargin: totalPrice - totalCost }
 }

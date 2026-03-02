@@ -3,6 +3,7 @@
 ## Problème identifié
 
 La page `/kits` affichait toujours la version précédente des données après modification d'un kit. Par exemple :
+
 - État initial : Kit avec titre "Bonjour"
 - Modification 1 : Ajouter "e" → "Bonjoure"
 - Sur `/kits` : Affiche toujours "Bonjour" ❌
@@ -12,6 +13,7 @@ La page `/kits` affichait toujours la version précédente des données après m
 ## Cause racine
 
 Une **race condition** entre :
+
 1. L'invalidation du cache côté serveur (async, non-instantanée)
 2. La redirection du client vers `/kits`
 3. Le rendu de la page qui utilisait encore les données en cache
@@ -26,9 +28,9 @@ Le client arrivait sur `/kits` AVANT que l'invalidation du cache ne soit complè
 
 ```typescript
 // On Vercel, add a delay to ensure cache propagation
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === 'production') {
   // Increased delay to ensure Vercel cache is fully invalidated
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  await new Promise((resolve) => setTimeout(resolve, 500))
 }
 ```
 
@@ -39,19 +41,21 @@ if (process.env.NODE_ENV === "production") {
 **Fichier :** `src/components/kits/kits-list-wrapper.tsx`
 
 **Avant :**
+
 - Double fetch : serveur + client
 - Potentiel de données désynchronisées
 
 **Après :**
+
 - Utilisation uniquement des données server-side
 - Mise à jour via props quand les données changent
 
 ```typescript
 // Update kits when initialKits prop changes
 useEffect(() => {
-  console.log("[KitsListWrapper] Initial kits updated:", initialKits.length);
-  setKits(initialKits);
-}, [initialKits]);
+  console.log('[KitsListWrapper] Initial kits updated:', initialKits.length)
+  setKits(initialKits)
+}, [initialKits])
 ```
 
 ### 3. Headers no-cache sur l'API list en production
@@ -59,13 +63,10 @@ useEffect(() => {
 **Fichier :** `src/app/api/kits/route.ts`
 
 ```typescript
-if (process.env.NODE_ENV === "production") {
-  response.headers.set(
-    "Cache-Control",
-    "no-cache, no-store, must-revalidate, max-age=0"
-  );
-  response.headers.set("Pragma", "no-cache");
-  response.headers.set("Expires", "0");
+if (process.env.NODE_ENV === 'production') {
+  response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+  response.headers.set('Pragma', 'no-cache')
+  response.headers.set('Expires', '0')
 }
 ```
 
@@ -77,13 +78,14 @@ if (process.env.NODE_ENV === "production") {
 
 ```typescript
 // Add delay to ensure cache invalidation completes on Vercel
-const isProduction = typeof window !== "undefined" &&
-  window.location.hostname !== "localhost" &&
-  !window.location.hostname.includes("127.0.0.1");
+const isProduction =
+  typeof window !== 'undefined' &&
+  window.location.hostname !== 'localhost' &&
+  !window.location.hostname.includes('127.0.0.1')
 
 if (isProduction) {
-  console.log("[KitForm] Waiting for cache invalidation to propagate...");
-  await new Promise((resolve) => setTimeout(resolve, 300));
+  console.log('[KitForm] Waiting for cache invalidation to propagate...')
+  await new Promise((resolve) => setTimeout(resolve, 300))
 }
 ```
 

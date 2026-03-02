@@ -1,19 +1,19 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Separator } from '@/components/ui/separator'
 
 export function AuthFormSkeleton() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 w-full">
-      <Card className="w-full max-w-md shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-        <CardHeader className="text-center pb-8">
-          <Skeleton className="h-8 w-48 mx-auto mb-2" />
-          <Skeleton className="h-4 w-64 mx-auto" />
+    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+      <Card className="w-full max-w-md border-0 bg-white/80 shadow-xl backdrop-blur-sm">
+        <CardHeader className="pb-8 text-center">
+          <Skeleton className="mx-auto mb-2 h-8 w-48" />
+          <Skeleton className="mx-auto h-4 w-64" />
         </CardHeader>
 
         <CardContent className="space-y-6">
           {/* Google Button Skeleton */}
-          <Skeleton className="w-full h-12" />
+          <Skeleton className="h-12 w-full" />
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -41,14 +41,14 @@ export function AuthFormSkeleton() {
           </div>
 
           {/* Submit Button Skeleton */}
-          <Skeleton className="w-full h-12" />
+          <Skeleton className="h-12 w-full" />
 
           {/* Bottom Link Skeleton */}
-          <div className="text-center pt-4">
-            <Skeleton className="h-4 w-56 mx-auto" />
+          <div className="pt-4 text-center">
+            <Skeleton className="mx-auto h-4 w-56" />
           </div>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

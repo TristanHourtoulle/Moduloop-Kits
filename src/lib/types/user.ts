@@ -1,29 +1,29 @@
 export enum UserRole {
-  USER = "USER",
-  DEV = "DEV",
-  ADMIN = "ADMIN",
+  USER = 'USER',
+  DEV = 'DEV',
+  ADMIN = 'ADMIN',
 }
 
 export interface UserWithRole {
-  id: string;
-  name?: string | null;
-  email: string;
-  emailVerified: boolean;
-  image?: string | null;
-  firstName?: string | null;
-  lastName?: string | null;
-  role: UserRole;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  name?: string | null
+  email: string
+  emailVerified: boolean
+  image?: string | null
+  firstName?: string | null
+  lastName?: string | null
+  role: UserRole
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface RolePermissions {
-  canAccessAdminPanel: boolean;
-  canManageUsers: boolean;
-  canManageKits: boolean;
-  canManageProducts: boolean;
-  canDeleteContent: boolean;
-  canModifySystem: boolean;
+  canAccessAdminPanel: boolean
+  canManageUsers: boolean
+  canManageKits: boolean
+  canManageProducts: boolean
+  canDeleteContent: boolean
+  canModifySystem: boolean
 }
 
 export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
@@ -51,4 +51,4 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
     canDeleteContent: true,
     canModifySystem: true,
   },
-};
+}

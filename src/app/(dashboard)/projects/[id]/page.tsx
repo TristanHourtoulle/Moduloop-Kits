@@ -1,58 +1,59 @@
-'use client';
+'use client'
 
-import { Suspense, useEffect, useState } from 'react';
-import { ProjectDetail } from '@/components/projects/project-detail';
-import { ProjectDetailSkeleton } from '@/components/projects/project-detail-skeleton';
-import { notFound, useParams } from 'next/navigation';
-import { Project } from '@/lib/types/project';
+import { Suspense, useEffect, useState } from 'react'
+import { ProjectDetail } from '@/components/projects/project-detail'
+import { ProjectDetailSkeleton } from '@/components/projects/project-detail-skeleton'
+import { notFound, useParams } from 'next/navigation'
+import { Project } from '@/lib/types/project'
+import { logger } from '@/lib/logger'
 
 function ProjectContent() {
-  const params = useParams();
-  const projectId = params.id as string;
-  const [project, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const params = useParams()
+  const projectId = params.id as string
+  const [project, setProject] = useState<Project | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   const fetchProject = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await fetch(`/api/projects/${projectId}`, {
         cache: 'no-store',
-      });
+      })
 
       if (!response.ok) {
-        setError(true);
-        return;
+        setError(true)
+        return
       }
 
-      const data = await response.json();
-      setProject(data);
-      setError(false);
+      const data = await response.json()
+      setProject(data)
+      setError(false)
     } catch (error) {
-      console.error('Erreur lors du chargement du projet:', error);
-      setError(true);
+      logger.error('Error loading project', { error })
+      setError(true)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // Mise à jour optimiste du projet sans rechargement complet
   const updateProject = (updatedProject: Project) => {
-    setProject(updatedProject);
-  };
+    setProject(updatedProject)
+  }
 
   useEffect(() => {
-    if (!projectId) return;
-    fetchProject();
-  }, [projectId]);
+    if (!projectId) return
+    fetchProject()
+  }, [projectId])
 
   if (loading) {
-    return <ProjectDetailSkeleton />;
+    return <ProjectDetailSkeleton />
   }
 
   if (error || !project) {
-    notFound();
-    return null;
+    notFound()
+    return null
   }
 
   return (
@@ -63,7 +64,7 @@ function ProjectContent() {
         refreshProject={fetchProject}
       />
     </Suspense>
-  );
+  )
 }
 
 export default function ProjectPage() {
@@ -71,5 +72,5 @@ export default function ProjectPage() {
     <Suspense fallback={<ProjectDetailSkeleton />}>
       <ProjectContent />
     </Suspense>
-  );
+  )
 }

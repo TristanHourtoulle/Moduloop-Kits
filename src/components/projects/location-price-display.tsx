@@ -1,18 +1,18 @@
-import { Badge } from '@/components/ui/badge';
-import { formatPrice, annualToMonthly } from '@/lib/utils/product-helpers';
-import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge'
+import { formatPrice, annualToMonthly } from '@/lib/utils/product-helpers'
+import { cn } from '@/lib/utils'
 
 interface LocationPriceDisplayProps {
-  annualPrice: number;
-  label?: string;
-  variant?: 'card' | 'inline' | 'table-cell';
-  showAnnual?: boolean;
-  priceClassName?: string;
-  secondaryClassName?: string;
-  labelClassName?: string;
-  badgeClassName?: string;
-  secondaryBadgeClassName?: string;
-  className?: string;
+  annualPrice: number
+  label?: string
+  variant?: 'card' | 'inline' | 'table-cell'
+  showAnnual?: boolean
+  priceClassName?: string
+  secondaryClassName?: string
+  labelClassName?: string
+  badgeClassName?: string
+  secondaryBadgeClassName?: string
+  className?: string
 }
 
 /**
@@ -43,101 +43,71 @@ export function LocationPriceDisplay({
   secondaryBadgeClassName,
   className,
 }: LocationPriceDisplayProps) {
-  const monthlyPrice = annualToMonthly(annualPrice);
+  const monthlyPrice = annualToMonthly(annualPrice)
 
   if (variant === 'table-cell') {
     return (
       <div className={cn('text-right', className)}>
-        <div className='flex items-baseline justify-end gap-1.5'>
-          <span className={cn('font-semibold', priceClassName)}>
-            {formatPrice(monthlyPrice)}
-          </span>
-          <Badge
-            variant='outline'
-            className={cn('text-[10px] px-1.5 py-0', badgeClassName)}
-          >
+        <div className="flex items-baseline justify-end gap-1.5">
+          <span className={cn('font-semibold', priceClassName)}>{formatPrice(monthlyPrice)}</span>
+          <Badge variant="outline" className={cn('px-1.5 py-0 text-[10px]', badgeClassName)}>
             /mois
           </Badge>
         </div>
         {showAnnual && (
-          <div className={cn('text-xs mt-0.5', secondaryClassName)}>
+          <div className={cn('mt-0.5 text-xs', secondaryClassName)}>
             {formatPrice(annualPrice)}
-            <span className={cn('ml-1 text-[10px]', secondaryBadgeClassName)}>
-              /an
-            </span>
+            <span className={cn('ml-1 text-[10px]', secondaryBadgeClassName)}>/an</span>
           </div>
         )}
       </div>
-    );
+    )
   }
 
   if (variant === 'inline') {
     return (
-      <div className={cn('flex items-baseline gap-2 flex-wrap', className)}>
-        <span className={cn('font-bold', priceClassName)}>
-          {formatPrice(monthlyPrice)}
-        </span>
-        <Badge
-          variant='outline'
-          className={cn('text-[10px] px-1.5 py-0', badgeClassName)}
-        >
+      <div className={cn('flex flex-wrap items-baseline gap-2', className)}>
+        <span className={cn('font-bold', priceClassName)}>{formatPrice(monthlyPrice)}</span>
+        <Badge variant="outline" className={cn('px-1.5 py-0 text-[10px]', badgeClassName)}>
           /mois
         </Badge>
         {showAnnual && (
           <span className={cn('text-sm', secondaryClassName)}>
             {formatPrice(annualPrice)}
             <Badge
-              variant='outline'
-              className={cn(
-                'text-[10px] px-1.5 py-0 ml-1',
-                secondaryBadgeClassName
-              )}
+              variant="outline"
+              className={cn('ml-1 px-1.5 py-0 text-[10px]', secondaryBadgeClassName)}
             >
               /an
             </Badge>
           </span>
         )}
       </div>
-    );
+    )
   }
 
   return (
     <div className={cn('text-center', className)}>
-      <div className='flex items-center justify-center gap-2 mb-1'>
+      <div className="mb-1 flex items-center justify-center gap-2">
         <span className={cn('text-3xl font-bold', priceClassName)}>
           {formatPrice(monthlyPrice)}
         </span>
-        <Badge
-          variant='outline'
-          className={cn('text-xs px-2 py-0.5', badgeClassName)}
-        >
+        <Badge variant="outline" className={cn('px-2 py-0.5 text-xs', badgeClassName)}>
           /mois
         </Badge>
       </div>
       {showAnnual && (
-        <div
-          className={cn(
-            'flex items-center justify-center gap-1.5 text-sm',
-            secondaryClassName
-          )}
-        >
+        <div className={cn('flex items-center justify-center gap-1.5 text-sm', secondaryClassName)}>
           <span>{formatPrice(annualPrice)}</span>
           <Badge
-            variant='outline'
-            className={cn(
-              'text-[10px] px-1.5 py-0',
-              secondaryBadgeClassName
-            )}
+            variant="outline"
+            className={cn('px-1.5 py-0 text-[10px]', secondaryBadgeClassName)}
           >
             /an
           </Badge>
         </div>
       )}
-      {label && (
-        <p className={cn('text-sm font-medium mt-1', labelClassName)}>
-          {label}
-        </p>
-      )}
+      {label && <p className={cn('mt-1 text-sm font-medium', labelClassName)}>{label}</p>}
     </div>
-  );
+  )
 }

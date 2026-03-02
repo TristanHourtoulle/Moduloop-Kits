@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { motion } from 'framer-motion';
-import { Zap, Target, Droplets, Leaf } from 'lucide-react';
-import type { KitImpactResult } from '@/lib/utils/kit/calculations';
+import { motion } from 'framer-motion'
+import { Zap, Target, Droplets, Leaf } from 'lucide-react'
+import type { KitImpactResult } from '@/lib/utils/kit/calculations'
 
 interface EnvironmentalImpactGridProps {
-  impact: KitImpactResult;
-  variant: 'compact' | 'card';
-  showSurface?: boolean;
+  impact: KitImpactResult
+  variant: 'compact' | 'card'
+  showSurface?: boolean
 }
 
 const METRICS = [
@@ -43,7 +43,7 @@ const METRICS = [
     cardLabel: 'kg P eq économisés',
     decimals: 1,
   },
-] as const;
+] as const
 
 /**
  * Display environmental impact metrics as a grid.
@@ -57,46 +57,38 @@ export function EnvironmentalImpactGrid({
 }: EnvironmentalImpactGridProps) {
   if (variant === 'compact') {
     return (
-      <div className='grid grid-cols-4 gap-2'>
+      <div className="grid grid-cols-4 gap-2">
         {METRICS.map((metric) => (
           <div
             key={metric.key}
-            className='text-center p-2 rounded-lg'
+            className="rounded-lg p-2 text-center"
             style={{ backgroundColor: `${metric.color}15` }}
           >
-            <metric.icon
-              className='w-3 h-3 mx-auto mb-1'
-              style={{ color: metric.color }}
-            />
-            <div
-              className='text-xs font-semibold'
-              style={{ color: metric.color }}
-            >
+            <metric.icon className="mx-auto mb-1 h-3 w-3" style={{ color: metric.color }} />
+            <div className="text-xs font-semibold" style={{ color: metric.color }}>
               {impact[metric.key].toFixed(metric.decimals)}
             </div>
-            <div className='text-xs text-gray-600'>{metric.label}</div>
+            <div className="text-xs text-gray-600">{metric.label}</div>
           </div>
         ))}
         {showSurface && (
-          <div className='text-center p-2 bg-teal-50 rounded-lg'>
-            <Leaf className='w-3 h-3 text-teal-500 mx-auto mb-1' />
-            <div className='text-xs font-semibold text-teal-900'>
-              {impact.surface.toFixed(1)}
-            </div>
-            <div className='text-xs text-gray-600'>m²</div>
+          <div className="rounded-lg bg-teal-50 p-2 text-center">
+            <Leaf className="mx-auto mb-1 h-3 w-3 text-teal-500" />
+            <div className="text-xs font-semibold text-teal-900">{impact.surface.toFixed(1)}</div>
+            <div className="text-xs text-gray-600">m²</div>
           </div>
         )}
       </div>
-    );
+    )
   }
 
   return (
-    <div className='grid grid-cols-2 lg:grid-cols-4 gap-3'>
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {METRICS.map((metric) => (
         <motion.div
           key={metric.key}
           whileHover={{ y: -2, scale: 1.02 }}
-          className='text-center p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200'
+          className="rounded-xl p-4 text-center shadow-sm transition-all duration-200 hover:shadow-md"
           style={{
             backgroundColor: `${metric.color}15`,
             borderColor: `${metric.color}30`,
@@ -104,20 +96,17 @@ export function EnvironmentalImpactGrid({
           }}
         >
           <div
-            className='w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2'
+            className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg"
             style={{ backgroundColor: `${metric.color}25` }}
           >
-            <metric.icon className='w-4 h-4' style={{ color: metric.color }} />
+            <metric.icon className="h-4 w-4" style={{ color: metric.color }} />
           </div>
-          <div
-            className='text-sm font-bold mb-1'
-            style={{ color: metric.color }}
-          >
+          <div className="mb-1 text-sm font-bold" style={{ color: metric.color }}>
             {impact[metric.key].toFixed(metric.decimals)}
           </div>
-          <div className='text-xs text-gray-600'>{metric.cardLabel}</div>
+          <div className="text-xs text-gray-600">{metric.cardLabel}</div>
         </motion.div>
       ))}
     </div>
-  );
+  )
 }

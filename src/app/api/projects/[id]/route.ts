@@ -1,39 +1,28 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
-import { prisma, calculateProjectTotals } from '@/lib/db';
-import { Project } from '@/lib/types/project';
-import { UserRole } from '@/lib/types/user';
-import { createProjectUpdatedHistory, createProjectDeletedHistory } from '@/lib/services/project-history';
+import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
+import { revalidatePath } from 'next/cache'
+import { prisma } from '@/lib/db'
+import { calculateProjectTotals } from '@/lib/services/project.service'
+import { type Project } from '@/lib/types/project'
+import { verifyProjectAccess } from '@/lib/utils/project/access'
+import {
+  createProjectUpdatedHistory,
+  createProjectDeletedHistory,
+} from '@/lib/services/project-history'
+import { requireAuth, handleApiError } from '@/lib/api/middleware'
+import { updateProjectSchema, replaceProjectSchema } from '@/lib/schemas/project'
+import { logger } from '@/lib/logger'
+import { stripCostFieldsDeep } from '@/lib/utils/strip-cost-fields'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
+    const { id } = await params
 
-    // Récupérer le rôle de l'utilisateur connecté
-    const currentUser = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
+    const access = await verifyProjectAccess(request, id)
+    if (!access.ok) return access.response
 
-    const isAdmin = currentUser?.role === UserRole.ADMIN || currentUser?.role === UserRole.DEV;
-
-    const { id } = await params;
-    
-    // Si l'utilisateur est admin/dev, il peut voir tous les projets
-    // Sinon, il ne peut voir que ses propres projets
-    const whereClause = isAdmin 
-      ? { id }
-      : { id, createdById: session.user.id };
-
-    const project = await prisma.project.findFirst({
-      where: whereClause,
+    const project = await prisma.project.findUnique({
+      where: { id },
       include: {
         createdBy: {
           select: { id: true, name: true, email: true },
@@ -52,219 +41,184 @@ export async function GET(
           },
         },
       },
-    });
+    })
 
     if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     // Calculer les totaux
-    const totals = calculateProjectTotals(project as unknown as Project);
+    const totals = calculateProjectTotals(project as unknown as Project)
 
-    return NextResponse.json({
-      ...project,
-      ...totals,
-    });
+    const responseData = { ...project, ...totals }
+
+    return NextResponse.json(access.data.isAdmin ? responseData : stripCostFieldsDeep(responseData))
   } catch (error) {
-    console.error('Erreur lors de la récupération du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
+    const auth = await requireAuth(request)
+    if (auth.response) return auth.response
 
-    const { id } = await params;
-    const body = await request.json();
-    const { nom, description, status, surfaceManual, surfaceOverride } = body;
-
-    // Validate surfaceManual if provided
-    if (surfaceManual !== undefined && surfaceManual !== null && surfaceManual < 0) {
-      return NextResponse.json(
-        { error: 'La surface doit être un nombre positif' },
-        { status: 400 }
-      );
-    }
+    const { id } = await params
+    const body = await request.json()
+    const { nom, description, status, surfaceManual, surfaceOverride } =
+      updateProjectSchema.parse(body)
 
     // Vérifier que le projet appartient à l'utilisateur
     const existingProject = await prisma.project.findFirst({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
-    });
+    })
 
     if (!existingProject) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
-    // Use transaction to update project and record history
-    const result = await prisma.$transaction(async (tx) => {
-      // Prepare update data
-      const updateData: any = {};
-      if (nom !== undefined) updateData.nom = nom;
-      if (description !== undefined) updateData.description = description;
-      if (status !== undefined) updateData.status = status;
-      if (surfaceManual !== undefined) updateData.surfaceManual = surfaceManual;
-      if (surfaceOverride !== undefined) updateData.surfaceOverride = surfaceOverride;
+    // Prepare update data
+    const updateData: Prisma.ProjectUpdateInput = {}
+    if (nom !== undefined) updateData.nom = nom
+    if (description !== undefined) updateData.description = description
+    if (status !== undefined) updateData.status = status
+    if (surfaceManual !== undefined) updateData.surfaceManual = surfaceManual
+    if (surfaceOverride !== undefined) updateData.surfaceOverride = surfaceOverride
 
-      // Mettre à jour le projet
-      const updatedProject = await tx.project.update({
-        where: { id },
-        data: updateData,
-        include: {
-          projectKits: {
-            include: {
-              kit: {
-                include: {
-                  kitProducts: {
-                    include: {
-                      product: true,
-                    },
+    // Update the project
+    const result = await prisma.project.update({
+      where: { id },
+      data: updateData,
+      include: {
+        projectKits: {
+          include: {
+            kit: {
+              include: {
+                kitProducts: {
+                  include: {
+                    product: true,
                   },
                 },
               },
             },
           },
         },
-      });
+      },
+    })
 
-      // Record history (async, don't block transaction)
-      createProjectUpdatedHistory(
-        session.user.id,
-        id,
-        existingProject,
-        updatedProject
-      ).catch(console.error);
-
-      return updatedProject;
-    });
+    // Record history (async, don't block response)
+    createProjectUpdatedHistory(auth.user.id, id, existingProject, result).catch((error) => {
+      logger.warn('Failed to record project update history', { projectId: id, error })
+    })
 
     // Revalidate the project detail page
-    revalidatePath(`/projects/${id}`);
+    revalidatePath(`/projects/${id}`)
 
     // Calculer les totaux
-    const totals = calculateProjectTotals(result as unknown as Project);
+    const totals = calculateProjectTotals(result as unknown as Project)
 
     return NextResponse.json({
       ...result,
       ...totals,
-    });
+    })
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
+    const auth = await requireAuth(request)
+    if (auth.response) return auth.response
 
-    const { id } = await params;
-    const body = await request.json();
-    const { nom, description, status } = body;
+    const { id } = await params
+    const body = await request.json()
+    const { nom, description, status } = replaceProjectSchema.parse(body)
 
     // Get existing project for history
     const existingProject = await prisma.project.findFirst({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
-    });
+    })
 
     if (!existingProject) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     const project = await prisma.project.update({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
       data: {
         nom,
         description,
         status,
       },
-    });
+    })
 
     // Record history (async)
-    createProjectUpdatedHistory(
-      session.user.id,
-      id,
-      existingProject,
-      project
-    ).catch(console.error);
+    createProjectUpdatedHistory(auth.user.id, id, existingProject, project).catch((error) => {
+      logger.warn('Failed to record project update history', { projectId: id, error })
+    })
 
-    return NextResponse.json(project);
+    return NextResponse.json(project)
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth.api.getSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 500 });
-    }
+    const auth = await requireAuth(request)
+    if (auth.response) return auth.response
 
-    const { id } = await params;
-    
+    const { id } = await params
+
     // Get project data before deletion for history
     const project = await prisma.project.findFirst({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
-    });
+    })
 
     if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
+      return NextResponse.json(
+        { error: { code: 'PROJECT_NOT_FOUND', message: 'Project not found' } },
+        { status: 404 },
+      )
     }
 
     // Record history before deletion
-    await createProjectDeletedHistory(session.user.id, project);
+    await createProjectDeletedHistory(auth.user.id, project)
 
     await prisma.project.delete({
       where: {
         id,
-        createdById: session.user.id,
+        createdById: auth.user.id,
       },
-    });
+    })
 
-    return NextResponse.json({ message: 'Projet supprimé avec succès' });
+    return new NextResponse(null, { status: 204 })
   } catch (error) {
-    console.error('Erreur lors de la suppression du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+    return handleApiError(error)
   }
 }

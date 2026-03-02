@@ -1,5 +1,6 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
+import { logger } from '@/lib/logger'
 
 /**
  * Get the current user session in a Server Component
@@ -7,14 +8,14 @@ import { headers } from "next/headers";
  */
 export async function getUserSession() {
   try {
-    const headersList = await headers();
+    const headersList = await headers()
     const session = await auth.api.getSession({
       headers: headersList,
-    });
-    return session;
+    })
+    return session
   } catch (error) {
-    console.error("Error getting user session:", error);
-    return null;
+    logger.error('Error getting user session', { error })
+    return null
   }
 }
 
@@ -23,8 +24,8 @@ export async function getUserSession() {
  * @returns The user ID or null if not authenticated
  */
 export async function getCurrentUserId() {
-  const session = await getUserSession();
-  return session?.user?.id || null;
+  const session = await getUserSession()
+  return session?.user?.id || null
 }
 
 /**
@@ -32,9 +33,9 @@ export async function getCurrentUserId() {
  * Use this in Server Components that require auth
  */
 export async function requireAuth() {
-  const session = await getUserSession();
+  const session = await getUserSession()
   if (!session?.user?.id) {
-    throw new Error("Authentication required");
+    throw new Error('Authentication required')
   }
-  return session;
+  return session
 }

@@ -1,28 +1,28 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const kitProductSchema = z.object({
-  productId: z.string().min(1, "Le produit est requis"),
-  quantite: z.coerce.number().int().min(1, "La quantité doit être au moins 1"),
-});
+  productId: z.string().min(1, 'Le produit est requis'),
+  quantite: z.coerce.number().int().min(1, 'La quantité doit être au moins 1'),
+})
 
 export const kitSchema = z.object({
   nom: z
     .string()
-    .min(1, "Le nom est requis")
-    .max(100, "Le nom ne peut pas dépasser 100 caractères"),
+    .min(1, 'Le nom est requis')
+    .max(100, 'Le nom ne peut pas dépasser 100 caractères'),
   style: z
     .string()
-    .min(1, "Le style est requis")
-    .max(50, "Le style ne peut pas dépasser 50 caractères"),
+    .min(1, 'Le style est requis')
+    .max(50, 'Le style ne peut pas dépasser 50 caractères'),
   description: z.string().optional(),
   surfaceM2: z
     .number()
-    .min(0, "La surface doit être positive")
-    .max(10000, "La surface ne peut pas dépasser 10 000 m²")
+    .min(0, 'La surface doit être positive')
+    .max(10000, 'La surface ne peut pas dépasser 10 000 m²')
     .optional()
     .or(z.literal(0).transform(() => undefined)), // Allow 0 to be treated as undefined
-  products: z.array(kitProductSchema).min(1, "Au moins un produit est requis"),
-});
+  products: z.array(kitProductSchema).min(1, 'Au moins un produit est requis'),
+})
 
-export type KitFormData = z.infer<typeof kitSchema>;
-export type KitProductData = z.infer<typeof kitProductSchema>;
+export type KitFormData = z.infer<typeof kitSchema>
+export type KitProductData = z.infer<typeof kitProductSchema>

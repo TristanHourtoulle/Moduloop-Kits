@@ -1,84 +1,64 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { ProjectCard } from "@/components/projects/project-card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { FolderOpen } from "lucide-react";
-import { type Project } from "@/lib/types/project";
+import { useState, useEffect, useCallback, Suspense } from 'react'
+import { ProjectCard } from '@/components/projects/project-card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { FolderOpen } from 'lucide-react'
+import { type Project } from '@/lib/types/project'
+import { logger } from '@/lib/logger'
 
 interface ProjectsListWrapperProps {
-  initialProjects: Project[];
+  initialProjects: Project[]
 }
 
 function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
-  const searchParams = useSearchParams();
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [projects, setProjects] = useState<Project[]>(initialProjects)
 
-  // Update projects when initialProjects prop changes (server-side data refresh)
   useEffect(() => {
-    console.log("[ProjectsListWrapper] Initial projects updated:", initialProjects.length);
-    setProjects(initialProjects);
-  }, [initialProjects]);
-
-  // Detect when returning from edit page with updated param
-  useEffect(() => {
-    const updatedParam = searchParams.get("updated");
-    if (updatedParam) {
-      console.log("[ProjectsListWrapper] Detected update param, data already fresh from server");
-      // Data is already fresh from server-side fetch, no need to refetch
-    }
-  }, [searchParams]);
+    setProjects(initialProjects)
+  }, [initialProjects])
 
   const handleDelete = useCallback(
     async (projectId: string) => {
       try {
         const response = await fetch(`/api/projects/${projectId}`, {
-          method: "DELETE",
-        });
+          method: 'DELETE',
+        })
 
         if (!response.ok) {
-          throw new Error("Erreur lors de la suppression du projet");
+          throw new Error('Erreur lors de la suppression du projet')
         }
 
         // Remove project from local state without refetch
-        const updatedProjects = projects.filter((p) => p.id !== projectId);
-        setProjects(updatedProjects);
+        const updatedProjects = projects.filter((p) => p.id !== projectId)
+        setProjects(updatedProjects)
       } catch (err) {
-        console.error("[ProjectsListWrapper] Error deleting project:", err);
+        logger.error('[ProjectsListWrapper] Error deleting project', { error: err })
       }
     },
     [projects],
-  );
+  )
 
   if (projects.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="w-16 h-16 mx-auto mb-4 bg-muted/30 rounded-2xl flex items-center justify-center">
-          <FolderOpen className="h-8 w-8 text-muted-foreground" />
+      <div className="py-12 text-center">
+        <div className="bg-muted/30 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
+          <FolderOpen className="text-muted-foreground h-8 w-8" />
         </div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">
-          Aucun projet trouvé
-        </h3>
-        <p className="text-muted-foreground">
-          Commencez par créer votre premier projet
-        </p>
+        <h3 className="text-foreground mb-2 text-lg font-semibold">Aucun projet trouvé</h3>
+        <p className="text-muted-foreground">Commencez par créer votre premier projet</p>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {projects.map((project) => (
-        <ProjectCard
-          key={project.id}
-          project={project}
-          onDelete={handleDelete}
-        />
+        <ProjectCard key={project.id} project={project} onDelete={handleDelete} />
       ))}
     </div>
-  );
+  )
 }
 
 // Loading skeleton component
@@ -87,7 +67,7 @@ function ProjectCardSkeleton() {
     <Card>
       <CardHeader>
         <div className="flex items-start gap-3">
-          <Skeleton className="w-10 h-10 rounded-lg" />
+          <Skeleton className="h-10 w-10 rounded-lg" />
           <div className="min-w-0 flex-1 space-y-2">
             <Skeleton className="h-5 w-3/4" />
             <Skeleton className="h-4 w-full" />
@@ -113,7 +93,7 @@ function ProjectCardSkeleton() {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
 
 // Wrapper component with Suspense boundary
@@ -121,7 +101,7 @@ export function ProjectsListWrapper(props: ProjectsListWrapperProps) {
   return (
     <Suspense
       fallback={
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <ProjectCardSkeleton key={i} />
           ))}
@@ -130,5 +110,5 @@ export function ProjectsListWrapper(props: ProjectsListWrapperProps) {
     >
       <ProjectsListContent {...props} />
     </Suspense>
-  );
+  )
 }

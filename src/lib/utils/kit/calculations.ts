@@ -1,16 +1,13 @@
-import type { KitProduct } from '@/lib/types/project';
-import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product';
-import {
-  getProductPricing,
-  getProductEnvironmentalImpact,
-} from '@/lib/utils/product-helpers';
+import type { KitProduct } from '@/lib/types/project'
+import type { PurchaseRentalMode, ProductPeriod } from '@/lib/schemas/product'
+import { getProductPricing, getProductEnvironmentalImpact } from '@/lib/utils/product-helpers'
 
 export interface KitImpactResult {
-  rechauffementClimatique: number;
-  epuisementRessources: number;
-  acidification: number;
-  eutrophisation: number;
-  surface: number;
+  rechauffementClimatique: number
+  epuisementRessources: number
+  acidification: number
+  eutrophisation: number
+  surface: number
 }
 
 const EMPTY_IMPACT: KitImpactResult = {
@@ -19,7 +16,7 @@ const EMPTY_IMPACT: KitImpactResult = {
   acidification: 0,
   eutrophisation: 0,
   surface: 0,
-};
+}
 
 /**
  * Aggregate environmental impact for all products in a kit.
@@ -29,38 +26,31 @@ const EMPTY_IMPACT: KitImpactResult = {
  */
 export function calculateKitImpact(
   kitProducts: KitProduct[],
-  mode: PurchaseRentalMode
+  mode: PurchaseRentalMode,
 ): KitImpactResult {
   if (!kitProducts || kitProducts.length === 0) {
-    return { ...EMPTY_IMPACT };
+    return { ...EMPTY_IMPACT }
   }
 
   return kitProducts.reduce<KitImpactResult>(
     (acc, kitProduct) => {
-      const product = kitProduct.product;
-      if (!product) return acc;
+      const product = kitProduct.product
+      if (!product) return acc
 
-      const impact = getProductEnvironmentalImpact(product, mode);
+      const impact = getProductEnvironmentalImpact(product, mode)
 
       return {
         rechauffementClimatique:
-          acc.rechauffementClimatique +
-          (impact.rechauffementClimatique || 0) * kitProduct.quantite,
+          acc.rechauffementClimatique + (impact.rechauffementClimatique || 0) * kitProduct.quantite,
         epuisementRessources:
-          acc.epuisementRessources +
-          (impact.epuisementRessources || 0) * kitProduct.quantite,
-        acidification:
-          acc.acidification +
-          (impact.acidification || 0) * kitProduct.quantite,
-        eutrophisation:
-          acc.eutrophisation +
-          (impact.eutrophisation || 0) * kitProduct.quantite,
-        surface:
-          acc.surface + (product.surfaceM2 || 0) * kitProduct.quantite,
-      };
+          acc.epuisementRessources + (impact.epuisementRessources || 0) * kitProduct.quantite,
+        acidification: acc.acidification + (impact.acidification || 0) * kitProduct.quantite,
+        eutrophisation: acc.eutrophisation + (impact.eutrophisation || 0) * kitProduct.quantite,
+        surface: acc.surface + (product.surfaceM2 || 0) * kitProduct.quantite,
+      }
     },
-    { ...EMPTY_IMPACT }
-  );
+    { ...EMPTY_IMPACT },
+  )
 }
 
 /**
@@ -73,15 +63,15 @@ export function calculateKitImpact(
 export function calculateKitPrice(
   kitProducts: KitProduct[],
   mode: PurchaseRentalMode,
-  period: ProductPeriod = '1an'
+  period: ProductPeriod = '1an',
 ): number {
-  if (!kitProducts || kitProducts.length === 0) return 0;
+  if (!kitProducts || kitProducts.length === 0) return 0
 
   return kitProducts.reduce((acc, kitProduct) => {
-    const product = kitProduct.product;
-    if (!product) return acc;
+    const product = kitProduct.product
+    if (!product) return acc
 
-    const pricing = getProductPricing(product, mode, period);
-    return acc + (pricing.prixVente || 0) * kitProduct.quantite;
-  }, 0);
+    const pricing = getProductPricing(product, mode, period)
+    return acc + (pricing.prixVente || 0) * kitProduct.quantite
+  }, 0)
 }

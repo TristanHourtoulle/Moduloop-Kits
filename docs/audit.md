@@ -45,21 +45,21 @@ WEIGHTED OVERALL            4.1/10
 
 ### Codebase Facts
 
-| Metric | Value |
-|--------|-------|
-| Total files in `src/` | 199 |
-| TypeScript (.ts) | 55 |
-| TypeScript React (.tsx) | 143 |
-| CSS | 1 |
-| Total lines of code | 26,254 |
-| Average file size | ~132 lines |
-| Max file size | 989 lines |
-| Test files | 0 |
-| Test coverage | 0% |
-| Total commits | 128 |
-| Contributors | 1 (solo developer) |
-| Dependencies | 20 |
-| DevDependencies | 13 |
+| Metric                  | Value              |
+| ----------------------- | ------------------ |
+| Total files in `src/`   | 199                |
+| TypeScript (.ts)        | 55                 |
+| TypeScript React (.tsx) | 143                |
+| CSS                     | 1                  |
+| Total lines of code     | 26,254             |
+| Average file size       | ~132 lines         |
+| Max file size           | 989 lines          |
+| Test files              | 0                  |
+| Test coverage           | 0%                 |
+| Total commits           | 128                |
+| Contributors            | 1 (solo developer) |
+| Dependencies            | 20                 |
+| DevDependencies         | 13                 |
 
 ### Tech Stack
 
@@ -142,38 +142,40 @@ src/
 
 **File**: `tsconfig.json`
 
-| Flag | Status |
-|------|--------|
-| `strict` | Present |
-| `noEmit` | Present |
-| `isolatedModules` | Present |
-| `noUncheckedIndexedAccess` | **MISSING** |
-| `noImplicitReturns` | **MISSING** (implicit via strict but not explicit) |
-| `noUnusedLocals` | **MISSING** |
-| `noUnusedParameters` | **MISSING** |
+| Flag                       | Status                                             |
+| -------------------------- | -------------------------------------------------- |
+| `strict`                   | Present                                            |
+| `noEmit`                   | Present                                            |
+| `isolatedModules`          | Present                                            |
+| `noUncheckedIndexedAccess` | **MISSING**                                        |
+| `noImplicitReturns`        | **MISSING** (implicit via strict but not explicit) |
+| `noUnusedLocals`           | **MISSING**                                        |
+| `noUnusedParameters`       | **MISSING**                                        |
 
 #### `as any` Assertions (10 occurrences in 8 files)
 
-| File | Count | Issue |
-|------|-------|-------|
-| `src/lib/db.ts` | 3 | `transformDates()` returns `as any` instead of proper generic |
-| `src/lib/forms.ts` | 2 | Double `as any` cast on `zodResolver(schema as any) as any` |
-| `src/lib/auth/sign-in-with-error-handling.ts` | 1 | Unnecessary cast on error object |
-| `src/components/projects/project-edit-wrapper.tsx` | 1 | Type coercion instead of proper alignment |
-| `src/components/products/product-form.tsx` | 1 | Two `as any` when accessing object keys |
-| `src/app/(dashboard)/profile/page.tsx` | 1 | String to enum cast for role |
-| `src/components/kits/kits-grid-client.tsx` | 1 | Kit type coercion |
-| `src/components/kits/kits-grid.tsx` | 1 | Kits prop type mismatch |
+| File                                               | Count | Issue                                                         |
+| -------------------------------------------------- | ----- | ------------------------------------------------------------- |
+| `src/lib/db.ts`                                    | 3     | `transformDates()` returns `as any` instead of proper generic |
+| `src/lib/forms.ts`                                 | 2     | Double `as any` cast on `zodResolver(schema as any) as any`   |
+| `src/lib/auth/sign-in-with-error-handling.ts`      | 1     | Unnecessary cast on error object                              |
+| `src/components/projects/project-edit-wrapper.tsx` | 1     | Type coercion instead of proper alignment                     |
+| `src/components/products/product-form.tsx`         | 1     | Two `as any` when accessing object keys                       |
+| `src/app/(dashboard)/profile/page.tsx`             | 1     | String to enum cast for role                                  |
+| `src/components/kits/kits-grid-client.tsx`         | 1     | Kit type coercion                                             |
+| `src/components/kits/kits-grid.tsx`                | 1     | Kits prop type mismatch                                       |
 
 #### Zod Validation at API Boundaries
 
 **Validated (4 endpoints):**
+
 - `POST /api/products` — `productSchema.parse(body)`
 - `POST /api/kits` — `kitSchema.parse(body)`
 - `PATCH /api/admin/users/[id]/role` — `updateRoleSchema.parse(body)`
 - `PUT /api/kits/[id]` — uses `kitSchema`
 
 **NOT validated (5+ endpoints):**
+
 - `POST /api/projects` — manual `if (!nom)` check only
 - `PATCH /api/projects/[id]` — manual validation for `surfaceManual`
 - `POST /api/projects/[id]/kits` — no schema for kits array items
@@ -203,15 +205,15 @@ src/
 
 **`src/lib/db.ts` is a god file (390 lines):**
 
-| Section | Lines | Concern |
-|---------|-------|---------|
-| Prisma singleton | 11-17 | Infrastructure |
-| Product select fields | 20-59 | Config |
-| Date transform helper | 62-94 | Utility |
-| Data fetching | 97-178 | Data access |
-| Preload functions | 181-195 | Unnecessary wrappers |
-| Project fetching | 198-259 | Data access |
-| Project CRUD | 261-308 | Data access |
+| Section                    | Lines       | Concern                          |
+| -------------------------- | ----------- | -------------------------------- |
+| Prisma singleton           | 11-17       | Infrastructure                   |
+| Product select fields      | 20-59       | Config                           |
+| Date transform helper      | 62-94       | Utility                          |
+| Data fetching              | 97-178      | Data access                      |
+| Preload functions          | 181-195     | Unnecessary wrappers             |
+| Project fetching           | 198-259     | Data access                      |
+| Project CRUD               | 261-308     | Data access                      |
 | **calculateProjectTotals** | **311-381** | **Business logic in data layer** |
 
 #### Circular Dependency
@@ -224,24 +226,25 @@ This violates the rule that `lib/` should NOT import from `components/`.
 
 #### Files Over 400 Lines (12 files)
 
-| File | Lines | Status |
-|------|-------|--------|
-| `src/components/products/form-sections/pricing-environmental-section.tsx` | **989** | CRITICAL |
-| `src/components/projects/kits-list.tsx` | **672** | CRITICAL |
-| `src/components/projects/pricing-detailed-analysis.tsx` | **653** | CRITICAL |
-| `src/components/products/form-sections/pricing-section.tsx` | **597** | HIGH |
-| `src/components/kits/form-sections/kit-products-section.tsx` | **592** | HIGH |
-| `src/components/projects/project-kit-card.tsx` | **514** | HIGH |
-| `src/components/projects/purchase-rental-comparison.tsx` | **492** | HIGH |
-| `src/components/projects/add-kit-modal.tsx` | **481** | HIGH |
-| `src/lib/schemas/product.ts` | **450** | MEDIUM (acceptable for schemas) |
-| `src/components/projects/project-overview-tab.tsx` | **431** | HIGH |
-| `src/app/(dashboard)/profile/page.tsx` | **422** | MEDIUM |
-| `src/components/kits/kit-card.tsx` | **407** | HIGH |
+| File                                                                      | Lines   | Status                          |
+| ------------------------------------------------------------------------- | ------- | ------------------------------- |
+| `src/components/products/form-sections/pricing-environmental-section.tsx` | **989** | CRITICAL                        |
+| `src/components/projects/kits-list.tsx`                                   | **672** | CRITICAL                        |
+| `src/components/projects/pricing-detailed-analysis.tsx`                   | **653** | CRITICAL                        |
+| `src/components/products/form-sections/pricing-section.tsx`               | **597** | HIGH                            |
+| `src/components/kits/form-sections/kit-products-section.tsx`              | **592** | HIGH                            |
+| `src/components/projects/project-kit-card.tsx`                            | **514** | HIGH                            |
+| `src/components/projects/purchase-rental-comparison.tsx`                  | **492** | HIGH                            |
+| `src/components/projects/add-kit-modal.tsx`                               | **481** | HIGH                            |
+| `src/lib/schemas/product.ts`                                              | **450** | MEDIUM (acceptable for schemas) |
+| `src/components/projects/project-overview-tab.tsx`                        | **431** | HIGH                            |
+| `src/app/(dashboard)/profile/page.tsx`                                    | **422** | MEDIUM                          |
+| `src/components/kits/kit-card.tsx`                                        | **407** | HIGH                            |
 
 #### Code Bloat Root Causes (pricing-environmental-section.tsx, 989 lines)
 
 This single component handles:
+
 - Two pricing modes (ACHAT/LOCATION)
 - Three rental periods (1an, 2ans, 3ans)
 - Environmental impact rendering
@@ -252,11 +255,13 @@ This single component handles:
 #### Code Duplication
 
 **Impact aggregation** repeated 3+ times:
+
 1. `kits-list.tsx` (lines 42-75) — inline `getKitImpact()`
 2. `lib/utils/kit/calculations.ts` (lines 30-64) — `calculateKitImpact()`
 3. `lib/utils/project/calculations.ts` (lines 169-207) — `calculateEnvironmentalSavings()`
 
 **Price calculation** repeated 4+ times:
+
 - `kits-list.tsx` — `getKitPrice()` inline
 - `pricing-detailed-analysis.tsx` — inline price aggregation
 - `project-kit-card.tsx` — inline pricing
@@ -265,14 +270,14 @@ This single component handles:
 
 #### Debug/Test/Stale Files in Production
 
-| File | Type |
-|------|------|
-| `src/app/test-form/page.tsx` | Test route |
-| `src/app/test-product/page.tsx` | Test route |
-| `src/components/debug/simple-form-test.tsx` | Debug component |
-| `src/components/examples/avatar-examples.tsx` | Example component |
-| `src/components/products/product-card-old.tsx` | Stale file |
-| `src/components/products/product-form-new.tsx` | Stale file |
+| File                                           | Type              |
+| ---------------------------------------------- | ----------------- |
+| `src/app/test-form/page.tsx`                   | Test route        |
+| `src/app/test-product/page.tsx`                | Test route        |
+| `src/components/debug/simple-form-test.tsx`    | Debug component   |
+| `src/components/examples/avatar-examples.tsx`  | Example component |
+| `src/components/products/product-card-old.tsx` | Stale file        |
+| `src/components/products/product-form-new.tsx` | Stale file        |
 
 ---
 
@@ -282,15 +287,15 @@ This single component handles:
 
 **File**: `eslint.config.mjs`
 
-| Check | Status |
-|-------|--------|
-| Format | Flat config (ESLint v9) via FlatCompat |
-| Presets | `next/core-web-vitals`, `next/typescript` |
-| Type-aware rules (`no-floating-promises`, `no-misused-promises`) | **NOT enabled** |
-| `eslint-config-prettier` | **NOT installed** |
-| `eslint-plugin-security` | **NOT installed** |
-| `eslint-plugin-import` (sorting) | **NOT installed** |
-| `max-warnings` policy | **NOT configured** |
+| Check                                                            | Status                                    |
+| ---------------------------------------------------------------- | ----------------------------------------- |
+| Format                                                           | Flat config (ESLint v9) via FlatCompat    |
+| Presets                                                          | `next/core-web-vitals`, `next/typescript` |
+| Type-aware rules (`no-floating-promises`, `no-misused-promises`) | **NOT enabled**                           |
+| `eslint-config-prettier`                                         | **NOT installed**                         |
+| `eslint-plugin-security`                                         | **NOT installed**                         |
+| `eslint-plugin-import` (sorting)                                 | **NOT installed**                         |
+| `max-warnings` policy                                            | **NOT configured**                        |
 
 #### Prettier
 
@@ -303,12 +308,12 @@ Consistent 2-space indentation throughout the codebase.
 
 #### ESLint-Disable Comments (4 occurrences)
 
-| File | Rule Disabled | Justification |
-|------|--------------|---------------|
-| `src/lib/forms.ts` (lines 5, 11) | `@typescript-eslint/no-explicit-any` | Schema type constraints |
-| `src/components/products/product-form.tsx` (line 122) | `react-hooks/exhaustive-deps` | Controlled useEffect |
-| `src/components/kits/kit-form.tsx` (line 64) | `react-hooks/exhaustive-deps` | Controlled useEffect |
-| `src/app/api/products/[id]/route.ts` (line 110) | `@typescript-eslint/no-unused-vars` | Intentional destructuring |
+| File                                                  | Rule Disabled                        | Justification             |
+| ----------------------------------------------------- | ------------------------------------ | ------------------------- |
+| `src/lib/forms.ts` (lines 5, 11)                      | `@typescript-eslint/no-explicit-any` | Schema type constraints   |
+| `src/components/products/product-form.tsx` (line 122) | `react-hooks/exhaustive-deps`        | Controlled useEffect      |
+| `src/components/kits/kit-form.tsx` (line 64)          | `react-hooks/exhaustive-deps`        | Controlled useEffect      |
+| `src/app/api/products/[id]/route.ts` (line 110)       | `@typescript-eslint/no-unused-vars`  | Intentional destructuring |
 
 All 4 are justified and documented.
 
@@ -318,32 +323,33 @@ All 4 are justified and documented.
 
 #### Test Infrastructure
 
-| Category | Status |
-|----------|--------|
-| Unit testing framework | **ABSENT** — no Vitest/Jest configured |
-| Test files | **ZERO** — no `.test.ts`, `.test.tsx`, `.spec.ts`, `.spec.tsx` |
-| Test scripts | **ABSENT** — no `test` script in package.json |
-| E2E framework | **PARTIAL** — Playwright installed but no `playwright.config.ts` |
-| Coverage | **ABSENT** — no coverage tools |
-| Type safety | TypeScript strict mode (only safety net) |
+| Category               | Status                                                           |
+| ---------------------- | ---------------------------------------------------------------- |
+| Unit testing framework | **ABSENT** — no Vitest/Jest configured                           |
+| Test files             | **ZERO** — no `.test.ts`, `.test.tsx`, `.spec.ts`, `.spec.tsx`   |
+| Test scripts           | **ABSENT** — no `test` script in package.json                    |
+| E2E framework          | **PARTIAL** — Playwright installed but no `playwright.config.ts` |
+| Coverage               | **ABSENT** — no coverage tools                                   |
+| Type safety            | TypeScript strict mode (only safety net)                         |
 
 #### Critical Business Logic That SHOULD Be Tested
 
 **High Priority — Financial Calculations:**
 
-| File | Functions | Risk |
-|------|-----------|------|
-| `src/lib/utils/product-helpers.ts` (300 lines) | `ceilPrice()`, `annualToMonthly()`, `calculateMarginPercentage()`, `getProductPricing()`, `getProductEnvironmentalImpact()` | Floating-point precision, incorrect fallback with legacy fields |
-| `src/lib/utils/kit/calculations.ts` (88 lines) | `calculateKitPrice()`, `calculateKitImpact()` | Incorrect quantity multiplication, null handling |
-| `src/lib/utils/project/calculations.ts` (251 lines) | `calculateProjectPriceTotals()`, `calculateBreakEvenPoint()`, `calculateEnvironmentalSavings()` | Nested aggregations, division by zero |
+| File                                                | Functions                                                                                                                   | Risk                                                            |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `src/lib/utils/product-helpers.ts` (300 lines)      | `ceilPrice()`, `annualToMonthly()`, `calculateMarginPercentage()`, `getProductPricing()`, `getProductEnvironmentalImpact()` | Floating-point precision, incorrect fallback with legacy fields |
+| `src/lib/utils/kit/calculations.ts` (88 lines)      | `calculateKitPrice()`, `calculateKitImpact()`                                                                               | Incorrect quantity multiplication, null handling                |
+| `src/lib/utils/project/calculations.ts` (251 lines) | `calculateProjectPriceTotals()`, `calculateBreakEvenPoint()`, `calculateEnvironmentalSavings()`                             | Nested aggregations, division by zero                           |
 
 **Medium Priority — Audit Trail:**
 
-| File | Functions | Risk |
-|------|-----------|------|
+| File                                              | Functions                                                 | Risk                                                             |
+| ------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------- |
 | `src/lib/services/project-history.ts` (229 lines) | `recordProjectHistory()`, `createProjectUpdatedHistory()` | Silent failures (console.error only), incorrect change detection |
 
 **Medium Priority — API Routes (14 routes):**
+
 - Product CRUD, Kit CRUD, Project CRUD + kit management + history
 - No input validation beyond partial Zod, no boundary condition testing
 
@@ -353,25 +359,25 @@ All 4 are justified and documented.
 
 #### What EXISTS
 
-| Item | Details |
-|------|---------|
-| `vercel.json` | Serverless max duration: 30s, region: `cdg1` (Paris) |
-| ESLint | Configured in `eslint.config.mjs` |
-| TypeScript strict | Enabled in `tsconfig.json` |
-| Build scripts | `pnpm build` = Prisma push + generate + Next.js build |
-| DB migration script | `scripts/deploy-db.sh` (manual) |
+| Item                | Details                                               |
+| ------------------- | ----------------------------------------------------- |
+| `vercel.json`       | Serverless max duration: 30s, region: `cdg1` (Paris)  |
+| ESLint              | Configured in `eslint.config.mjs`                     |
+| TypeScript strict   | Enabled in `tsconfig.json`                            |
+| Build scripts       | `pnpm build` = Prisma push + generate + Next.js build |
+| DB migration script | `scripts/deploy-db.sh` (manual)                       |
 
 #### What is MISSING
 
-| Item | Impact |
-|------|--------|
-| GitHub Actions / CI workflows | No automated checks on PR |
-| Husky (pre-commit hooks) | No local quality gates |
-| Commitlint | No commit message enforcement |
-| Lint-staged | No staged file linting |
-| Dependabot / Renovate | No dependency update automation |
-| npm audit in CI | No vulnerability scanning |
-| Test execution in build | No test step anywhere |
+| Item                          | Impact                          |
+| ----------------------------- | ------------------------------- |
+| GitHub Actions / CI workflows | No automated checks on PR       |
+| Husky (pre-commit hooks)      | No local quality gates          |
+| Commitlint                    | No commit message enforcement   |
+| Lint-staged                   | No staged file linting          |
+| Dependabot / Renovate         | No dependency update automation |
+| npm audit in CI               | No vulnerability scanning       |
+| Test execution in build       | No test step anywhere           |
 
 ---
 
@@ -380,29 +386,35 @@ All 4 are justified and documented.
 #### CRITICAL Issues
 
 **1. Authorization Bypass — Missing ownership check on GET endpoint**
+
 - **File**: `src/app/api/projects/[id]/kits/route.ts:146-183`
 - Any authenticated user can read any project's kits. No `createdById` check.
 
 **2. Wrong HTTP Status Code**
+
 - **File**: `src/app/api/projects/[id]/route.ts:235`
 - DELETE endpoint returns `500` instead of `401` when user is not authenticated.
 
 **3. Missing Input Validation — No validation of kit quantities**
+
 - **File**: `src/app/api/projects/[id]/kits/route.ts:22-30`
 - `kit.quantite` and `kit.kitId` are NOT validated. Negative or non-numeric values can reach Prisma.
 
 #### HIGH Issues
 
 **4. Console.log in Production (24 files)**
+
 - `src/middleware.ts` (5 statements with emojis)
 - All API route files
 - Multiple component files
 
 **5. Hardcoded trustedOrigins**
+
 - **File**: `src/lib/auth.ts:32`
 - `trustedOrigins: ["http://localhost:3000"]` — CSRF protection broken in production.
 
 **6. Missing Security Headers**
+
 - **File**: `next.config.mjs`
 - No X-Frame-Options, X-Content-Type-Options, HSTS, Referrer-Policy.
 
@@ -411,10 +423,12 @@ All 4 are justified and documented.
 **7. No Rate Limiting** on auth endpoints — brute-force attacks possible.
 
 **8. Insufficient Validation on Projects Route**
+
 - **File**: `src/app/api/projects/route.ts:71-78`
 - POST only checks `nom` exists, no schema validation.
 
 **9. Environment Variable Fallback**
+
 - **File**: `src/components/providers/auth-provider.tsx:7`
 - `NEXT_PUBLIC_APP_URL` falls back to `http://localhost:3000` in production.
 
@@ -433,6 +447,7 @@ All 4 are justified and documented.
 #### Commit Convention
 
 **Status**: EXCELLENT — last 20 commits consistently follow `type(scope): description`:
+
 - `feat(projects): add PDF export for project summary`
 - `refactor(pricing): extract ceilPrice utility and apply ceiling rounding`
 - `refactor(projects): split large components into focused sub-components`
@@ -440,6 +455,7 @@ All 4 are justified and documented.
 #### Branch Naming
 
 **Mixed**:
+
 - Good: `feature/tri-14`, `feature/tri-15`, `feature/tri-16`
 - Inconsistent: `tristanh/tri-13-rent-by-month`, `tristanh/tri-17-refactor-projects`
 
@@ -450,25 +466,25 @@ Minor issue: `CLAUDE.md` is gitignored (line 44) but should be committed for col
 
 #### Documentation
 
-| Document | Status | Quality |
-|----------|--------|---------|
-| README.md | Exists | POOR — default Next.js boilerplate |
-| CLAUDE.md | Exists | EXCELLENT — 180 lines, comprehensive |
-| CACHING.md | Exists | Good — 248 lines, caching strategy |
-| NEXT_16_MIGRATION_PLAN.md | Exists | Good — 626 lines, migration guide |
-| VERCEL_CACHE_SOLUTION.md | Exists | Good — 150 lines |
-| CONTRIBUTING.md | **MISSING** | — |
-| .github/PULL_REQUEST_TEMPLATE.md | **MISSING** | — |
-| ADRs | **MISSING** | — |
+| Document                         | Status      | Quality                              |
+| -------------------------------- | ----------- | ------------------------------------ |
+| README.md                        | Exists      | POOR — default Next.js boilerplate   |
+| CLAUDE.md                        | Exists      | EXCELLENT — 180 lines, comprehensive |
+| CACHING.md                       | Exists      | Good — 248 lines, caching strategy   |
+| NEXT_16_MIGRATION_PLAN.md        | Exists      | Good — 626 lines, migration guide    |
+| VERCEL_CACHE_SOLUTION.md         | Exists      | Good — 150 lines                     |
+| CONTRIBUTING.md                  | **MISSING** | —                                    |
+| .github/PULL_REQUEST_TEMPLATE.md | **MISSING** | —                                    |
+| ADRs                             | **MISSING** | —                                    |
 
 #### Version Pinning
 
-| Check | Status |
-|-------|--------|
-| `.nvmrc` | **MISSING** |
-| `engines` field in package.json | **MISSING** |
-| `pnpm-lock.yaml` | Present |
-| Dependency ranges | Caret (`^`) — allows minor updates |
+| Check                           | Status                             |
+| ------------------------------- | ---------------------------------- |
+| `.nvmrc`                        | **MISSING**                        |
+| `engines` field in package.json | **MISSING**                        |
+| `pnpm-lock.yaml`                | Present                            |
+| Dependency ranges               | Caret (`^`) — allows minor updates |
 
 ---
 
@@ -638,18 +654,18 @@ Minor issue: `CLAUDE.md` is gitignored (line 44) but should be committed for col
 // Before (route.ts:146-183)
 const projectKits = await prisma.projectKit.findMany({
   where: { projectId },
-});
+})
 
 // After
 const project = await prisma.project.findFirst({
   where: { id: projectId, createdById: session.user.id },
-});
+})
 if (!project) {
-  return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  return NextResponse.json({ error: 'Not found' }, { status: 404 })
 }
 const projectKits = await prisma.projectKit.findMany({
   where: { projectId },
-});
+})
 ```
 
 **Files**: `src/app/api/projects/[id]/kits/route.ts`
@@ -679,7 +695,7 @@ import { ceilPrice } from './product-helpers'
 describe('ceilPrice', () => {
   it('rounds up to next cent', () => {
     expect(ceilPrice(10.001)).toBe(10.01)
-    expect(ceilPrice(10.00)).toBe(10.00)
+    expect(ceilPrice(10.0)).toBe(10.0)
   })
 })
 ```
@@ -774,6 +790,7 @@ async headers() {
 **What**: Remove test pages, debug components, example components, and stale product files.
 **Why**: Increases attack surface and causes confusion.
 **Files to delete**:
+
 - `src/app/test-form/` (entire directory)
 - `src/app/test-product/` (entire directory)
 - `src/components/debug/` (entire directory)
@@ -811,10 +828,14 @@ export const createProjectSchema = z.object({
 })
 
 export const addKitsSchema = z.object({
-  kits: z.array(z.object({
-    kitId: z.string().uuid(),
-    quantite: z.number().int().positive(),
-  })).min(1),
+  kits: z
+    .array(
+      z.object({
+        kitId: z.string().uuid(),
+        quantite: z.number().int().positive(),
+      }),
+    )
+    .min(1),
 })
 ```
 
@@ -907,10 +928,10 @@ export const addKitsSchema = z.object({
 # .github/dependabot.yml
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 5
 ```
 
@@ -958,12 +979,15 @@ updates:
 
 ```markdown
 ## Summary
+
 <!-- 1-3 bullet points -->
 
 ## Changes
+
 <!-- List of changes -->
 
 ## Test Plan
+
 - [ ] Unit tests pass
 - [ ] Manual testing done
 

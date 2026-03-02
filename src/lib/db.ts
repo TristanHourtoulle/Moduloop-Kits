@@ -1,20 +1,19 @@
-import { PrismaClient } from '@prisma/client';
-import 'server-only';
-import { unstable_noStore as noStore } from 'next/cache';
-import { Project, ProjectStatus } from './types/project';
-import { getProductPricing, getProductEnvironmentalImpact } from './utils/product-helpers';
+import { PrismaClient } from '@prisma/client'
+import 'server-only'
+import { unstable_noStore as noStore } from 'next/cache'
+import { type Kit, type Product, type Project, ProjectStatus } from './types/project'
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+  prisma: PrismaClient | undefined
+}
 
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     log: ['query'],
-  });
+  })
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 // Product select object with all fields (legacy + mode-specific)
 const productSelectFields = {
@@ -56,62 +55,66 @@ const productSelectFields = {
   epuisementRessourcesLocation: true,
   acidificationLocation: true,
   eutrophisationLocation: true,
-} as const;
+} as const
 
-// Helper to transform Prisma data to match frontend types
-const transformDates = (data: any): any => {
+/**
+ * Recursively transforms Prisma query results for frontend consumption:
+ * - Converts Date instances to ISO strings
+ * - Converts null description fields to undefined
+ */
+const transformDates = (data: unknown): unknown => {
   if (data === null || data === undefined) {
-    return data;
+    return data
   }
 
   if (data instanceof Date) {
-    return data.toISOString();
+    return data.toISOString()
   }
 
   if (Array.isArray(data)) {
-    return data.map((item) => transformDates(item));
+    return data.map((item) => transformDates(item))
   }
 
   if (typeof data === 'object') {
-    const transformed: any = {};
-    Object.keys(data).forEach((key) => {
-      const value = data[key];
+    const transformed: Record<string, unknown> = {}
+    Object.keys(data as Record<string, unknown>).forEach((key) => {
+      const value = (data as Record<string, unknown>)[key]
       if (value instanceof Date) {
-        transformed[key] = value.toISOString();
+        transformed[key] = value.toISOString()
       } else if (value === null && key === 'description') {
         // Convert null to undefined for description fields
-        transformed[key] = undefined;
+        transformed[key] = undefined
       } else if (typeof value === 'object' && value !== null) {
-        transformed[key] = transformDates(value);
+        transformed[key] = transformDates(value)
       } else {
-        transformed[key] = value;
+        transformed[key] = value
       }
-    });
-    return transformed;
+    })
+    return transformed
   }
 
-  return data;
-};
+  return data
+}
 
 // Data fetching functions - with noStore() to disable Next.js Data Cache
 export const getKits = async (filters?: { search?: string; style?: string }) => {
-  noStore(); // Disable Next.js Data Cache for fresh data
+  noStore() // Disable Next.js Data Cache for fresh data
 
   // Build where clause dynamically based on filters
   const whereClause: {
-    nom?: { contains: string; mode: 'insensitive' };
-    style?: string;
-  } = {};
+    nom?: { contains: string; mode: 'insensitive' }
+    style?: string
+  } = {}
 
   if (filters?.search) {
     whereClause.nom = {
       contains: filters.search,
       mode: 'insensitive',
-    };
+    }
   }
 
   if (filters?.style) {
-    whereClause.style = filters.style;
+    whereClause.style = filters.style
   }
 
   const kits = await prisma.kit.findMany({
@@ -134,12 +137,12 @@ export const getKits = async (filters?: { search?: string; style?: string }) => 
     orderBy: {
       createdAt: 'desc',
     },
-  });
-  return transformDates(kits) as any;
-};
+  })
+  return transformDates(kits) as Kit[]
+}
 
 export const getKitById = async (id: string) => {
-  noStore(); // Disable Next.js Data Cache for fresh data
+  noStore() // Disable Next.js Data Cache for fresh data
   return await prisma.kit.findUnique({
     where: { id },
     include: {
@@ -157,46 +160,46 @@ export const getKitById = async (id: string) => {
         },
       },
     },
-  });
-};
+  })
+}
 
 export const getProducts = async () => {
-  noStore(); // Disable Next.js Data Cache for fresh data
+  noStore() // Disable Next.js Data Cache for fresh data
   const products = await prisma.product.findMany({
     orderBy: {
       nom: 'asc',
     },
-  });
-  return transformDates(products) as any;
-};
+  })
+  return transformDates(products) as Product[]
+}
 
 export const getProductById = async (id: string) => {
-  noStore(); // Disable Next.js Data Cache for fresh data
+  noStore() // Disable Next.js Data Cache for fresh data
   return await prisma.product.findUnique({
     where: { id },
-  });
-};
+  })
+}
 
 // Preload functions for eager loading
 export const preloadKits = () => {
-  void getKits();
-};
+  void getKits()
+}
 
 export const preloadKit = (id: string) => {
-  void getKitById(id);
-};
+  void getKitById(id)
+}
 
 export const preloadProducts = () => {
-  void getProducts();
-};
+  void getProducts()
+}
 
 export const preloadProduct = (id: string) => {
-  void getProductById(id);
-};
+  void getProductById(id)
+}
 
 // Project-related functions
 export const getProjects = async (userId: string) => {
-  noStore(); // Disable Next.js Data Cache for fresh data
+  noStore() // Disable Next.js Data Cache for fresh data
   const projects = await prisma.project.findMany({
     where: {
       createdById: userId,
@@ -224,12 +227,12 @@ export const getProjects = async (userId: string) => {
     orderBy: {
       createdAt: 'desc',
     },
-  });
-  return transformDates(projects) as any;
-};
+  })
+  return transformDates(projects) as Project[]
+}
 
 export const getProjectById = async (id: string, userId: string) => {
-  noStore(); // Disable Next.js Data Cache for fresh data
+  noStore() // Disable Next.js Data Cache for fresh data
   return await prisma.project.findFirst({
     where: {
       id,
@@ -255,14 +258,14 @@ export const getProjectById = async (id: string, userId: string) => {
         },
       },
     },
-  });
-};
+  })
+}
 
 export const createProject = async (data: {
-  nom: string;
-  description?: string;
-  status?: string;
-  userId: string;
+  nom: string
+  description?: string
+  status?: string
+  userId: string
 }) => {
   return await prisma.project.create({
     data: {
@@ -274,17 +277,17 @@ export const createProject = async (data: {
     include: {
       projectKits: true,
     },
-  });
-};
+  })
+}
 
 export const updateProject = async (
   id: string,
   userId: string,
   data: {
-    nom?: string;
-    description?: string;
-    status?: string;
-  }
+    nom?: string
+    description?: string
+    status?: string
+  },
 ) => {
   return await prisma.project.updateMany({
     where: {
@@ -295,8 +298,8 @@ export const updateProject = async (
       ...data,
       status: data.status ? (data.status as ProjectStatus) : undefined,
     },
-  });
-};
+  })
+}
 
 export const deleteProject = async (id: string, userId: string) => {
   return await prisma.project.deleteMany({
@@ -304,87 +307,14 @@ export const deleteProject = async (id: string, userId: string) => {
       id,
       createdById: userId,
     },
-  });
-};
-
-// Utility functions for calculations
-export const calculateProjectTotals = (project: Project) => {
-  let totalPrix = 0;
-  const totalImpact = {
-    rechauffementClimatique: 0,
-    epuisementRessources: 0,
-    acidification: 0,
-    eutrophisation: 0,
-  };
-  let totalSurface = 0;
-
-  // Calculate surface: use manual override if enabled, otherwise calculate from kits
-  if (project.surfaceOverride && project.surfaceManual != null) {
-    // Use manual override value
-    totalSurface = project.surfaceManual;
-  } else {
-    // Calculate automatically from kits
-    if (project.projectKits) {
-      project.projectKits.forEach((projectKit) => {
-        const kit = projectKit.kit;
-        if (kit) {
-          // Surface totale du kit (définie au niveau du kit, pas des produits)
-          totalSurface += (kit.surfaceM2 || 0) * projectKit.quantite;
-        }
-      });
-    }
-  }
-
-  // Calculate price and environmental impact for all kits (independent of surface mode)
-  if (project.projectKits) {
-    project.projectKits.forEach((projectKit) => {
-      const kit = projectKit.kit;
-      if (kit && kit.kitProducts) {
-        kit.kitProducts.forEach((kitProduct) => {
-          const product = kitProduct.product;
-          if (product) {
-            // Utiliser les helpers pour les champs mode-specific (mode achat par défaut)
-            const pricing = getProductPricing(product, 'achat', '1an');
-            const environmentalImpact = getProductEnvironmentalImpact(product, 'achat');
-
-            // Prix total pour ce produit dans ce kit * quantité du kit dans le projet
-            const prixProduit =
-              (pricing.prixVente || 0) * kitProduct.quantite * projectKit.quantite;
-            totalPrix += prixProduit;
-
-            // Impact environnemental
-            totalImpact.rechauffementClimatique +=
-              (environmentalImpact.rechauffementClimatique || 0) *
-              kitProduct.quantite *
-              projectKit.quantite;
-            totalImpact.epuisementRessources +=
-              (environmentalImpact.epuisementRessources || 0) *
-              kitProduct.quantite *
-              projectKit.quantite;
-            totalImpact.acidification +=
-              (environmentalImpact.acidification || 0) * kitProduct.quantite * projectKit.quantite;
-            totalImpact.eutrophisation +=
-              (environmentalImpact.eutrophisation || 0) *
-              kitProduct.quantite *
-              projectKit.quantite;
-          }
-        });
-      }
-    });
-  }
-
-  return {
-    totalPrix,
-    totalImpact,
-    totalSurface,
-  };
-};
+  })
+}
 
 // Preload functions for projects
 export const preloadProjects = (userId: string) => {
-  void getProjects(userId);
-};
+  void getProjects(userId)
+}
 
 export const preloadProject = (id: string, userId: string) => {
-  void getProjectById(id, userId);
-};
+  void getProjectById(id, userId)
+}
