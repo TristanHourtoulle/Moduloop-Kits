@@ -9,6 +9,7 @@ import {
   hasProductPricingData,
   hasProductEnvironmentalData,
   getDefaultProductMode,
+  getPostThreeYearMonthlyRate,
   formatPrice,
   formatEnvironmentalImpact,
 } from './product-helpers'
@@ -393,6 +394,46 @@ describe('getDefaultProductMode', () => {
       prixVente1An: null as unknown as number,
     })
     expect(getDefaultProductMode(product)).toBe('achat')
+  })
+})
+
+describe('getPostThreeYearMonthlyRate', () => {
+  it('returns 20% of the 3-year monthly rate with ceilPrice rounding', () => {
+    // prixVenteLocation3Ans = 109.08 (annual)
+    // monthly = ceilPrice(109.08 / 12) = ceilPrice(9.09) = 9.09
+    // post-3yr = ceilPrice(9.09 * 0.2) = ceilPrice(1.818) = 1.82
+    const product = makeProduct({
+      prixVenteLocation3Ans: 109.08,
+    })
+    expect(getPostThreeYearMonthlyRate(product)).toBe(1.82)
+  })
+
+  it('returns null when no rental pricing exists', () => {
+    const product = makeProduct()
+    // Legacy fields default to 0, so prixVente will be 0 via fallback
+    // annualToMonthly(0) = 0, monthly <= 0 -> returns null
+    expect(getPostThreeYearMonthlyRate(product)).toBeNull()
+  })
+
+  it('returns null when prixVente is null', () => {
+    const product = makeProduct({
+      prixVenteLocation1An: null as unknown as number,
+      prixVente1An: null as unknown as number,
+    })
+    expect(getPostThreeYearMonthlyRate(product)).toBeNull()
+  })
+
+  it('falls back to 1an pricing when 3ans is not set', () => {
+    // No 3ans pricing -> getProductPricing falls back to 1an
+    // prixVenteLocation1An = 120 (annual)
+    // monthly = ceilPrice(120 / 12) = 10
+    // post-3yr = ceilPrice(10 * 0.2) = 2
+    const product = makeProduct({
+      prixAchatLocation1An: 80,
+      prixUnitaireLocation1An: 100,
+      prixVenteLocation1An: 120,
+    })
+    expect(getPostThreeYearMonthlyRate(product)).toBe(2)
   })
 })
 
