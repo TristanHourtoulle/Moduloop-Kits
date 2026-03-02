@@ -31,6 +31,9 @@ export interface KitBreakdownItem {
 
 export type BreakEvenPhase = '0-1an' | '1-2ans' | '2-3ans' | '3ans+'
 
+/** Rate applied after the initial 3-year rental period (20% of the base rate). */
+export const POST_THREE_YEAR_RATE = 0.2
+
 export interface BreakEvenResult {
   breakEvenMonths: number
   breakEvenYears: number
@@ -205,6 +208,15 @@ export function calculateEnvironmentalSavings(project: Project): EnvironmentalIm
 }
 
 /**
+ * Calculate the monthly rental rate applied after the initial 3-year period.
+ * @param monthlyBase3ans - Monthly rental price on a 3-year basis
+ * @returns Post-3-year monthly rate (20% of the base rate), ceiled to the cent
+ */
+export function calculatePostThreeYearMonthly(monthlyBase3ans: number): number {
+  return ceilPrice(monthlyBase3ans * POST_THREE_YEAR_RATE)
+}
+
+/**
  * Calculate the total rental cost for an extended duration using the tiered model:
  * - First 3 years: full monthly rate (base 3 ans)
  * - Beyond 3 years: 20% of the monthly rate (base 3 ans)
@@ -221,7 +233,7 @@ export function calculateExtendedRentalCost(monthlyBase3ans: number, years: numb
   }
 
   const baseThreeYearCost = ceilPrice(monthlyBase3ans * 12 * 3)
-  const postThreeYearMonthly = ceilPrice(monthlyBase3ans * 0.2)
+  const postThreeYearMonthly = calculatePostThreeYearMonthly(monthlyBase3ans)
   const extraYears = years - 3
   const postThreeYearCost = ceilPrice(postThreeYearMonthly * 12 * extraYears)
 
@@ -260,7 +272,7 @@ export function calculateBreakEvenPoint(project: Project): BreakEvenResult | nul
 
   // Case 1: Break-even beyond 3 years
   if (remainingAfter3Years > 0) {
-    const postMonthly = ceilPrice(effectiveMonthly3ans * 0.2)
+    const postMonthly = calculatePostThreeYearMonthly(effectiveMonthly3ans)
     if (postMonthly <= 0) return null
 
     const extraYears = remainingAfter3Years / (postMonthly * 12)
@@ -314,6 +326,24 @@ export function calculateBreakEvenPoint(project: Project): BreakEvenResult | nul
   }
 
   return null
+}
+
+/**
+ * Format a duration in months into a human-readable French string.
+ * @param months - Total duration in months
+ * @returns Formatted string (e.g., "3 ans et 6 mois", "1 an", "8 mois")
+ */
+export function formatBreakEvenDuration(months: number): string {
+  const years = Math.floor(months / 12)
+  const remainingMonths = Math.round(months % 12)
+
+  if (years === 0) {
+    return `${remainingMonths} mois`
+  }
+  if (remainingMonths === 0) {
+    return `${years} an${years > 1 ? 's' : ''}`
+  }
+  return `${years} an${years > 1 ? 's' : ''} et ${remainingMonths} mois`
 }
 
 function calculateCostsForMode(

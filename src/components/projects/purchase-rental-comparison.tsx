@@ -1,114 +1,84 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import {
-  Euro,
-  ShoppingCart,
-  Home,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Calculator,
-  BarChart3,
-  ArrowRight,
-  Zap,
-  Shield,
-  Recycle,
-  DollarSign,
-  Calendar,
-  Lightbulb,
-} from 'lucide-react'
+import { ShoppingCart, Home, CheckCircle, XCircle, BarChart3 } from 'lucide-react'
 import type { Project } from '@/lib/types/project'
-import { formatPrice as formatPriceHelper, annualToMonthly } from '@/lib/utils/product-helpers'
+import {
+  formatPrice as formatPriceHelper,
+  annualToMonthly,
+  ceilPrice,
+} from '@/lib/utils/product-helpers'
 import {
   calculateProjectPurchaseCosts,
   calculateProjectRentalCosts,
   calculateBreakEvenPoint,
+  calculateExtendedRentalCost,
+  calculatePostThreeYearMonthly,
 } from '@/lib/utils/project/calculations'
+import {
+  DEFAULT_MAX_HORIZON,
+  ABSOLUTE_MAX_HORIZON,
+  PURCHASE_ADVANTAGES,
+  PURCHASE_DISADVANTAGES,
+  RENTAL_ADVANTAGES,
+  RENTAL_DISADVANTAGES,
+} from './purchase-rental-comparison/constants'
+import { TimeHorizonSelector } from './purchase-rental-comparison/time-horizon-selector'
+import { RentalCostBreakdown } from './purchase-rental-comparison/rental-cost-breakdown'
+import { BreakEvenAnalysisCard } from './purchase-rental-comparison/break-even-analysis-card'
+import { RecommendationSection } from './purchase-rental-comparison/recommendation-section'
+import { AdvantageList } from './purchase-rental-comparison/advantage-list'
 
 interface PurchaseRentalComparisonProps {
   project: Project
 }
 
 /**
- * Side-by-side comparison of purchase vs rental options with break-even analysis.
+ * Side-by-side comparison of purchase vs rental options with tiered pricing model.
+ * Integrates break-even analysis, dynamic time horizon, and two-tier monthly cost display
+ * (full rate for first 3 years, 20% beyond).
  * @param props - Project data for cost calculations
  * @returns Interactive comparison view with time horizon selector and recommendation
  */
-export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonProps) {
+export function PurchaseRentalComparison({ project }: Readonly<PurchaseRentalComparisonProps>) {
   const [selectedTimeHorizon, setSelectedTimeHorizon] = useState(3)
 
   const purchaseData = calculateProjectPurchaseCosts(project)
-  const rental1Year = calculateProjectRentalCosts(project, '1an')
-  const rental2Years = calculateProjectRentalCosts(project, '2ans')
   const rental3Years = calculateProjectRentalCosts(project, '3ans')
 
   const breakEvenResult = calculateBreakEvenPoint(project)
   const breakEvenYears = breakEvenResult?.breakEvenYears ?? null
+  const breakEvenMonths = breakEvenResult?.breakEvenMonths ?? null
+  const breakEvenPhase = breakEvenResult?.phase ?? null
 
-  const getRentalDataForHorizon = (years: number) => {
-    if (years <= 1) return rental1Year
-    if (years <= 2) return rental2Years
-    return rental3Years
-  }
+  const monthly3ans = annualToMonthly(rental3Years.totalPrice)
+  const postThreeYearMonthly = calculatePostThreeYearMonthly(monthly3ans)
 
-  const currentRentalData = getRentalDataForHorizon(selectedTimeHorizon)
+  const dynamicMax = breakEvenYears
+    ? Math.min(Math.max(Math.ceil(breakEvenYears) + 2, DEFAULT_MAX_HORIZON), ABSOLUTE_MAX_HORIZON)
+    : DEFAULT_MAX_HORIZON
+  const timeHorizons = useMemo(
+    () => Array.from({ length: dynamicMax }, (_, i) => i + 1),
+    [dynamicMax],
+  )
+  const isBreakEvenBeyondMax = breakEvenYears !== null && breakEvenYears > ABSOLUTE_MAX_HORIZON
 
-  const getProjectedCosts = (years: number) => {
+  const projectedCosts = useMemo(() => {
     const purchaseCostTotal = purchaseData.totalPrice
-    const rentalData = getRentalDataForHorizon(years)
-    const rentalCostPerYear = rentalData.totalPrice
-    const rentalCostTotal = rentalCostPerYear * years
-
+    const rentalCostTotal = calculateExtendedRentalCost(monthly3ans, selectedTimeHorizon)
     return {
       purchase: purchaseCostTotal,
       rental: rentalCostTotal,
       savings: purchaseCostTotal - rentalCostTotal,
     }
-  }
+  }, [purchaseData.totalPrice, monthly3ans, selectedTimeHorizon])
 
-  const projectedCosts = getProjectedCosts(selectedTimeHorizon)
   const isRentalBetter = projectedCosts.savings > 0
-
-  // Purchase advantages
-  const purchaseAdvantages = [
-    { icon: DollarSign, text: "Propriété complète de l'équipement" },
-    { icon: TrendingUp, text: "Pas de coûts récurrents après l'achat" },
-    { icon: Shield, text: "Contrôle total sur l'équipement" },
-    { icon: Calendar, text: 'Utilisation illimitée dans le temps' },
-    { icon: Zap, text: 'Potentiel de revente en fin de vie' },
-  ]
-
-  const purchaseDisadvantages = [
-    { icon: AlertCircle, text: 'Investissement initial important' },
-    { icon: XCircle, text: 'Responsabilité maintenance et réparations' },
-    { icon: Clock, text: 'Obsolescence technologique à votre charge' },
-    { icon: Euro, text: 'Immobilisation de capital importante' },
-  ]
-
-  // Rental advantages
-  const rentalAdvantages = [
-    { icon: Euro, text: 'Coût initial faible, étalement des paiements' },
-    { icon: Shield, text: 'Maintenance incluse dans le service' },
-    { icon: Zap, text: 'Flexibilité et mise à niveau possible' },
-    { icon: Recycle, text: 'Impact environnemental réduit' },
-    { icon: Calculator, text: 'Coûts prévisibles et budgétables' },
-  ]
-
-  const rentalDisadvantages = [
-    { icon: TrendingUp, text: 'Coût total plus élevé sur le long terme' },
-    { icon: XCircle, text: "Pas de propriété de l'équipement" },
-    { icon: Calendar, text: 'Contraintes contractuelles de durée' },
-    { icon: AlertCircle, text: 'Dépendance au fournisseur' },
-  ]
-
-  const timeHorizons = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  const recommendsRental =
+    isRentalBetter && breakEvenYears !== null && selectedTimeHorizon < breakEvenYears
 
   return (
     <div className="space-y-8">
@@ -126,39 +96,13 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
         </p>
       </div>
 
-      {/* Time Horizon Selector - Moved to top */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-      >
-        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3">
-              <div className="rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 p-2">
-                <Clock className="h-5 w-5 text-purple-600" />
-              </div>
-              Horizon temporel d&apos;analyse
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap justify-center gap-3">
-              {timeHorizons.map((years) => (
-                <Button
-                  key={years}
-                  variant={selectedTimeHorizon === years ? 'default' : 'outline'}
-                  onClick={() => setSelectedTimeHorizon(years)}
-                  className={
-                    selectedTimeHorizon === years ? 'bg-purple-500 hover:bg-purple-600' : ''
-                  }
-                >
-                  {years} an{years > 1 ? 's' : ''}
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+      <TimeHorizonSelector
+        timeHorizons={timeHorizons}
+        selectedTimeHorizon={selectedTimeHorizon}
+        onSelect={setSelectedTimeHorizon}
+        isBreakEvenBeyondMax={isBreakEvenBeyondMax}
+        breakEvenYears={breakEvenYears}
+      />
 
       {/* Main Comparison Cards */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -214,35 +158,20 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="mb-3 flex items-center gap-2 font-semibold text-green-900">
-                    <CheckCircle className="h-4 w-4" />
-                    Avantages
-                  </h4>
-                  <div className="space-y-2">
-                    {purchaseAdvantages.map((advantage, index) => (
-                      <div key={index} className="flex items-center gap-3 text-sm text-green-800">
-                        <advantage.icon className="h-4 w-4 flex-shrink-0 text-green-600" />
-                        <span>{advantage.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <AdvantageList
+                  title="Avantages"
+                  items={PURCHASE_ADVANTAGES}
+                  colorScheme="green"
+                  icon={<CheckCircle className="h-4 w-4" />}
+                />
 
-                <div>
-                  <h4 className="mb-3 flex items-center gap-2 font-semibold text-green-900">
-                    <XCircle className="h-4 w-4" />
-                    Inconvénients
-                  </h4>
-                  <div className="space-y-2">
-                    {purchaseDisadvantages.map((disadvantage, index) => (
-                      <div key={index} className="flex items-center gap-3 text-sm text-green-700">
-                        <disadvantage.icon className="h-4 w-4 flex-shrink-0 text-green-500" />
-                        <span>{disadvantage.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <AdvantageList
+                  title="Inconvénients"
+                  items={PURCHASE_DISADVANTAGES}
+                  colorScheme="green"
+                  variant="muted"
+                  icon={<XCircle className="h-4 w-4" />}
+                />
               </div>
             </CardContent>
           </Card>
@@ -263,22 +192,22 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   </div>
                   <CardTitle className="text-xl text-blue-900">Location</CardTitle>
                 </div>
-                {isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears && (
-                  <Badge className="bg-blue-500 text-white">Recommandé</Badge>
-                )}
+                {recommendsRental && <Badge className="bg-blue-500 text-white">Recommandé</Badge>}
               </div>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="text-center">
                 <div className="mb-1 flex items-center justify-center gap-2">
                   <span className="text-4xl font-bold text-blue-900">
-                    {formatPriceHelper(projectedCosts.rental / (selectedTimeHorizon * 12))}
+                    {formatPriceHelper(
+                      ceilPrice(projectedCosts.rental / (selectedTimeHorizon * 12)),
+                    )}
                   </span>
                   <Badge
                     variant="outline"
                     className="border-blue-400 bg-blue-50 px-2 py-0.5 text-xs text-blue-600"
                   >
-                    /mois
+                    /mois moy.
                   </Badge>
                 </div>
                 <div className="mb-2 text-sm text-blue-500">
@@ -289,24 +218,12 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
 
               <div className="space-y-4">
                 <div className="space-y-3 rounded-xl border border-white/50 bg-white/60 p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-blue-800">Coût mensuel</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-blue-900">
-                        {formatPriceHelper(annualToMonthly(currentRentalData.totalPrice))}
-                      </span>
-                      <Badge
-                        variant="outline"
-                        className="border-blue-400 bg-blue-50 px-1.5 py-0 text-[10px] text-blue-600"
-                      >
-                        /mois
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-blue-600">
-                    <span>Coût annuel</span>
-                    <span>{formatPriceHelper(currentRentalData.totalPrice)} /an</span>
-                  </div>
+                  <RentalCostBreakdown
+                    selectedTimeHorizon={selectedTimeHorizon}
+                    monthly3ans={monthly3ans}
+                    postThreeYearMonthly={postThreeYearMonthly}
+                    annualRentalPrice={rental3Years.totalPrice}
+                  />
                   <div className="h-px bg-blue-200/50"></div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-blue-800">
@@ -319,220 +236,50 @@ export function PurchaseRentalComparison({ project }: PurchaseRentalComparisonPr
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="mb-3 flex items-center gap-2 font-semibold text-blue-900">
-                    <CheckCircle className="h-4 w-4" />
-                    Avantages
-                  </h4>
-                  <div className="space-y-2">
-                    {rentalAdvantages.map((advantage, index) => (
-                      <div key={index} className="flex items-center gap-3 text-sm text-blue-800">
-                        <advantage.icon className="h-4 w-4 flex-shrink-0 text-blue-600" />
-                        <span>{advantage.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <AdvantageList
+                  title="Avantages"
+                  items={RENTAL_ADVANTAGES}
+                  colorScheme="blue"
+                  icon={<CheckCircle className="h-4 w-4" />}
+                />
 
-                <div>
-                  <h4 className="mb-3 flex items-center gap-2 font-semibold text-blue-900">
-                    <XCircle className="h-4 w-4" />
-                    Inconvénients
-                  </h4>
-                  <div className="space-y-2">
-                    {rentalDisadvantages.map((disadvantage, index) => (
-                      <div key={index} className="flex items-center gap-3 text-sm text-blue-700">
-                        <disadvantage.icon className="h-4 w-4 flex-shrink-0 text-blue-500" />
-                        <span>{disadvantage.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <AdvantageList
+                  title="Inconvénients"
+                  items={RENTAL_DISADVANTAGES}
+                  colorScheme="blue"
+                  variant="muted"
+                  icon={<XCircle className="h-4 w-4" />}
+                />
               </div>
             </CardContent>
           </Card>
         </motion.div>
       </div>
 
-      {/* Break-Even Analysis */}
-      {breakEvenYears && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 p-2">
-                  <TrendingUp className="h-5 w-5 text-amber-600" />
-                </div>
-                Analyse de rentabilité
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2 text-center">
-                <div className="text-3xl font-bold text-amber-900">
-                  {breakEvenYears.toFixed(1)} ans
-                </div>
-                <div className="text-sm text-amber-700">
-                  Point d&apos;équilibre entre achat et location
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="rounded-xl border border-white/50 bg-white/60 p-4 text-center">
-                  <div className="mb-1 text-2xl font-bold text-amber-900">
-                    {formatPriceHelper(Math.abs(projectedCosts.savings))}
-                  </div>
-                  <div className="text-sm text-amber-700">
-                    {projectedCosts.savings >= 0 ? 'Économies' : 'Surcoût'} sur{' '}
-                    {selectedTimeHorizon} ans
-                  </div>
-                </div>
-                <div className="rounded-xl border border-white/50 bg-white/60 p-4 text-center">
-                  <div className="mb-1 text-2xl font-bold text-amber-900">
-                    {((Math.abs(projectedCosts.savings) / projectedCosts.purchase) * 100).toFixed(
-                      1,
-                    )}
-                    %
-                  </div>
-                  <div className="text-sm text-amber-700">
-                    {projectedCosts.savings >= 0 ? 'Économie' : 'Surcoût'} relatif
-                  </div>
-                </div>
-                <div className="rounded-xl border border-white/50 bg-white/60 p-4 text-center">
-                  <div className="mb-1 flex items-center justify-center gap-1.5">
-                    <span className="text-2xl font-bold text-amber-900">
-                      {formatPriceHelper(annualToMonthly(currentRentalData.totalPrice))}
-                    </span>
-                    <Badge
-                      variant="outline"
-                      className="border-amber-400 bg-amber-50 px-1.5 py-0 text-[10px] text-amber-600"
-                    >
-                      /mois
-                    </Badge>
-                  </div>
-                  <div className="text-sm text-amber-700">Coût mensuel location</div>
-                  <div className="mt-0.5 text-xs text-amber-500">
-                    {formatPriceHelper(currentRentalData.totalPrice)} /an
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+      {breakEvenResult && breakEvenYears && breakEvenMonths && breakEvenPhase && (
+        <BreakEvenAnalysisCard
+          breakEvenYears={breakEvenYears}
+          breakEvenMonths={breakEvenMonths}
+          breakEvenPhase={breakEvenPhase}
+          projectedCosts={projectedCosts}
+          selectedTimeHorizon={selectedTimeHorizon}
+          monthly3ans={monthly3ans}
+          postThreeYearMonthly={postThreeYearMonthly}
+          annualRentalPrice={rental3Years.totalPrice}
+          dynamicMax={dynamicMax}
+        />
       )}
 
-      {/* Smart Recommendation */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-      >
-        <Card className="border-indigo-200 bg-gradient-to-br from-indigo-50 to-violet-50 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3">
-              <div className="rounded-xl bg-gradient-to-br from-indigo-100 to-violet-100 p-2">
-                <Lightbulb className="h-5 w-5 text-indigo-600" />
-              </div>
-              Recommandation intelligente
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div
-              className={`rounded-xl border-2 p-6 ${
-                isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
-                  ? 'border-blue-300 bg-blue-50'
-                  : 'border-green-300 bg-green-50'
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <div
-                  className={`rounded-xl p-2 ${
-                    isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
-                      ? 'bg-blue-100'
-                      : 'bg-green-100'
-                  }`}
-                >
-                  {isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears ? (
-                    <Home className="h-6 w-6 text-blue-600" />
-                  ) : (
-                    <ShoppingCart className="h-6 w-6 text-green-600" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h3
-                    className={`mb-2 text-lg font-bold ${
-                      isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
-                        ? 'text-blue-900'
-                        : 'text-green-900'
-                    }`}
-                  >
-                    {isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
-                      ? 'Location recommandée'
-                      : 'Achat recommandé'}
-                  </h3>
-                  <p
-                    className={`mb-4 text-sm ${
-                      isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
-                        ? 'text-blue-800'
-                        : 'text-green-800'
-                    }`}
-                  >
-                    {isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
-                      ? `Pour un projet de ${selectedTimeHorizon} ans, la location vous permet d'économiser ${formatPriceHelper(Math.abs(projectedCosts.savings))} tout en conservant votre flexibilité financière.`
-                      : `Sur ${selectedTimeHorizon} ans, l'achat vous permet d'économiser ${formatPriceHelper(Math.abs(projectedCosts.savings))} et vous offre la propriété complète de l'équipement.`}
-                  </p>
-                  <div className="flex gap-3">
-                    <Button
-                      className={
-                        isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
-                          ? 'bg-blue-500 hover:bg-blue-600'
-                          : 'bg-green-500 hover:bg-green-600'
-                      }
-                    >
-                      {isRentalBetter && breakEvenYears && selectedTimeHorizon < breakEvenYears
-                        ? 'Opter pour la location'
-                        : "Procéder à l'achat"}
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                    <Button variant="outline">Obtenir un devis détaillé</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
-              <div className="rounded-xl border border-white/50 bg-white/60 p-4">
-                <h4 className="mb-2 font-semibold text-indigo-900">Contexte de projet</h4>
-                <ul className="space-y-1 text-indigo-800">
-                  <li>• {project.projectKits?.length || 0} types de kits configurés</li>
-                  <li>
-                    • Durée d&apos;analyse : {selectedTimeHorizon} an
-                    {selectedTimeHorizon > 1 ? 's' : ''}
-                  </li>
-                  <li>
-                    •{' '}
-                    {breakEvenYears
-                      ? `Point d'équilibre : ${breakEvenYears.toFixed(1)} ans`
-                      : 'Pas de données de location disponibles'}
-                  </li>
-                </ul>
-              </div>
-              <div className="rounded-xl border border-white/50 bg-white/60 p-4">
-                <h4 className="mb-2 font-semibold text-indigo-900">Facteurs à considérer</h4>
-                <ul className="space-y-1 text-indigo-800">
-                  <li>• Capacité d&apos;investissement initial</li>
-                  <li>• Durée prévue d&apos;utilisation</li>
-                  <li>• Besoins de flexibilité</li>
-                  <li>• Évolution technologique prévue</li>
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+      <RecommendationSection
+        recommendsRental={recommendsRental}
+        selectedTimeHorizon={selectedTimeHorizon}
+        projectedCosts={projectedCosts}
+        breakEvenPhase={breakEvenPhase}
+        postThreeYearMonthly={postThreeYearMonthly}
+        breakEvenYears={breakEvenYears}
+        breakEvenMonths={breakEvenMonths}
+        projectKitCount={project.projectKits?.length || 0}
+      />
     </div>
   )
 }
