@@ -6,6 +6,7 @@ import { UserRole } from '@/lib/types/user'
 import { createProjectCreatedHistory } from '@/lib/services/project-history'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
 import { createProjectSchema } from '@/lib/schemas/project'
+import { stripCostFieldsDeep } from '@/lib/utils/strip-cost-fields'
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,7 +45,11 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(projectsWithTotals)
+    const visibleProjects = isAdmin
+      ? projectsWithTotals
+      : projectsWithTotals.map(stripCostFieldsDeep)
+
+    return NextResponse.json(visibleProjects)
   } catch (error) {
     return handleApiError(error)
   }

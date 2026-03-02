@@ -12,6 +12,7 @@ import {
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
 import { updateProjectSchema, replaceProjectSchema } from '@/lib/schemas/project'
 import { logger } from '@/lib/logger'
+import { stripCostFieldsDeep } from '@/lib/utils/strip-cost-fields'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -52,10 +53,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Calculer les totaux
     const totals = calculateProjectTotals(project as unknown as Project)
 
-    return NextResponse.json({
-      ...project,
-      ...totals,
-    })
+    const responseData = { ...project, ...totals }
+
+    return NextResponse.json(access.data.isAdmin ? responseData : stripCostFieldsDeep(responseData))
   } catch (error) {
     return handleApiError(error)
   }

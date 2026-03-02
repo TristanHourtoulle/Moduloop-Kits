@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { useCanViewCosts } from '@/hooks/use-can-view-costs'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -46,6 +47,7 @@ interface PricingDetailedAnalysisProps {
  * @returns The rendered detailed analysis view
  */
 export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProps) {
+  const canViewCosts = useCanViewCosts()
   const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat')
   const [selectedPeriod, setSelectedPeriod] = useState<ProductPeriod>('1an')
   const [selectedHorizon, setSelectedHorizon] = useState(5)
@@ -137,7 +139,7 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="grid grid-cols-1 gap-6 md:grid-cols-3"
+        className={`grid grid-cols-1 gap-6 ${canViewCosts ? 'md:grid-cols-3' : 'md:grid-cols-1'}`}
       >
         <motion.div
           whileHover={{ y: -2, scale: 1.02 }}
@@ -170,67 +172,71 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
           </div>
         </motion.div>
 
-        <motion.div
-          whileHover={{ y: -2, scale: 1.02 }}
-          className="hover:shadow-elegant group relative overflow-hidden rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 text-center shadow-sm transition-all duration-300"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.02] to-indigo-500/[0.02] opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-          <div className="relative z-10">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-100 to-indigo-100 shadow-sm transition-transform duration-300 group-hover:scale-110">
-              <Calculator className="h-8 w-8 text-blue-600" />
+        {canViewCosts && (
+          <motion.div
+            whileHover={{ y: -2, scale: 1.02 }}
+            className="hover:shadow-elegant group relative overflow-hidden rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 text-center shadow-sm transition-all duration-300"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.02] to-indigo-500/[0.02] opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+            <div className="relative z-10">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-100 to-indigo-100 shadow-sm transition-transform duration-300 group-hover:scale-110">
+                <Calculator className="h-8 w-8 text-blue-600" />
+              </div>
+              {selectedMode === 'location' ? (
+                <LocationPriceDisplay
+                  annualPrice={currentData.totalCost}
+                  label="Coût total"
+                  variant="card"
+                  priceClassName="text-blue-900 text-4xl"
+                  secondaryClassName="text-blue-600"
+                  labelClassName="text-blue-700 text-base font-semibold"
+                  badgeClassName="border-blue-500 text-blue-600 bg-blue-50"
+                  secondaryBadgeClassName="border-blue-300 text-blue-500 bg-blue-50"
+                />
+              ) : (
+                <>
+                  <div className="mb-2 text-4xl font-bold text-blue-900">
+                    {formatPriceHelper(currentData.totalCost)}
+                  </div>
+                  <div className="text-base font-semibold text-blue-700">Coût total</div>
+                </>
+              )}
             </div>
-            {selectedMode === 'location' ? (
-              <LocationPriceDisplay
-                annualPrice={currentData.totalCost}
-                label="Coût total"
-                variant="card"
-                priceClassName="text-blue-900 text-4xl"
-                secondaryClassName="text-blue-600"
-                labelClassName="text-blue-700 text-base font-semibold"
-                badgeClassName="border-blue-500 text-blue-600 bg-blue-50"
-                secondaryBadgeClassName="border-blue-300 text-blue-500 bg-blue-50"
-              />
-            ) : (
-              <>
-                <div className="mb-2 text-4xl font-bold text-blue-900">
-                  {formatPriceHelper(currentData.totalCost)}
-                </div>
-                <div className="text-base font-semibold text-blue-700">Coût total</div>
-              </>
-            )}
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
-        <motion.div
-          whileHover={{ y: -2, scale: 1.02 }}
-          className="hover:shadow-elegant group relative overflow-hidden rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50 p-8 text-center shadow-sm transition-all duration-300"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/[0.02] to-violet-500/[0.02] opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
-          <div className="relative z-10">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-purple-100 to-violet-100 shadow-sm transition-transform duration-300 group-hover:scale-110">
-              <TrendingUp className="h-8 w-8 text-purple-600" />
+        {canViewCosts && (
+          <motion.div
+            whileHover={{ y: -2, scale: 1.02 }}
+            className="hover:shadow-elegant group relative overflow-hidden rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50 p-8 text-center shadow-sm transition-all duration-300"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/[0.02] to-violet-500/[0.02] opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+            <div className="relative z-10">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-purple-100 to-violet-100 shadow-sm transition-transform duration-300 group-hover:scale-110">
+                <TrendingUp className="h-8 w-8 text-purple-600" />
+              </div>
+              {selectedMode === 'location' ? (
+                <LocationPriceDisplay
+                  annualPrice={currentData.totalMargin}
+                  label="Marge totale"
+                  variant="card"
+                  priceClassName="text-purple-900 text-4xl"
+                  secondaryClassName="text-purple-600"
+                  labelClassName="text-purple-700 text-base font-semibold"
+                  badgeClassName="border-purple-500 text-purple-600 bg-purple-50"
+                  secondaryBadgeClassName="border-purple-300 text-purple-500 bg-purple-50"
+                />
+              ) : (
+                <>
+                  <div className="mb-2 text-4xl font-bold text-purple-900">
+                    {formatPriceHelper(currentData.totalMargin)}
+                  </div>
+                  <div className="text-base font-semibold text-purple-700">Marge totale</div>
+                </>
+              )}
             </div>
-            {selectedMode === 'location' ? (
-              <LocationPriceDisplay
-                annualPrice={currentData.totalMargin}
-                label="Marge totale"
-                variant="card"
-                priceClassName="text-purple-900 text-4xl"
-                secondaryClassName="text-purple-600"
-                labelClassName="text-purple-700 text-base font-semibold"
-                badgeClassName="border-purple-500 text-purple-600 bg-purple-50"
-                secondaryBadgeClassName="border-purple-300 text-purple-500 bg-purple-50"
-              />
-            ) : (
-              <>
-                <div className="mb-2 text-4xl font-bold text-purple-900">
-                  {formatPriceHelper(currentData.totalMargin)}
-                </div>
-                <div className="text-base font-semibold text-purple-700">Marge totale</div>
-              </>
-            )}
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
       </motion.div>
 
       <motion.div
@@ -263,75 +269,80 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
               </Badge>
             </div>
 
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
-                  <span className="text-sm font-medium text-amber-800">Marge brute</span>
-                  <span className="text-xl font-bold text-amber-900">
-                    {marginPercentage.toFixed(1)}%
-                  </span>
-                </div>
+            <div className={`grid grid-cols-1 gap-8 ${canViewCosts ? 'md:grid-cols-2' : ''}`}>
+              {canViewCosts && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
+                    <span className="text-sm font-medium text-amber-800">Marge brute</span>
+                    <span className="text-xl font-bold text-amber-900">
+                      {marginPercentage.toFixed(1)}%
+                    </span>
+                  </div>
 
-                <div className="rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
-                  <Progress value={Math.min(marginPercentage, 100)} className="h-4 bg-amber-100" />
-                </div>
+                  <div className="rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
+                    <Progress
+                      value={Math.min(marginPercentage, 100)}
+                      className="h-4 bg-amber-100"
+                    />
+                  </div>
 
-                <div className="rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
-                  <div className="space-y-3 text-sm text-amber-700">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">Coût</span>
-                      <div className="text-right">
-                        <span className="font-semibold text-amber-900">
-                          {formatPriceHelper(
-                            selectedMode === 'location'
-                              ? annualToMonthly(currentData.totalCost)
-                              : currentData.totalCost,
+                  <div className="rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
+                    <div className="space-y-3 text-sm text-amber-700">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Coût</span>
+                        <div className="text-right">
+                          <span className="font-semibold text-amber-900">
+                            {formatPriceHelper(
+                              selectedMode === 'location'
+                                ? annualToMonthly(currentData.totalCost)
+                                : currentData.totalCost,
+                            )}
+                          </span>
+                          {selectedMode === 'location' && (
+                            <span className="ml-1 text-xs text-amber-600">/mois</span>
                           )}
-                        </span>
-                        {selectedMode === 'location' && (
-                          <span className="ml-1 text-xs text-amber-600">/mois</span>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">Marge</span>
-                      <div className="text-right">
-                        <span className="font-semibold text-amber-900">
-                          {formatPriceHelper(
-                            selectedMode === 'location'
-                              ? annualToMonthly(currentData.totalMargin)
-                              : currentData.totalMargin,
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Marge</span>
+                        <div className="text-right">
+                          <span className="font-semibold text-amber-900">
+                            {formatPriceHelper(
+                              selectedMode === 'location'
+                                ? annualToMonthly(currentData.totalMargin)
+                                : currentData.totalMargin,
+                            )}
+                          </span>
+                          {selectedMode === 'location' && (
+                            <span className="ml-1 text-xs text-amber-600">/mois</span>
                           )}
-                        </span>
-                        {selectedMode === 'location' && (
-                          <span className="ml-1 text-xs text-amber-600">/mois</span>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="h-px bg-amber-200"></div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">Prix de vente</span>
-                      <div className="text-right">
-                        <span className="font-bold text-amber-900">
-                          {formatPriceHelper(
-                            selectedMode === 'location'
-                              ? annualToMonthly(currentData.totalPrice)
-                              : currentData.totalPrice,
+                      <div className="h-px bg-amber-200"></div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold">Prix de vente</span>
+                        <div className="text-right">
+                          <span className="font-bold text-amber-900">
+                            {formatPriceHelper(
+                              selectedMode === 'location'
+                                ? annualToMonthly(currentData.totalPrice)
+                                : currentData.totalPrice,
+                            )}
+                          </span>
+                          {selectedMode === 'location' && (
+                            <span className="ml-1 text-xs text-amber-600">/mois</span>
                           )}
-                        </span>
-                        {selectedMode === 'location' && (
-                          <span className="ml-1 text-xs text-amber-600">/mois</span>
-                        )}
+                        </div>
                       </div>
+                      {selectedMode === 'location' && (
+                        <div className="pt-1 text-right text-xs text-amber-500">
+                          {formatPriceHelper(currentData.totalPrice)} /an
+                        </div>
+                      )}
                     </div>
-                    {selectedMode === 'location' && (
-                      <div className="pt-1 text-right text-xs text-amber-500">
-                        {formatPriceHelper(currentData.totalPrice)} /an
-                      </div>
-                    )}
                   </div>
                 </div>
-              </div>
+              )}
 
               <div className="space-y-4">
                 <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-white to-amber-50 p-6 text-center shadow-sm">
@@ -411,21 +422,23 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                           <p className="text-sm text-gray-500">Quantité: {kit.quantity}</p>
                         </div>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className={`text-sm font-medium ${
-                          kit.marginPercentage > 30
-                            ? 'border-green-500 bg-green-50 text-green-700'
-                            : kit.marginPercentage > 20
-                              ? 'border-yellow-500 bg-yellow-50 text-yellow-700'
-                              : 'border-red-500 bg-red-50 text-red-700'
-                        }`}
-                      >
-                        {kit.marginPercentage.toFixed(1)}% marge
-                      </Badge>
+                      {canViewCosts && (
+                        <Badge
+                          variant="outline"
+                          className={`text-sm font-medium ${
+                            kit.marginPercentage > 30
+                              ? 'border-green-500 bg-green-50 text-green-700'
+                              : kit.marginPercentage > 20
+                                ? 'border-yellow-500 bg-yellow-50 text-yellow-700'
+                                : 'border-red-500 bg-red-50 text-red-700'
+                          }`}
+                        >
+                          {kit.marginPercentage.toFixed(1)}% marge
+                        </Badge>
+                      )}
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className={`grid gap-4 ${canViewCosts ? 'grid-cols-3' : 'grid-cols-1'}`}>
                       <div className="rounded-xl border border-green-100 bg-gradient-to-br from-green-50 to-emerald-50 p-4 text-center">
                         {selectedMode === 'location' ? (
                           <LocationPriceDisplay
@@ -447,48 +460,52 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                           </>
                         )}
                       </div>
-                      <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 text-center">
-                        {selectedMode === 'location' ? (
-                          <LocationPriceDisplay
-                            annualPrice={kit.totalCost}
-                            label="Coût total"
-                            variant="card"
-                            priceClassName="text-blue-900 text-lg"
-                            secondaryClassName="text-blue-600 text-xs"
-                            labelClassName="text-blue-700 text-xs"
-                            badgeClassName="border-blue-500 text-blue-600 bg-blue-50 text-[10px] px-1 py-0"
-                            secondaryBadgeClassName="border-blue-300 text-blue-500 bg-blue-50"
-                          />
-                        ) : (
-                          <>
-                            <div className="mb-1 text-lg font-bold text-blue-900">
-                              {formatPriceHelper(kit.totalCost)}
-                            </div>
-                            <div className="text-xs font-medium text-blue-700">Coût total</div>
-                          </>
-                        )}
-                      </div>
-                      <div className="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-violet-50 p-4 text-center">
-                        {selectedMode === 'location' ? (
-                          <LocationPriceDisplay
-                            annualPrice={kit.totalMargin}
-                            label="Marge"
-                            variant="card"
-                            priceClassName="text-purple-900 text-lg"
-                            secondaryClassName="text-purple-600 text-xs"
-                            labelClassName="text-purple-700 text-xs"
-                            badgeClassName="border-purple-500 text-purple-600 bg-purple-50 text-[10px] px-1 py-0"
-                            secondaryBadgeClassName="border-purple-300 text-purple-500 bg-purple-50"
-                          />
-                        ) : (
-                          <>
-                            <div className="mb-1 text-lg font-bold text-purple-900">
-                              {formatPriceHelper(kit.totalMargin)}
-                            </div>
-                            <div className="text-xs font-medium text-purple-700">Marge</div>
-                          </>
-                        )}
-                      </div>
+                      {canViewCosts && (
+                        <div className="rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 text-center">
+                          {selectedMode === 'location' ? (
+                            <LocationPriceDisplay
+                              annualPrice={kit.totalCost}
+                              label="Coût total"
+                              variant="card"
+                              priceClassName="text-blue-900 text-lg"
+                              secondaryClassName="text-blue-600 text-xs"
+                              labelClassName="text-blue-700 text-xs"
+                              badgeClassName="border-blue-500 text-blue-600 bg-blue-50 text-[10px] px-1 py-0"
+                              secondaryBadgeClassName="border-blue-300 text-blue-500 bg-blue-50"
+                            />
+                          ) : (
+                            <>
+                              <div className="mb-1 text-lg font-bold text-blue-900">
+                                {formatPriceHelper(kit.totalCost)}
+                              </div>
+                              <div className="text-xs font-medium text-blue-700">Coût total</div>
+                            </>
+                          )}
+                        </div>
+                      )}
+                      {canViewCosts && (
+                        <div className="rounded-xl border border-purple-100 bg-gradient-to-br from-purple-50 to-violet-50 p-4 text-center">
+                          {selectedMode === 'location' ? (
+                            <LocationPriceDisplay
+                              annualPrice={kit.totalMargin}
+                              label="Marge"
+                              variant="card"
+                              priceClassName="text-purple-900 text-lg"
+                              secondaryClassName="text-purple-600 text-xs"
+                              labelClassName="text-purple-700 text-xs"
+                              badgeClassName="border-purple-500 text-purple-600 bg-purple-50 text-[10px] px-1 py-0"
+                              secondaryBadgeClassName="border-purple-300 text-purple-500 bg-purple-50"
+                            />
+                          ) : (
+                            <>
+                              <div className="mb-1 text-lg font-bold text-purple-900">
+                                {formatPriceHelper(kit.totalMargin)}
+                              </div>
+                              <div className="text-xs font-medium text-purple-700">Marge</div>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}
@@ -533,13 +550,21 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                       <th className="px-4 py-3 text-right font-semibold text-gray-700">
                         Prix /mois
                       </th>
-                      <th className="px-4 py-3 text-right font-semibold text-gray-700">
-                        Coût /mois
-                      </th>
-                      <th className="px-4 py-3 text-right font-semibold text-gray-700">
-                        Marge /mois
-                      </th>
-                      <th className="px-4 py-3 text-right font-semibold text-gray-700">Marge %</th>
+                      {canViewCosts && (
+                        <th className="px-4 py-3 text-right font-semibold text-gray-700">
+                          Coût /mois
+                        </th>
+                      )}
+                      {canViewCosts && (
+                        <th className="px-4 py-3 text-right font-semibold text-gray-700">
+                          Marge /mois
+                        </th>
+                      )}
+                      {canViewCosts && (
+                        <th className="px-4 py-3 text-right font-semibold text-gray-700">
+                          Marge %
+                        </th>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
@@ -571,36 +596,42 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                               {formatPriceHelper(prices.totalPrice)} /an
                             </div>
                           </td>
-                          <td className="px-4 py-4 text-right">
-                            <div className="text-gray-600">
-                              {formatPriceHelper(annualToMonthly(prices.totalCost))}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              {formatPriceHelper(prices.totalCost)} /an
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-right">
-                            <div className="font-medium text-green-600">
-                              {formatPriceHelper(annualToMonthly(prices.totalMargin))}
-                            </div>
-                            <div className="text-xs text-gray-400">
-                              {formatPriceHelper(prices.totalMargin)} /an
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 text-right">
-                            <Badge
-                              variant="outline"
-                              className={`font-medium ${
-                                marginPercent > 30
-                                  ? 'border-green-500 bg-green-50 text-green-700'
-                                  : marginPercent > 20
-                                    ? 'border-yellow-500 bg-yellow-50 text-yellow-700'
-                                    : 'border-red-500 bg-red-50 text-red-700'
-                              }`}
-                            >
-                              {marginPercent.toFixed(1)}%
-                            </Badge>
-                          </td>
+                          {canViewCosts && (
+                            <td className="px-4 py-4 text-right">
+                              <div className="text-gray-600">
+                                {formatPriceHelper(annualToMonthly(prices.totalCost))}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {formatPriceHelper(prices.totalCost)} /an
+                              </div>
+                            </td>
+                          )}
+                          {canViewCosts && (
+                            <td className="px-4 py-4 text-right">
+                              <div className="font-medium text-green-600">
+                                {formatPriceHelper(annualToMonthly(prices.totalMargin))}
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                {formatPriceHelper(prices.totalMargin)} /an
+                              </div>
+                            </td>
+                          )}
+                          {canViewCosts && (
+                            <td className="px-4 py-4 text-right">
+                              <Badge
+                                variant="outline"
+                                className={`font-medium ${
+                                  marginPercent > 30
+                                    ? 'border-green-500 bg-green-50 text-green-700'
+                                    : marginPercent > 20
+                                      ? 'border-yellow-500 bg-yellow-50 text-yellow-700'
+                                      : 'border-red-500 bg-red-50 text-red-700'
+                                }`}
+                              >
+                                {marginPercent.toFixed(1)}%
+                              </Badge>
+                            </td>
+                          )}
                         </tr>
                       )
                     })}
@@ -637,30 +668,31 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                   Analyse et recommandations
                 </h3>
                 <div className="space-y-3 text-sm text-indigo-800">
-                  {marginPercentage > 30 ? (
-                    <div className="flex items-center space-x-3 rounded-xl border border-white/50 bg-white/60 p-3">
-                      <div className="h-2 w-2 flex-shrink-0 rounded-full bg-green-500"></div>
-                      <span className="font-medium">
-                        Excellente rentabilité ! Votre marge de {marginPercentage.toFixed(1)}% est
-                        très bonne.
-                      </span>
-                    </div>
-                  ) : marginPercentage > 20 ? (
-                    <div className="flex items-center space-x-3 rounded-xl border border-white/50 bg-white/60 p-3">
-                      <div className="h-2 w-2 flex-shrink-0 rounded-full bg-yellow-500"></div>
-                      <span className="font-medium">
-                        Rentabilité correcte. Considérez optimiser les coûts pour améliorer la
-                        marge.
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-3 rounded-xl border border-white/50 bg-white/60 p-3">
-                      <div className="h-2 w-2 flex-shrink-0 rounded-full bg-red-500"></div>
-                      <span className="font-medium">
-                        Marge faible. Analysez les coûts et considérez ajuster les prix.
-                      </span>
-                    </div>
-                  )}
+                  {canViewCosts &&
+                    (marginPercentage > 30 ? (
+                      <div className="flex items-center space-x-3 rounded-xl border border-white/50 bg-white/60 p-3">
+                        <div className="h-2 w-2 flex-shrink-0 rounded-full bg-green-500"></div>
+                        <span className="font-medium">
+                          Excellente rentabilité ! Votre marge de {marginPercentage.toFixed(1)}% est
+                          très bonne.
+                        </span>
+                      </div>
+                    ) : marginPercentage > 20 ? (
+                      <div className="flex items-center space-x-3 rounded-xl border border-white/50 bg-white/60 p-3">
+                        <div className="h-2 w-2 flex-shrink-0 rounded-full bg-yellow-500"></div>
+                        <span className="font-medium">
+                          Rentabilité correcte. Considérez optimiser les coûts pour améliorer la
+                          marge.
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-3 rounded-xl border border-white/50 bg-white/60 p-3">
+                        <div className="h-2 w-2 flex-shrink-0 rounded-full bg-red-500"></div>
+                        <span className="font-medium">
+                          Marge faible. Analysez les coûts et considérez ajuster les prix.
+                        </span>
+                      </div>
+                    ))}
 
                   <div className="flex items-center space-x-3 rounded-xl border border-white/50 bg-white/60 p-3">
                     <div className="h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
@@ -669,16 +701,18 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
                     </span>
                   </div>
 
-                  <div className="flex items-center space-x-3 rounded-xl border border-white/50 bg-white/60 p-3">
-                    <div className="h-2 w-2 flex-shrink-0 rounded-full bg-purple-500"></div>
-                    <span className="font-medium">
-                      {selectedMode === 'achat'
-                        ? `Coût total pour l'achat : ${formatPriceHelper(currentData.totalCost)}`
-                        : `Coût total pour la location ${PERIOD_LABELS[selectedPeriod].toLowerCase()} : ${formatPriceHelper(currentData.totalCost)}`}
-                    </span>
-                  </div>
+                  {canViewCosts && (
+                    <div className="flex items-center space-x-3 rounded-xl border border-white/50 bg-white/60 p-3">
+                      <div className="h-2 w-2 flex-shrink-0 rounded-full bg-purple-500"></div>
+                      <span className="font-medium">
+                        {selectedMode === 'achat'
+                          ? `Coût total pour l'achat : ${formatPriceHelper(currentData.totalCost)}`
+                          : `Coût total pour la location ${PERIOD_LABELS[selectedPeriod].toLowerCase()} : ${formatPriceHelper(currentData.totalCost)}`}
+                      </span>
+                    </div>
+                  )}
 
-                  {kitBreakdown.length > 0 && (
+                  {canViewCosts && kitBreakdown.length > 0 && (
                     <div className="flex items-center space-x-3 rounded-xl border border-white/50 bg-white/60 p-3">
                       <div className="h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500"></div>
                       <span className="font-medium">

@@ -6,6 +6,7 @@ import {
 } from '@/lib/services/project-history'
 import { verifyProjectAccess } from '@/lib/utils/project/access'
 import { requireAuth, handleApiError } from '@/lib/api/middleware'
+import { stripCostFieldsDeep } from '@/lib/utils/strip-cost-fields'
 import { projectKitsSchema } from '@/lib/schemas/project'
 import { logger } from '@/lib/logger'
 
@@ -152,7 +153,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
     })
 
-    return NextResponse.json(projectKits)
+    const visibleKits = access.data.isAdmin ? projectKits : projectKits.map(stripCostFieldsDeep)
+
+    return NextResponse.json(visibleKits)
   } catch (error) {
     return handleApiError(error)
   }
