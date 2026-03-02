@@ -18,6 +18,8 @@ import {
   calculateEnvironmentalSavings,
   calculateBreakEvenPoint,
   calculateExtendedRentalCost,
+  calculatePostThreeYearMonthly,
+  formatBreakEvenDuration,
 } from './calculations'
 
 describe('calculateProjectPriceTotals', () => {
@@ -464,5 +466,52 @@ describe('calculateBreakEvenPoint', () => {
     // With same rate, 3yr total = 10*12*3 = 360, purchase 5000 - 360 > 0 -> phase 3ans+
     expect(result!.phase).toBe('3ans+')
     expect(result!.breakEvenYears).toBeGreaterThan(3)
+  })
+})
+
+describe('calculatePostThreeYearMonthly', () => {
+  it('returns 20% of the base monthly rate, ceiled to the cent', () => {
+    // 9.09 * 0.2 = 1.818 -> ceil to 1.82
+    expect(calculatePostThreeYearMonthly(9.09)).toBe(1.82)
+  })
+
+  it('returns 0 for 0 input', () => {
+    expect(calculatePostThreeYearMonthly(0)).toBe(0)
+  })
+
+  it('handles exact multiples', () => {
+    // 10 * 0.2 = 2.00 -> 2.00
+    expect(calculatePostThreeYearMonthly(10)).toBe(2)
+  })
+})
+
+describe('formatBreakEvenDuration', () => {
+  it('formats exact years (no remaining months)', () => {
+    expect(formatBreakEvenDuration(12)).toBe('1 an')
+    expect(formatBreakEvenDuration(24)).toBe('2 ans')
+    expect(formatBreakEvenDuration(36)).toBe('3 ans')
+    expect(formatBreakEvenDuration(60)).toBe('5 ans')
+  })
+
+  it('formats months only when less than 12', () => {
+    expect(formatBreakEvenDuration(1)).toBe('1 mois')
+    expect(formatBreakEvenDuration(6)).toBe('6 mois')
+    expect(formatBreakEvenDuration(11)).toBe('11 mois')
+  })
+
+  it('formats mixed years and months', () => {
+    expect(formatBreakEvenDuration(18)).toBe('1 an et 6 mois')
+    expect(formatBreakEvenDuration(30)).toBe('2 ans et 6 mois')
+    expect(formatBreakEvenDuration(42)).toBe('3 ans et 6 mois')
+    expect(formatBreakEvenDuration(13)).toBe('1 an et 1 mois')
+  })
+
+  it('handles 0 months (edge case)', () => {
+    expect(formatBreakEvenDuration(0)).toBe('0 mois')
+  })
+
+  it('rounds remaining months to nearest integer', () => {
+    // 18.5 -> floor(18.5/12) = 1 year, round(18.5 % 12) = round(6.5) = 7
+    expect(formatBreakEvenDuration(18.5)).toBe('1 an et 7 mois')
   })
 })
