@@ -14,14 +14,14 @@ export default function NewKitPage() {
     <RoleGuard requiredRole={UserRole.DEV}>
       <div className="bg-background min-h-screen w-full py-8">
         <div className="container mx-auto px-6">
-          {/* Header épuré */}
+          {/* Header with gradient accent */}
           <div className="mb-8">
             <div className="mb-6 flex items-center gap-4">
-              <div className="bg-primary/10 border-primary/20 flex h-12 w-12 items-center justify-center rounded-xl border">
-                <Package2 className="text-primary h-6 w-6" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#30C1BD] to-[#30C1BD]/70 shadow-lg shadow-[#30C1BD]/20">
+                <Package2 className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-foreground text-3xl font-bold">Nouveau kit</h1>
+                <h1 className="text-foreground text-3xl font-bold tracking-tight">Nouveau kit</h1>
                 <p className="text-muted-foreground">
                   Créez un kit personnalisé en sélectionnant vos produits
                 </p>
@@ -31,8 +31,8 @@ export default function NewKitPage() {
             {/* Navigation breadcrumb */}
             <div className="text-muted-foreground flex items-center gap-2 text-sm">
               <span>Kits</span>
-              <span>•</span>
-              <span className="text-primary">Nouveau kit</span>
+              <span className="text-[#30C1BD]">/</span>
+              <span className="font-medium text-[#30C1BD]">Nouveau kit</span>
             </div>
           </div>
 

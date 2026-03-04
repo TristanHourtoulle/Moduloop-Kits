@@ -5,7 +5,6 @@ import { Control, useFieldArray, FieldErrors, useWatch } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -209,406 +208,330 @@ export function KitProductsSection({ control, errors, onError }: KitProductsSect
   }, [watchedProducts, products])
 
   return (
-    <AccordionItem value="products" className="rounded-lg border">
-      <AccordionTrigger className="px-6 py-4 hover:no-underline">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary/10 rounded-lg p-2">
-            <Package className="text-primary h-5 w-5" />
-          </div>
-          <div className="text-left">
-            <h3 className="font-semibold">Produits du kit</h3>
-            <p className="text-muted-foreground text-sm">
-              Sélectionnez les produits et leurs quantités
-            </p>
-          </div>
-          {fields.length > 0 && (
-            <Badge variant="secondary" className="ml-auto">
-              {fields.length} produit{fields.length > 1 ? 's' : ''}
-            </Badge>
-          )}
+    <div className="overflow-hidden rounded-xl border border-[#30C1BD]/20 bg-white shadow-sm">
+      {/* Header bar with gradient */}
+      <div className="flex items-center gap-3 bg-gradient-to-r from-[#30C1BD]/10 to-[#30C1BD]/5 px-6 py-4">
+        <div className="rounded-lg bg-[#30C1BD]/15 p-2">
+          <Package className="h-5 w-5 text-[#30C1BD]" />
         </div>
-      </AccordionTrigger>
-      <AccordionContent className="px-6 pb-6">
-        <div className="space-y-6">
-          {/* Selected Products List */}
-          {fields.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="text-muted-foreground text-sm font-medium">Produits sélectionnés</h4>
-              <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-                {fields.map((field, index) => {
-                  const selectedProduct = getSelectedProduct(field.productId)
-                  if (!selectedProduct) return null
+        <div className="flex-1">
+          <h3 className="font-semibold text-gray-900">Produits du kit</h3>
+          <p className="text-sm text-gray-500">Sélectionnez les produits et leurs quantités</p>
+        </div>
+        {fields.length > 0 && (
+          <Badge variant="secondary" className="bg-[#30C1BD]/10 text-[#30C1BD]">
+            {fields.length} produit{fields.length > 1 ? 's' : ''}
+          </Badge>
+        )}
+      </div>
 
-                  return (
-                    <Card key={field.id} className="overflow-hidden">
-                      <CardContent className="p-4">
-                        <div className="flex gap-3">
-                          {/* Product Image */}
-                          <div className="from-muted/30 to-muted/50 relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-gradient-to-br">
-                            {selectedProduct.image ? (
-                              <img
-                                src={selectedProduct.image}
-                                alt={selectedProduct.nom}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full items-center justify-center">
-                                <Package className="text-muted-foreground/40 h-6 w-6" />
-                              </div>
-                            )}
-                          </div>
+      {/* Content */}
+      <div className="space-y-6 px-6 py-6">
+        {/* Selected Products List */}
+        {fields.length > 0 && (
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-gray-500">Produits sélectionnés</h4>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {fields.map((field, index) => {
+                const selectedProduct = getSelectedProduct(field.productId)
+                if (!selectedProduct) return null
 
-                          {/* Product Info */}
-                          <div className="min-w-0 flex-1 space-y-2">
-                            <div>
-                              <h5 className="truncate text-sm font-semibold">
-                                {selectedProduct.nom}
-                              </h5>
-                              <Badge variant="secondary" className="text-xs">
-                                {selectedProduct.reference}
-                              </Badge>
-                            </div>
+                const pricingAchat = getProductPricing(selectedProduct, 'achat', '1an')
+                const pricingLocation1An = getProductPricing(selectedProduct, 'location', '1an')
 
-                            {/* Quantity Controls */}
-                            <div className="flex items-center gap-2">
-                              <Label className="text-muted-foreground text-xs">Quantité:</Label>
-                              <div className="flex items-center gap-1">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-6 w-6"
-                                  onClick={() => updateQuantity(index, -1)}
-                                  disabled={field.quantite <= 1}
-                                >
-                                  <Minus className="h-3 w-3" />
-                                </Button>
-                                <Input
-                                  type="number"
-                                  min="1"
-                                  value={field.quantite}
-                                  onChange={(e) => {
-                                    const value = Number(e.target.value) || 1
-                                    const current = watchedProducts?.[index]
-                                    if (!current) return
-                                    update(index, {
-                                      ...current,
-                                      quantite: Math.max(1, value),
-                                    })
-                                  }}
-                                  className="h-6 w-12 p-0 text-center text-xs"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  className="h-6 w-6"
-                                  onClick={() => updateQuantity(index, 1)}
-                                >
-                                  <Plus className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </div>
+                return (
+                  <Card
+                    key={field.id}
+                    className="group relative overflow-hidden rounded-xl border border-gray-200 transition-shadow hover:shadow-md"
+                  >
+                    {/* Delete Button - top right */}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => remove(index)}
+                      className="absolute top-2 right-2 z-10 h-7 w-7 rounded-full bg-white/80 text-red-500 opacity-0 shadow-sm backdrop-blur-sm transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-700"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
 
-                            {/* Price - Achat & Location */}
-                            <div className="space-y-1.5">
-                              {(() => {
-                                const pricingAchat = getProductPricing(
-                                  selectedProduct,
-                                  'achat',
-                                  '1an',
-                                )
-                                const pricingLocation1An = getProductPricing(
-                                  selectedProduct,
-                                  'location',
-                                  '1an',
-                                )
-                                const pricingLocation2Ans = getProductPricing(
-                                  selectedProduct,
-                                  'location',
-                                  '2ans',
-                                )
-                                const pricingLocation3Ans = getProductPricing(
-                                  selectedProduct,
-                                  'location',
-                                  '3ans',
-                                )
+                    {/* Product Image */}
+                    <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                      {selectedProduct.image ? (
+                        <img
+                          src={selectedProduct.image}
+                          alt={selectedProduct.nom}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <Package className="h-10 w-10 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
 
-                                return (
-                                  <>
-                                    {/* Prix d'achat - toujours affiché */}
-                                    <div className="flex items-center gap-1 text-xs">
-                                      <ShoppingCart className="text-primary h-3 w-3" />
-                                      <span className="text-muted-foreground">Achat:</span>
-                                      {pricingAchat.prixVente && pricingAchat.prixVente > 0 ? (
-                                        <span className="text-primary font-semibold">
-                                          {formatPrice(pricingAchat.prixVente * field.quantite)}
-                                        </span>
-                                      ) : (
-                                        <span className="text-xs text-orange-600 italic">
-                                          Non renseigné
-                                        </span>
-                                      )}
-                                    </div>
+                    {/* Product Info */}
+                    <CardContent className="space-y-3 p-4">
+                      <div>
+                        <h5 className="truncate text-sm font-semibold text-gray-900">
+                          {selectedProduct.nom}
+                        </h5>
+                        <Badge variant="secondary" className="mt-1 text-xs">
+                          {selectedProduct.reference}
+                        </Badge>
+                      </div>
 
-                                    {/* Prix de location - 3 périodes */}
-                                    <div className="border-primary/20 space-y-0.5 border-l-2 pl-4">
-                                      <div className="flex items-center gap-1 text-xs">
-                                        <Home className="text-primary h-3 w-3" />
-                                        <span className="text-muted-foreground">
-                                          Loc. 1an /mois:
-                                        </span>
-                                        {pricingLocation1An.prixVente &&
-                                        pricingLocation1An.prixVente > 0 ? (
-                                          <span className="text-primary font-semibold">
-                                            {formatPrice(
-                                              pricingLocation1An.prixVente * field.quantite,
-                                            )}
-                                          </span>
-                                        ) : (
-                                          <span className="text-xs text-orange-600 italic">
-                                            Non renseigné
-                                          </span>
-                                        )}
-                                      </div>
+                      {/* Pricing */}
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1 text-gray-500">
+                            <Home className="h-3 w-3 text-[#30C1BD]" />
+                            Location /mois
+                          </span>
+                          {pricingLocation1An.prixVente && pricingLocation1An.prixVente > 0 ? (
+                            <span className="font-semibold text-[#30C1BD]">
+                              {formatPrice(pricingLocation1An.prixVente * field.quantite)}
+                            </span>
+                          ) : (
+                            <span className="text-orange-500 italic">N/A</span>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1 text-gray-500">
+                            <ShoppingCart className="h-3 w-3 text-[#30C1BD]" />
+                            Achat
+                          </span>
+                          {pricingAchat.prixVente && pricingAchat.prixVente > 0 ? (
+                            <span className="font-semibold text-[#30C1BD]">
+                              {formatPrice(pricingAchat.prixVente * field.quantite)}
+                            </span>
+                          ) : (
+                            <span className="text-orange-500 italic">N/A</span>
+                          )}
+                        </div>
+                      </div>
 
-                                      <div className="flex items-center gap-1 text-xs">
-                                        <Home className="text-primary h-3 w-3" />
-                                        <span className="text-muted-foreground">
-                                          Loc. 2ans /mois:
-                                        </span>
-                                        {pricingLocation2Ans.prixVente &&
-                                        pricingLocation2Ans.prixVente > 0 ? (
-                                          <span className="text-primary font-semibold">
-                                            {formatPrice(
-                                              pricingLocation2Ans.prixVente * field.quantite,
-                                            )}
-                                          </span>
-                                        ) : (
-                                          <span className="text-xs text-orange-600 italic">
-                                            Non renseigné
-                                          </span>
-                                        )}
-                                      </div>
-
-                                      <div className="flex items-center gap-1 text-xs">
-                                        <Home className="text-primary h-3 w-3" />
-                                        <span className="text-muted-foreground">
-                                          Loc. 3ans /mois:
-                                        </span>
-                                        {pricingLocation3Ans.prixVente &&
-                                        pricingLocation3Ans.prixVente > 0 ? (
-                                          <span className="text-primary font-semibold">
-                                            {formatPrice(
-                                              pricingLocation3Ans.prixVente * field.quantite,
-                                            )}
-                                          </span>
-                                        ) : (
-                                          <span className="text-xs text-orange-600 italic">
-                                            Non renseigné
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </>
-                                )
-                              })()}
-                            </div>
-                          </div>
-
-                          {/* Delete Button */}
+                      {/* Quantity Controls */}
+                      <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+                        <Label className="text-xs font-medium text-gray-500">Quantité</Label>
+                        <div className="flex items-center gap-1.5">
                           <Button
                             type="button"
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
-                            onClick={() => remove(index)}
-                            className="h-8 w-8 text-red-600 hover:bg-red-50 hover:text-red-700"
+                            className="h-7 w-7 rounded-full"
+                            onClick={() => updateQuantity(index, -1)}
+                            disabled={field.quantite <= 1}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={field.quantite}
+                            onChange={(e) => {
+                              const value = Number(e.target.value) || 1
+                              const current = watchedProducts?.[index]
+                              if (!current) return
+                              update(index, {
+                                ...current,
+                                quantite: Math.max(1, value),
+                              })
+                            }}
+                            className="h-7 w-12 rounded-lg p-0 text-center text-sm font-semibold"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7 rounded-full"
+                            onClick={() => updateQuantity(index, 1)}
+                          >
+                            <Plus className="h-3 w-3" />
                           </Button>
                         </div>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Product Selection Grid */}
-          {showProductSelection && !isLoadingProducts && (
-            <div className="border-t pt-6">
-              <ProductSelectionGrid
-                products={products}
-                productQuantities={productQuantities}
-                onQuantityChange={handleQuantityChange}
-              />
-            </div>
-          )}
-
-          {/* Add Product Button */}
-          {!showProductSelection && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowProductSelection(true)}
-              className="hover:border-primary hover:text-primary w-full border-2 border-dashed"
-              disabled={isLoadingProducts}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              {fields.length === 0 ? 'Ajouter des produits' : 'Ajouter un autre produit'}
-            </Button>
-          )}
-
-          {errors.products && <p className="text-sm text-red-500">{errors.products.message}</p>}
-
-          {/* Summary Card with Mode Selection */}
-          {fields.length > 0 && (
-            <div className="from-primary/5 to-primary/10 border-primary/20 rounded-xl border bg-gradient-to-br p-5 shadow-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <div className="bg-primary/10 rounded-lg p-2">
-                  <Calculator className="text-primary h-5 w-5" />
-                </div>
-                <h4 className="text-primary text-lg font-semibold">Récapitulatif du kit</h4>
-              </div>
-
-              <Tabs defaultValue="achat" className="w-full">
-                <TabsList className="mb-4 grid w-full grid-cols-2">
-                  <TabsTrigger value="achat" className="gap-2">
-                    <ShoppingCart className="h-4 w-4" />
-                    Achat
-                  </TabsTrigger>
-                  <TabsTrigger value="location" className="gap-2">
-                    <Home className="h-4 w-4" />
-                    Location
-                  </TabsTrigger>
-                </TabsList>
-
-                {/* Achat Tab */}
-                <TabsContent value="achat" className="space-y-4">
-                  {/* Prix Achat */}
-                  <div className="border-primary/10 rounded-lg border bg-white/60 p-6">
-                    <div className="flex flex-col items-center justify-center gap-2">
-                      <p className="text-muted-foreground text-sm font-medium">
-                        Prix d&apos;achat total
-                      </p>
-                      <p className="text-primary text-3xl font-bold">
-                        {formatPrice(totals.totalAchat1An)}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Surface totale */}
-                  {totals.totalSurface > 0 && (
-                    <div className="border-primary/10 rounded-lg border bg-white/60 p-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <Square className="text-primary h-5 w-5" />
-                        <p className="text-muted-foreground text-sm font-medium">
-                          Surface totale utilisée:
-                        </p>
-                        <p className="text-primary text-2xl font-bold">
-                          {totals.totalSurface.toFixed(2)} m²
-                        </p>
                       </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Product Selection Grid */}
+        {showProductSelection && !isLoadingProducts && (
+          <div className="border-t pt-6">
+            <ProductSelectionGrid
+              products={products}
+              productQuantities={productQuantities}
+              onQuantityChange={handleQuantityChange}
+            />
+          </div>
+        )}
+
+        {/* Add Product Button */}
+        {!showProductSelection && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowProductSelection(true)}
+            className="w-full border-2 border-dashed border-[#30C1BD]/40 text-[#30C1BD] hover:border-[#30C1BD] hover:bg-[#30C1BD]/5 hover:text-[#30C1BD]"
+            disabled={isLoadingProducts}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            {fields.length === 0 ? 'Ajouter des produits' : 'Ajouter un autre produit'}
+          </Button>
+        )}
+
+        {errors.products && <p className="text-sm text-red-500">{errors.products.message}</p>}
+
+        {/* Summary Card with Mode Selection */}
+        {fields.length > 0 && (
+          <div className="rounded-xl border border-[#30C1BD]/20 bg-gradient-to-br from-[#30C1BD]/5 to-[#30C1BD]/10 p-5 shadow-sm">
+            <div className="mb-4 flex items-center gap-2">
+              <div className="rounded-lg bg-[#30C1BD]/15 p-2">
+                <Calculator className="h-5 w-5 text-[#30C1BD]" />
+              </div>
+              <h4 className="text-lg font-semibold text-[#30C1BD]">Récapitulatif du kit</h4>
+            </div>
+
+            <Tabs defaultValue="location" className="w-full">
+              <TabsList className="mb-4 grid w-full grid-cols-2">
+                <TabsTrigger value="location" className="gap-2">
+                  <Home className="h-4 w-4" />
+                  Location
+                </TabsTrigger>
+                <TabsTrigger value="achat" className="gap-2">
+                  <ShoppingCart className="h-4 w-4" />
+                  Achat
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Location Tab */}
+              <TabsContent value="location" className="space-y-4">
+                {/* Prix Location */}
+                <div className="rounded-lg border border-[#30C1BD]/10 bg-white/60 p-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <p className="text-muted-foreground mb-1 text-xs font-medium">
+                        Prix 1 an /mois
+                      </p>
+                      <p className="text-xl font-bold text-[#30C1BD]">
+                        {formatPrice(totals.totalLocation1An)}
+                      </p>
                     </div>
-                  )}
-
-                  {/* Impact Environnemental - Achat : MASQUÉ (demande client) */}
-                  {/* L'impact environnemental n'est affiché que pour la location */}
-                </TabsContent>
-
-                {/* Location Tab */}
-                <TabsContent value="location" className="space-y-4">
-                  {/* Prix Location */}
-                  <div className="border-primary/10 rounded-lg border bg-white/60 p-4">
-                    <div className="grid grid-cols-3 gap-4">
+                    {totals.totalLocation2Ans > 0 && (
                       <div className="text-center">
                         <p className="text-muted-foreground mb-1 text-xs font-medium">
-                          Prix 1 an /mois
+                          Prix 2 ans /mois
                         </p>
-                        <p className="text-primary text-xl font-bold">
-                          {formatPrice(totals.totalLocation1An)}
+                        <p className="text-xl font-bold text-[#30C1BD]">
+                          {formatPrice(totals.totalLocation2Ans)}
                         </p>
                       </div>
-                      {totals.totalLocation2Ans > 0 && (
-                        <div className="text-center">
-                          <p className="text-muted-foreground mb-1 text-xs font-medium">
-                            Prix 2 ans /mois
-                          </p>
-                          <p className="text-primary text-xl font-bold">
-                            {formatPrice(totals.totalLocation2Ans)}
-                          </p>
-                        </div>
-                      )}
-                      {totals.totalLocation3Ans > 0 && (
-                        <div className="text-center">
-                          <p className="text-muted-foreground mb-1 text-xs font-medium">
-                            Prix 3 ans /mois
-                          </p>
-                          <p className="text-primary text-xl font-bold">
-                            {formatPrice(totals.totalLocation3Ans)}
-                          </p>
-                        </div>
-                      )}
+                    )}
+                    {totals.totalLocation3Ans > 0 && (
+                      <div className="text-center">
+                        <p className="text-muted-foreground mb-1 text-xs font-medium">
+                          Prix 3 ans /mois
+                        </p>
+                        <p className="text-xl font-bold text-[#30C1BD]">
+                          {formatPrice(totals.totalLocation3Ans)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Surface totale */}
+                {totals.totalSurface > 0 && (
+                  <div className="rounded-lg border border-[#30C1BD]/10 bg-white/60 p-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Square className="h-5 w-5 text-[#30C1BD]" />
+                      <p className="text-muted-foreground text-sm font-medium">
+                        Surface totale utilisée:
+                      </p>
+                      <p className="text-2xl font-bold text-[#30C1BD]">
+                        {totals.totalSurface.toFixed(2)} m²
+                      </p>
                     </div>
                   </div>
+                )}
 
-                  {/* Surface totale */}
-                  {totals.totalSurface > 0 && (
-                    <div className="border-primary/10 rounded-lg border bg-white/60 p-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <Square className="text-primary h-5 w-5" />
-                        <p className="text-muted-foreground text-sm font-medium">
-                          Surface totale utilisée:
-                        </p>
-                        <p className="text-primary text-2xl font-bold">
-                          {totals.totalSurface.toFixed(2)} m²
-                        </p>
-                      </div>
+                {/* Impact Environnemental - Location */}
+                <div className="rounded-lg border border-emerald-200/50 bg-emerald-50/60 p-4">
+                  <div className="mb-3 flex items-center gap-2">
+                    <Leaf className="h-4 w-4 text-emerald-600" />
+                    <span className="text-sm font-semibold text-emerald-900">
+                      Impact environnemental (CO₂ économisé)
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
+                    <div className="rounded bg-white/60 p-2">
+                      <span className="text-muted-foreground block text-xs">CO₂:</span>
+                      <p className="font-bold" style={{ color: '#FE9E58' }}>
+                        {totals.totalCO2Location.toFixed(2)} kg
+                      </p>
                     </div>
-                  )}
-
-                  {/* Impact Environnemental - Location */}
-                  <div className="rounded-lg border border-emerald-200/50 bg-emerald-50/60 p-4">
-                    <div className="mb-3 flex items-center gap-2">
-                      <Leaf className="h-4 w-4 text-emerald-600" />
-                      <span className="text-sm font-semibold text-emerald-900">
-                        Impact environnemental (CO₂ économisé)
-                      </span>
+                    <div className="rounded bg-white/60 p-2">
+                      <span className="text-muted-foreground block text-xs">Ressources:</span>
+                      <p className="font-bold" style={{ color: '#FE5858' }}>
+                        {totals.totalRessourcesLocation.toFixed(2)} MJ
+                      </p>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
-                      <div className="rounded bg-white/60 p-2">
-                        <span className="text-muted-foreground block text-xs">CO₂:</span>
-                        <p className="font-bold" style={{ color: '#FE9E58' }}>
-                          {totals.totalCO2Location.toFixed(2)} kg
-                        </p>
-                      </div>
-                      <div className="rounded bg-white/60 p-2">
-                        <span className="text-muted-foreground block text-xs">Ressources:</span>
-                        <p className="font-bold" style={{ color: '#FE5858' }}>
-                          {totals.totalRessourcesLocation.toFixed(2)} MJ
-                        </p>
-                      </div>
-                      <div className="rounded bg-white/60 p-2">
-                        <span className="text-muted-foreground block text-xs">Acidification:</span>
-                        <p className="font-bold" style={{ color: '#55D789' }}>
-                          {totals.totalAcidificationLocation.toFixed(4)} MOL
-                        </p>
-                      </div>
-                      <div className="rounded bg-white/60 p-2">
-                        <span className="text-muted-foreground block text-xs">Eutrophisation:</span>
-                        <p className="font-bold" style={{ color: '#55D789' }}>
-                          {totals.totalEutrophisationLocation.toFixed(4)} kg P
-                        </p>
-                      </div>
+                    <div className="rounded bg-white/60 p-2">
+                      <span className="text-muted-foreground block text-xs">Acidification:</span>
+                      <p className="font-bold" style={{ color: '#55D789' }}>
+                        {totals.totalAcidificationLocation.toFixed(4)} MOL
+                      </p>
+                    </div>
+                    <div className="rounded bg-white/60 p-2">
+                      <span className="text-muted-foreground block text-xs">Eutrophisation:</span>
+                      <p className="font-bold" style={{ color: '#55D789' }}>
+                        {totals.totalEutrophisationLocation.toFixed(4)} kg P
+                      </p>
                     </div>
                   </div>
-                </TabsContent>
-              </Tabs>
-            </div>
-          )}
-        </div>
-      </AccordionContent>
-    </AccordionItem>
+                </div>
+              </TabsContent>
+
+              {/* Achat Tab */}
+              <TabsContent value="achat" className="space-y-4">
+                {/* Prix Achat */}
+                <div className="rounded-lg border border-[#30C1BD]/10 bg-white/60 p-6">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <p className="text-muted-foreground text-sm font-medium">
+                      Prix d&apos;achat total
+                    </p>
+                    <p className="text-3xl font-bold text-[#30C1BD]">
+                      {formatPrice(totals.totalAchat1An)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Surface totale */}
+                {totals.totalSurface > 0 && (
+                  <div className="rounded-lg border border-[#30C1BD]/10 bg-white/60 p-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Square className="h-5 w-5 text-[#30C1BD]" />
+                      <p className="text-muted-foreground text-sm font-medium">
+                        Surface totale utilisée:
+                      </p>
+                      <p className="text-2xl font-bold text-[#30C1BD]">
+                        {totals.totalSurface.toFixed(2)} m²
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Impact Environnemental - Achat : MASQUÉ (demande client) */}
+                {/* L'impact environnemental n'est affiché que pour la location */}
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
