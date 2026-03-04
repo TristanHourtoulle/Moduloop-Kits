@@ -34,6 +34,7 @@ test.describe('Kit CRUD', () => {
         nom: kitName,
         style: 'Moderne',
         description: 'E2E test kit',
+        surfaceM2: 25,
         products: [{ productId: product.id, quantite: 2 }],
       },
     })
@@ -78,6 +79,7 @@ test.describe('Kit CRUD', () => {
         nom: 'Kit To Edit',
         style: 'Classique',
         description: 'A kit to edit',
+        surfaceM2: 25,
         products: [{ productId: product.id, quantite: 1 }],
       },
     })
