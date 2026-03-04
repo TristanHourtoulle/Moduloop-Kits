@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Calculator, Edit3, Save } from 'lucide-react'
 import { useDialog } from '@/components/providers/dialog-provider'
-import { useRouter } from 'next/navigation'
 
 interface ProjectSurfaceManagerProps {
   projectId: string
@@ -29,7 +28,6 @@ export function ProjectSurfaceManager({
   )
   const [isLoading, setIsLoading] = useState(false)
   const { showError, showSuccess } = useDialog()
-  const router = useRouter()
 
   const handleSave = async () => {
     // Validate input
@@ -54,9 +52,9 @@ export function ProjectSurfaceManager({
         throw new Error(errorData.error || 'Failed to update')
       }
 
-      await showSuccess('Surface mise à jour', 'La surface du projet a été modifiée avec succès')
-      router.refresh()
+      // Trigger data refresh immediately (before showing success dialog)
       onUpdate?.()
+      await showSuccess('Surface mise à jour', 'La surface du projet a été modifiée avec succès')
     } catch (error) {
       await showError(
         'Erreur',

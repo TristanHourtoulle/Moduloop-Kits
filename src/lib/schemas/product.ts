@@ -33,12 +33,14 @@ export const productSchema = z.object({
     .number()
     .min(0, "Le prix d'achat doit être positif")
     .max(999999, "Le prix d'achat ne peut pas dépasser 999,999€")
+    .nullable()
     .optional(),
 
   prixAchat3Ans: z
     .number()
     .min(0, "Le prix d'achat doit être positif")
     .max(999999, "Le prix d'achat ne peut pas dépasser 999,999€")
+    .nullable()
     .optional(),
 
   // Prix unitaire Moduloop (LEGACY)
@@ -46,18 +48,21 @@ export const productSchema = z.object({
     .number()
     .min(0, 'Le prix unitaire doit être positif')
     .max(999999, 'Le prix unitaire ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixUnitaire2Ans: z
     .number()
     .min(0, 'Le prix unitaire doit être positif')
     .max(999999, 'Le prix unitaire ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixUnitaire3Ans: z
     .number()
     .min(0, 'Le prix unitaire doit être positif')
     .max(999999, 'Le prix unitaire ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   // Prix de vente total Moduloop (LEGACY)
@@ -65,18 +70,21 @@ export const productSchema = z.object({
     .number()
     .min(0, 'Le prix de vente doit être positif')
     .max(999999, 'Le prix de vente ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixVente2Ans: z
     .number()
     .min(0, 'Le prix de vente doit être positif')
     .max(999999, 'Le prix de vente ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixVente3Ans: z
     .number()
     .min(0, 'Le prix de vente doit être positif')
     .max(999999, 'Le prix de vente ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   // Marge appliquée (LEGACY)
@@ -84,22 +92,33 @@ export const productSchema = z.object({
     .number()
     .min(1, 'Le coefficient de marge doit être au minimum de 1 (0% de marge)')
     .max(10, 'Le coefficient de marge ne peut pas dépasser 10 (900% de marge)')
+    .nullable()
     .optional(),
 
   // Impact environnemental (LEGACY)
   rechauffementClimatique: z
     .number()
     .min(0, "L'impact de réchauffement climatique doit être positif")
+    .nullable()
     .optional(),
 
   epuisementRessources: z
     .number()
     .min(0, "L'impact d'épuisement des ressources doit être positif")
+    .nullable()
     .optional(),
 
-  acidification: z.number().min(0, "L'impact d'acidification doit être positif").optional(),
+  acidification: z
+    .number()
+    .min(0, "L'impact d'acidification doit être positif")
+    .nullable()
+    .optional(),
 
-  eutrophisation: z.number().min(0, "L'impact d'eutrophisation doit être positif").optional(),
+  eutrophisation: z
+    .number()
+    .min(0, "L'impact d'eutrophisation doit être positif")
+    .nullable()
+    .optional(),
 
   // ========== NOUVEAUX CHAMPS - PRIX ACHAT ==========
   // Prix d'achat fournisseur pour l'ACHAT (1, 2, 3 ans)
@@ -107,18 +126,21 @@ export const productSchema = z.object({
     .number()
     .min(0, "Le prix d'achat doit être positif")
     .max(999999, "Le prix d'achat ne peut pas dépasser 999,999€")
+    .nullable()
     .optional(),
 
   prixAchatAchat2Ans: z
     .number()
     .min(0, "Le prix d'achat doit être positif")
     .max(999999, "Le prix d'achat ne peut pas dépasser 999,999€")
+    .nullable()
     .optional(),
 
   prixAchatAchat3Ans: z
     .number()
     .min(0, "Le prix d'achat doit être positif")
     .max(999999, "Le prix d'achat ne peut pas dépasser 999,999€")
+    .nullable()
     .optional(),
 
   // Prix unitaire Moduloop pour l'ACHAT (1, 2, 3 ans)
@@ -126,18 +148,21 @@ export const productSchema = z.object({
     .number()
     .min(0, 'Le prix unitaire doit être positif')
     .max(999999, 'Le prix unitaire ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixUnitaireAchat2Ans: z
     .number()
     .min(0, 'Le prix unitaire doit être positif')
     .max(999999, 'Le prix unitaire ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixUnitaireAchat3Ans: z
     .number()
     .min(0, 'Le prix unitaire doit être positif')
     .max(999999, 'Le prix unitaire ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   // Prix de vente total Moduloop pour l'ACHAT (1, 2, 3 ans)
@@ -145,18 +170,21 @@ export const productSchema = z.object({
     .number()
     .min(0, 'Le prix de vente doit être positif')
     .max(999999, 'Le prix de vente ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixVenteAchat2Ans: z
     .number()
     .min(0, 'Le prix de vente doit être positif')
     .max(999999, 'Le prix de vente ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixVenteAchat3Ans: z
     .number()
     .min(0, 'Le prix de vente doit être positif')
     .max(999999, 'Le prix de vente ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   // Marge appliquée pour l'ACHAT (coefficient)
@@ -164,6 +192,7 @@ export const productSchema = z.object({
     .number()
     .min(1, 'Le coefficient de marge doit être au minimum de 1 (0% de marge)')
     .max(10, 'Le coefficient de marge ne peut pas dépasser 10 (900% de marge)')
+    .nullable()
     .optional(),
 
   // ========== NOUVEAUX CHAMPS - PRIX LOCATION ==========
@@ -172,18 +201,21 @@ export const productSchema = z.object({
     .number()
     .min(0, "Le prix d'achat doit être positif")
     .max(999999, "Le prix d'achat ne peut pas dépasser 999,999€")
+    .nullable()
     .optional(),
 
   prixAchatLocation2Ans: z
     .number()
     .min(0, "Le prix d'achat doit être positif")
     .max(999999, "Le prix d'achat ne peut pas dépasser 999,999€")
+    .nullable()
     .optional(),
 
   prixAchatLocation3Ans: z
     .number()
     .min(0, "Le prix d'achat doit être positif")
     .max(999999, "Le prix d'achat ne peut pas dépasser 999,999€")
+    .nullable()
     .optional(),
 
   // Prix unitaire Moduloop pour la LOCATION (1, 2, 3 ans)
@@ -191,18 +223,21 @@ export const productSchema = z.object({
     .number()
     .min(0, 'Le prix unitaire doit être positif')
     .max(999999, 'Le prix unitaire ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixUnitaireLocation2Ans: z
     .number()
     .min(0, 'Le prix unitaire doit être positif')
     .max(999999, 'Le prix unitaire ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixUnitaireLocation3Ans: z
     .number()
     .min(0, 'Le prix unitaire doit être positif')
     .max(999999, 'Le prix unitaire ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   // Prix de vente total Moduloop pour la LOCATION (1, 2, 3 ans)
@@ -210,18 +245,21 @@ export const productSchema = z.object({
     .number()
     .min(0, 'Le prix de vente doit être positif')
     .max(999999, 'Le prix de vente ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixVenteLocation2Ans: z
     .number()
     .min(0, 'Le prix de vente doit être positif')
     .max(999999, 'Le prix de vente ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   prixVenteLocation3Ans: z
     .number()
     .min(0, 'Le prix de vente doit être positif')
     .max(999999, 'Le prix de vente ne peut pas dépasser 999,999€')
+    .nullable()
     .optional(),
 
   // Marge appliquée pour la LOCATION (coefficient)
@@ -229,39 +267,57 @@ export const productSchema = z.object({
     .number()
     .min(1, 'Le coefficient de marge doit être au minimum de 1 (0% de marge)')
     .max(10, 'Le coefficient de marge ne peut pas dépasser 10 (900% de marge)')
+    .nullable()
     .optional(),
 
   // ========== NOUVEAUX CHAMPS - IMPACT ENVIRONNEMENTAL ACHAT ==========
   rechauffementClimatiqueAchat: z
     .number()
     .min(0, "L'impact de réchauffement climatique doit être positif")
+    .nullable()
     .optional(),
 
   epuisementRessourcesAchat: z
     .number()
     .min(0, "L'impact d'épuisement des ressources doit être positif")
+    .nullable()
     .optional(),
 
-  acidificationAchat: z.number().min(0, "L'impact d'acidification doit être positif").optional(),
+  acidificationAchat: z
+    .number()
+    .min(0, "L'impact d'acidification doit être positif")
+    .nullable()
+    .optional(),
 
-  eutrophisationAchat: z.number().min(0, "L'impact d'eutrophisation doit être positif").optional(),
+  eutrophisationAchat: z
+    .number()
+    .min(0, "L'impact d'eutrophisation doit être positif")
+    .nullable()
+    .optional(),
 
   // ========== NOUVEAUX CHAMPS - IMPACT ENVIRONNEMENTAL LOCATION ==========
   rechauffementClimatiqueLocation: z
     .number()
     .min(0, "L'impact de réchauffement climatique doit être positif")
+    .nullable()
     .optional(),
 
   epuisementRessourcesLocation: z
     .number()
     .min(0, "L'impact d'épuisement des ressources doit être positif")
+    .nullable()
     .optional(),
 
-  acidificationLocation: z.number().min(0, "L'impact d'acidification doit être positif").optional(),
+  acidificationLocation: z
+    .number()
+    .min(0, "L'impact d'acidification doit être positif")
+    .nullable()
+    .optional(),
 
   eutrophisationLocation: z
     .number()
     .min(0, "L'impact d'eutrophisation doit être positif")
+    .nullable()
     .optional(),
 
   // ========== CHAMPS COMMUNS ==========

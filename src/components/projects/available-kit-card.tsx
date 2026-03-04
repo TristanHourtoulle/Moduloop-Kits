@@ -285,13 +285,15 @@ export function AvailableKitCard({
                             {((productImpact.acidification || 0) * kitProduct.quantite).toFixed(1)}
                           </span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <div className="h-1.5 w-1.5 rounded-full bg-teal-500"></div>
-                          <span className="truncate text-gray-600">
-                            {((product.surfaceM2 || 0) * kitProduct.quantite).toFixed(1)}
-                            m²
-                          </span>
-                        </div>
+                        {product.surfaceM2 && product.surfaceM2 > 0 && (
+                          <div className="flex items-center gap-1">
+                            <div className="h-1.5 w-1.5 rounded-full bg-teal-500"></div>
+                            <span className="truncate text-gray-600">
+                              {(product.surfaceM2 * kitProduct.quantite).toFixed(1)}
+                              m²
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )

@@ -134,21 +134,8 @@ export function ProductForm({ initialData, productId }: ProductFormProps) {
         throw new Error(errorData.error || `Erreur ${response.status} lors de la sauvegarde`)
       }
 
-      // Invalidate the router cache to ensure fresh data on next visit
-      router.refresh()
-
-      // Add delay to ensure cache invalidation completes on Vercel
-      // Check if we're on Vercel by looking for Vercel-specific environment variable
-      const isProduction =
-        typeof window !== 'undefined' &&
-        window.location.hostname !== 'localhost' &&
-        !window.location.hostname.includes('127.0.0.1')
-
-      if (isProduction) {
-        await new Promise((resolve) => setTimeout(resolve, 300))
-      }
-
-      // Redirect to products list with timestamp to trigger refetch (like kits)
+      // Redirect to products list with timestamp to trigger refetch
+      // The products page uses force-dynamic so it always fetches fresh data
       router.push('/products?updated=' + Date.now())
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur inattendue s'est produite")

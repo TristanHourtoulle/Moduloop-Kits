@@ -447,14 +447,17 @@ describe('calculateBreakEvenPoint', () => {
   })
 
   it('returns phase 2-3ans when break-even is between 2 and 3 years', () => {
-    // Purchase = 2000
-    // Location 1an annual = 1200 -> monthly = 100 -> 2000 - 1200 = 800 > 0
-    // Location 2ans annual = 900 -> monthly = 75 -> 2000 - 75*12*2 = 2000 - 1800 = 200 > 0
-    // Location 3ans annual = 720 -> monthly = 60 -> 2000 - 60*12*3 = 2000 - 2160 = -160 < 0
-    // Not reached by case 2.2.2 since remaining after 3yr < 0
-    // months = 2000 / 60 = 33.33 (between 24 and 36)
+    // Purchase = 2130
+    // Location 1an annual = 1200 -> monthly = 100 -> year 1 total = 1200
+    // Location 2ans annual = 900 -> monthly = 75 -> year 1+2 total = 1200 + 900 = 2100
+    // Location 3ans annual = 720 -> monthly = 60 -> 3yr total (flat) = 60*36 = 2160
+    // 2130 < 2160 -> not case 1 (remainingAfter3Years = -30)
+    // 2130 > 1200 -> not case 2.1
+    // 2130 > 2100 -> not case 2.2.1
+    // Case 2.2.2: remainingAfterYear2 = 2130 - 2100 = 30, extraMonths = 30/60 = 0.5
+    // months = 24 + 0.5 = 24.5 (between 24 and 36)
     const kitProduct = makeKitProduct(1, {
-      prixVenteAchat: 2000,
+      prixVenteAchat: 2130,
       prixVenteLocation1An: 1200,
       prixVenteLocation2Ans: 900,
       prixVenteLocation3Ans: 720,
