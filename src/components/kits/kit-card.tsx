@@ -33,6 +33,7 @@ import {
   getProductEnvironmentalImpact,
   formatPrice,
   ceilPrice,
+  annualToMonthly,
 } from '@/lib/utils/product-helpers'
 
 // Utiliser le type Kit complet du system
@@ -250,7 +251,7 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
               {totalProductsSurface > 0 && (
                 <div className="text-muted-foreground mt-2 text-xs">
                   {ceilPrice(totalPriceAchat / totalProductsSurface).toLocaleString('fr-FR', {
-                    minimumFractionDigits: 0,
+                    minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}
                   €/m²
@@ -286,14 +287,16 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
             </div>
             {totalProductsSurface > 0 &&
               (() => {
-                const monthlyPerM2 = ceilPrice(totalPriceLocation3Ans / totalProductsSurface)
-                const annualPerM2 = ceilPrice(monthlyPerM2 * 12)
+                const monthlyPerM2 = ceilPrice(
+                  annualToMonthly(totalPriceLocation3Ans) / totalProductsSurface,
+                )
+                const annualPerM2 = ceilPrice(totalPriceLocation3Ans / totalProductsSurface)
                 return (
                   <div className="text-muted-foreground border-border/50 mt-2 border-t pt-2 text-xs">
                     <div>
                       Prix/m² :{' '}
                       {monthlyPerM2.toLocaleString('fr-FR', {
-                        minimumFractionDigits: 0,
+                        minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                       €/mois
@@ -301,7 +304,7 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
                     </div>
                     <div className="text-muted-foreground/70">
                       {annualPerM2.toLocaleString('fr-FR', {
-                        minimumFractionDigits: 0,
+                        minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                       €/an
