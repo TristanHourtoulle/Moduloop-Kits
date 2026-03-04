@@ -70,7 +70,7 @@ export function ProjectKitCard({
     )
   }
 
-  const kitImpact = calculateKitImpact(kit.kitProducts, selectedMode)
+  const kitImpact = calculateKitImpact(kit.kitProducts, selectedMode, kit.surfaceM2)
   const kitPrice = calculateKitPrice(kit.kitProducts, selectedMode)
   const totalPrice = kitPrice * projectKit.quantite
   const totalImpact = {
@@ -259,20 +259,22 @@ export function ProjectKitCard({
         </CardHeader>
 
         <CardContent className="relative z-10 space-y-4">
-          <div className="grid grid-cols-1 gap-3">
-            <motion.div
-              whileHover={{ y: -2, scale: 1.02 }}
-              className="rounded-xl border border-teal-100 bg-gradient-to-br from-teal-50 to-blue-50 p-4 text-center shadow-sm transition-all duration-200 hover:shadow-md"
-            >
-              <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-100 to-blue-100">
-                <Target className="h-4 w-4 text-teal-600" />
-              </div>
-              <div className="mb-1 text-sm font-bold text-teal-900">
-                {totalImpact.surface.toFixed(1)}
-              </div>
-              <div className="text-xs text-teal-700">m² - Surface totale</div>
-            </motion.div>
-          </div>
+          {totalImpact.surface > 0 && (
+            <div className="grid grid-cols-1 gap-3">
+              <motion.div
+                whileHover={{ y: -2, scale: 1.02 }}
+                className="rounded-xl border border-teal-100 bg-gradient-to-br from-teal-50 to-blue-50 p-4 text-center shadow-sm transition-all duration-200 hover:shadow-md"
+              >
+                <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-100 to-blue-100">
+                  <Target className="h-4 w-4 text-teal-600" />
+                </div>
+                <div className="mb-1 text-sm font-bold text-teal-900">
+                  {totalImpact.surface.toFixed(1)}
+                </div>
+                <div className="text-xs text-teal-700">m² - Surface totale</div>
+              </motion.div>
+            </div>
+          )}
 
           {selectedMode === 'location' && (
             <>

@@ -78,7 +78,7 @@ export function KitGeneralInfoSection({ control, errors }: KitGeneralInfoSection
 
             <div className="space-y-2">
               <Label htmlFor="surfaceM2" className="text-sm font-medium">
-                Surface (m²)
+                Surface (m²) <span className="text-red-500">*</span>
               </Label>
               <Controller
                 name="surfaceM2"

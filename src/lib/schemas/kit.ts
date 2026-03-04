@@ -7,19 +7,18 @@ export const kitProductSchema = z.object({
 
 export const kitSchema = z.object({
   nom: z
-    .string()
+    .string({ error: 'Le nom est requis' })
     .min(1, 'Le nom est requis')
     .max(100, 'Le nom ne peut pas dépasser 100 caractères'),
   style: z
-    .string()
+    .string({ error: 'Le style est requis' })
     .min(1, 'Le style est requis')
     .max(50, 'Le style ne peut pas dépasser 50 caractères'),
   description: z.string().optional(),
   surfaceM2: z
-    .number()
-    .min(0, 'La surface doit être positive')
-    .max(10000, 'La surface ne peut pas dépasser 10 000 m²')
-    .optional(),
+    .number({ error: 'La surface est requise' })
+    .positive({ error: 'La surface doit être supérieure à 0' })
+    .max(10000, { error: 'La surface ne peut pas dépasser 10 000 m²' }),
   products: z.array(kitProductSchema).min(1, 'Au moins un produit est requis'),
 })
 
