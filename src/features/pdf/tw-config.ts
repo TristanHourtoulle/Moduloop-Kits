@@ -36,7 +36,7 @@ export function formatPricePdf(price: number | null): string {
   const formatted = new Intl.NumberFormat('fr-FR', {
     style: 'currency',
     currency: 'EUR',
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(ceilPrice(price))
   return formatted.replace(/[\u00A0\u202F]/g, ' ')

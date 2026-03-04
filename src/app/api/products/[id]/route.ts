@@ -85,7 +85,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     // Handle empty description strings
     if ('description' in updateData) {
-      filteredUpdateData.description = updateData.description || ''
+      filteredUpdateData.description = updateData.description ?? ''
     }
 
     // Remap form field names to DB column names (mid-migration schema)

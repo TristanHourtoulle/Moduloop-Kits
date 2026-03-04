@@ -302,11 +302,13 @@ export function calculateBreakEvenPoint(project: Project): BreakEvenResult | nul
 
   // Case 2.2: Break-even beyond 1 year
   if (monthly1an > 0 && purchasePrice - oneYearRentalTotal >= 0) {
-    const twoYearRentalTotal = effectiveMonthly2ans * 12 * 2
+    const twoYearRentalTotal = oneYearRentalTotal + effectiveMonthly2ans * 12
 
     // Case 2.2.1: Break-even between 1 and 2 years
     if (purchasePrice - twoYearRentalTotal < 0) {
-      const months = purchasePrice / effectiveMonthly2ans
+      const remainingAfterYear1 = purchasePrice - oneYearRentalTotal
+      const extraMonths = remainingAfterYear1 / effectiveMonthly2ans
+      const months = 12 + extraMonths
 
       return {
         breakEvenMonths: months,
@@ -316,7 +318,9 @@ export function calculateBreakEvenPoint(project: Project): BreakEvenResult | nul
     }
 
     // Case 2.2.2: Break-even between 2 and 3 years
-    const months = purchasePrice / effectiveMonthly3ans
+    const remainingAfterYear2 = purchasePrice - twoYearRentalTotal
+    const extraMonths = remainingAfterYear2 / effectiveMonthly3ans
+    const months = 24 + extraMonths
 
     return {
       breakEvenMonths: months,

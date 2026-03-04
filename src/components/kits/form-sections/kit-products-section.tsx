@@ -104,10 +104,10 @@ export function KitProductsSection({ control, errors, onError }: KitProductsSect
   }
 
   const updateQuantity = (index: number, delta: number) => {
-    const field = fields[index]
-    if (!field) return
-    const newQuantity = Math.max(1, (field.quantite || 1) + delta)
-    update(index, { ...field, quantite: newQuantity })
+    const current = watchedProducts?.[index]
+    if (!current) return
+    const newQuantity = Math.max(1, (current.quantite || 1) + delta)
+    update(index, { ...current, quantite: newQuantity })
   }
 
   // Calculate totals with useMemo for performance optimization
@@ -289,8 +289,10 @@ export function KitProductsSection({ control, errors, onError }: KitProductsSect
                                   value={field.quantite}
                                   onChange={(e) => {
                                     const value = Number(e.target.value) || 1
+                                    const current = watchedProducts?.[index]
+                                    if (!current) return
                                     update(index, {
-                                      ...field,
+                                      ...current,
                                       quantite: Math.max(1, value),
                                     })
                                   }}

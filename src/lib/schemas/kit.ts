@@ -19,8 +19,7 @@ export const kitSchema = z.object({
     .number()
     .min(0, 'La surface doit être positive')
     .max(10000, 'La surface ne peut pas dépasser 10 000 m²')
-    .optional()
-    .or(z.literal(0).transform(() => undefined)), // Allow 0 to be treated as undefined
+    .optional(),
   products: z.array(kitProductSchema).min(1, 'Au moins un produit est requis'),
 })
 

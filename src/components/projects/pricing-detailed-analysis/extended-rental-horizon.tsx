@@ -60,7 +60,8 @@ export function ExtendedRentalHorizon({
     const tier1Months = 36
     const tier1Subtotal = ceilPrice(monthly3ans * tier1Months)
     const tier2Months = (selectedHorizon - 3) * 12
-    const tier2Subtotal = ceilPrice(postThreeYearMonthly * tier2Months)
+    // Derive tier2 from total - tier1 to ensure subtotals always sum to the displayed total
+    const tier2Subtotal = ceilPrice(totalCost - tier1Subtotal)
 
     return {
       tiers: [
@@ -120,7 +121,7 @@ export function ExtendedRentalHorizon({
             <Slider
               value={[selectedHorizon]}
               onValueChange={(values) => {
-                if (values[0] !== undefined) onHorizonChange(values[0])
+                if (values[0] !== undefined) onHorizonChange(Math.round(values[0]))
               }}
               min={MIN_HORIZON}
               max={MAX_HORIZON}

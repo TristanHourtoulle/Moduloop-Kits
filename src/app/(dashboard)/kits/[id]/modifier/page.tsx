@@ -42,7 +42,7 @@ export default async function EditKitPage({
     nom: kitData.nom,
     style: kitData.style,
     description: kitData.description || undefined,
-    surfaceM2: kitData.surfaceM2 || undefined,
+    surfaceM2: kitData.surfaceM2 ?? undefined,
     products: kitData.kitProducts.map((kp) => ({
       productId: kp.product.id,
       quantite: kp.quantite,

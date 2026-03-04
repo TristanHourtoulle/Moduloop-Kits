@@ -144,7 +144,7 @@ export function PricingEnvironmentalSection({
                 type="number"
                 step="0.001"
                 {...register('margeCoefficientAchat', {
-                  setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                  setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                 })}
                 placeholder="Ex: 1.2"
                 min="1"
@@ -202,7 +202,7 @@ export function PricingEnvironmentalSection({
                   type="number"
                   step="0.01"
                   {...register('prixAchatAchat1An', {
-                    setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                    setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                   })}
                   placeholder="250.00"
                   min="0"
@@ -224,7 +224,7 @@ export function PricingEnvironmentalSection({
                   type="number"
                   step="0.01"
                   {...register('prixUnitaireAchat1An', {
-                    setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                    setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                   })}
                   placeholder="300.00"
                   min="0"
@@ -246,7 +246,7 @@ export function PricingEnvironmentalSection({
                   type="number"
                   step="0.01"
                   {...register('prixVenteAchat1An', {
-                    setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                    setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                   })}
                   placeholder="300.00"
                   min="0"
@@ -296,7 +296,7 @@ export function PricingEnvironmentalSection({
                 type="number"
                 step="0.001"
                 {...register('margeCoefficientLocation', {
-                  setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                  setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                 })}
                 placeholder="Ex: 1.2"
                 min="1"
@@ -357,7 +357,7 @@ export function PricingEnvironmentalSection({
                     type="number"
                     step="0.01"
                     {...register('prixAchatLocation1An', {
-                      setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                      setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                     })}
                     placeholder="250.00"
                     min="0"
@@ -379,7 +379,7 @@ export function PricingEnvironmentalSection({
                     type="number"
                     step="0.01"
                     {...register('prixUnitaireLocation1An', {
-                      setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                      setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                     })}
                     placeholder="300.00"
                     min="0"
@@ -401,7 +401,7 @@ export function PricingEnvironmentalSection({
                     type="number"
                     step="0.01"
                     {...register('prixVenteLocation1An', {
-                      setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                      setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                     })}
                     placeholder="300.00"
                     min="0"
@@ -448,7 +448,7 @@ export function PricingEnvironmentalSection({
                     type="number"
                     step="0.01"
                     {...register('prixAchatLocation2Ans', {
-                      setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                      setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                     })}
                     placeholder="450.00"
                     min="0"
@@ -470,7 +470,7 @@ export function PricingEnvironmentalSection({
                     type="number"
                     step="0.01"
                     {...register('prixUnitaireLocation2Ans', {
-                      setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                      setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                     })}
                     placeholder="540.00"
                     min="0"
@@ -492,7 +492,7 @@ export function PricingEnvironmentalSection({
                     type="number"
                     step="0.01"
                     {...register('prixVenteLocation2Ans', {
-                      setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                      setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                     })}
                     placeholder="540.00"
                     min="0"
@@ -539,7 +539,7 @@ export function PricingEnvironmentalSection({
                     type="number"
                     step="0.01"
                     {...register('prixAchatLocation3Ans', {
-                      setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                      setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                     })}
                     placeholder="650.00"
                     min="0"
@@ -561,7 +561,7 @@ export function PricingEnvironmentalSection({
                     type="number"
                     step="0.01"
                     {...register('prixUnitaireLocation3Ans', {
-                      setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                      setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                     })}
                     placeholder="780.00"
                     min="0"
@@ -583,7 +583,7 @@ export function PricingEnvironmentalSection({
                     type="number"
                     step="0.01"
                     {...register('prixVenteLocation3Ans', {
-                      setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                      setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                     })}
                     placeholder="780.00"
                     min="0"
@@ -625,7 +625,7 @@ export function PricingEnvironmentalSection({
                 type="number"
                 step="0.000001"
                 {...register('rechauffementClimatiqueLocation', {
-                  setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                  setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                 })}
                 placeholder="50.2"
                 className={`transition-colors ${
@@ -651,7 +651,7 @@ export function PricingEnvironmentalSection({
                 type="number"
                 step="0.000001"
                 {...register('epuisementRessourcesLocation', {
-                  setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                  setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                 })}
                 placeholder="800.0"
                 className={`transition-colors ${
@@ -677,7 +677,7 @@ export function PricingEnvironmentalSection({
                 type="number"
                 step="0.000001"
                 {...register('acidificationLocation', {
-                  setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                  setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                 })}
                 placeholder="0.15"
                 className={`transition-colors ${
@@ -703,7 +703,7 @@ export function PricingEnvironmentalSection({
                 type="number"
                 step="0.000001"
                 {...register('eutrophisationLocation', {
-                  setValueAs: (v) => (v === '' || v === null ? undefined : Number(v)),
+                  setValueAs: (v) => (v === '' || v === null ? null : Number(v)),
                 })}
                 placeholder="0.03"
                 className={`transition-colors ${

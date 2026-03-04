@@ -46,7 +46,8 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
   const [selectedHorizon, setSelectedHorizon] = useState(5)
 
   const handleHorizonChange = useCallback((years: number) => {
-    setSelectedHorizon(years)
+    const safeYears = Math.round(Math.max(1, Math.min(15, years)))
+    if (!Number.isNaN(safeYears)) setSelectedHorizon(safeYears)
   }, [])
 
   const currentData =
@@ -254,7 +255,7 @@ function ProfitabilityBreakdown({
               <p className="text-sm font-medium text-amber-700">
                 {selectedMode === 'achat'
                   ? "Analyse pour l'achat de produits neufs"
-                  : `Analyse pour la location ${PERIOD_LABELS[selectedPeriod].toLowerCase()}`}
+                  : `Analyse pour la location ${PERIOD_LABELS[selectedPeriod].toLowerCase()} (valeurs mensuelles)`}
               </p>
             </div>
           </div>

@@ -14,6 +14,7 @@ import {
   getProductEnvironmentalImpact,
   formatPrice as formatPriceHelper,
   ceilPrice,
+  annualToMonthly,
 } from '@/lib/utils/product-helpers'
 import { QuantityEditor } from './shared/quantity-editor'
 import { EnvironmentalImpactGrid } from './shared/environmental-impact-grid'
@@ -155,7 +156,7 @@ export function ProjectKitCard({
                   {kitImpact.surface > 0 && (
                     <div className="mt-1 text-xs text-gray-500">
                       {ceilPrice(kitPrice / kitImpact.surface).toLocaleString('fr-FR', {
-                        minimumFractionDigits: 0,
+                        minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                       €/m²
@@ -202,7 +203,7 @@ export function ProjectKitCard({
                               <div className="text-right">
                                 <div className="flex items-baseline gap-1">
                                   <span className="text-lg font-bold text-[#30C1BD]">
-                                    {formatPriceHelper(price)}
+                                    {formatPriceHelper(annualToMonthly(price))}
                                   </span>
                                   <Badge
                                     variant="outline"
@@ -212,21 +213,23 @@ export function ProjectKitCard({
                                   </Badge>
                                 </div>
                                 <div className="text-xs text-gray-400">
-                                  {formatPriceHelper(price * 12)} /an
+                                  {formatPriceHelper(price)} /an
                                 </div>
                               </div>
                             </div>
                           ))}
                           {kitImpact.surface > 0 &&
                             (() => {
-                              const monthlyPerM2 = ceilPrice(price3ans / kitImpact.surface)
-                              const annualPerM2 = ceilPrice(monthlyPerM2 * 12)
+                              const monthlyPerM2 = ceilPrice(
+                                annualToMonthly(price3ans) / kitImpact.surface,
+                              )
+                              const annualPerM2 = ceilPrice(price3ans / kitImpact.surface)
                               return (
                                 <div className="mt-2 border-t border-gray-200 pt-2 text-xs text-gray-500">
                                   <div>
                                     Prix/m² :{' '}
                                     {monthlyPerM2.toLocaleString('fr-FR', {
-                                      minimumFractionDigits: 0,
+                                      minimumFractionDigits: 2,
                                       maximumFractionDigits: 2,
                                     })}
                                     €/mois
@@ -234,7 +237,7 @@ export function ProjectKitCard({
                                   </div>
                                   <div className="text-gray-400">
                                     {annualPerM2.toLocaleString('fr-FR', {
-                                      minimumFractionDigits: 0,
+                                      minimumFractionDigits: 2,
                                       maximumFractionDigits: 2,
                                     })}
                                     €/an
@@ -420,15 +423,15 @@ export function ProjectKitCard({
                                   {pricing.prixVente && pricing.prixVente > 0 ? (
                                     <>
                                       <div className="font-bold text-emerald-900">
-                                        {formatPriceHelper(pricing.prixVente * kitProduct.quantite)}
+                                        {formatPriceHelper(
+                                          annualToMonthly(pricing.prixVente * kitProduct.quantite),
+                                        )}
                                         <span className="text-[10px] font-normal text-emerald-600">
                                           /mois
                                         </span>
                                       </div>
                                       <div className="text-[10px] text-gray-400">
-                                        {formatPriceHelper(
-                                          pricing.prixVente * kitProduct.quantite * 12,
-                                        )}{' '}
+                                        {formatPriceHelper(pricing.prixVente * kitProduct.quantite)}{' '}
                                         /an
                                       </div>
                                     </>
