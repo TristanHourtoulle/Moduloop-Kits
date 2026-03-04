@@ -20,19 +20,22 @@ const EMPTY_IMPACT: KitImpactResult = {
 
 /**
  * Aggregate environmental impact for all products in a kit.
+ * Surface always comes from kit.surfaceM2, never from individual products.
  * @param kitProducts - The list of products with quantities in the kit
  * @param mode - Purchase or rental mode
+ * @param kitSurfaceM2 - Kit-level surface in m²
  * @returns Aggregated environmental impact values and surface
  */
 export function calculateKitImpact(
   kitProducts: KitProduct[],
   mode: PurchaseRentalMode,
+  kitSurfaceM2?: number | null,
 ): KitImpactResult {
   if (!kitProducts || kitProducts.length === 0) {
-    return { ...EMPTY_IMPACT }
+    return { ...EMPTY_IMPACT, surface: kitSurfaceM2 ?? 0 }
   }
 
-  return kitProducts.reduce<KitImpactResult>(
+  const result = kitProducts.reduce<KitImpactResult>(
     (acc, kitProduct) => {
       const product = kitProduct.product
       if (!product) return acc
@@ -46,11 +49,15 @@ export function calculateKitImpact(
           acc.epuisementRessources + (impact.epuisementRessources || 0) * kitProduct.quantite,
         acidification: acc.acidification + (impact.acidification || 0) * kitProduct.quantite,
         eutrophisation: acc.eutrophisation + (impact.eutrophisation || 0) * kitProduct.quantite,
-        surface: acc.surface + (product.surfaceM2 || 0) * kitProduct.quantite,
+        surface: 0,
       }
     },
     { ...EMPTY_IMPACT },
   )
+
+  result.surface = kitSurfaceM2 ?? 0
+
+  return result
 }
 
 /**

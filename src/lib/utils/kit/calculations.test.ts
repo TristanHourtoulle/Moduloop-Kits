@@ -65,7 +65,7 @@ describe('calculateKitPrice', () => {
 })
 
 describe('calculateKitImpact', () => {
-  it('returns all zeros for empty array', () => {
+  it('returns all zeros for empty array without kitSurfaceM2', () => {
     const impact = calculateKitImpact([], 'achat')
     expect(impact).toEqual({
       rechauffementClimatique: 0,
@@ -76,13 +76,18 @@ describe('calculateKitImpact', () => {
     })
   })
 
+  it('returns kitSurfaceM2 for empty array when provided', () => {
+    const impact = calculateKitImpact([], 'achat', 42)
+    expect(impact.surface).toBe(42)
+  })
+
   it('returns all zeros for null input', () => {
     const impact = calculateKitImpact(null as unknown as KitProduct[], 'achat')
     expect(impact.rechauffementClimatique).toBe(0)
     expect(impact.surface).toBe(0)
   })
 
-  it('aggregates impact for single product', () => {
+  it('uses kitSurfaceM2 instead of product surfaceM2', () => {
     const kitProducts = [
       makeKitProduct(2, {
         rechauffementClimatiqueAchat: 10,
@@ -92,15 +97,15 @@ describe('calculateKitImpact', () => {
         surfaceM2: 5,
       }),
     ]
-    const impact = calculateKitImpact(kitProducts, 'achat')
+    const impact = calculateKitImpact(kitProducts, 'achat', 25)
     expect(impact.rechauffementClimatique).toBe(20) // 10 * 2
     expect(impact.epuisementRessources).toBe(40) // 20 * 2
     expect(impact.acidification).toBe(60) // 30 * 2
     expect(impact.eutrophisation).toBe(80) // 40 * 2
-    expect(impact.surface).toBe(10) // 5 * 2
+    expect(impact.surface).toBe(25) // kit.surfaceM2, NOT product-level
   })
 
-  it('sums impact across multiple products', () => {
+  it('sums impact across multiple products but uses kit surface', () => {
     const kitProducts = [
       makeKitProduct(1, {
         rechauffementClimatiqueAchat: 10,
@@ -111,9 +116,9 @@ describe('calculateKitImpact', () => {
         surfaceM2: 2,
       }),
     ]
-    const impact = calculateKitImpact(kitProducts, 'achat')
+    const impact = calculateKitImpact(kitProducts, 'achat', 30)
     expect(impact.rechauffementClimatique).toBe(25) // 10*1 + 5*3
-    expect(impact.surface).toBe(11) // 5*1 + 2*3
+    expect(impact.surface).toBe(30) // kit.surfaceM2, NOT 5*1+2*3
   })
 
   it('skips products without product data', () => {
@@ -133,9 +138,15 @@ describe('calculateKitImpact', () => {
     expect(impact.rechauffementClimatique).toBe(0)
   })
 
-  it('defaults surfaceM2 to 0 when missing', () => {
+  it('defaults surface to 0 when kitSurfaceM2 is not provided', () => {
     const kitProducts = [makeKitProduct(1, { rechauffementClimatiqueAchat: 10 })]
     const impact = calculateKitImpact(kitProducts, 'achat')
+    expect(impact.surface).toBe(0)
+  })
+
+  it('defaults surface to 0 when kitSurfaceM2 is null', () => {
+    const kitProducts = [makeKitProduct(1, { rechauffementClimatiqueAchat: 10 })]
+    const impact = calculateKitImpact(kitProducts, 'achat', null)
     expect(impact.surface).toBe(0)
   })
 
@@ -148,8 +159,9 @@ describe('calculateKitImpact', () => {
         eutrophisationLocation: 32,
       }),
     ]
-    const impact = calculateKitImpact(kitProducts, 'location')
+    const impact = calculateKitImpact(kitProducts, 'location', 50)
     expect(impact.rechauffementClimatique).toBe(16) // 8 * 2
     expect(impact.epuisementRessources).toBe(32)
+    expect(impact.surface).toBe(50) // kit.surfaceM2
   })
 })

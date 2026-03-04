@@ -34,12 +34,9 @@ export function calculateProjectTotals(project: Project): ProjectTotals {
   } else {
     for (const projectKit of project.projectKits ?? []) {
       const kit = projectKit.kit
-      if (!kit?.kitProducts) continue
+      if (!kit) continue
 
-      const kitSurface = kit.kitProducts.reduce((acc, kp) => {
-        return acc + (kp.product?.surfaceM2 ?? 0) * kp.quantite
-      }, 0)
-      totalSurface += kitSurface * projectKit.quantite
+      totalSurface += (kit.surfaceM2 ?? 0) * projectKit.quantite
     }
   }
 
