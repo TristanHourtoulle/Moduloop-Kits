@@ -108,7 +108,7 @@ const formatDate = (date: Date | string): string => {
  */
 export function ProjectCard({ project, onDelete }: ProjectCardProps) {
   // Local state for pricing mode
-  const [pricingMode, setPricingMode] = useState<ProjectCardPricingMode>('achat')
+  const [pricingMode, setPricingMode] = useState<ProjectCardPricingMode>('location')
 
   // Memoized status config
   const statusConfig = useMemo(() => {
@@ -163,18 +163,18 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
         >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger
-              value="achat"
-              className="data-[state=active]:bg-[#30C1BD] data-[state=active]:text-white"
-            >
-              <ShoppingCart className="mr-1.5 h-3.5 w-3.5" />
-              <span className="text-xs font-medium">Achat</span>
-            </TabsTrigger>
-            <TabsTrigger
               value="location"
               className="data-[state=active]:bg-[#30C1BD] data-[state=active]:text-white"
             >
               <Home className="mr-1.5 h-3.5 w-3.5" />
               <span className="text-xs font-medium">Location 3 ans</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="achat"
+              className="data-[state=active]:bg-[#30C1BD] data-[state=active]:text-white"
+            >
+              <ShoppingCart className="mr-1.5 h-3.5 w-3.5" />
+              <span className="text-xs font-medium">Achat</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>

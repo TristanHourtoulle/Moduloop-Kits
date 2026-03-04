@@ -41,7 +41,7 @@ interface PricingDetailedAnalysisProps {
  */
 export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProps) {
   const canViewCosts = useCanViewCosts()
-  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat')
+  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('location')
   const [selectedPeriod, setSelectedPeriod] = useState<ProductPeriod>('1an')
   const [selectedHorizon, setSelectedHorizon] = useState(5)
 
@@ -76,17 +76,6 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
           </div>
           <div className="flex space-x-3 rounded-2xl bg-gray-100 p-1">
             <Button
-              variant={selectedMode === 'achat' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedMode('achat')}
-              className={`flex items-center gap-2 ${
-                selectedMode === 'achat' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
-              }`}
-            >
-              <ShoppingCart className="h-4 w-4" />
-              Achat
-            </Button>
-            <Button
               variant={selectedMode === 'location' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setSelectedMode('location')}
@@ -96,6 +85,17 @@ export function PricingDetailedAnalysis({ project }: PricingDetailedAnalysisProp
             >
               <Home className="h-4 w-4" />
               Location
+            </Button>
+            <Button
+              variant={selectedMode === 'achat' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedMode('achat')}
+              className={`flex items-center gap-2 ${
+                selectedMode === 'achat' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
+              }`}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Achat
             </Button>
           </div>
         </div>

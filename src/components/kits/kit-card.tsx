@@ -47,7 +47,7 @@ interface KitCardProps {
 
 export function KitCard({ kit, onDelete }: KitCardProps) {
   const router = useRouter()
-  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat')
+  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('location')
 
   // Calculate total price based on selected mode and period
   const totalPriceAchat = useMemo(() => {
@@ -205,17 +205,6 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
         {/* Sélecteur de mode */}
         <div className="mb-4 flex gap-1">
           <Button
-            variant={selectedMode === 'achat' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedMode('achat')}
-            className={`h-7 flex-1 px-2 text-xs ${
-              selectedMode === 'achat' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
-            }`}
-          >
-            <ShoppingCart className="mr-1 h-3 w-3" />
-            Achat
-          </Button>
-          <Button
             variant={selectedMode === 'location' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setSelectedMode('location')}
@@ -225,6 +214,17 @@ export function KitCard({ kit, onDelete }: KitCardProps) {
           >
             <Home className="mr-1 h-3 w-3" />
             Location
+          </Button>
+          <Button
+            variant={selectedMode === 'achat' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedMode('achat')}
+            className={`h-7 flex-1 px-2 text-xs ${
+              selectedMode === 'achat' ? 'bg-[#30C1BD] hover:bg-[#30C1BD]/90' : ''
+            }`}
+          >
+            <ShoppingCart className="mr-1 h-3 w-3" />
+            Achat
           </Button>
         </div>
 

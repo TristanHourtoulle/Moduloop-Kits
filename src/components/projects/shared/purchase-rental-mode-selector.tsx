@@ -23,19 +23,6 @@ export function PurchaseRentalModeSelector({
       <span className="text-sm font-medium text-gray-700">Mode :</span>
       <div className="flex space-x-1 rounded-2xl bg-gray-100 p-1">
         <Button
-          variant={mode === 'achat' ? 'default' : 'ghost'}
-          size="sm"
-          onClick={() => onModeChange('achat')}
-          className={`flex items-center gap-2 transition-all duration-200 ${
-            mode === 'achat'
-              ? 'bg-[#30C1BD] text-white shadow-sm hover:bg-[#30C1BD]/90'
-              : 'hover:bg-white/60'
-          }`}
-        >
-          <ShoppingCart className="h-4 w-4" />
-          Achat
-        </Button>
-        <Button
           variant={mode === 'location' ? 'default' : 'ghost'}
           size="sm"
           onClick={() => onModeChange('location')}
@@ -47,6 +34,19 @@ export function PurchaseRentalModeSelector({
         >
           <Home className="h-4 w-4" />
           Location
+        </Button>
+        <Button
+          variant={mode === 'achat' ? 'default' : 'ghost'}
+          size="sm"
+          onClick={() => onModeChange('achat')}
+          className={`flex items-center gap-2 transition-all duration-200 ${
+            mode === 'achat'
+              ? 'bg-[#30C1BD] text-white shadow-sm hover:bg-[#30C1BD]/90'
+              : 'hover:bg-white/60'
+          }`}
+        >
+          <ShoppingCart className="h-4 w-4" />
+          Achat
         </Button>
       </div>
     </div>

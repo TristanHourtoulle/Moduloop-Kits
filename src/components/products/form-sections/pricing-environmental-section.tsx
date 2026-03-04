@@ -24,7 +24,7 @@ export function PricingEnvironmentalSection({
   setValue,
   errors,
 }: PricingEnvironmentalSectionProps) {
-  const [activeMode, setActiveMode] = useState<PurchaseRentalMode>('achat')
+  const [activeMode, setActiveMode] = useState<PurchaseRentalMode>('location')
 
   // Watch des valeurs pour les calculs automatiques
   const watchedValues = {
@@ -790,24 +790,6 @@ export function PricingEnvironmentalSection({
               <TabsList className="inline-flex h-12 min-w-full items-center justify-center rounded-2xl border border-gray-200/50 bg-gradient-to-r from-gray-50 via-white to-gray-50 p-1 text-gray-500 shadow-lg backdrop-blur-sm lg:min-w-0">
                 <div className="flex w-full space-x-1 lg:w-auto">
                   <TabsTrigger
-                    value="achat"
-                    className="group relative inline-flex min-w-0 flex-1 items-center justify-center rounded-xl px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-300 hover:bg-white/60 hover:text-gray-900 focus-visible:ring-2 focus-visible:ring-[#30C1BD] focus-visible:ring-offset-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:border data-[state=active]:border-gray-200/80 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-lg lg:min-w-max lg:flex-initial"
-                  >
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#30C1BD]/0 to-blue-500/0 opacity-0 transition-opacity duration-300 data-[state=active]:opacity-5"></div>
-                    <ShoppingCart
-                      className={`mr-2 h-4 w-4 transition-colors duration-200 ${
-                        activeMode === 'achat' ? 'text-[#30C1BD]' : ''
-                      }`}
-                    />
-                    <span className="text-sm font-medium">Achat</span>
-                    <div
-                      className={`absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 transform rounded-full bg-gradient-to-r from-[#30C1BD] to-blue-500 transition-all duration-300 ${
-                        activeMode === 'achat' ? 'w-8' : 'w-0'
-                      }`}
-                    ></div>
-                  </TabsTrigger>
-
-                  <TabsTrigger
                     value="location"
                     className="group relative inline-flex min-w-0 flex-1 items-center justify-center rounded-xl px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-300 hover:bg-white/60 hover:text-gray-900 focus-visible:ring-2 focus-visible:ring-[#30C1BD] focus-visible:ring-offset-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:border data-[state=active]:border-gray-200/80 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-lg lg:min-w-max lg:flex-initial"
                   >
@@ -821,6 +803,24 @@ export function PricingEnvironmentalSection({
                     <div
                       className={`absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 transform rounded-full bg-gradient-to-r from-[#30C1BD] to-blue-500 transition-all duration-300 ${
                         activeMode === 'location' ? 'w-8' : 'w-0'
+                      }`}
+                    ></div>
+                  </TabsTrigger>
+
+                  <TabsTrigger
+                    value="achat"
+                    className="group relative inline-flex min-w-0 flex-1 items-center justify-center rounded-xl px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-300 hover:bg-white/60 hover:text-gray-900 focus-visible:ring-2 focus-visible:ring-[#30C1BD] focus-visible:ring-offset-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:border data-[state=active]:border-gray-200/80 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-lg lg:min-w-max lg:flex-initial"
+                  >
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#30C1BD]/0 to-blue-500/0 opacity-0 transition-opacity duration-300 data-[state=active]:opacity-5"></div>
+                    <ShoppingCart
+                      className={`mr-2 h-4 w-4 transition-colors duration-200 ${
+                        activeMode === 'achat' ? 'text-[#30C1BD]' : ''
+                      }`}
+                    />
+                    <span className="text-sm font-medium">Achat</span>
+                    <div
+                      className={`absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 transform rounded-full bg-gradient-to-r from-[#30C1BD] to-blue-500 transition-all duration-300 ${
+                        activeMode === 'achat' ? 'w-8' : 'w-0'
                       }`}
                     ></div>
                   </TabsTrigger>

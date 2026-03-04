@@ -54,7 +54,7 @@ const TAB_TRIGGER_CLASS =
  */
 export function ProjectDetail({ project, onProjectUpdate, refreshProject }: ProjectDetailProps) {
   const [isEditProjectDialogOpen, setIsEditProjectDialogOpen] = useState(false)
-  const [pricingMode, setPricingMode] = useState<PurchaseRentalMode>('achat')
+  const [pricingMode, setPricingMode] = useState<PurchaseRentalMode>('location')
   const [pricingPeriod, setPricingPeriod] = useState<ProductPeriod>('1an')
   const router = useRouter()
   const searchParams = useSearchParams()
