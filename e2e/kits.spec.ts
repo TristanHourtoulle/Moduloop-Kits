@@ -51,9 +51,19 @@ test.describe('Kit CRUD', () => {
   test('should navigate to kit form page', async ({ page }) => {
     await page.goto('/kits/nouveau')
 
-    // Verify the form page loads with expected sections
+    // Step 1: Verify general info section is visible
     await expect(page.getByRole('heading', { name: 'Nouveau kit' })).toBeVisible()
     await expect(page.getByText('Informations générales')).toBeVisible()
+
+    // Fill required step 1 fields to pass validation
+    await page.locator('#nom').fill('Test Kit')
+    await page.locator('#style').fill('Moderne')
+    await page.locator('#surfaceM2').fill('25')
+
+    // Navigate to step 2 by clicking "Suivant"
+    await page.getByRole('button', { name: /Suivant/ }).click()
+
+    // Step 2: Verify products section and submit button
     await expect(page.getByText('Produits du kit')).toBeVisible()
     await expect(page.getByTestId('kit-submit')).toBeVisible()
   })
@@ -92,18 +102,18 @@ test.describe('Kit CRUD', () => {
     // Navigate to edit page
     await page.goto(`/kits/${kit.id}/modifier`)
 
-    // Open general info accordion if needed
+    // Step 1: Update the name in general info
     const nomInput = page.locator('#nom')
-    if (!(await nomInput.isVisible())) {
-      await page.getByText('Informations générales').click()
-    }
+    await nomInput.waitFor({ state: 'visible', timeout: 10_000 })
 
-    // Change the name
     const updatedName = `Updated Kit ${Date.now()}`
     await nomInput.clear()
     await nomInput.fill(updatedName)
 
-    // Submit
+    // Navigate to step 2
+    await page.getByRole('button', { name: /Suivant/ }).click()
+
+    // Submit from step 2
     await page.getByTestId('kit-submit').click()
 
     // Should redirect to kits list

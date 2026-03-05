@@ -11,6 +11,7 @@ const TEST_ENV = {
   AUTH_SECRET: 'e2e-test-secret-not-for-production',
   NEXTAUTH_SECRET: 'e2e-test-nextauth-secret',
   NEXT_PUBLIC_APP_URL: BASE_URL,
+  BETTER_AUTH_URL: BASE_URL,
   GOOGLE_CLIENT_ID: 'fake-google-client-id',
   GOOGLE_CLIENT_SECRET: 'fake-google-client-secret',
 }
@@ -37,6 +38,9 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
+    extraHTTPHeaders: {
+      Origin: BASE_URL,
+    },
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
