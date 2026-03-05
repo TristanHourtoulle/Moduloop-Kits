@@ -29,7 +29,7 @@ interface KitsTabProps {
  * @returns Tab with catalog browsing and project kit management
  */
 export function KitsTab({ projectKits, onAddKits, onUpdateQuantity, onRemoveKit }: KitsTabProps) {
-  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('achat')
+  const [selectedMode, setSelectedMode] = useState<PurchaseRentalMode>('location')
   const [showAddSection, setShowAddSection] = useState(false)
   const [availableKits, setAvailableKits] = useState<AvailableKit[]>([])
   const [searchTerm, setSearchTerm] = useState('')

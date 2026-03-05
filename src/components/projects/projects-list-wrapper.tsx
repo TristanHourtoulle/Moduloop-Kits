@@ -6,18 +6,36 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { FolderOpen } from 'lucide-react'
 import { type Project } from '@/lib/types/project'
+import { UserSelector } from '@/components/projects/user-selector'
 import { logger } from '@/lib/logger'
 
 interface ProjectsListWrapperProps {
   initialProjects: Project[]
+  selectedUserId?: string
 }
 
-function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
+function ProjectsListContent({ initialProjects, selectedUserId }: ProjectsListWrapperProps) {
   const [projects, setProjects] = useState<Project[]>(initialProjects)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     setProjects(initialProjects)
   }, [initialProjects])
+
+  const handleUserChange = useCallback(async (userId: string) => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/projects?userId=${encodeURIComponent(userId)}`)
+      if (response.ok) {
+        const data = await response.json()
+        setProjects(data)
+      }
+    } catch (error) {
+      logger.error('[ProjectsListWrapper] Error fetching projects for user', { error })
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   const handleDelete = useCallback(
     async (projectId: string) => {
@@ -30,7 +48,6 @@ function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
           throw new Error('Erreur lors de la suppression du projet')
         }
 
-        // Remove project from local state without refetch
         const updatedProjects = projects.filter((p) => p.id !== projectId)
         setProjects(updatedProjects)
       } catch (err) {
@@ -40,28 +57,35 @@ function ProjectsListContent({ initialProjects }: ProjectsListWrapperProps) {
     [projects],
   )
 
-  if (projects.length === 0) {
-    return (
-      <div className="py-12 text-center">
-        <div className="bg-muted/30 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
-          <FolderOpen className="text-muted-foreground h-8 w-8" />
-        </div>
-        <h3 className="text-foreground mb-2 text-lg font-semibold">Aucun projet trouvé</h3>
-        <p className="text-muted-foreground">Commencez par créer votre premier projet</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {projects.map((project) => (
-        <ProjectCard key={project.id} project={project} onDelete={handleDelete} />
-      ))}
+    <div className="space-y-6">
+      <UserSelector onUserChange={handleUserChange} selectedUserId={selectedUserId} />
+
+      {loading ? (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <ProjectCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : projects.length === 0 ? (
+        <div className="py-12 text-center">
+          <div className="bg-muted/30 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
+            <FolderOpen className="text-muted-foreground h-8 w-8" />
+          </div>
+          <h3 className="text-foreground mb-2 text-lg font-semibold">Aucun projet trouvé</h3>
+          <p className="text-muted-foreground">Commencez par créer votre premier projet</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} onDelete={handleDelete} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
-// Loading skeleton component
 function ProjectCardSkeleton() {
   return (
     <Card>
@@ -96,7 +120,6 @@ function ProjectCardSkeleton() {
   )
 }
 
-// Wrapper component with Suspense boundary
 export function ProjectsListWrapper(props: ProjectsListWrapperProps) {
   return (
     <Suspense

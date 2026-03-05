@@ -77,6 +77,7 @@ describe('PUT /api/kits/[id]', () => {
   const updateData = {
     nom: 'Updated Kit',
     style: 'modern',
+    surfaceM2: 25,
     products: [{ productId: 'p1', quantite: 3 }],
   }
 

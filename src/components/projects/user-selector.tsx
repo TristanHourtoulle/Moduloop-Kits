@@ -1,19 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Input } from '@/components/ui/input'
 import { RoleGuard } from '@/components/auth/role-guard'
 import { UserRole } from '@/lib/types/user'
-import { User } from 'lucide-react'
+import { User, Check, ChevronsUpDown, Search } from 'lucide-react'
 import { useSession } from '@/lib/auth-client'
 import { useRouter } from 'next/navigation'
+import { useDebounce } from '@/hooks/use-debounce'
 import { logger } from '@/lib/logger'
+import { cn } from '@/lib/utils'
 
 interface SimpleUser {
   id: string
@@ -29,55 +26,70 @@ interface UserSelectorProps {
 export function UserSelector({ onUserChange, selectedUserId }: UserSelectorProps) {
   const [users, setUsers] = useState<SimpleUser[]>([])
   const [loading, setLoading] = useState(true)
+  const [open, setOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const { data: session } = useSession()
   const router = useRouter()
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  // Utiliser l'userId passé en props ou l'utilisateur connecté
   const currentUserId = selectedUserId || session?.user?.id || ''
+  const debouncedSearch = useDebounce(searchQuery, 300)
 
   useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch('/api/users')
+        if (response.ok) {
+          const data = await response.json()
+          setUsers(data)
+        }
+      } catch (error) {
+        logger.error('Error loading users', { error })
+      } finally {
+        setLoading(false)
+      }
+    }
     fetchUsers()
   }, [])
 
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch('/api/users')
-      if (response.ok) {
-        const data = await response.json()
-        setUsers(data)
+  const filteredUsers = useMemo(() => {
+    if (!debouncedSearch) return users
+    const query = debouncedSearch.toLowerCase()
+    return users.filter(
+      (u) => u.name.toLowerCase().includes(query) || u.email.toLowerCase().includes(query),
+    )
+  }, [users, debouncedSearch])
+
+  const selectedUser = useMemo(
+    () => users.find((u) => u.id === currentUserId),
+    [users, currentUserId],
+  )
+
+  const handleSelect = useCallback(
+    (userId: string) => {
+      setOpen(false)
+      setSearchQuery('')
+
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        if (userId === session?.user?.id) {
+          url.searchParams.delete('userId')
+        } else {
+          url.searchParams.set('userId', userId)
+        }
+        router.push(url.pathname + url.search)
       }
-    } catch (error) {
-      logger.error('Error loading users', { error })
-    } finally {
-      setLoading(false)
-    }
-  }
 
-  const handleUserChange = (userId: string) => {
-    // Mettre à jour l'URL
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href)
-      if (userId === session?.user?.id) {
-        // Si c'est l'utilisateur connecté, supprimer le paramètre
-        url.searchParams.delete('userId')
-      } else {
-        url.searchParams.set('userId', userId)
-      }
-      router.push(url.pathname + url.search)
-    }
+      onUserChange(userId)
+    },
+    [session?.user?.id, router, onUserChange],
+  )
 
-    // Notifier le parent
-    onUserChange(userId)
-  }
-
-  const getCurrentUserName = () => {
-    const user = users.find((u) => u.id === currentUserId)
-    if (user) {
-      return user.name
-    }
-    // Si pas trouvé dans la liste, utiliser les infos de session
-    return session?.user?.name || session?.user?.email || 'Utilisateur actuel'
-  }
+  const displayLabel = loading
+    ? 'Chargement...'
+    : selectedUser
+      ? selectedUser.name
+      : session?.user?.name || 'Utilisateur actuel'
 
   return (
     <RoleGuard requiredRole={UserRole.DEV}>
@@ -86,23 +98,66 @@ export function UserSelector({ onUserChange, selectedUserId }: UserSelectorProps
           <User className="h-4 w-4" />
           <span>Projets de :</span>
         </div>
-        <Select value={currentUserId} onValueChange={handleUserChange} disabled={loading}>
-          <SelectTrigger className="w-64">
-            <SelectValue placeholder={loading ? 'Chargement...' : 'Sélectionner un utilisateur'}>
-              {loading ? 'Chargement...' : getCurrentUserName()}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {users.map((user) => (
-              <SelectItem key={user.id} value={user.id}>
-                <div className="flex flex-col">
-                  <span className="font-medium">{user.name}</span>
-                  <span className="text-muted-foreground text-xs">{user.email}</span>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              disabled={loading}
+              className={cn(
+                'border-input bg-background ring-offset-background flex h-10 w-72 items-center justify-between rounded-md border px-3 py-2 text-sm',
+                'placeholder:text-muted-foreground focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+              )}
+            >
+              <span className="truncate">{displayLabel}</span>
+              <ChevronsUpDown className="text-muted-foreground ml-2 h-4 w-4 shrink-0" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-72 p-0" align="start">
+            <div className="border-b p-2">
+              <div className="flex items-center gap-2 px-1">
+                <Search className="text-muted-foreground h-4 w-4 shrink-0" />
+                <Input
+                  ref={inputRef}
+                  placeholder="Rechercher un utilisateur..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-8 border-0 p-0 shadow-none focus-visible:ring-0"
+                />
+              </div>
+            </div>
+            <div className="max-h-60 overflow-y-auto p-1">
+              {filteredUsers.length === 0 ? (
+                <div className="text-muted-foreground py-4 text-center text-sm">
+                  Aucun utilisateur trouvé
                 </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              ) : (
+                filteredUsers.map((user) => (
+                  <button
+                    key={user.id}
+                    type="button"
+                    onClick={() => handleSelect(user.id)}
+                    className={cn(
+                      'hover:bg-accent flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm',
+                      user.id === currentUserId && 'bg-accent',
+                    )}
+                  >
+                    <Check
+                      className={cn(
+                        'h-4 w-4 shrink-0',
+                        user.id === currentUserId ? 'opacity-100' : 'opacity-0',
+                      )}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium">{user.name}</div>
+                      <div className="text-muted-foreground truncate text-xs">{user.email}</div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
     </RoleGuard>
   )

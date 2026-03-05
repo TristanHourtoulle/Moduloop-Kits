@@ -43,7 +43,7 @@ export function AvailableKitCard({
   onQuantityChange,
   onToggleExpand,
 }: AvailableKitCardProps) {
-  const kitImpact = calculateKitImpact(kit.kitProducts, selectedMode)
+  const kitImpact = calculateKitImpact(kit.kitProducts, selectedMode, kit.surfaceM2)
   const kitPrice = calculateKitPrice(
     kit.kitProducts,
     selectedMode,

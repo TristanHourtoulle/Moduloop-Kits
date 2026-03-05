@@ -3,20 +3,39 @@ import { UserRole } from '@/lib/types/user'
 import { ProjectsListWrapper } from '@/components/projects/projects-list-wrapper'
 import { CreateProjectButton } from '@/components/projects/create-project-button'
 import { FolderOpen } from 'lucide-react'
-import { getProjects } from '@/lib/db'
-import { getCurrentUserId } from '@/lib/auth-helpers'
+import { getProjects, prisma } from '@/lib/db'
+import { getUserSession } from '@/lib/auth-helpers'
+import { isAdminOrDev } from '@/lib/utils/roles'
 
 // Disable all caching for this page
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export default async function ProjectsPage() {
-  // Get current user ID from session
-  const userId = await getCurrentUserId()
+interface ProjectsPageProps {
+  searchParams: Promise<{ userId?: string }>
+}
 
-  // Fetch projects directly from database using Prisma
-  // If no userId, return empty array (user not authenticated)
-  const projects = userId ? await getProjects(userId) : []
+export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
+  const session = await getUserSession()
+  const currentUserId = session?.user?.id || null
+
+  const params = await searchParams
+  const requestedUserId = params.userId
+
+  // Resolve role from DB (session may not include it server-side)
+  let canViewOtherUsers = false
+  if (currentUserId) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: currentUserId },
+      select: { role: true },
+    })
+    const role = (dbUser?.role as UserRole | undefined) ?? UserRole.USER
+    canViewOtherUsers = isAdminOrDev(role)
+  }
+
+  const targetUserId = requestedUserId && canViewOtherUsers ? requestedUserId : currentUserId
+
+  const projects = targetUserId ? await getProjects(targetUserId) : []
 
   return (
     <RoleGuard requiredRole={UserRole.USER}>
@@ -38,7 +57,10 @@ export default async function ProjectsPage() {
           </div>
 
           {/* Client wrapper for projects list */}
-          <ProjectsListWrapper initialProjects={projects} />
+          <ProjectsListWrapper
+            initialProjects={projects}
+            selectedUserId={targetUserId || undefined}
+          />
         </div>
       </div>
     </RoleGuard>

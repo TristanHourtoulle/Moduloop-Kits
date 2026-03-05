@@ -76,6 +76,7 @@ describe('POST /api/kits', () => {
   const validKit = {
     nom: 'New Kit',
     style: 'modern',
+    surfaceM2: 25,
     products: [{ productId: 'p1', quantite: 2 }],
   }
 
@@ -138,6 +139,7 @@ describe('POST /api/kits', () => {
     const kitWithDupes = {
       nom: 'Kit Dupes',
       style: 'modern',
+      surfaceM2: 30,
       products: [
         { productId: 'p1', quantite: 2 },
         { productId: 'p1', quantite: 3 },
