@@ -70,7 +70,7 @@ importers:
         version: 4.3.2(react@19.2.0)
       better-auth:
         specifier: ^1.5.1
-        version: 1.5.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(drizzle-orm@0.45.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2)))(mongodb@7.1.0)(next@16.0.8(@babel/core@7.28.5)(@playwright/test@1.58.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(prisma@6.13.0(typescript@5.9.2))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@4.0.18(@types/node@20.19.10)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.2))
+        version: 1.5.1(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(drizzle-orm@0.45.1(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2)))(mongodb@7.1.0)(next@16.0.8(@babel/core@7.28.5)(@playwright/test@1.58.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(prisma@6.13.0(typescript@5.9.2))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@4.0.18(@types/node@20.19.10)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.2))
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -112,8 +112,8 @@ importers:
         specifier: ^1.58.2
         version: 1.58.2
       '@prisma/client':
-        specifier: ^6.13.0
-        version: 6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)
+        specifier: ^7.4.2
+        version: 7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.11
@@ -828,12 +828,15 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@prisma/client@6.13.0':
-    resolution: {integrity: sha512-8m2+I3dQovkV8CkDMluiwEV1TxV9EXdT6xaCz39O6jYw7mkf5gwfmi+cL4LJsEPwz5tG7sreBwkRpEMJedGYUQ==}
-    engines: {node: '>=18.18'}
+  '@prisma/client-runtime-utils@7.4.2':
+    resolution: {integrity: sha512-cID+rzOEb38VyMsx5LwJMEY4NGIrWCNpKu/0ImbeooQ2Px7TI+kOt7cm0NelxUzF2V41UVVXAmYjANZQtCu1/Q==}
+
+  '@prisma/client@7.4.2':
+    resolution: {integrity: sha512-ts2mu+cQHriAhSxngO3StcYubBGTWDtu/4juZhXCUKOwgh26l+s4KD3vT2kMUzFyrYnll9u/3qWrtzRv9CGWzA==}
+    engines: {node: ^20.19 || ^22.12 || >=24.0}
     peerDependencies:
       prisma: '*'
-      typescript: '>=5.1.0'
+      typescript: '>=5.4.0'
     peerDependenciesMeta:
       prisma:
         optional: true
@@ -4344,11 +4347,11 @@ snapshots:
       nanostores: 1.1.1
       zod: 4.3.6
 
-  '@better-auth/drizzle-adapter@1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(drizzle-orm@0.45.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2)))':
+  '@better-auth/drizzle-adapter@1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(drizzle-orm@0.45.1(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2)))':
     dependencies:
       '@better-auth/core': 1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1)
       '@better-auth/utils': 0.3.1
-      drizzle-orm: 0.45.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2))
+      drizzle-orm: 0.45.1(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2))
 
   '@better-auth/kysely-adapter@1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(kysely@0.28.11)':
     dependencies:
@@ -4367,11 +4370,11 @@ snapshots:
       '@better-auth/utils': 0.3.1
       mongodb: 7.1.0
 
-  '@better-auth/prisma-adapter@1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(prisma@6.13.0(typescript@5.9.2))':
+  '@better-auth/prisma-adapter@1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(prisma@6.13.0(typescript@5.9.2))':
     dependencies:
       '@better-auth/core': 1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1)
       '@better-auth/utils': 0.3.1
-      '@prisma/client': 6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)
+      '@prisma/client': 7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)
       prisma: 6.13.0(typescript@5.9.2)
 
   '@better-auth/telemetry@1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))':
@@ -4760,7 +4763,11 @@ snapshots:
     dependencies:
       playwright: 1.58.2
 
-  '@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)':
+  '@prisma/client-runtime-utils@7.4.2': {}
+
+  '@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)':
+    dependencies:
+      '@prisma/client-runtime-utils': 7.4.2
     optionalDependencies:
       prisma: 6.13.0(typescript@5.9.2)
       typescript: 5.9.2
@@ -6019,14 +6026,14 @@ snapshots:
 
   baseline-browser-mapping@2.8.28: {}
 
-  better-auth@1.5.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(drizzle-orm@0.45.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2)))(mongodb@7.1.0)(next@16.0.8(@babel/core@7.28.5)(@playwright/test@1.58.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(prisma@6.13.0(typescript@5.9.2))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@4.0.18(@types/node@20.19.10)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.2)):
+  better-auth@1.5.1(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(drizzle-orm@0.45.1(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2)))(mongodb@7.1.0)(next@16.0.8(@babel/core@7.28.5)(@playwright/test@1.58.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(prisma@6.13.0(typescript@5.9.2))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vitest@4.0.18(@types/node@20.19.10)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.2)):
     dependencies:
       '@better-auth/core': 1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1)
-      '@better-auth/drizzle-adapter': 1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(drizzle-orm@0.45.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2)))
+      '@better-auth/drizzle-adapter': 1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(drizzle-orm@0.45.1(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2)))
       '@better-auth/kysely-adapter': 1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(kysely@0.28.11)
       '@better-auth/memory-adapter': 1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)
       '@better-auth/mongo-adapter': 1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(mongodb@7.1.0)
-      '@better-auth/prisma-adapter': 1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(prisma@6.13.0(typescript@5.9.2))
+      '@better-auth/prisma-adapter': 1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))(@better-auth/utils@0.3.1)(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(prisma@6.13.0(typescript@5.9.2))
       '@better-auth/telemetry': 1.5.1(@better-auth/core@1.5.1(@better-auth/utils@0.3.1)(@better-fetch/fetch@1.1.21)(better-call@1.3.2(zod@4.0.17))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.1))
       '@better-auth/utils': 0.3.1
       '@better-fetch/fetch': 1.1.21
@@ -6039,8 +6046,8 @@ snapshots:
       nanostores: 1.1.1
       zod: 4.3.6
     optionalDependencies:
-      '@prisma/client': 6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)
-      drizzle-orm: 0.45.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2))
+      '@prisma/client': 7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)
+      drizzle-orm: 0.45.1(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2))
       mongodb: 7.1.0
       next: 16.0.8(@babel/core@7.28.5)(@playwright/test@1.58.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       prisma: 6.13.0(typescript@5.9.2)
@@ -6264,9 +6271,9 @@ snapshots:
 
   dotenv@16.6.1: {}
 
-  drizzle-orm@0.45.1(@prisma/client@6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2)):
+  drizzle-orm@0.45.1(@prisma/client@7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2))(kysely@0.28.11)(prisma@6.13.0(typescript@5.9.2)):
     optionalDependencies:
-      '@prisma/client': 6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)
+      '@prisma/client': 7.4.2(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)
       kysely: 0.28.11
       prisma: 6.13.0(typescript@5.9.2)
 
