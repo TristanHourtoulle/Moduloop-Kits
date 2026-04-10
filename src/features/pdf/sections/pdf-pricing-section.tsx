@@ -30,10 +30,10 @@ export function PdfPricingSection({ totalPrices, totalSurface }: PdfPricingSecti
           borderTopRightRadius: 6,
         }}
       >
-        <Text style={{ ...tw('text-xs font-bold'), color: '#ffffff', width: '20%' }}>Durée</Text>
+        <Text style={{ ...tw('text-base font-bold'), color: '#ffffff', width: '20%' }}>Durée</Text>
         <Text
           style={{
-            ...tw('text-xs font-bold text-right'),
+            ...tw('text-base font-bold text-right'),
             color: '#ffffff',
             width: '20%',
           }}
@@ -42,7 +42,7 @@ export function PdfPricingSection({ totalPrices, totalSurface }: PdfPricingSecti
         </Text>
         <Text
           style={{
-            ...tw('text-xs font-bold text-right'),
+            ...tw('text-base font-bold text-right'),
             color: '#ffffff',
             width: '20%',
           }}
@@ -53,7 +53,7 @@ export function PdfPricingSection({ totalPrices, totalSurface }: PdfPricingSecti
           <>
             <Text
               style={{
-                ...tw('text-xs font-bold text-right'),
+                ...tw('text-base font-bold text-right'),
                 color: '#ffffff',
                 width: '20%',
               }}
@@ -62,7 +62,7 @@ export function PdfPricingSection({ totalPrices, totalSurface }: PdfPricingSecti
             </Text>
             <Text
               style={{
-                ...tw('text-xs font-bold text-right'),
+                ...tw('text-base font-bold text-right'),
                 color: '#ffffff',
                 width: '20%',
               }}
@@ -94,12 +94,12 @@ export function PdfPricingSection({ totalPrices, totalSurface }: PdfPricingSecti
               ...(isLast ? { borderBottomLeftRadius: 6, borderBottomRightRadius: 6 } : {}),
             }}
           >
-            <Text style={{ ...tw('text-xs font-bold text-gray-800'), width: '20%' }}>
+            <Text style={{ ...tw('text-base font-bold text-gray-800'), width: '20%' }}>
               {period.label}
             </Text>
             <Text
               style={{
-                ...tw('text-xs text-gray-800 text-right'),
+                ...tw('text-base text-gray-800 text-right'),
                 width: '20%',
               }}
             >
@@ -107,7 +107,7 @@ export function PdfPricingSection({ totalPrices, totalSurface }: PdfPricingSecti
             </Text>
             <Text
               style={{
-                ...tw('text-xs text-gray-800 text-right'),
+                ...tw('text-base text-gray-800 text-right'),
                 width: '20%',
               }}
             >
@@ -117,7 +117,7 @@ export function PdfPricingSection({ totalPrices, totalSurface }: PdfPricingSecti
               <>
                 <Text
                   style={{
-                    ...tw('text-xs text-gray-800 text-right'),
+                    ...tw('text-base text-gray-800 text-right'),
                     width: '20%',
                   }}
                 >
@@ -125,7 +125,7 @@ export function PdfPricingSection({ totalPrices, totalSurface }: PdfPricingSecti
                 </Text>
                 <Text
                   style={{
-                    ...tw('text-xs text-gray-800 text-right'),
+                    ...tw('text-base text-gray-800 text-right'),
                     width: '20%',
                   }}
                 >
